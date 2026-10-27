@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M0 — Foundation |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-009-render-deployment` |
 | Design | not needed |
 
@@ -19,7 +19,7 @@ The app runs in production from `main`, and only from `main`.
 - [x] `render.yaml`: web service tracks `main` and deploys only after GitHub checks pass; Storybook static site
 - [x] Secrets set as Render environment variables
 - [x] Keep-awake ping on cron-job.org: `/api/health` every 14 min, 07:00–23:00 Kyiv
-- [ ] Memory use (in CI with a 512 MB limit: Render's free plan has no metrics) and cold-start time measured
+- [x] Memory use (in CI with a 512 MB limit: Render's free plan has no metrics) and cold-start time measured
   and written down here
 
 ## Tasks
@@ -33,7 +33,7 @@ The app runs in production from `main`, and only from `main`.
 - [x] First release: `develop` → `main` (PR #10)
 - [x] Set up keep-awake job (owner, see "Owner setup")
 - [x] Measure memory in CI: container limited to 512 MB, `docker stats` in the job summary
-- [ ] Measure and record
+- [x] Measure and record
 
 ## Tests
 
@@ -86,7 +86,7 @@ the free instance's 512 MB (job "Docker image", step "Memory use", shown in the 
 | Memory after start-up and the smoke test | CI, `docker stats` | 44 MiB of 512 MiB (9 %) |
 | Memory after 400 more requests | CI, `docker stats` | 57 MiB of 512 MiB (11 %) |
 | Warm request, `/api/health` and `/` | `curl -o /dev/null -w "%{time_total}" https://pup-budget-planner.onrender.com/api/health` | 0.15–0.17 s |
-| Cold start | the same command after ≥ 15 min idle (before 07:00 or with the cron job paused) | to measure |
+| Cold start | the same command after 17 min idle (cron job paused) | 23.4 s; the next requests 0.17–0.19 s |
 
 ## Notes
 

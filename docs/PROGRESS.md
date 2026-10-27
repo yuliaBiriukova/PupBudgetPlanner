@@ -13,10 +13,11 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   E2E 4/4 against the production URL.
 - Render's free plan has no metrics, so the CI "Docker image" job now runs the container with a 512 MB limit and
   reports `docker stats`: 44 MiB after start-up, 57 MiB after 400 requests. Image 251 MB; warm requests 0.15–0.17 s.
+- Cold start after 17 min idle (cron job paused): 23.4 s for the first request, then 0.17–0.19 s.
+- F-009 done; **M0 Foundation done.**
 
 **Next**
-- Measure the cold start (after ≥ 15 min idle), record it, mark F-009 and M0 Done.
-- M1: F-010 app shell and navigation.
+- M1: F-010 app shell and navigation (3 design prototypes first).
 
 ## 2026-10-27 (11)
 
