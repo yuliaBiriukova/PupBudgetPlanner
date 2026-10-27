@@ -2,21 +2,49 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (3)
+
+**Done**
+- Data model: enums documented (`TransactionType`, `CategoryKind`, `Currency`, `Institution`, `FamilyRole`,
+  `RateSource`), stored as text; consistency rules for transactions.
+- Change description files renamed from `README.md` to the folder name (`F-018-…/F-018-….md`);
+  backlog links point to them.
+- Rules added: squash merge for PRs into `develop` (merge commit for releases into `main`); every PR has a
+  short description of its changes (template in `.github/pull_request_template.md`); a folder and description
+  file are created as soon as a change is added to the plan.
+
+**Next**
+- Owner finishes reviewing the planning docs.
+- F-002: `gh auth login`, create the repo, configure merge settings, open the F-001 pull request.
+
+## 2026-10-27 (2)
+
+**Done**
+- Added the git workflow to `CLAUDE.md`: `main` (only deployed) ← `develop` ← `feature/F-…`,
+  `improvement/I-…`, `bugfix/B-…`; commit messages start with the ID; pre-push checklist.
+- Created `docs/changes/` with one folder per change and templates; 26 MVP features (F-001 – F-026)
+  replace the old `T-xxx` tasks.
+- Design process: 3 HTML prototypes per screen, stored in the change folder.
+- Hosting revised (ADR 0002): one Render service serving SPA + API — standard setup, least risk for
+  Google sign-in; keep-awake ping 07:00–23:00; Data Protection keys in the database.
+- Storybook: free Render static site.
+- All open questions answered.
+- Branches `develop` and `feature/F-001-planning-docs` created locally.
+
+**Next**
+- F-002: owner runs `gh auth login`, then create the repo, push, open the F-001 pull request.
+- F-003 / F-004: scaffold backend and frontend.
+
 ## 2026-10-27
 
 **Done**
 - Analysed the Google Sheets budget (Yulia 2026, Vlad 2026) and derived the default categories and the report layout.
 - Agreed on the stack: ASP.NET Core (.NET 10) + React/TypeScript + Mantine, PostgreSQL on Neon, hosting on Render,
   GitHub Actions CI, Identity with Google sign-in, NBU exchange rates, Playwright for UI tests, Storybook.
-- Created the repository with planning documents and ADRs 0001–0006 (T-001).
+- Created the repository with planning documents and ADRs 0001–0006.
 - Installed the GitHub CLI.
 
 **Decisions**
 - Integration tests and email (Resend) moved to after the MVP; Google sign-in is in the MVP.
 - Categories are personal; removing default categories and private data are after the MVP.
 - One family per person. UI in English; Ukrainian later. Recurring transactions are out of scope.
-
-**Next**
-- T-002: create the private GitHub repo and push (needs `gh auth login` by the user).
-- Answer open questions Q-001…Q-004.
-- T-003 / T-004: scaffold backend and frontend.

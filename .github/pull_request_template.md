@@ -1,0 +1,26 @@
+<!-- Title: <ID>: <short description>, e.g. "F-012: Add expense form" -->
+
+## Summary
+
+<!-- One or two sentences: what this PR does and why. -->
+
+## Changes
+
+<!-- Short list of what was changed. -->
+-
+
+## Related
+
+- Change: <!-- link to docs/changes/<type>/<ID-name>/<ID-name>.md -->
+
+## Testing
+
+<!-- What was tested and how (unit, Playwright, manual). -->
+-
+
+## Checklist
+
+- [ ] Latest `develop` pulled into the branch
+- [ ] Build and all tests pass
+- [ ] Playwright output folders cleaned
+- [ ] Roadmap, backlog, progress and the change's description file updated

@@ -1,31 +1,34 @@
-# 0002. Hosting on Render with Neon PostgreSQL
+# 0002. Hosting on Render (one service) with Neon PostgreSQL
 
 - Status: Accepted
-- Date: 2026-10-27
+- Date: 2026-10-27 (revised the same day, before implementation: one service instead of
+  static site + API, to minimise risk around Google sign-in)
 
 ## Context
 
-Hosting must be free, simple, and the app should feel always available. Azure (App Service F1:
-sleeps, no custom domain, CPU quota) and Google Cloud Run were rejected by the owner as too complicated.
-No free option keeps a backend running 24/7 without managing a server yourself.
+Hosting must be free, simple, low-risk, and the app should feel always available. Google sign-in is
+a must-have and must work without surprises. Azure (App Service F1) and Google Cloud Run were rejected
+by the owner. No free option keeps a backend running 24/7 without managing a server yourself.
+
+A split setup (React on a Render static site proxying `/api/*` to the API) was considered: it opens
+instantly even when the API sleeps, but cookies and the Google OAuth callback would pass through Render's
+proxy — non-standard and a risk for sign-in.
 
 ## Decision
 
-- **Frontend:** Render **Static Site** (free, CDN, never sleeps).
-- **API:** Render **Web Service** (free, Docker image built by Render from `backend/`).
-  It sleeps after 15 minutes without traffic; waking up can take up to about a minute.
-- The static site **rewrites `/api/*`** to the API service URL, so the browser sees one origin
-  (no CORS, first-party auth cookie).
-- **Database:** **Neon** PostgreSQL free plan (0.5 GB, no expiry). Render's free PostgreSQL is not
-  used because it expires after 30 days.
-- **Storybook:** a second Render static site.
-- **Infrastructure as code:** `render.yaml` Blueprint; Render deploys `main` only after GitHub
-  checks pass.
+- **One Render Web Service (free)** running **one Docker container**: ASP.NET Core serves the React build
+  and the API (`/api`) from the same origin. Standard, well-documented setup for cookies and Google sign-in.
+- **Keep-awake ping:** a free cron-job.org job calls `/api/health` every 14 minutes from 07:00 to 23:00
+  Kyiv time (~500 of the 750 free instance hours per month). At night the service sleeps; the PWA opens from
+  its cache and shows "Waking up the server…".
+- **Database:** **Neon** PostgreSQL free plan (0.5 GB, no expiry). Render's free PostgreSQL is not used
+  because it expires after 30 days.
+- **Storybook:** a separate free Render static site.
+- **Only `main` is deployed.** `render.yaml` Blueprint; Render deploys after GitHub checks pass.
 
 ## Consequences
 
-- The app opens instantly; only the first API call after idle time is slow (UI shows a "waking up" state).
-- Optional keep-awake ping during the day (Q-002).
-- Cookie and Google OAuth behavior through the rewrite must be verified (spike T-007).
-  **Fallback:** serve the SPA from the API container (one service, one origin).
-- Upgrading later (Render paid instance, ~$7/month) removes sleeping without code changes.
+- Least moving parts: one service, one origin, one Dockerfile.
+- Data Protection keys must be stored in the database (the container's disk is wiped on restart).
+- If the free tier stops being enough, switching the instance type to Starter (~$7/month) removes
+  sleeping with no code changes.
