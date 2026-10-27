@@ -54,10 +54,11 @@ This file tells Claude (and any human contributor) how we work on this project.
   - Description (from `.github/pull_request_template.md`): a short summary, the list of changes made,
     a link to the change's description file, and how it was tested.
   - No "Generated with Claude Code" (or similar tool attribution) line in PR descriptions.
-  - When squash-merging, remove any `Co-authored-by: Claude …` lines GitHub suggests in the commit message.
+  - When squash-merging, remove any `Co-authored-by: Claude …` line GitHub suggests in the commit message.
 - **Commit messages** start with the change ID and say briefly what was done:
   `F-012: Add expense form validation`, `B-007: Fix balance after transfer edit`.
-  No `Co-Authored-By: Claude …` (or other tool attribution) trailer in commit messages.
+  No `Co-authored-by: Claude Opus 5.5 <noreply@anthropic.com>` line (in any letter case) or other
+  tool attribution in commit messages.
 - **Before every push:**
   1. Pull the latest `develop` into the branch: `git pull origin develop` (merge, no rebase of pushed commits).
   2. Clean the Playwright output folders (`frontend/playwright-report/`, `frontend/test-results/`).
