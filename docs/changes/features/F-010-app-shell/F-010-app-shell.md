@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M1 — Authentication & app shell |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-010-app-shell` |
 | Design | 3 HTML prototypes required |
 
@@ -23,8 +23,9 @@ The frame of the app: navigation on mobile and desktop, theme, and the waking-up
 
 ## Tasks
 
-- [ ] Look at how Claude's UI collapses and resizes its sidebar (not done: needs a claude.ai sign-in; the
-      chosen pattern follows its known behaviour, the logo turning into the expand button)
+- [x] ~~Look at how Claude's UI collapses and resizes its sidebar~~ Dropped (owner, 2026-10-27): it needed a
+      claude.ai sign-in, and the chosen pattern already follows its known behaviour (the logo turning into the
+      expand button in the rail, drag-to-resize edge)
 - [x] 3 HTML prototypes (with the `design-screen` skill); round 3 block by block, mix chosen
 - [x] Implement layout components
 - [x] Routes with placeholder pages
@@ -46,7 +47,7 @@ describes the direction.
 All three: phone tab bar with Add in the centre and More (Family, Settings, theme); desktop sidebar with an
 icon button to collapse it to an icon rail, and a draggable edge (208–320 px, snaps to the rail when dragged
 narrow; keyboard: ← → and Enter); collapsed by default below 1024 px, the choice is remembered. Weights 300–500.
-Design check: no issues. Not yet compared with Claude's sidebar (sign-in to claude.ai pending).
+Design check: no issues. Not compared with Claude's sidebar side by side (dropped, see Tasks).
 
 ### Round 3: block by block (2026-10-27)
 

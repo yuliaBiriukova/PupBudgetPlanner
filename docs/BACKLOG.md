@@ -26,7 +26,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 | ID | Feature | Status |
 |----|---------|--------|
-| [F-010](changes/features/F-010-app-shell/F-010-app-shell.md) | 🎨 App shell and navigation | In progress |
+| [F-010](changes/features/F-010-app-shell/F-010-app-shell.md) | 🎨 App shell and navigation | Done |
 | [F-011](changes/features/F-011-email-password-auth/F-011-email-password-auth.md) | 🎨 Sign up and sign in with email and password | Todo |
 | [F-012](changes/features/F-012-google-sign-in/F-012-google-sign-in.md) | Sign in with Google | Todo |
 | [F-013](changes/features/F-013-default-categories/F-013-default-categories.md) | Default categories | Todo |
