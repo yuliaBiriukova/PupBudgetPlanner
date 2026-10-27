@@ -17,20 +17,22 @@ The app runs in production from `main`, and only from `main`.
 - [x] Multi-stage `Dockerfile` builds the React app and the API into one image
 - [x] ASP.NET Core serves the SPA (fallback to `index.html`) and the API under `/api`; forwarded headers enabled
 - [x] `render.yaml`: web service tracks `main` and deploys only after GitHub checks pass; Storybook static site
-- [ ] Secrets set as Render environment variables
-- [ ] Keep-awake ping on cron-job.org: `/api/health` every 14 min, 07:00–23:00 Kyiv
-- [ ] Memory use and cold-start time measured and written down here
+- [x] Secrets set as Render environment variables
+- [x] Keep-awake ping on cron-job.org: `/api/health` every 14 min, 07:00–23:00 Kyiv
+- [ ] Memory use (in CI with a 512 MB limit: Render's free plan has no metrics) and cold-start time measured
+  and written down here
 
 ## Tasks
 
-- [ ] Owner creates Render and cron-job.org accounts
+- [x] Owner creates Render and cron-job.org accounts
 - [x] Write Dockerfile
 - [x] Configure static files + SPA fallback
 - [x] Write `render.yaml`
 - [x] Build and smoke-test the image in CI (job "Docker image")
-- [ ] Connect repo in Render (owner, see "Owner setup")
-- [ ] First release: `develop` → `main`
-- [ ] Set up keep-awake job (owner, see "Owner setup")
+- [x] Connect repo in Render (owner, see "Owner setup")
+- [x] First release: `develop` → `main` (PR #10)
+- [x] Set up keep-awake job (owner, see "Owner setup")
+- [x] Measure memory in CI: container limited to 512 MB, `docker stats` in the job summary
 - [ ] Measure and record
 
 ## Tests

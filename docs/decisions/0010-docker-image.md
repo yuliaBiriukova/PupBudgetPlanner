@@ -27,6 +27,8 @@ proxy and redirects HTTP to HTTPS itself. There is no Docker on the owner's mach
 - **The image is checked in CI** (job "Docker image"): it is built and started against a PostgreSQL service
   container, and a smoke test checks `/api/health`, the SPA, a client route and an API 404. This replaces a
   local Docker check and runs before every deploy (Render deploys only after checks pass).
+- **Memory is measured in CI**, not on Render (the free plan has no metrics): the container runs with the free
+  instance's 512 MB limit and the job summary shows `docker stats` after start-up and after 400 requests.
 
 ## Consequences
 
