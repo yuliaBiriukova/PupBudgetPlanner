@@ -33,7 +33,23 @@ reports automatically — for yourself and for your whole family.
 
 ## Getting started
 
-Instructions will be added when the projects are scaffolded (F-003, F-004).
+### Backend
+
+Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (version pinned in
+`backend/global.json`).
+
+```bash
+cd backend
+dotnet build                                          # build everything (warnings are errors)
+dotnet test                                           # run all unit tests
+dotnet run --project src/PupBudgetPlanner.Api         # API on http://localhost:5297
+```
+
+In Development the OpenAPI document is at `http://localhost:5297/openapi/v1.json`.
+
+### Frontend
+
+Instructions will be added with the frontend scaffold (F-004).
 
 ## Branches
 
