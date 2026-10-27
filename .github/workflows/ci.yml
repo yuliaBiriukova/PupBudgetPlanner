@@ -181,10 +181,10 @@ jobs:
       - name: Build image
         run: docker build --tag pup-budget-planner:ci .
 
-      # Same settings as on Render, except the database: the throwaway one of this job.
+      # Same settings as on Render (incl. the free instance's 512 MB), except the database: the throwaway one of this job.
       - name: Start container
         run: >-
-          docker run --detach --name app --network host
+          docker run --detach --name app --network host --memory 512m
           --env ASPNETCORE_ENVIRONMENT=Production
           --env "ConnectionStrings__Database=Host=localhost;Port=5432;Database=pup_budget_planner;Username=postgres;Password=postgres"
           pup-budget-planner:ci
@@ -200,6 +200,22 @@ jobs:
           curl --silent --fail "$base/some/client/route" | grep --quiet '<div id="root">'
           test "$(curl --silent --output /dev/null --write-out '%{http_code}' "$base/api/no-such-endpoint")" = 404
           echo "Image OK: $(docker image inspect pup-budget-planner:ci --format '{{.Size}}') bytes"
+
+      # Render's free plan has no metrics, so memory is measured here (shown in the job summary).
+      - name: Memory use
+        run: |
+          set -euo pipefail
+          base=http://localhost:8080
+          memory() { docker stats --no-stream --format '{{.MemUsage}} ({{.MemPerc}})' app; }
+          after_start=$(memory)
+          for i in $(seq 1 200); do curl --silent --output /dev/null "$base/"; curl --silent --output /dev/null "$base/api/health"; done
+          after_requests=$(memory)
+          {
+            echo "### Container memory (limit 512 MB)"
+            echo "- After start-up and the smoke test: $after_start"
+            echo "- After 400 more requests: $after_requests"
+            echo "- Image size: $(docker image inspect pup-budget-planner:ci --format '{{.Size}}') bytes"
+          } | tee --append "$GITHUB_STEP_SUMMARY"
 
       - name: Container logs
         if: always()
