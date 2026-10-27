@@ -11,14 +11,15 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   Connection string `ConnectionStrings:Database` from user-secrets locally, environment variable in production.
   `GET /api/health` (no database access). New test projects `Api.Tests` and `Infrastructure.Tests`
   (7 tests in total); `dotnet-ef` as a local tool. Build is clean, tests pass.
+- Neon project created by the owner (branches `main` and `dev`). Checked against `dev`: migration
+  applied, Data Protection key stored and reused after a restart, `/api/health` returns 200 without a query.
+- API produces JSON only; frontend API types regenerated (they now include `/api/health`).
 
 **Decisions**
 - ADR 0009: snake_case database names, migrations and a design-time factory in Infrastructure, EF Core
   versions pinned transitively.
 
 **Next**
-- Owner: create the Neon project (`main` + `dev` branches) and set the `dev` connection string in user-secrets;
-  then check that the API starts and creates `data_protection_keys`.
 - F-008: CI pipeline.
 
 ## 2026-10-27 (8)

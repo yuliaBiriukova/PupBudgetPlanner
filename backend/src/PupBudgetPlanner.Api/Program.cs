@@ -1,10 +1,12 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using PupBudgetPlanner.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddControllers()
+    // JSON only, so the OpenAPI document (and the generated frontend types) lists one content type.
+    .AddControllers(options => options.Filters.Add(new ProducesAttribute("application/json")))
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();

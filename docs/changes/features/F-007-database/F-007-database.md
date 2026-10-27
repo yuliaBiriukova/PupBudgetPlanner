@@ -14,7 +14,7 @@ PostgreSQL connected through EF Core, ready for the first real tables.
 
 ## Acceptance criteria
 
-- [ ] Neon project with `main` (production) and `dev` (local development) branches — **owner**
+- [x] Neon project with `main` (production) and `dev` (local development) branches
 - [x] `AppDbContext` with Npgsql; first migration; migrations applied on start-up
 - [x] ASP.NET Core Data Protection keys stored in the database
 - [x] `GET /api/health` returns 200 without touching the database
@@ -22,7 +22,7 @@ PostgreSQL connected through EF Core, ready for the first real tables.
 
 ## Tasks
 
-- [ ] Owner creates a Neon account and project
+- [x] Owner creates a Neon account and project
 - [x] Add EF Core + Npgsql to Infrastructure
 - [x] Create `AppDbContext` and first migration
 - [x] Persist Data Protection keys with EF Core
@@ -35,6 +35,9 @@ PostgreSQL connected through EF Core, ready for the first real tables.
   no dependencies, so it cannot touch the database. `AppDbContextTests` — the migrations match the model
   (no pending model changes) and names are snake_case. Neither test opens a database connection.
 - E2E (Playwright): — (the API joins the E2E run in F-008).
+- Manual, against the Neon `dev` branch: the first start applied `InitialCreate`, created `data_protection_keys`
+  and stored a key; the second start applied nothing and reused that key; `GET /api/health` returned
+  `200 {"status":"Healthy"}` without any database query.
 
 ## Notes
 
@@ -53,3 +56,13 @@ PostgreSQL connected through EF Core, ready for the first real tables.
 - Neon connection string: take the **direct** (not pooled) one — there is one API instance, and migrations run
   over the same connection. Npgsql format:
   `Host=<host>;Database=<db>;Username=<user>;Password=<password>;SSL Mode=Require`.
+- Neon project `PupBudgetPlanner` with branches `main` (production) and `dev` (local development). Render should
+  use the same region as Neon (Frankfurt was recommended) — F-009.
+- Controllers produce `application/json` only (global `[Produces]` filter), so the OpenAPI document and the
+  generated frontend types (`frontend/src/shared/api/schema.ts`, regenerated here) list one content type.
+- Data Protection keys are stored **unencrypted** in the database (ASP.NET Core logs a warning about it). Anyone
+  who can read the database could forge sign-in cookies, but they could already read all the data. Encrypting
+  the keys with a certificate can be added later if needed.
+- On the very first start EF Core logs a failed `SELECT … FROM "__EFMigrationsHistory"` before creating that
+  table; this is expected. The "No instantiatable types implementing `IEntityTypeConfiguration`" warning goes away
+  with the first entity configuration (F-011).
