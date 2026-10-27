@@ -61,7 +61,8 @@ This file tells Claude (and any human contributor) how we work on this project.
   tool attribution in commit messages.
 - **Before every push:**
   1. Pull the latest `develop` into the branch: `git pull origin develop` (merge, no rebase of pushed commits).
-  2. Clean the Playwright output folders (`frontend/playwright-report/`, `frontend/test-results/`).
+  2. Clean the Playwright output folders (`frontend/playwright-report/`, `frontend/test-results/`):
+     `npm run clean:playwright` in `frontend/`.
   3. Update `docs/ROADMAP.md`, `docs/BACKLOG.md`, `docs/PROGRESS.md`, the change's description file
      and any other affected docs.
   4. Make sure the build and all tests pass.
