@@ -63,6 +63,11 @@ npm run build          # production build to dist/
 npm run api:types      # regenerate src/shared/api/schema.ts from the running API's OpenAPI document
 npm run storybook      # Storybook on http://localhost:6006
 npm run build-storybook # static Storybook to storybook-static/
+npx playwright install chromium # once: the browser for E2E tests
+npm run e2e            # Playwright E2E tests (starts the dev server, or reuses a running one)
+npm run e2e:ui         # Playwright UI mode
+npm run e2e:report     # open the last HTML report
+npm run clean:playwright # remove playwright-report/ and test-results/
 ```
 
 ## Branches

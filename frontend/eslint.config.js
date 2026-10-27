@@ -9,7 +9,15 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig([
-  globalIgnores(['dist', 'coverage', 'storybook-static', 'src/shared/api/schema.ts']),
+  globalIgnores([
+    'dist',
+    'coverage',
+    'storybook-static',
+    'playwright-report',
+    'test-results',
+    'blob-report',
+    'src/shared/api/schema.ts',
+  ]),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

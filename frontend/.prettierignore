@@ -2,6 +2,7 @@ dist
 coverage
 storybook-static
 playwright-report
+blob-report
 test-results
 package-lock.json
 src/shared/api/schema.ts

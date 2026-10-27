@@ -2,6 +2,18 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (8)
+
+**Done**
+- F-005: Storybook merged into `develop` (PR #5).
+- F-006: Playwright 1.64 in `frontend/`: projects `desktop-chromium` and `mobile-chromium` (Pixel 7), web server
+  starts `npm run dev` (reuses a running one locally), CI-ready settings, smoke test for the home page in
+  `frontend/e2e/`. Scripts `e2e`, `e2e:ui`, `e2e:report`, `clean:playwright`. E2E (2 tests), lint, typecheck,
+  unit tests and build pass.
+
+**Next**
+- F-007: database and health check.
+
 ## 2026-10-27 (7)
 
 **Done**
