@@ -94,20 +94,47 @@ erDiagram
     CATEGORY ||--o{ TRANSACTION : "classifies"
     EXCHANGE_RATE
 
-    USER { guid Id string Email string DisplayName string ReportCurrency }
+    USER { guid Id string Email string DisplayName Currency ReportCurrency }
     FAMILY { guid Id string Name guid OwnerUserId }
-    FAMILY_MEMBER { guid FamilyId guid UserId string Role }
+    FAMILY_MEMBER { guid FamilyId guid UserId FamilyRole Role }
     FAMILY_INVITATION { guid Id guid FamilyId string Token datetime ExpiresAt }
-    ACCOUNT { guid Id guid UserId string Name string Institution string Currency decimal OpeningBalance date OpeningDate bool IsArchived }
-    CATEGORY_GROUP { guid Id guid UserId string Name string Kind int SortOrder }
+    ACCOUNT { guid Id guid UserId string Name Institution Institution Currency Currency decimal OpeningBalance date OpeningDate bool IsArchived }
+    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder }
     CATEGORY { guid Id guid GroupId string Name int SortOrder bool IsArchived }
-    TRANSACTION { guid Id guid UserId string Type date Date guid AccountId decimal Amount guid CategoryId guid ToAccountId decimal ToAmount string Note }
-    EXCHANGE_RATE { date Date string Currency decimal RateToUah string Source }
+    TRANSACTION { guid Id guid UserId TransactionType Type date Date guid AccountId decimal Amount guid CategoryId guid ToAccountId decimal ToAmount string Note }
+    EXCHANGE_RATE { date Date Currency Currency decimal RateToUah RateSource Source }
 ```
 
 - `Amount` is always positive; `Type` gives the direction.
-- For a transfer, `CategoryId` is empty and `ToAccountId` / `ToAmount` are filled.
 - Money: `numeric(18,2)`; rates: `numeric(18,6)`.
+
+#### Enums
+
+| Enum | Values | Used in | Meaning |
+|------|--------|---------|---------|
+| `TransactionType` | `Expense`, `Income`, `Transfer` | `Transaction.Type` | Direction of the money: leaves an account, comes into an account, or moves between two own accounts |
+| `CategoryKind` | `Income`, `Expense` | `CategoryGroup.Kind` | Report section of the group; which categories the form offers for an expense or an income |
+| `Currency` | `UAH`, `USD`, `EUR` (ISO 4217 codes) | `Account.Currency`, `User.ReportCurrency`, `ExchangeRate.Currency` | More currencies can be added later as new values |
+| `Institution` | `Monobank`, `PrivatBank`, `Cash`, `Other` | `Account.Institution` | Where the account is held (icon and grouping in the UI) |
+| `FamilyRole` | `Owner`, `Member` | `FamilyMember.Role` | The owner can invite and remove members |
+| `RateSource` | `Nbu` | `ExchangeRate.Source` | Where the rate came from; leaves room for other sources |
+
+**Storage:** enums are C# `enum` types in the Domain layer and are stored in PostgreSQL **as text**
+(`"Expense"`, `"UAH"`) with EF Core `HasConversion<string>()`, in a `varchar` column with a maximum length.
+
+- The data stays readable when you query the database directly.
+- Reordering or adding enum values can never change the meaning of existing rows (with numbers, inserting
+  a value in the middle would shift the meaning of everything after it).
+- The API also sends and receives enums as strings (`JsonStringEnumConverter`), so the generated
+  TypeScript types are string unions (`'Expense' | 'Income' | 'Transfer'`).
+
+#### Consistency rules (validated in the Application layer)
+
+| `Type` | `CategoryId` | `ToAccountId` / `ToAmount` |
+|--------|--------------|----------------------------|
+| `Expense` | required, category of a group with `Kind = Expense` | empty |
+| `Income` | required, category of a group with `Kind = Income` | empty |
+| `Transfer` | empty | required; `ToAccountId` ≠ `AccountId`; if the currencies are equal, `ToAmount` = `Amount` |
 
 ### Exchange rates
 
