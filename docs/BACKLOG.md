@@ -18,8 +18,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 | [F-004](changes/features/F-004-frontend-scaffold/F-004-frontend-scaffold.md) | Frontend scaffold | Done |
 | [F-005](changes/features/F-005-storybook/F-005-storybook.md) | Storybook | Done |
 | [F-006](changes/features/F-006-playwright/F-006-playwright.md) | Playwright setup | Done |
-| [F-007](changes/features/F-007-database/F-007-database.md) | Database and health check | Review |
-| [F-008](changes/features/F-008-ci-pipeline/F-008-ci-pipeline.md) | CI pipeline | Todo |
+| [F-007](changes/features/F-007-database/F-007-database.md) | Database and health check | Done |
+| [F-008](changes/features/F-008-ci-pipeline/F-008-ci-pipeline.md) | CI pipeline | Review |
 | [F-009](changes/features/F-009-render-deployment/F-009-render-deployment.md) | Deployment to Render | Todo |
 
 ### M1 — Authentication & app shell

@@ -44,6 +44,8 @@ UI tests that run real user flows in the browser.
   (for F-008 / F-009).
 - The API is not started yet: there is nothing to call. F-007 / F-008 add the API + PostgreSQL to the E2E run
   (Neon `dev` branch locally, PostgreSQL service container in CI, see ADR 0005).
+  **Update (F-008):** `webServer` now starts the API as well, and in CI serves the production build with
+  `vite preview` — see [F-008](../F-008-ci-pipeline/F-008-ci-pipeline.md).
 - CI settings are already in the config (`CI` env): `forbidOnly`, 2 retries, 1 worker, GitHub reporter;
   the HTML report is always written to `playwright-report/` (not opened automatically), traces on the first
   retry, screenshots on failure.

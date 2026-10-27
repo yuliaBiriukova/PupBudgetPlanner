@@ -81,11 +81,23 @@ npm run api:types      # regenerate src/shared/api/schema.ts from the running AP
 npm run storybook      # Storybook on http://localhost:6006
 npm run build-storybook # static Storybook to storybook-static/
 npx playwright install chromium # once: the browser for E2E tests
-npm run e2e            # Playwright E2E tests (starts the dev server, or reuses a running one)
+npm run e2e            # Playwright E2E tests (starts the API and the dev server, or reuses running ones)
 npm run e2e:ui         # Playwright UI mode
 npm run e2e:report     # open the last HTML report
 npm run clean:playwright # remove playwright-report/ and test-results/
 ```
+
+E2E tests run against the real API, so its connection string must be set first (see Backend above).
+
+## CI
+
+GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs on every pull request and on pushes to
+`develop` and `main`, in three parallel jobs:
+
+- **Backend** — restore, build (Release), tests.
+- **Frontend** — lint, formatting, type-check, unit tests, build, Storybook build.
+- **E2E (Playwright)** — the built API against a PostgreSQL service container plus the built app (`vite preview`).
+  When a test fails, the HTML report is attached to the run as the `playwright-report` artifact.
 
 ## Branches
 

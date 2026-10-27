@@ -190,6 +190,7 @@ flowchart LR
 ```
 
 - One workflow file: `.github/workflows/ci.yml`; it runs on pull requests and on pushes to `develop` and `main`.
+  Three parallel jobs: Backend, Frontend (incl. Storybook build), E2E (Playwright).
 - **Only `main` is deployed.** Render services are described in `render.yaml`, track `main`, and deploy
   **only after the GitHub checks pass**.
 - Private repo → GitHub Actions has 2,000 free minutes/month; enough for this project.
@@ -199,7 +200,7 @@ flowchart LR
 | Environment | Frontend | API | Database |
 |-------------|----------|-----|----------|
 | Local | `vite` dev server (proxy `/api` → API) | `dotnet run` | Neon `dev` branch |
-| CI | built SPA | built API | PostgreSQL service container |
+| CI | built SPA (`vite preview`, proxy `/api` → API) | built API (`dotnet run --no-build`) | PostgreSQL service container |
 | Production | served by the API container | Render web service | Neon `main` branch |
 
 Secrets (connection string, Google client ID/secret) are stored in **Render environment variables**
