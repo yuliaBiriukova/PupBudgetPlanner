@@ -12,6 +12,7 @@ decision — write a new ADR that supersedes it.
 | [0005](0005-testing-strategy.md) | Testing strategy (integration tests after MVP) | Accepted |
 | [0006](0006-libraries-licensing.md) | Avoid libraries with commercial licenses | Accepted |
 | [0007](0007-test-runner-mtp.md) | Run backend tests on Microsoft.Testing.Platform | Accepted |
+| [0008](0008-frontend-toolchain.md) | Frontend toolchain: Node 24 LTS and TypeScript 5.9 | Accepted |
 
 Template for new ADRs:
 

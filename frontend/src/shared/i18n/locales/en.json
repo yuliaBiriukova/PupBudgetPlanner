@@ -1,0 +1,17 @@
+{
+  "app": {
+    "name": "Pup Budget Planner"
+  },
+  "home": {
+    "comingSoon": "Your budget planner is being set up. Accounts, transactions and reports are coming soon."
+  },
+  "colorScheme": {
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist.",
+    "backHome": "Go to the home page"
+  }
+}

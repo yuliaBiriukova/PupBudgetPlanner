@@ -2,6 +2,21 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (6)
+
+**Done**
+- F-003: backend scaffold merged into `develop` (PR #3).
+- F-004: frontend scaffold in `frontend/`: Vite 8 + React 19 + TypeScript (strict), Mantine 9 with theme and
+  light/dark mode, React Router 8, TanStack Query, react-i18next (English, typed keys), openapi-fetch client with
+  generated types, ESLint + Prettier, Vitest + RTL + MSW (5 tests), `/api` dev proxy. Lint, typecheck, tests and
+  build pass.
+
+**Decisions**
+- ADR 0008: frontend needs Node 24 LTS; TypeScript pinned to 5.9 (tooling doesn't support TypeScript 7 yet).
+
+**Next**
+- F-005: Storybook.
+
 ## 2026-10-27 (5)
 
 **Done**

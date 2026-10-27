@@ -49,7 +49,19 @@ In Development the OpenAPI document is at `http://localhost:5297/openapi/v1.json
 
 ### Frontend
 
-Instructions will be added with the frontend scaffold (F-004).
+Requires **Node 24 LTS** (version in `frontend/.nvmrc`; with nvm: `nvm use 24.21.0`).
+
+```bash
+cd frontend
+npm install
+npm run dev            # http://localhost:5173, proxies /api to the API on http://localhost:5297
+npm test               # unit tests (Vitest)
+npm run lint           # ESLint
+npm run format         # Prettier (format:check only checks)
+npm run typecheck      # TypeScript
+npm run build          # production build to dist/
+npm run api:types      # regenerate src/shared/api/schema.ts from the running API's OpenAPI document
+```
 
 ## Branches
 

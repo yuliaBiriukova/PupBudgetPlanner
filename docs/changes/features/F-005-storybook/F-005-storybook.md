@@ -33,4 +33,4 @@ A component workshop where every component and screen state can be reviewed.
 
 ## Notes
 
-- —
+- Add stories for the components from F-004: `ColorSchemeToggle`, `HomePage`, `NotFoundPage`.
