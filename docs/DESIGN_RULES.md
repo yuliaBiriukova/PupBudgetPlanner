@@ -7,13 +7,23 @@ everything below when they conflict.
 
 _Add project-specific rules here (one rule per bullet, with the date it was added)._
 
-- _(none yet)_
+- No dogs, paws or puppy imagery: "Pup" is the owners' nickname (пуп → пупик), not a puppy. (2026-10-27)
+- The logo is a budget symbol — not a love symbol (hearts etc.) — and its color differs from the primary
+  buttons, which can sit right next to it (sidebar). (2026-10-27)
+- The app must not look like the component library's default theme: Mantine is the toolkit, not the look.
+  (2026-10-27)
+- Restrained type weights: regular and medium for most text; heavy bold only where one thing must stand out.
+  (2026-10-27)
+- Icons and their text are aligned optically (same center line, consistent gap) in every nav item, button and
+  row. (2026-10-27)
 
 ## 2. Process
 
 1. Every new screen starts with **3 design variants as HTML prototypes** — self-contained `.html` files
    that open in any browser and show mobile and desktop layouts. They live in the change folder:
    `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.
+   Design work follows the **`design-screen`** skill (`.claude/skills/design-screen/`), and every variant passes
+   the Playwright + axe design check before it is shown: `npm run design:check -- <file.html>` in `frontend/`.
 2. The user picks one (or a mix). The choice is recorded in the change's description file and in
    [Screen decisions](#9-screen-decisions) below.
 3. Components are built in **Storybook** first (all states, mobile and desktop), then wired to the API.

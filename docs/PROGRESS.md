@@ -2,6 +2,19 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (13)
+
+**Done**
+- F-010: first round of app shell prototypes made and rejected by the owner (too close to the default component
+  library look, fonts too bold, icons and text misaligned). Prototypes removed; the feedback and technical
+  findings are in the F-010 description, new custom rules in `DESIGN_RULES.md`.
+- Kept: project skill `design-screen` (`.claude/skills/`) against generic "AI default" design, and a Playwright +
+  axe design check for HTML prototypes: `npm run design:check -- <file.html>` in `frontend/` (`axe-core` added as
+  a dev dependency).
+
+**Next**
+- F-010 from the start: look at how Claude's UI collapses its sidebar, then 3 new prototypes with the skill.
+
 ## 2026-10-27 (12)
 
 **Done**
