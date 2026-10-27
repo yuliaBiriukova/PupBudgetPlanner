@@ -53,6 +53,7 @@ This file tells Claude (and any human contributor) how we work on this project.
   - Title: `<ID>: <short description>` (e.g. `F-012: Add expense form`).
   - Description (from `.github/pull_request_template.md`): a short summary, the list of changes made,
     a link to the change's description file, and how it was tested.
+  - No "Generated with Claude Code" (or similar tool attribution) line in PR descriptions.
 - **Commit messages** start with the change ID and say briefly what was done:
   `F-012: Add expense form validation`, `B-007: Fix balance after transfer edit`.
 - **Before every push:**
