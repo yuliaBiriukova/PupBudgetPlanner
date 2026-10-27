@@ -11,8 +11,8 @@ Email sending (confirmation, password reset) is postponed until after the MVP.
 ## Decision
 
 - **ASP.NET Core Identity** stores users and passwords (hashed) in our PostgreSQL database.
-- The SPA authenticates with an **HTTP-only, Secure, SameSite=Lax cookie** (same origin thanks to the
-  `/api/*` rewrite) — no tokens in browser storage.
+- The SPA authenticates with an **HTTP-only, Secure, SameSite=Lax cookie** (the SPA and API are served
+  from the same origin by one service, see ADR 0002) — no tokens in browser storage.
 - **Google** via Identity external logins (`AddGoogle`). Identity's `UserLogins` table links external
   logins to a user, so Microsoft / Apple can be added later with configuration only.
 - Hosted identity services (Auth0, Clerk, Firebase Auth) were rejected: vendor lock-in and free-tier
