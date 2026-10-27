@@ -2,6 +2,18 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (7)
+
+**Done**
+- F-004: frontend scaffold merged into `develop` (PR #4).
+- F-005: Storybook 10.6 (Vite builder) in `frontend/.storybook/`: stories wrapped in `AppProviders` (Mantine theme,
+  query client, i18n), toolbar for light/dark mode, Mobile / Tablet / Desktop viewport presets (Mobile by default),
+  docs and a11y addons, `eslint-plugin-storybook`. Sample story for `ColorSchemeToggle` with a play function.
+  Lint, typecheck, tests, app build and Storybook build pass without warnings.
+
+**Next**
+- F-006: Playwright setup.
+
 ## 2026-10-27 (6)
 
 **Done**

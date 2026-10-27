@@ -15,8 +15,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 | [F-001](changes/features/F-001-planning-docs/F-001-planning-docs.md) | Planning documents | Done |
 | [F-002](changes/features/F-002-github-repository/F-002-github-repository.md) | GitHub repository | Done |
 | [F-003](changes/features/F-003-backend-scaffold/F-003-backend-scaffold.md) | Backend scaffold | Done |
-| [F-004](changes/features/F-004-frontend-scaffold/F-004-frontend-scaffold.md) | Frontend scaffold | Review |
-| [F-005](changes/features/F-005-storybook/F-005-storybook.md) | Storybook | Todo |
+| [F-004](changes/features/F-004-frontend-scaffold/F-004-frontend-scaffold.md) | Frontend scaffold | Done |
+| [F-005](changes/features/F-005-storybook/F-005-storybook.md) | Storybook | Review |
 | [F-006](changes/features/F-006-playwright/F-006-playwright.md) | Playwright setup | Todo |
 | [F-007](changes/features/F-007-database/F-007-database.md) | Database and health check | Todo |
 | [F-008](changes/features/F-008-ci-pipeline/F-008-ci-pipeline.md) | CI pipeline | Todo |
