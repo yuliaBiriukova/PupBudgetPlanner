@@ -2,6 +2,22 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (12)
+
+**Done**
+- F-009: code merged into `develop` (PR #9); first release `develop` → `main` (PR #10, merge commit).
+- Owner set up Render (Blueprint on `main`, connection string to Neon `main`) and the cron-job.org keep-awake ping
+  (`*/14 7-22 * * *`, Europe/Kyiv). Live: https://pup-budget-planner.onrender.com, Storybook at
+  https://pup-budget-planner-storybook.onrender.com.
+- Production checked: health, SPA and client routes, API 404, HTTPS redirect, HSTS, caching, Brotli; Playwright
+  E2E 4/4 against the production URL.
+- Render's free plan has no metrics, so the CI "Docker image" job now runs the container with a 512 MB limit and
+  reports `docker stats`: 44 MiB after start-up, 57 MiB after 400 requests. Image 251 MB; warm requests 0.15–0.17 s.
+
+**Next**
+- Measure the cold start (after ≥ 15 min idle), record it, mark F-009 and M0 Done.
+- M1: F-010 app shell and navigation.
+
 ## 2026-10-27 (11)
 
 **Done**

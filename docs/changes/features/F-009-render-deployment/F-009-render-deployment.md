@@ -43,7 +43,15 @@ The app runs in production from `main`, and only from `main`.
 - Manual: the published app run locally in `Production` against Neon `dev` — same checks, plus `Cache-Control`
   headers and HSTS behind `X-Forwarded-Proto: https`.
 - E2E (Playwright): smoke test against the production URL after the first release:
-  `E2E_BASE_URL=https://<service>.onrender.com npm run e2e` in `frontend/`.
+  `E2E_BASE_URL=https://pup-budget-planner.onrender.com npm run e2e` in `frontend/` — 4/4 passed on 2026-10-27.
+- Production, checked on 2026-10-27: `/api/health` 200, `/` and `/reports/2026` → `index.html` (`no-cache`),
+  `/api/nope` → 404 ProblemDetails, HTTP → HTTPS 301, HSTS, `/assets` `immutable` and Brotli-compressed by
+  Render (JS bundle 495 KB → 156 KB transferred), Storybook site 200.
+
+## Production
+
+- App: https://pup-budget-planner.onrender.com
+- Storybook: https://pup-budget-planner-storybook.onrender.com
 
 ## Owner setup
 
@@ -69,15 +77,16 @@ Done once, by the owner, in the browser. Nothing here goes into the repository.
 
 ## Measurements
 
-To fill in after the first release.
+Render's free plan has no memory / CPU metrics, so memory is measured in CI: same image, container limited to
+the free instance's 512 MB (job "Docker image", step "Memory use", shown in the job summary).
 
-| What | How | Result |
+| What | How | Result (2026-10-27) |
 |---|---|---|
-| Image size | CI job "Docker image", last line of the smoke test | |
-| Memory after start-up | Render → service → Metrics → Memory | |
-| Memory after a few page loads | Render → Metrics | |
-| Cold start | after ≥ 15 min idle: `curl -o /dev/null -w "%{time_total}" https://<service>.onrender.com/api/health` | |
-| Warm request | the same command again | |
+| Image size | CI job "Docker image" | 251 MB |
+| Memory after start-up and the smoke test | CI, `docker stats` | 44 MiB of 512 MiB (9 %) |
+| Memory after 400 more requests | CI, `docker stats` | 57 MiB of 512 MiB (11 %) |
+| Warm request, `/api/health` and `/` | `curl -o /dev/null -w "%{time_total}" https://pup-budget-planner.onrender.com/api/health` | 0.15–0.17 s |
+| Cold start | the same command after ≥ 15 min idle (before 07:00 or with the cron job paused) | to measure |
 
 ## Notes
 
