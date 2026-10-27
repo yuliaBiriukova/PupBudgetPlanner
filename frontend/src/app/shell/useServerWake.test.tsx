@@ -1,4 +1,6 @@
+import type { QueryClient } from '@tanstack/react-query';
 import { act, screen } from '@testing-library/react';
+import { delay } from 'msw';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderApp } from '../../test/render';
@@ -19,6 +21,22 @@ function sleepingServer() {
   return () => {
     release();
   };
+}
+
+/**
+ * Waits until no request is running and the shell knows it. Requests run in real time, so the fake clock must
+ * not move before this; TanStack Query tells the shell on a real `setTimeout(0)`, which the last step lets run.
+ */
+async function requestsFinished(queryClient: QueryClient) {
+  await vi.waitFor(() => {
+    expect(queryClient.isFetching()).toBe(0);
+  });
+  await act(
+    () =>
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, 0);
+      }),
+  );
 }
 
 describe('waking up the server', () => {
@@ -51,8 +69,16 @@ describe('waking up the server', () => {
   });
 
   it('shows nothing when the server answers quickly', async () => {
-    renderApp('/transactions');
+    // A short real delay, like on a busy CI runner: the answer may come after the page is drawn
+    server.use(
+      http.get('/api/health', async () => {
+        await delay(50);
+        return HttpResponse.json({ status: 'ok' });
+      }),
+    );
+    const { queryClient } = renderApp('/transactions');
     await screen.findByRole('heading', { level: 1, name: 'Transactions' });
+    await requestsFinished(queryClient);
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(5000);
