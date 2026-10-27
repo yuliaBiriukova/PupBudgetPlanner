@@ -2,6 +2,19 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (17)
+
+**Done**
+- F-010 merged into `develop` (PR #12) and marked Done in its description and the backlog.
+
+**Decisions**
+- Owner dropped the F-010 task to compare the sidebar with Claude's UI: it needed a claude.ai sign-in, and the
+  chosen logo-as-expand-button pattern already follows it.
+
+**Next**
+- Release `develop` → `main` (PR #13).
+- F-011: sign up and sign in; then the shell shows the signed-in person.
+
 ## 2026-10-27 (16)
 
 **Done**
