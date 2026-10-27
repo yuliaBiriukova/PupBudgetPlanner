@@ -1,0 +1,41 @@
+# Render Blueprint (https://render.com/docs/blueprint-spec). Only `main` is deployed, and only after
+# the GitHub checks (CI) on the commit have passed. See docs/decisions/0002-hosting-render-neon.md.
+services:
+  # The app: one Docker container, ASP.NET Core serves the React build and the API under /api.
+  - type: web
+    name: pup-budget-planner
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeployTrigger: checksPass
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    # No database access, so Render's checks don't keep the Neon compute awake.
+    healthCheckPath: /api/health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      # The port the container listens on (ASPNETCORE_HTTP_PORTS in the Dockerfile).
+      - key: PORT
+        value: '8080'
+      # Neon `main` branch, direct (not pooled) connection string in the Npgsql format. Set in the dashboard.
+      - key: ConnectionStrings__Database
+        sync: false
+
+  # Storybook: a static site (no sleeping, no instance hours).
+  - type: web
+    name: pup-budget-planner-storybook
+    runtime: static
+    branch: main
+    autoDeployTrigger: checksPass
+    # Paths are relative to the repository root.
+    buildCommand: cd frontend && npm ci --no-audit --no-fund && npm run build-storybook
+    staticPublishPath: ./frontend/storybook-static
+    buildFilter:
+      paths:
+        - frontend/**
+    envVars:
+      # Major version from frontend/.nvmrc.
+      - key: NODE_VERSION
+        value: '24'

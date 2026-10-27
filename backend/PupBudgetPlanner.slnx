@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PupBudgetPlanner.Api/PupBudgetPlanner.Api.csproj" />
+    <Project Path="src/PupBudgetPlanner.Application/PupBudgetPlanner.Application.csproj" />
+    <Project Path="src/PupBudgetPlanner.Domain/PupBudgetPlanner.Domain.csproj" />
+    <Project Path="src/PupBudgetPlanner.Infrastructure/PupBudgetPlanner.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PupBudgetPlanner.Api.Tests/PupBudgetPlanner.Api.Tests.csproj" />
+    <Project Path="tests/PupBudgetPlanner.Application.Tests/PupBudgetPlanner.Application.Tests.csproj" />
+    <Project Path="tests/PupBudgetPlanner.Domain.Tests/PupBudgetPlanner.Domain.Tests.csproj" />
+    <Project Path="tests/PupBudgetPlanner.Infrastructure.Tests/PupBudgetPlanner.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>

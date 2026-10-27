@@ -1,94 +1,86 @@
 # Backlog
 
-Source of truth for all work. Statuses: `Todo` · `In progress` · `Review` · `Done` · `Blocked`.
-IDs: `T-xxx` tasks, `B-xxx` bugs. Screens marked 🎨 need 3 design variants before implementation.
+Index of all changes. The details of each change live in its folder in [changes/](changes/).
 
-## M0 — Foundation
+- Statuses: `Todo` · `In progress` · `Review` · `Done` · `Blocked`.
+- IDs: `F-xxx` feature (incl. setup work), `I-xxx` improvement, `B-xxx` bugfix.
+- 🎨 = screen work: 3 HTML design prototypes before implementation.
 
-| ID | Task | Status | Notes |
-|----|------|--------|-------|
-| T-001 | Planning docs (product, architecture, roadmap, backlog, design rules, ADRs, working agreement) | Done | |
-| T-002 | Create private GitHub repo and push | In progress | Waiting for `gh auth login` |
-| T-003 | Scaffold backend solution (Domain, Application, Infrastructure, Api + test projects), analyzers, `.editorconfig` | Todo | |
-| T-004 | Scaffold frontend (Vite + React + TS, Mantine, Router, TanStack Query, i18n, ESLint/Prettier, Vitest) | Todo | |
-| T-005 | Set up Storybook with Mantine theme, light/dark and mobile viewports | Todo | |
-| T-006 | Set up Playwright with a first smoke test | Todo | |
-| T-007 | **Spike:** deploy hello-world API (Docker) + SPA to Render with `/api/*` rewrite; verify cookie, cold start, memory | Todo | Fallback in ARCHITECTURE "Known risks" |
-| T-008 | Neon project with `main` and `dev` branches; EF Core + first migration; `/api/health` | Todo | User creates Neon account |
-| T-009 | GitHub Actions CI (backend, frontend, Storybook build, E2E) | Todo | |
-| T-010 | `render.yaml` Blueprint; auto-deploy after checks pass; Storybook static site | Todo | User creates Render account |
+## Features — MVP
 
-## M1 — Authentication & app shell
+### M0 — Foundation
 
-| ID | Task | Status | Notes |
-|----|------|--------|-------|
-| T-101 | 🎨 App shell & navigation (mobile + desktop) — 3 variants | Todo | |
-| T-102 | 🎨 Sign in / sign up screens — 3 variants | Todo | |
-| T-103 | Identity setup: register, login, logout, `me` endpoints, cookie, antiforgery | Todo | |
-| T-104 | Google sign-in (external login, account linking) | Todo | User creates Google OAuth client |
-| T-105 | Frontend auth: forms, protected routes, session handling, "waking up the server" indicator | Todo | |
-| T-106 | Seed default categories for each new user | Todo | Q-001 |
-| T-107 | E2E: sign up, sign in, sign out | Todo | |
+| ID | Feature | Status |
+|----|---------|--------|
+| [F-001](changes/features/F-001-planning-docs/F-001-planning-docs.md) | Planning documents | Done |
+| [F-002](changes/features/F-002-github-repository/F-002-github-repository.md) | GitHub repository | Done |
+| [F-003](changes/features/F-003-backend-scaffold/F-003-backend-scaffold.md) | Backend scaffold | Done |
+| [F-004](changes/features/F-004-frontend-scaffold/F-004-frontend-scaffold.md) | Frontend scaffold | Done |
+| [F-005](changes/features/F-005-storybook/F-005-storybook.md) | Storybook | Done |
+| [F-006](changes/features/F-006-playwright/F-006-playwright.md) | Playwright setup | Done |
+| [F-007](changes/features/F-007-database/F-007-database.md) | Database and health check | Done |
+| [F-008](changes/features/F-008-ci-pipeline/F-008-ci-pipeline.md) | CI pipeline | Done |
+| [F-009](changes/features/F-009-render-deployment/F-009-render-deployment.md) | Deployment to Render | In progress |
 
-## M2 — Accounts & categories
+### M1 — Authentication & app shell
 
-| ID | Task | Status | Notes |
-|----|------|--------|-------|
-| T-201 | 🎨 Accounts screen (balances by account + total) — 3 variants | Todo | |
-| T-202 | Accounts API: create, edit, archive; balances | Todo | |
-| T-203 | Accounts UI | Todo | |
-| T-204 | Categories API (read) + categories list in UI | Todo | Editing is post-MVP |
-| T-205 | Settings: display name, report currency | Todo | |
-| T-206 | E2E: create accounts, see balances | Todo | |
+| ID | Feature | Status |
+|----|---------|--------|
+| [F-010](changes/features/F-010-app-shell/F-010-app-shell.md) | 🎨 App shell and navigation | Todo |
+| [F-011](changes/features/F-011-email-password-auth/F-011-email-password-auth.md) | 🎨 Sign up and sign in with email and password | Todo |
+| [F-012](changes/features/F-012-google-sign-in/F-012-google-sign-in.md) | Sign in with Google | Todo |
+| [F-013](changes/features/F-013-default-categories/F-013-default-categories.md) | Default categories | Todo |
 
-## M3 — Transactions
+### M2 — Accounts & categories
 
-| ID | Task | Status | Notes |
-|----|------|--------|-------|
-| T-301 | 🎨 Quick add transaction (expense / income / transfer) — 3 variants | Todo | Mobile-first, must be fast |
-| T-302 | 🎨 Transactions list with filters — 3 variants | Todo | |
-| T-303 | NBU exchange rate client + on-demand cache | Todo | |
-| T-304 | Transactions API: create, edit, delete, list with filters | Todo | |
-| T-305 | Transfers and currency exchange (two amounts, effective rate, NBU suggestion) | Todo | |
-| T-306 | Transactions UI: quick add, list, edit, delete | Todo | |
-| T-307 | E2E: add expense, income, transfer, exchange; balances update | Todo | |
+| ID | Feature | Status |
+|----|---------|--------|
+| [F-014](changes/features/F-014-accounts/F-014-accounts.md) | 🎨 Accounts and balances | Todo |
+| [F-015](changes/features/F-015-categories-view/F-015-categories-view.md) | 🎨 Categories view | Todo |
+| [F-016](changes/features/F-016-user-settings/F-016-user-settings.md) | 🎨 User settings | Todo |
 
-## M4 — Reports
+### M3 — Transactions
 
-| ID | Task | Status | Notes |
-|----|------|--------|-------|
-| T-401 | 🎨 Monthly / yearly report — 3 variants | Todo | Spreadsheet-like table, must work on mobile |
-| T-402 | `ReportBuilder` (pure logic) with thorough unit tests | Todo | Q-004 |
-| T-403 | Reports API (month, year, report currency) | Todo | |
-| T-404 | Reports UI | Todo | |
-| T-405 | E2E: report matches entered transactions | Todo | |
+| ID | Feature | Status |
+|----|---------|--------|
+| [F-017](changes/features/F-017-exchange-rates/F-017-exchange-rates.md) | NBU exchange rates | Todo |
+| [F-018](changes/features/F-018-quick-add-income-expense/F-018-quick-add-income-expense.md) | 🎨 Quick add: expense and income | Todo |
+| [F-019](changes/features/F-019-transfers-and-exchange/F-019-transfers-and-exchange.md) | 🎨 Transfers and currency exchange | Todo |
+| [F-020](changes/features/F-020-transactions-list/F-020-transactions-list.md) | 🎨 Transactions list | Todo |
 
-## M5 — Family
+### M4 — Reports
 
-| ID | Task | Status | Notes |
-|----|------|--------|-------|
-| T-501 | 🎨 Family screen (members, invite) — 3 variants | Todo | |
-| T-502 | Family API: create, invite link, accept, leave, remove member | Todo | |
-| T-503 | Data access rules: members can read each other's data | Todo | |
-| T-504 | "Me / member / Family" switcher in transactions, accounts and reports | Todo | |
-| T-505 | Combined family report (merge categories by group + name) | Todo | |
-| T-506 | E2E: invite, accept, see family report | Todo | |
+| ID | Feature | Status |
+|----|---------|--------|
+| [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) | Report engine | Todo |
+| [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) | 🎨 Reports screen | Todo |
 
-## M6 — MVP release
+### M5 — Family
 
-| ID | Task | Status | Notes |
-|----|------|--------|-------|
-| T-601 | PWA: manifest, icons, service worker, install prompt | Todo | |
-| T-602 | Responsive polish, accessibility pass, empty / error states | Todo | |
-| T-603 | Production launch checklist (secrets, backups, Neon limits, budget) | Todo | |
-| T-604 | Short user guide in README | Todo | |
+| ID | Feature | Status |
+|----|---------|--------|
+| [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) | 🎨 Family and invitations | Todo |
+| [F-024](changes/features/F-024-family-views/F-024-family-views.md) | Family views | Todo |
+
+### M6 — MVP release
+
+| ID | Feature | Status |
+|----|---------|--------|
+| [F-025](changes/features/F-025-pwa/F-025-pwa.md) | Installable app (PWA) | Todo |
+| [F-026](changes/features/F-026-mvp-launch/F-026-mvp-launch.md) | MVP launch | Todo |
 
 ## After MVP
 
-See [ROADMAP.md](ROADMAP.md) milestones M7–M13. Tasks will be broken down when we start them.
+Milestones M7–M13 in [ROADMAP.md](ROADMAP.md). Their features get IDs and folders when we plan them.
 
-## Bugs
+## Improvements
 
-| ID | Bug | Status | Notes |
-|----|-----|--------|-------|
-| — | | | |
+| ID | Improvement | Status |
+|----|-------------|--------|
+| — | | |
+
+## Bugfixes
+
+| ID | Bug | Status |
+|----|-----|--------|
+| — | | |

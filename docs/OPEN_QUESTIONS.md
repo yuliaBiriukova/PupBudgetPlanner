@@ -6,18 +6,22 @@ When a question is answered, move it to "Answered" with the answer and date, and
 
 | ID | Question | Proposal | Blocks |
 |----|----------|----------|--------|
-| Q-001 | "Emergency" is under **Health** in Yulia's sheet and under **Home expenses** in Vlad's. Which group should the default category be in? | Health | T-106 |
-| Q-002 | The free Render API sleeps after 15 min idle (wake-up up to ~1 min). Should we add a free external ping (e.g. cron-job.org every 14 min, 07:00–23:00 Kyiv time) to keep it awake during the day? Fits in Render's 750 free hours/month. | Yes, from M6 | T-603 |
-| Q-003 | Can a person **add** their own categories in the MVP (removing defaults is post-MVP)? | Post-MVP, together with remove/rename | T-204 |
-| Q-004 | Yearly "Avg": divide by 12 (like the spreadsheet) or by the number of months passed so far? | Months passed | T-402 |
+| — | | | |
 
 ## Answered
 
 | ID | Question | Answer | Date |
 |----|----------|--------|------|
-| — | Hosting | Render (not Azure, not Google Cloud Run); database on Neon | 2026-10-27 |
-| — | UI library | Mantine | 2026-10-27 |
-| — | Frontend | React + TypeScript | 2026-10-27 |
+| Q-001 | Group of the default "Emergency" category | Health | 2026-10-27 |
+| Q-002 | Keep the free API awake during the day with an external ping? | Yes: every 14 min, 07:00–23:00 Kyiv (F-009) | 2026-10-27 |
+| Q-003 | Can people add their own categories in the MVP? | No, after the MVP together with rename / remove | 2026-10-27 |
+| Q-004 | Yearly "Avg": divide by 12 or by months passed? | Months passed | 2026-10-27 |
+| Q-005 | Hosting | Render, one service (SPA + API) for the least risk with Google sign-in; database on Neon | 2026-10-27 |
+| Q-006 | Storybook hosting without paying for GitHub Pages | Free Render static site | 2026-10-27 |
+| Q-007 | Branching and commits | `main` / `develop` / `feature` / `improvement` / `bugfix`; IDs `F-` / `I-` / `B-`; only `main` deployed | 2026-10-27 |
+| Q-008 | Docs per change | `docs/changes/{features,improvements,bugfixes}/<ID-name>/` with all related files | 2026-10-27 |
+| Q-009 | Setup work type | Feature | 2026-10-27 |
+| — | UI library / frontend | Mantine / React + TypeScript | 2026-10-27 |
 | — | Exchange rate for reports | NBU official rate on the transaction date | 2026-10-27 |
 | — | Repository | Private GitHub repo, created with the GitHub CLI | 2026-10-27 |
 | — | UI language | English; Ukrainian localization later | 2026-10-27 |

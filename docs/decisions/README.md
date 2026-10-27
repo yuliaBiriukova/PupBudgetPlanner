@@ -11,6 +11,10 @@ decision — write a new ADR that supersedes it.
 | [0004](0004-exchange-rates-nbu.md) | NBU rate on the transaction date for reports | Accepted |
 | [0005](0005-testing-strategy.md) | Testing strategy (integration tests after MVP) | Accepted |
 | [0006](0006-libraries-licensing.md) | Avoid libraries with commercial licenses | Accepted |
+| [0007](0007-test-runner-mtp.md) | Run backend tests on Microsoft.Testing.Platform | Accepted |
+| [0008](0008-frontend-toolchain.md) | Frontend toolchain: Node 24 LTS and TypeScript 5.9 | Accepted |
+| [0009](0009-database-conventions.md) | Database conventions: snake_case names, migrations in Infrastructure | Accepted |
+| [0010](0010-docker-image.md) | Docker image and production hosting settings | Accepted |
 
 Template for new ADRs:
 

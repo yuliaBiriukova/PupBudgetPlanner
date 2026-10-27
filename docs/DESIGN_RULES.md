@@ -11,8 +11,11 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 
 ## 2. Process
 
-1. Every new screen starts with **3 visual variants** (mockups). The user picks one (or a mix).
-2. The choice is recorded in [Screen decisions](#9-screen-decisions) below.
+1. Every new screen starts with **3 design variants as HTML prototypes** — self-contained `.html` files
+   that open in any browser and show mobile and desktop layouts. They live in the change folder:
+   `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.
+2. The user picks one (or a mix). The choice is recorded in the change's description file and in
+   [Screen decisions](#9-screen-decisions) below.
 3. Components are built in **Storybook** first (all states, mobile and desktop), then wired to the API.
 
 ## 3. Foundation
@@ -20,7 +23,7 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 - **Mantine first.** Use Mantine components and theme tokens (colors, spacing, radius, fonts).
   No hard-coded colors or pixel sizes in components; custom styles only through CSS modules using
   Mantine CSS variables.
-- **Theme** lives in one place (`frontend/src/app/theme.ts`). Primary color: chosen during T-101.
+- **Theme** lives in one place (`frontend/src/app/theme.ts`). Primary color: chosen during F-010.
 - **Light and dark mode** supported from the start (follows the system setting, can be switched).
 - **Icons:** Tabler Icons, one size scale (16 / 20 / 24).
 
@@ -46,7 +49,8 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 
 - Every data view has **loading** (skeleton), **empty** (explanation + call to action) and **error**
   (message + retry) states — each with a Storybook story.
-- While the API is waking up, show a friendly "Waking up the server…" indicator instead of a blank page.
+- While the API is waking up (night-time cold start, up to ~1 min), show a friendly
+  "Waking up the server…" indicator instead of a blank page.
 - Successful saves show a short notification; destructive actions (delete) ask for confirmation.
 - Form validation messages appear under the field, in plain language.
 
