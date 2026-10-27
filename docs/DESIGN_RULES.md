@@ -16,6 +16,8 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
   (2026-10-27)
 - Icons and their text are aligned optically (same center line, consistent gap) in every nav item, button and
   row. (2026-10-27)
+- The app name is never cut off: the sidebar can't be resized narrower than its logo row with the full
+  "Pup Budget". (2026-10-27)
 
 ## 2. Process
 
@@ -33,7 +35,9 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 - **Mantine first.** Use Mantine components and theme tokens (colors, spacing, radius, fonts).
   No hard-coded colors or pixel sizes in components; custom styles only through CSS modules using
   Mantine CSS variables.
-- **Theme** lives in one place (`frontend/src/app/theme.ts`). Primary color: chosen during F-010.
+- **Theme** lives in one place (`frontend/src/app/theme.ts`). Colors: charcoal and sky. Buttons charcoal `#26292e` (light) / `#e9eaec` (dark), logo sky `#8ec1ec`, accent
+  `#2a62a3` (light) / `#8ec1ec` (dark), page `#f5f6f7` / `#121315`. Fonts: Unbounded 300 for
+  headings and amounts, Manrope 400/500 for text (F-010).
 - **Light and dark mode** supported from the start (follows the system setting, can be switched).
 - **Icons:** Tabler Icons, one size scale (16 / 20 / 24).
 
@@ -79,4 +83,4 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 
 | Screen | Chosen variant | Date | Notes |
 |--------|----------------|------|-------|
-| — | | | |
+| App shell (F-010) | Mix from `blocks.html`: charcoal and sky colors, Unbounded + Manrope, round corners, coin-stack logo, tinted sidebar with an edge-bar marker, logo-as-expand-button collapse, pill tab bar on the phone, waking-up pill | 2026-10-27 | Colors chosen from 17 schemes. Full list in the [F-010 description](changes/features/F-010-app-shell/F-010-app-shell.md#chosen-2026-10-27) |

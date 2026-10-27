@@ -2,6 +2,44 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (15)
+
+**Done**
+- F-010: the sidebar collapse is smooth: only the width animates, and icons, logo and avatar stay on one axis
+  (checked frame by frame). Labels fade out, and the collapse button and footer icons fade.
+- F-010: 13 new color schemes in `blocks.html` (17 in all), light and dark, within the chosen setup. Each is 8
+  colors per mode; the rest is derived. Every text and control pair passes WCAG AA in both modes.
+
+**Decisions**
+- Owner picked **charcoal and sky** as the color scheme; recorded in the F-010 description and `DESIGN_RULES.md`.
+
+**Next**
+- F-010: theme in `theme.ts`, layout components, routes with placeholder pages, the waking-up pill, Storybook.
+
+## 2026-10-27 (14)
+
+**Done**
+- F-010 round 2: three new full directions made with the `design-screen` skill: Ledger, Banknote and Pocket
+  (`prototypes/variant-1…3.html`), with a drag-to-resize sidebar that also collapses with an icon button.
+- F-010 round 3, at the owner's request (options for every block): `prototypes/blocks.html`, a mix-and-match
+  prototype with 14 blocks of 2–4 options each (colors, type, corners, logo; sidebar surface, open-section marker,
+  collapse button, desktop Add, sidebar bottom; phone tab bar, top bar, More menu; a whose-money switch; the
+  waking-up state). It has new options too: graphite and tangerine colors, Fira Sans, a dark sidebar column, a
+  Claude-like logo-as-expand button, and Expense, Income and Transfer as separate Add buttons.
+- Design check: tells apart horizontal scrollers (any `overflow-x` container, not only `.table-wrap`) and now
+  checks every option of a mix-and-match prototype (`BLOCKS` / `setBlock` / `resetBlocks`). `blocks.html`: 0
+  issues. A deliberately undersized button in one option was caught, so the option loop works.
+
+**Decisions**
+- Owner chose a mix: ink colors, Unbounded + Manrope, round corners, a coin-stack logo, a tinted sidebar with an
+  edge bar marking the open section, the logo as the expand button in the rail, a pill tab bar on the phone, and a
+  pill while the server wakes up. Gold logo replaced by copper `#cd8a5c` (pale blue and sage still in the
+  prototype to compare). The sidebar's minimum width now fits the whole app name (236 px with Unbounded). Recorded
+  in the F-010 description and in `DESIGN_RULES.md`.
+
+**Next**
+- F-010: theme in `theme.ts`, layout components, routes with placeholder pages, the waking-up pill, Storybook.
+
 ## 2026-10-27 (13)
 
 **Done**

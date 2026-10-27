@@ -5,9 +5,11 @@
 // A prototype gets the full check when it exposes these optional globals: go(pageId) with PAGES [{ id }],
 // state.schemePref + applyScheme() for light/dark, setView(name), coldStart() / endColdStart() for the
 // waking-up state, setNavCollapsed(bool | null), setLogo(name) with LOGOS; a menu button with
-// data-action="more" or "drawer" and an Add button with data-action="add" are opened too.
+// data-action="more" or "drawer" and an Add button with data-action="add" are opened too. A mix-and-match
+// prototype exposes BLOCKS ({ id: { options: { key: … } } }), picks, setBlock(id, key) and resetBlocks(); every
+// option is then checked with the other blocks at their defaults (what resetBlocks() sets).
 // Other HTML files are checked as they are, in both color schemes.
-/* global go, PAGES, state, applyScheme, setView, setNavCollapsed, setLogo, LOGOS, coldStart, endColdStart, axe */
+/* global go, PAGES, state, applyScheme, setView, setNavCollapsed, setLogo, LOGOS, coldStart, endColdStart, BLOCKS, picks, setBlock, resetBlocks, axe */
 import { chromium } from '@playwright/test';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -69,13 +71,23 @@ function inspect({ mobile }) {
     return s.clipPath !== 'none' && s.clipPath !== '';
   };
 
+  // Content inside a horizontal scroll container (a wide table, a row of cards) may extend past the screen
+  const inSideScroller = (el) => {
+    for (let p = el.parentElement; p && p !== root; p = p.parentElement) {
+      if (p.matches('[data-scroll]')) return false;
+      const x = getComputedStyle(p).overflowX;
+      if (x === 'auto' || x === 'scroll') return true;
+    }
+    return false;
+  };
+
   // Horizontal overflow
   for (const el of root.querySelectorAll('.content, [data-scroll]')) {
     if (el.scrollWidth > el.clientWidth + 1)
       out.push(['overflow', desc(el), `scrollWidth ${el.scrollWidth} > ${el.clientWidth}`]);
   }
   for (const el of root.querySelectorAll('*')) {
-    if (!visible(el) || el.closest('.table-wrap') || visuallyHidden(el)) continue;
+    if (!visible(el) || inSideScroller(el) || visuallyHidden(el)) continue;
     const r = el.getBoundingClientRect();
     if (r.right > rootRect.right + 1 || r.left < rootRect.left - 1)
       out.push(['outside-screen', desc(el), `x ${Math.round(r.left)}–${Math.round(r.right)}`]);
@@ -106,8 +118,7 @@ function inspect({ mobile }) {
   for (const el of root.querySelectorAll(
     'b, span, small, p, h1, h2, h3, a, button, label, td, th',
   )) {
-    if (!visible(el) || el.closest('.table-wrap') || el.children.length || visuallyHidden(el))
-      continue;
+    if (!visible(el) || inSideScroller(el) || el.children.length || visuallyHidden(el)) continue;
     const s = getComputedStyle(el);
     if (s.textOverflow === 'ellipsis' || s.overflow === 'visible') continue;
     if (el.scrollWidth > el.clientWidth + 1)
@@ -215,7 +226,7 @@ for (const file of FILES) {
         await page.evaluate(() => setView('desktop'));
         await page.addStyleTag({
           content:
-            '.stage{padding:0!important}.stage .frame{border-radius:0!important;box-shadow:none!important}',
+            '.stage{padding:0!important}.stage .frame{border-radius:0!important;box-shadow:none!important}.proto-panel{display:none!important}',
         });
       }
     };
@@ -317,6 +328,79 @@ for (const file of FILES) {
         await page.evaluate((l) => setLogo(l), logo);
         await check(`${vp.name}px logo ${logo}`);
       }
+    }
+
+    // Block options of a mix-and-match prototype: each option with the other blocks at their defaults
+    if (kit && (await has(page, 'setBlock'))) {
+      const blocks = await page.evaluate(() => {
+        resetBlocks();
+        return Object.entries(BLOCKS).map(([id, b]) => [id, Object.keys(b.options), picks[id]]);
+      });
+      for (const [id, options, byDefault] of blocks) {
+        // The default option was checked above
+        for (const option of options.filter((o) => o !== byDefault)) {
+          await page.evaluate(
+            ([b, o]) => {
+              resetBlocks();
+              setBlock(b, o);
+            },
+            [id, option],
+          );
+          await page.evaluate((p) => go(p), pages[0]);
+          for (const mode of modes) {
+            if (mode) await page.evaluate((c) => setNavCollapsed(c), mode === 'collapsed');
+            for (const scheme of SCHEMES) {
+              await page.evaluate((s) => {
+                state.schemePref = s;
+                applyScheme();
+              }, scheme);
+              const where = [`${vp.name}px`, mode, scheme, `${id}=${option}`]
+                .filter(Boolean)
+                .join(' ');
+              await check(where);
+              if (await page.evaluate(lastRowCovered))
+                report(
+                  name,
+                  'fab-covers-content',
+                  'last row',
+                  'a floating button covers it',
+                  where,
+                );
+              for (const [c, t, d] of await runAxe(page)) report(name, c, t, d, where);
+            }
+          }
+          // States the option may change: menu, Add sheet, waking up (light, the last nav mode)
+          await page.evaluate(() => {
+            state.schemePref = 'light';
+            applyScheme();
+          });
+          const state0 = [`${vp.name}px`, `${id}=${option}`].join(' ');
+          for (const action of ['more', 'add']) {
+            const opened = await page.evaluate((a) => {
+              const b = [...document.querySelectorAll(`[data-action="${a}"]`)].find(
+                (x) => x.getBoundingClientRect().width > 0,
+              );
+              b?.click();
+              return Boolean(b);
+            }, action);
+            if (opened) {
+              await check(`${state0} ${action} open`);
+              await page.keyboard.press('Escape');
+            }
+          }
+          if (await has(page, 'coldStart')) {
+            await page.evaluate(() => coldStart());
+            await check(`${state0} waking`);
+            for (const [c, t, d] of await runAxe(page)) report(name, c, t, d, `${state0} waking`);
+            if (id === 'wake' && SCREENSHOT_VIEWPORTS.includes(vp.name)) await shot(id, option);
+            await page.evaluate(() => endColdStart());
+          }
+          if (modes[0]) await page.evaluate(() => setNavCollapsed(false));
+          if (id !== 'wake' && SCREENSHOT_VIEWPORTS.includes(vp.name)) await shot(id, option);
+        }
+      }
+      await page.evaluate(() => resetBlocks());
+      if (modes[0]) await page.evaluate(() => setNavCollapsed(null));
     }
 
     // Keyboard: visible focus ring on the first tab stops

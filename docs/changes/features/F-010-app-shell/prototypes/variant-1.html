@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>F-010 · Variant 1 — Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Spectral:wght@300;400&display=swap">
+<style>
+/* ---------- Preview bar and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(460px, calc(100vw - 32px)); background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.pv-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.pv-notes li + li { margin-top: 4px; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='tablet'] .frame { width: 834px; height: min(1050px, 100%); border: 12px solid #16181d; border-radius: 28px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+@media (max-width: 600px) {
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+}
+
+/* ---------- Structure shared by all three directions (the look comes from each direction's skin) ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+:where(.app) :where(button, input, select) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, h3, p) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.amt { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.side { display: none; }
+.main { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+.top { flex: none; display: flex; align-items: center; gap: 4px; height: 56px; padding: 0 8px 0 16px; }
+.top .brand { margin-right: auto; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.logo { width: 32px; height: 32px; display: grid; place-items: center; flex: none; }
+.scroll { flex: 1; overflow: hidden auto; }
+.content { padding: 8px 16px 32px; max-width: 880px; margin: 0 auto; }
+.app[data-page='reports'] .content { max-width: 1180px; }
+.icon-btn { width: 44px; height: 44px; display: inline-grid; place-items: center; border: 0; background: none; border-radius: var(--r-sm); cursor: pointer; color: var(--text); text-decoration: none; }
+.icon-btn:hover { background: var(--hover); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: inline-grid; place-items: center; flex: none; font-size: 13px; font-weight: 500; background: var(--hover); color: var(--text); }
+
+/* Phone tab bar */
+.tabs { flex: none; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; padding: 6px 4px calc(8px + env(safe-area-inset-bottom)); }
+.tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 52px; border: 0; background: none; cursor: pointer; text-decoration: none; color: var(--muted); font-size: 11px; line-height: 1; }
+.tab[aria-current], .app[data-page='family'] .tab-more, .app[data-page='settings'] .tab-more { color: var(--active-text); }
+.tab-add { display: grid; place-items: center; }
+.tab-add button { width: 52px; height: 52px; display: grid; place-items: center; border: 0; cursor: pointer; background: var(--primary); color: var(--on-primary); }
+.tab-add button:hover { background: var(--primary-hover); }
+
+/* Desktop sidebar: expanded (resizable) or collapsed to an icon rail */
+@container app (min-width: 768px) {
+  .app { grid-template-columns: var(--side-w, 248px) minmax(0, 1fr); }
+  .app:not([data-resizing]) { transition: grid-template-columns .18s ease; }
+  .top, .tabs { display: none; }
+  .side { display: flex; flex-direction: column; gap: 2px; position: relative; min-width: 0; padding: 12px 12px 12px; }
+  .side-head { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 0 0 6px; margin-bottom: 12px; }
+  .side-head .brand-name { margin-right: auto; white-space: nowrap; overflow: hidden; }
+  .side-add { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; margin-bottom: 14px; padding: 0 14px; border: 0; cursor: pointer; background: var(--primary); color: var(--on-primary); white-space: nowrap; }
+  .side-add:hover { background: var(--primary-hover); }
+  .side-link { position: relative; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 10px; border: 0; background: none; cursor: pointer; text-decoration: none; color: var(--text); white-space: nowrap; width: 100%; text-align: left; line-height: 1; }
+  .side-link:hover { background: var(--hover); }
+  .side-link[aria-current] { background: var(--active-bg); color: var(--active-text); }
+  .side-foot { margin-top: auto; display: grid; gap: 2px; padding-top: 10px; }
+  .side-user { display: flex; align-items: center; gap: 10px; padding: 6px 8px; white-space: nowrap; min-width: 0; }
+  .side-user small { display: block; color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+  .side-resize { position: absolute; top: 0; right: -4px; width: 8px; height: 100%; cursor: col-resize; z-index: 3; touch-action: none; }
+  .side-resize::after { content: ''; position: absolute; top: 0; bottom: 0; left: 3px; width: 2px; background: transparent; transition: background .15s; }
+  .side-resize:hover::after, .side-resize:focus-visible::after, .app[data-resizing] .side-resize::after { background: var(--focus); }
+  .app[data-resizing] { cursor: col-resize; user-select: none; }
+
+  .app[data-collapsed] .side { padding: 12px 0; align-items: center; }
+  .app[data-collapsed] .side-head { flex-direction: column; height: auto; gap: 8px; padding: 0; }
+  .app[data-collapsed] .brand-name, .app[data-collapsed] .side .lbl, .app[data-collapsed] .side-add .add-lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .app[data-collapsed] .side-add { width: 44px; height: 44px; min-height: 0; padding: 0; }
+  .app[data-collapsed] .side-link { width: 44px; height: 44px; padding: 0; justify-content: center; }
+  .app[data-collapsed] .side-foot { justify-items: center; width: 100%; }
+  .app[data-collapsed] .side-user { padding: 6px 0; justify-content: center; }
+  .app[data-collapsed] .side [data-tip]:is(:hover, :focus-visible)::after { content: attr(data-tip); position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); padding: 6px 10px; border-radius: var(--r-sm); background: var(--tip-bg); color: var(--tip-text); font-size: 13px; white-space: nowrap; pointer-events: none; z-index: 20; }
+  .content { padding: 28px 40px 48px; }
+}
+
+/* Page building blocks (structure only) */
+.page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; margin: 8px 0 18px; }
+.month { display: inline-flex; align-items: center; gap: 2px; }
+.summary { position: relative; margin-bottom: 24px; }
+.summary > *:not(svg) { position: relative; }
+.summary-split { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 56px; padding: 8px 0; }
+.row-main, .row-side { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.row-side { align-items: flex-end; text-align: right; flex: none; }
+.row-sub { font-size: 13px; color: var(--muted); }
+.day-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.table-wrap { overflow-x: auto; }
+table.report { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 13px; }
+table.report th, table.report td { padding: 9px 12px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+table.report th:first-child, table.report td:first-child { text-align: left; position: sticky; left: 0; z-index: 1; }
+.member { display: flex; align-items: center; gap: 12px; min-height: 60px; }
+.member .row-main { flex: 1; }
+.form { display: grid; gap: 18px; max-width: 480px; }
+.field label { display: block; margin-bottom: 6px; }
+.input { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--rule); background: var(--surface); border-radius: var(--r-sm); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--r-sm); cursor: pointer; white-space: nowrap; text-decoration: none; line-height: 1; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-quiet { background: transparent; border-color: var(--rule); color: var(--text); }
+.btn-quiet:hover { background: var(--hover); }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--r-sm); background: var(--hover); }
+.seg button { min-height: 44px; padding: 0 14px; border: 0; background: none; border-radius: calc(var(--r-sm) - 2px); cursor: pointer; color: var(--muted); }
+.seg button[aria-pressed='true'] { background: var(--surface); color: var(--text); }
+@container app (min-width: 768px) { .seg button { min-height: 34px; } }
+
+/* Waking up */
+.wake { display: none; align-items: center; gap: 12px; padding: 10px 16px; }
+.app[data-waking] .wake { display: flex; }
+.wake .sec { margin-left: auto; font-variant-numeric: tabular-nums; }
+.wake .txt { display: flex; flex-direction: column; gap: 1px; }
+.wake .txt small { font-size: 12px; color: var(--muted); }
+.sk { background: var(--skeleton); border-radius: 4px; position: relative; overflow: hidden; }
+.sk::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, var(--shimmer), transparent); animation: sk 1.4s infinite; }
+@keyframes sk { to { transform: translateX(100%); } }
+
+/* Sheets */
+.overlay { position: absolute; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; background: var(--overlay); }
+.overlay[hidden] { display: none; }
+.sheet { width: 100%; background: var(--surface); color: var(--text); border-radius: var(--r-lg) var(--r-lg) 0 0; padding: 10px 16px 20px; animation: up .2s ease-out; }
+@keyframes up { from { transform: translateY(24px); opacity: .5; } }
+.sheet .grab { width: 36px; height: 4px; border-radius: 4px; background: var(--rule); margin: 0 auto 12px; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.menu-item { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 52px; padding: 0 12px; border: 0; background: none; border-radius: var(--r-sm); cursor: pointer; text-decoration: none; color: var(--text); text-align: left; line-height: 1; }
+.menu-item:hover { background: var(--hover); }
+.menu-item[aria-current] { background: var(--active-bg); color: var(--active-text); }
+.amount-input { width: 100%; min-height: 64px; margin: 14px 0; border: 0; border-bottom: 1px solid var(--rule); background: none; text-align: center; font-variant-numeric: tabular-nums; }
+.sheet .note { font-size: 12px; color: var(--muted); text-align: center; margin-top: 10px; }
+@container app (min-width: 768px) {
+  .overlay { align-items: center; }
+  .sheet { width: 440px; border-radius: var(--r-lg); padding: 20px 24px 24px; }
+  .sheet .grab { display: none; }
+}
+.toast { position: absolute; left: 50%; bottom: 100px; transform: translateX(-50%); z-index: 60; padding: 10px 16px; border-radius: var(--r-sm); background: var(--tip-bg); color: var(--tip-text); white-space: nowrap; }
+@container app (min-width: 768px) { .toast { bottom: 24px; } }
+@media (prefers-reduced-motion: reduce) { .app, .app *, .app *::after { animation: none !important; transition: none !important; } }
+
+/* ---------- Direction 1 — Ledger: the family spreadsheet, typeset properly ---------- */
+.app { --font-text: 'IBM Plex Sans', system-ui, sans-serif; --font-num: 'Spectral', Georgia, serif; --r-sm: 4px; --r-lg: 10px; }
+.app[data-scheme='light'] {
+  --bg: #fbfaf6; --surface: #ffffff; --side: #f4f2ec; --rule: #e2ddd1; --rule-soft: #ece8de; --text: #22252b; --muted: #5e6470;
+  --hover: #efece4; --primary: #1f2f4d; --primary-hover: #2a3d61; --on-primary: #ffffff; --active-bg: #e6e9f0; --active-text: #1f2f4d;
+  --logo-bg: #c9a227; --logo-fg: #1f2f4d; --pos: #2e7d4f; --neg: #b3261e; --focus: #1f2f4d;
+  --skeleton: #ece8de; --shimmer: rgba(255,255,255,.6); --overlay: rgba(20,22,26,.35); --tip-bg: #22252b; --tip-text: #fbfaf6;
+}
+.app[data-scheme='dark'] {
+  --bg: #16171a; --surface: #1d1e22; --side: #1a1b1e; --rule: #33353b; --rule-soft: #2a2c31; --text: #e8e6e1; --muted: #a6a49e;
+  --hover: #26272c; --primary: #e8e6e1; --primary-hover: #ffffff; --on-primary: #16171a; --active-bg: #2a2c33; --active-text: #f1ead6;
+  --logo-bg: #c9a227; --logo-fg: #16171a; --pos: #7cc79a; --neg: #ff8f85; --focus: #e8e6e1;
+  --skeleton: #26272c; --shimmer: rgba(255,255,255,.05); --overlay: rgba(0,0,0,.55); --tip-bg: #e8e6e1; --tip-text: #16171a;
+}
+.logo { background: var(--logo-bg); color: var(--logo-fg); border-radius: 8px; }
+.brand-name { font-family: var(--font-num); font-size: 19px; font-weight: 400; }
+.top { background: var(--bg); border-bottom: 1px solid var(--rule-soft); }
+.side { background: var(--side); border-right: 1px solid var(--rule); }
+.side-add { border-radius: var(--r-sm); font-weight: 500; }
+.side-link { border-radius: var(--r-sm); font-size: 14px; }
+.side-link[aria-current] { font-weight: 500; }
+.side-user small { font-size: 12px; }
+
+h1 { font-family: var(--font-num); font-weight: 400; font-size: 30px; line-height: 1.15; }
+.month span { font-family: var(--font-num); font-size: 17px; }
+.summary-label { font-size: 13px; color: var(--muted); }
+.summary-amount { font-family: var(--font-num); font-weight: 300; font-size: 46px; line-height: 1.05; display: inline-block; padding-bottom: 6px; border-bottom: 3px double var(--text); margin: 4px 0 10px; }
+.summary-split { font-size: 13px; color: var(--muted); }
+.page-note { color: var(--muted); font-size: 13px; margin: -6px 0 14px; }
+
+.day { margin-top: 22px; }
+.day-head { font-family: var(--font-num); font-weight: 400; font-size: 16px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.day-date, .day-total { color: var(--muted); }
+.day-total { font-size: 15px; }
+.tx { border-bottom: 1px solid var(--rule-soft); }
+.tx .amt { font-family: var(--font-num); font-size: 17px; }
+.neg { color: var(--neg); } .pos { color: var(--pos); } .neu { color: var(--text); }
+
+.accounts { border-top: 1px solid var(--rule); }
+.account { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 60px; border-bottom: 1px solid var(--rule-soft); }
+.account-bal { font-family: var(--font-num); font-size: 18px; }
+
+.table-wrap { border-top: 1px solid var(--text); border-bottom: 1px solid var(--text); }
+table.report th, table.report td { border-bottom: 1px solid var(--rule-soft); }
+table.report thead th { font-weight: 500; color: var(--muted); font-size: 12px; }
+table.report th:first-child, table.report td:first-child { background: var(--bg); }
+table.report tr.group th { font-family: var(--font-num); font-weight: 400; font-size: 15px; text-align: left; padding-top: 16px; border-bottom-color: var(--rule); }
+table.report td.total { font-weight: 500; }
+
+.members { border-top: 1px solid var(--rule); }
+.member { border-bottom: 1px solid var(--rule-soft); }
+.role { font-size: 13px; color: var(--muted); }
+.field label, .field .label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+.btn { font-weight: 500; }
+
+.tabs { background: var(--bg); border-top: 1px solid var(--rule); }
+.tab[aria-current] { font-weight: 500; }
+.tab-add button { border-radius: var(--r-lg); }
+.wake { background: var(--side); border-bottom: 1px solid var(--rule); }
+.sheet-head h2 { font-family: var(--font-num); font-weight: 400; font-size: 22px; }
+.amount-input { font-family: var(--font-num); font-weight: 300; font-size: 40px; }
+
+@container app (min-width: 768px) {
+  h1 { font-size: 34px; }
+  .summary-amount { font-size: 56px; }
+}
+
+</style>
+</head>
+<body>
+<div class="stage"><div class="frame">
+<div class="app" id="app" data-direction="ledger">
+  <aside class="side" aria-label="Sidebar">
+    <div class="side-head"><span class="logo" data-logo></span><span class="brand-name">Pup Budget</span><button class="icon-btn side-toggle" id="side-toggle" data-action="collapse"></button></div>
+    <button class="side-add" id="side-add" data-action="add" data-tip="Add transaction"></button>
+    <nav class="side-nav" id="side-nav" aria-label="Main navigation"></nav>
+    <div class="side-foot">
+      <button class="side-link" data-action="theme" data-theme-tip data-tip="Dark mode"><span data-theme-icon></span><span class="lbl" data-theme-label>Dark mode</span></button>
+      <div class="side-user"><span class="avatar" aria-hidden="true">Y</span><span class="lbl"><span>Yulia</span><small>yulia@example.com</small></span></div>
+    </div>
+    <div class="side-resize" id="side-resize" role="separator" aria-orientation="vertical" aria-label="Resize sidebar" aria-valuemin="72" aria-valuemax="320" tabindex="0" title="Drag to resize, double-click to collapse"></div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <div class="brand"><span class="logo" data-logo></span><span class="brand-name">Pup Budget</span></div>
+      <button class="icon-btn" data-action="theme" aria-label="Switch light or dark mode"><span data-theme-icon></span></button>
+      <a href="#settings" class="icon-btn" data-nav="settings" aria-label="Settings"><span class="avatar" aria-hidden="true">Y</span></a>
+    </header>
+    <div class="wake" role="status" aria-live="polite"><span class="wake-icon" data-wake-icon></span><span class="txt"><span>Waking up the server…</span><small>It sleeps at night to stay free. Usually 20–60 seconds.</small></span><span class="sec" data-elapsed>0 s</span></div>
+    <main class="scroll" data-scroll><div class="content" id="page"></div></main>
+    <nav class="tabs" id="tabs" aria-label="Main navigation"></nav>
+  </div>
+  <div class="overlay" id="more" hidden></div>
+  <div class="overlay" id="add" hidden></div>
+</div>
+</div></div>
+<script>
+const DIRECTION = {
+      id: 'ledger', name: 'Variant 1 — Ledger', stroke: 1.6, defaultScheme: 'system',
+      thesis: 'Your family spreadsheet, typeset properly: paper, fine rules, light serif numbers, a double rule under the total.',
+      notes: [
+        'Type: Spectral (light serif) for headings and amounts, IBM Plex Sans for text. Weights 300–500.',
+        'Colors: paper and ink; ink-blue primary, gold logo. Lines only where rows need them; no shadows.',
+        ...["<b>Sidebar (≥ 768 px):</b> the icon button next to the logo collapses it to an icon rail; or drag its right edge — it resizes between 208 and 320 px and snaps to the rail when dragged narrow. Double-click the edge, or focus it and use ← → / Enter. Collapsed by default below 1024 px; your choice is remembered.","<b>Phone:</b> bottom tabs with Add in the centre; More opens Family, Settings and the theme switch.","Page content is sample data to judge the shell; each page gets its own design in its feature."],
+      ],
+    };
+</script>
+<script>
+// ---------- Icons: Tabler outlines (24 × 24); stroke width comes from the direction ----------
+const ICONS = {
+  receipt: ['M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2', 'M9 7h6', 'M9 11h6', 'M9 15h4'],
+  wallet: ['M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12', 'M20 12v4h-4a2 2 0 0 1 0 -4h4'],
+  chart: ['M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M4 20h14'],
+  users: ['M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2', 'M16 3.13a4 4 0 0 1 0 7.75', 'M21 21v-2a4 4 0 0 0 -3 -3.85'],
+  settings: ['M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z', 'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0'],
+  plus: ['M12 5l0 14', 'M5 12l14 0'],
+  dots: ['M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  sun: ['M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7'],
+  moon: ['M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z'],
+  left: ['M15 6l-6 6l6 6'],
+  right: ['M9 6l6 6l-6 6'],
+  x: ['M18 6l-12 12', 'M6 6l12 12'],
+  logout: ['M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2', 'M9 12h12l-3 -3', 'M18 15l3 -3'],
+  collapse: ['M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z', 'M9 4v16', 'M15 10l-2 2l2 2'],
+  expand: ['M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z', 'M9 4v16', 'M14 10l2 2l-2 2'],
+  zzz: ['M4 12h6l-6 8h6', 'M14 4h6l-6 8h6'],
+  userPlus: ['M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0', 'M16 19h6', 'M19 16v6', 'M6 21v-2a4 4 0 0 1 4 -4h4'],
+  pcoin: ['M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0', 'M10 16.5v-9h2.75a2.5 2.5 0 0 1 0 5h-2.75'],
+};
+function icon(name, size = 20) {
+  return `<svg class="ic" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${DIRECTION.stroke}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name].map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+}
+
+// ---------- Sample data ----------
+const PAGES = [
+  { id: 'transactions', label: 'Transactions', icon: 'receipt' },
+  { id: 'accounts', label: 'Accounts', icon: 'wallet' },
+  { id: 'reports', label: 'Reports', icon: 'chart' },
+  { id: 'family', label: 'Family', icon: 'users' },
+  { id: 'settings', label: 'Settings', icon: 'settings' },
+];
+const SYMBOL = { UAH: ['', ' ₴'], USD: ['$', ''], EUR: ['€', ''] };
+function money(n, cur = 'UAH', sign = '') {
+  const [int, dec] = Math.abs(n).toFixed(2).split('.');
+  const [pre, post] = SYMBOL[cur];
+  return `${sign}${pre}${int.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}.${dec}${post}`;
+}
+const DAYS = [
+  { label: 'Today', date: '27 October', total: '−1 395.00 ₴', items: [
+    { t: 'exp', cat: 'Groceries', note: 'Silpo', acc: 'Monobank UAH', amt: 1250, cur: 'UAH' },
+    { t: 'exp', cat: 'Eating out', note: 'Coffee', acc: 'Cash UAH', amt: 145, cur: 'UAH' },
+    { t: 'tr', cat: 'Transfer', note: 'Monobank UAH → Cash UAH', acc: '', amt: 2000, cur: 'UAH' },
+  ] },
+  { label: 'Yesterday', date: '26 October', total: '+51 012.50 ₴', items: [
+    { t: 'inc', cat: 'Salary', note: 'October', acc: 'PrivatBank USD', amt: 1250, cur: 'USD' },
+    { t: 'exp', cat: 'Subscriptions', note: 'Spotify', acc: 'Monobank UAH', amt: 199, cur: 'UAH' },
+    { t: 'exp', cat: 'Transportation', note: 'Uklon', acc: 'Monobank UAH', amt: 238.5, cur: 'UAH' },
+  ] },
+  { label: 'Saturday', date: '25 October', total: '−1 916.70 ₴', items: [
+    { t: 'exp', cat: 'Activities', note: 'Museum tickets', acc: 'Cash EUR', amt: 24, cur: 'EUR' },
+    { t: 'exp', cat: 'Groceries', note: 'ATB', acc: 'Monobank UAH', amt: 864.3, cur: 'UAH' },
+  ] },
+];
+const ACCOUNTS = [
+  { name: 'Monobank UAH', inst: 'Monobank', bal: 24350, cur: 'UAH', kind: 'mono' },
+  { name: 'PrivatBank USD', inst: 'PrivatBank', bal: 1200, cur: 'USD', kind: 'privat' },
+  { name: 'Cash UAH', inst: 'Cash', bal: 1850, cur: 'UAH', kind: 'cash' },
+  { name: 'Cash EUR', inst: 'Cash', bal: 300, cur: 'EUR', kind: 'cash-eur' },
+];
+const CUR_OF = Object.fromEntries(ACCOUNTS.map((a) => [a.name, a.cur]));
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+const REPORT = [
+  { group: 'Income', rows: [['Salary', 50000, 2]] },
+  { group: 'Home expenses', rows: [['Rent', 18000, 0], ['Bills', 3200, 9]] },
+  { group: 'Daily living', rows: [['Groceries', 7800, 14], ['Eating out', 2100, 30], ['Transportation', 1400, 22]] },
+];
+
+// ---------- Pages (the same structure for every direction; each skin styles it) ----------
+const plain = (n) => money(n).replace(' ₴', '');
+function txRow(x) {
+  const cls = x.t === 'exp' ? 'neg' : x.t === 'inc' ? 'pos' : 'neu';
+  const sign = x.t === 'exp' ? '−' : x.t === 'inc' ? '+' : '';
+  const acc = x.acc ? `<span class="row-sub">${DIRECTION.chips ? `<i class="chip" data-cur="${CUR_OF[x.acc]}"></i>` : ''}${x.acc}</span>` : '';
+  return `<div class="row tx"><div class="row-main"><span class="row-title">${x.cat}</span><span class="row-sub">${x.note}</span></div><div class="row-side"><span class="amt ${cls}">${money(x.amt, x.cur, sign)}</span>${acc}</div></div>`;
+}
+const monthSwitch = () => `<div class="month"><button class="icon-btn" aria-label="Previous month">${icon('left')}</button><span>October 2026</span><button class="icon-btn" aria-label="Next month">${icon('right')}</button></div>`;
+function summary(label, amount, split) {
+  return `<section class="summary" aria-label="${label}">${DIRECTION.summaryDecor?.() ?? ''}<p class="summary-label">${label}</p><p class="summary-amount amt">${amount}</p>${split ? `<p class="summary-split">${split}</p>` : ''}</section>`;
+}
+function accountCard(a) {
+  return `<div class="account" data-kind="${a.kind}" data-cur="${a.cur}"><div class="row-main"><span class="row-title">${a.name}</span><span class="row-sub">${a.inst}</span></div><span class="amt account-bal">${money(a.bal, a.cur)}</span></div>`;
+}
+const RENDER = {
+  transactions: () => `
+    <div class="page-head"><h1>Transactions</h1>${monthSwitch()}</div>
+    ${summary('Net in October', `+${money(33569.5)}`, `<span>Income <span class="amt pos">+${money(52000)}</span></span><span>Expenses <span class="amt neg">−${money(18430.5)}</span></span>`)}
+    ${DIRECTION.cardsOnTransactions ? `<div class="cards" role="region" tabindex="0" aria-label="Accounts">${ACCOUNTS.slice(0, 3).map(accountCard).join('')}</div>` : ''}
+    <div class="days">${DAYS.map((d) => `<section class="day"><h2 class="day-head"><span>${d.label} <span class="day-date">${d.date}</span></span><span class="amt day-total">${d.total}</span></h2><div class="day-rows">${d.items.map(txRow).join('')}</div></section>`).join('')}</div>`,
+  accounts: () => `
+    <div class="page-head"><h1>Accounts</h1><button class="btn btn-quiet">${icon('plus', 16)}New account</button></div>
+    ${summary('Total balance', money(87950), "In hryvnias at today's NBU rate")}
+    <div class="accounts">${ACCOUNTS.map(accountCard).join('')}</div>`,
+  reports: () => {
+    const val = (base, j, i) => base + ((i * 37 + j * 13) % 9) * j * 10;
+    const body = REPORT.map((g) => `<tr class="group"><th scope="rowgroup" colspan="${MONTHS.length + 3}">${g.group}</th></tr>` + g.rows.map(([name, base, j]) => {
+      const vals = MONTHS.map((_, i) => val(base, j, i));
+      const total = vals.reduce((a, b) => a + b, 0);
+      return `<tr><td>${name}</td>${vals.map((v) => `<td>${plain(v)}</td>`).join('')}<td class="total">${plain(total)}</td><td>${plain(total / MONTHS.length)}</td></tr>`;
+    }).join('')).join('');
+    return `
+    <div class="page-head"><h1>Reports</h1><div class="seg" role="group" aria-label="Period"><button aria-pressed="true">Year</button><button aria-pressed="false">Month</button></div></div>
+    <p class="page-note">2026, in hryvnias at the NBU rate on each transaction's date</p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Yearly report"><table class="report"><thead><tr><th scope="col">Category</th>${MONTHS.map((m) => `<th scope="col">${m}</th>`).join('')}<th scope="col">Total</th><th scope="col">Avg</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  },
+  family: () => `
+    <div class="page-head"><h1>Family</h1><button class="btn btn-primary">${icon('userPlus', 16)}Invite member</button></div>
+    <div class="members">
+      <div class="member"><span class="avatar">Y</span><div class="row-main"><span class="row-title">Yulia</span><span class="row-sub">yulia@example.com</span></div><span class="role">Owner</span></div>
+      <div class="member"><span class="avatar">V</span><div class="row-main"><span class="row-title">Vlad</span><span class="row-sub">vlad@example.com</span></div><span class="role">Member</span></div>
+    </div>
+    <p class="page-note">You see each other's accounts, transactions and the family report.</p>`,
+  settings: () => `
+    <div class="page-head"><h1>Settings</h1></div>
+    <div class="form">
+      <div class="field"><label for="dn">Display name</label><input id="dn" class="input" value="Yulia"></div>
+      <div class="field"><label for="rc">Report currency</label><select id="rc" class="input"><option>UAH, Ukrainian hryvnia</option><option>USD, US dollar</option><option>EUR, euro</option></select></div>
+      <div class="field"><span class="label" id="th">Theme</span><div class="seg" role="group" aria-labelledby="th"><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div></div>
+      <div><button class="btn btn-quiet">${icon('logout', 16)}Sign out</button></div>
+    </div>`,
+};
+function skeleton() {
+  const row = '<div class="row"><div style="flex:1"><div class="sk" style="height:12px;width:40%;margin-bottom:8px"></div><div class="sk" style="height:10px;width:24%"></div></div><div class="sk" style="height:12px;width:84px"></div></div>';
+  return `<div class="page-head"><div class="sk" style="height:28px;width:180px"></div></div>
+    <div class="summary"><div class="sk" style="height:12px;width:110px;margin-bottom:10px"></div><div class="sk" style="height:40px;width:240px;margin-bottom:10px"></div><div class="sk" style="height:12px;width:260px"></div></div>
+    <div class="days">${row}${row}${row}${row}</div>`;
+}
+
+// ---------- Shell ----------
+const app = document.getElementById('app');
+const stage = document.querySelector('.stage');
+const state = { page: 'transactions', schemePref: DIRECTION.defaultScheme, waking: false };
+const mq = matchMedia('(prefers-color-scheme: dark)');
+function applyScheme() {
+  const scheme = state.schemePref === 'system' ? (mq.matches ? 'dark' : 'light') : state.schemePref;
+  app.dataset.scheme = scheme;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+  document.querySelectorAll('[data-theme-icon]').forEach((el) => { el.innerHTML = icon(scheme === 'dark' ? 'sun' : 'moon'); });
+  document.querySelectorAll('[data-theme-label]').forEach((el) => { el.textContent = scheme === 'dark' ? 'Light mode' : 'Dark mode'; });
+  document.querySelectorAll('[data-theme-tip]').forEach((el) => { el.dataset.tip = scheme === 'dark' ? 'Light mode' : 'Dark mode'; });
+}
+mq.addEventListener('change', applyScheme);
+
+function render() {
+  app.dataset.page = state.page;
+  document.querySelectorAll('[data-nav]').forEach((el) => (el.dataset.nav === state.page ? el.setAttribute('aria-current', 'page') : el.removeAttribute('aria-current')));
+  document.getElementById('page').innerHTML = state.waking ? skeleton() : RENDER[state.page]();
+  document.querySelector('[data-scroll]').scrollTo(0, 0);
+  applyScheme();
+}
+function go(id) { state.page = id; closeSheets(); render(); }
+
+// Sidebar: an icon button toggles it; dragging the edge resizes it and snaps to the icon rail when narrow
+const NAV_KEY = `pup.f010.${DIRECTION.id}.nav`;
+const SIDE_MIN = 208, SIDE_MAX = 320, SIDE_RAIL = 72, SNAP = 150;
+let navPref = null;
+try { navPref = JSON.parse(localStorage.getItem(NAV_KEY)); } catch { /* storage blocked */ }
+function saveNav() { try { localStorage.setItem(NAV_KEY, JSON.stringify(navPref)); } catch { /* storage blocked */ } }
+function applyNav() {
+  const collapsed = navPref?.collapsed ?? app.clientWidth < 1024;
+  const width = navPref?.width ?? 248;
+  app.toggleAttribute('data-collapsed', collapsed);
+  app.style.setProperty('--side-w', `${collapsed ? SIDE_RAIL : width}px`);
+  const btn = document.getElementById('side-toggle');
+  btn.setAttribute('aria-expanded', String(!collapsed));
+  btn.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+  btn.dataset.tip = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
+  btn.innerHTML = icon(collapsed ? 'expand' : 'collapse');
+  const handle = document.getElementById('side-resize');
+  handle.setAttribute('aria-valuenow', String(collapsed ? SIDE_RAIL : width));
+  handle.setAttribute('aria-valuetext', collapsed ? 'Collapsed' : `${width} pixels`);
+}
+function setNavCollapsed(value) {
+  navPref = value === null ? null : { width: navPref?.width ?? 248, collapsed: value };
+  if (value === null) { try { localStorage.removeItem(NAV_KEY); } catch { /* storage blocked */ } } else saveNav();
+  applyNav();
+}
+function resizeTo(w) {
+  navPref = w < SNAP ? { width: navPref?.width ?? 248, collapsed: true } : { width: Math.round(Math.min(SIDE_MAX, Math.max(SIDE_MIN, w))), collapsed: false };
+  applyNav();
+}
+const handle = document.getElementById('side-resize');
+handle.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  handle.setPointerCapture(e.pointerId);
+  app.dataset.resizing = '';
+  const left = document.querySelector('.side').getBoundingClientRect().left;
+  const move = (ev) => resizeTo(ev.clientX - left);
+  const up = () => { delete app.dataset.resizing; saveNav(); handle.removeEventListener('pointermove', move); handle.removeEventListener('pointerup', up); };
+  handle.addEventListener('pointermove', move);
+  handle.addEventListener('pointerup', up);
+});
+handle.addEventListener('dblclick', () => setNavCollapsed(!app.hasAttribute('data-collapsed')));
+handle.addEventListener('keydown', (e) => {
+  const collapsed = app.hasAttribute('data-collapsed');
+  const w = navPref?.width ?? 248;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); collapsed || w - 16 < SIDE_MIN ? setNavCollapsed(true) : resizeTo(w - 16); saveNav(); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); collapsed ? setNavCollapsed(false) : resizeTo(w + 16); saveNav(); }
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNavCollapsed(!collapsed); }
+});
+new ResizeObserver(applyNav).observe(app);
+
+// Sheets
+function openSheet(id) { closeSheets(); const o = document.getElementById(id); o.hidden = false; o.querySelector('button, input')?.focus(); }
+function closeSheets() { document.querySelectorAll('.overlay').forEach((o) => { o.hidden = true; }); }
+
+// Waking up (shown in the app after ~3 s without an answer; here at once)
+let wakeTimer;
+function coldStart() {
+  clearInterval(wakeTimer);
+  state.waking = true; app.dataset.waking = '';
+  const start = Date.now();
+  document.querySelectorAll('[data-elapsed]').forEach((el) => { el.textContent = '0 s'; });
+  render();
+  wakeTimer = setInterval(() => {
+    const s = Math.floor((Date.now() - start) / 1000);
+    document.querySelectorAll('[data-elapsed]').forEach((el) => { el.textContent = `${s} s`; });
+    if (s >= 9) endColdStart(true);
+  }, 250);
+}
+function endColdStart(announce = false) {
+  clearInterval(wakeTimer);
+  state.waking = false; delete app.dataset.waking;
+  render();
+  if (announce) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = 'Connected';
+    app.appendChild(t); setTimeout(() => t.remove(), 2200);
+  }
+}
+
+// Fill in the shell
+const navLink = (p, cls) => `<a href="#${p.id}" class="${cls}" data-nav="${p.id}" data-tip="${p.label}">${icon(p.icon, cls === 'tab' ? 24 : 20)}<span class="lbl">${p.label}</span></a>`;
+document.querySelectorAll('[data-logo]').forEach((el) => { el.innerHTML = icon('pcoin', 20); });
+document.getElementById('side-nav').innerHTML = PAGES.map((p) => navLink(p, 'side-link')).join('');
+document.getElementById('side-add').innerHTML = `${icon('plus')}<span class="add-lbl">Add transaction</span>`;
+document.getElementById('tabs').innerHTML = navLink(PAGES[0], 'tab') + navLink(PAGES[1], 'tab')
+  + `<div class="tab-add"><button data-action="add" aria-label="Add transaction">${icon('plus', 24)}</button></div>`
+  + navLink(PAGES[2], 'tab')
+  + `<button class="tab tab-more" data-action="more" aria-haspopup="dialog">${icon('dots', 24)}<span class="lbl">More</span></button>`;
+document.getElementById('more').innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="More"><div class="grab"></div>
+  <a href="#family" class="menu-item" data-nav="family">${icon('users')}Family</a>
+  <a href="#settings" class="menu-item" data-nav="settings">${icon('settings')}Settings</a>
+  <button class="menu-item" data-action="theme"><span data-theme-icon></span><span data-theme-label>Dark mode</span></button>
+  <button class="menu-item">${icon('logout')}Sign out</button></div>`;
+document.getElementById('add').innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="add-title"><div class="grab"></div>
+  <div class="sheet-head"><h2 id="add-title">Add transaction</h2><button class="icon-btn" data-action="close" aria-label="Close">${icon('x')}</button></div>
+  <div class="seg" role="group" aria-label="Type" style="display:flex"><button style="flex:1" aria-pressed="true">Expense</button><button style="flex:1" aria-pressed="false">Income</button><button style="flex:1" aria-pressed="false">Transfer</button></div>
+  <input class="amount-input" inputmode="decimal" placeholder="0.00 ₴" aria-label="Amount">
+  <button class="btn btn-primary" style="width:100%" data-action="close">Save expense</button>
+  <p class="note">Placeholder: the form is designed in F-018.</p></div>`;
+document.querySelectorAll('[data-wake-icon]').forEach((el) => { el.innerHTML = icon('zzz'); });
+
+// Preview bar (review aid)
+document.body.insertAdjacentHTML('afterbegin', `<div class="pv-bar"><b>F-010 · ${DIRECTION.name}</b>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="tablet">Tablet</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <button data-action="cold">Simulate cold start</button><button data-action="notes" aria-expanded="false">About this direction</button>
+  <div class="pv-notes" id="notes" hidden><b>${DIRECTION.name}</b><p style="margin:4px 0 0">${DIRECTION.thesis}</p><ul>${DIRECTION.notes.map((n) => `<li>${n}</li>`).join('')}</ul></div></div>`);
+function setView(v) { stage.dataset.view = v; document.querySelectorAll('button[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); }
+setView(innerWidth >= 1200 ? 'desktop' : 'phone');
+
+document.addEventListener('click', (e) => {
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { e.preventDefault(); go(nav.dataset.nav); return; }
+  const s = e.target.closest('[data-scheme-set]');
+  if (s) { state.schemePref = s.dataset.schemeSet; applyScheme(); return; }
+  const v = e.target.closest('button[data-view]');
+  if (v) { setView(v.dataset.view); return; }
+  if (e.target.classList.contains('overlay')) { closeSheets(); return; }
+  const a = e.target.closest('[data-action]');
+  if (!a) return;
+  ({
+    add: () => openSheet('add'),
+    more: () => openSheet('more'),
+    close: closeSheets,
+    theme: () => { state.schemePref = app.dataset.scheme === 'dark' ? 'light' : 'dark'; applyScheme(); },
+    collapse: () => setNavCollapsed(!app.hasAttribute('data-collapsed')),
+    cold: coldStart,
+    notes: () => { const n = document.getElementById('notes'); n.hidden = !n.hidden; a.setAttribute('aria-expanded', String(!n.hidden)); },
+  })[a.dataset.action]?.();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeSheets(); document.getElementById('notes').hidden = true; } });
+render();
+applyNav();
+
+</script>
+</body>
+</html>
