@@ -168,6 +168,9 @@ In `frontend/src/app/shell/`, Mantine components with CSS modules; every color i
   found" inside the shell. The old home page is gone.
 - **No signed-in user yet** (F-011): the sidebar bottom and the phone top bar take an optional user; until then
   they show only the theme switch.
+- **Browser icon:** the logo (coin stack on a sky circle) replaces the Vite template's icon: `favicon.svg`, plus
+  `favicon.ico` (16 and 32 px) for browsers and tools without SVG icons and a 180 px `apple-touch-icon.png` for
+  iPhone home screens; the smoke E2E test checks they are served. The PWA's install icons follow in F-025.
 - **Bundle:** React, Mantine and other libraries are split into their own chunks (`vite.config.ts`), so the
   build has no size warning and libraries stay cached between releases.
 - **Fixed on the way:** the API client now looks up `fetch` on every call; it kept the one from start-up,

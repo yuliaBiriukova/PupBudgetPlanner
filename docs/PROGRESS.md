@@ -14,6 +14,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Fixed after the owner's testing: icons shrank to dots in the collapsed sidebar (only labels may shrink now);
   More and Add on the phone filled the screen. They are now bottom sheets like the prototype (shared
   `BottomSheet`: grab handle, rounded top, as tall as the content). E2E checks for both.
+- Browser icon: the app logo instead of the Vite template icon (SVG, ICO and an iPhone touch icon).
 
 **Next**
 - Open the F-010 pull request into `develop`.
