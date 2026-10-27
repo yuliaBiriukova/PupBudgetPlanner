@@ -38,7 +38,7 @@ Why this shape (details in [ADR 0002](decisions/0002-hosting-render-neon.md)):
 │  │  ├─ PupBudgetPlanner.Domain/          entities, value objects, domain rules (no dependencies)
 │  │  ├─ PupBudgetPlanner.Application/     use cases (services), DTOs, validation, interfaces
 │  │  ├─ PupBudgetPlanner.Infrastructure/  EF Core + PostgreSQL, Identity stores, NBU client
-│  │  └─ PupBudgetPlanner.Api/             controllers, auth setup, DI, OpenAPI, Dockerfile
+│  │  └─ PupBudgetPlanner.Api/             controllers, auth setup, DI, OpenAPI, SPA hosting
 │  └─ tests/
 │     ├─ PupBudgetPlanner.Domain.Tests/
 │     ├─ PupBudgetPlanner.Application.Tests/
@@ -70,9 +70,12 @@ Why this shape (details in [ADR 0002](decisions/0002-hosting-render-neon.md)):
 - **Validation:** FluentValidation. **Errors:** RFC 7807 `ProblemDetails`.
 - **OpenAPI:** built-in `Microsoft.AspNetCore.OpenApi`; the frontend generates TypeScript types from it.
 - **Hosting the SPA:** the React build is copied to `wwwroot`; ASP.NET Core serves it with static files and
-  `MapFallbackToFile("index.html")` for client-side routes. Everything under `/api` is the API.
-- **Behind Render's proxy:** forwarded headers (`X-Forwarded-Proto`/`Host`) are enabled so generated URLs
-  (e.g. the Google callback) use `https`.
+  `MapFallbackToFile("index.html")` for client-side routes. Everything under `/api` is the API (unknown `/api`
+  routes are 404s, not `index.html`). Hashed bundles in `/assets` are cached for a year, the rest is `no-cache`
+  ([ADR 0010](decisions/0010-docker-image.md)).
+- **Behind Render's proxy:** forwarded headers (`X-Forwarded-For`/`Proto`) are enabled so generated URLs
+  (e.g. the Google callback) use `https`; Render passes the `Host` header through. HTTPS redirection runs only in
+  Development (Render redirects in production); production sends HSTS.
 - **Data Protection keys are stored in the database.** Render's disk is wiped on every restart (and the free
   service restarts after each sleep); with keys on disk, every user would be signed out each morning.
 - **Report calculation** is a pure, in-memory component (`ReportBuilder`): it gets transactions and rates
@@ -185,12 +188,13 @@ erDiagram
 flowchart LR
     F["feature / improvement / bugfix branch"] -->|PR| D[develop]
     D -->|release PR| M[main]
-    F & D & M --> CI["GitHub Actions<br/>backend: build + tests<br/>frontend: lint, typecheck, tests, build<br/>storybook build<br/>Playwright E2E"]
+    F & D & M --> CI["GitHub Actions<br/>backend: build + tests<br/>frontend: lint, typecheck, tests, build<br/>storybook build<br/>Playwright E2E<br/>Docker image + smoke test"]
     M -->|"all checks green"| R["Render auto-deploy<br/>app + Storybook"]
 ```
 
 - One workflow file: `.github/workflows/ci.yml`; it runs on pull requests and on pushes to `develop` and `main`.
-  Three parallel jobs: Backend, Frontend (incl. Storybook build), E2E (Playwright).
+  Four parallel jobs: Backend, Frontend (incl. Storybook build), E2E (Playwright), Docker image (builds the
+  production image, starts it against PostgreSQL and smoke-tests the app and the API).
 - **Only `main` is deployed.** Render services are described in `render.yaml`, track `main`, and deploy
   **only after the GitHub checks pass**.
 - Private repo → GitHub Actions has 2,000 free minutes/month; enough for this project.

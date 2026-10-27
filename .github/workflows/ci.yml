@@ -155,3 +155,52 @@ jobs:
           name: playwright-report
           path: frontend/playwright-report/
           retention-days: 14
+
+  # Builds the production image (the one Render runs) and checks it serves the app and the API.
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pup_budget_planner
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build image
+        run: docker build --tag pup-budget-planner:ci .
+
+      # Same settings as on Render, except the database: the throwaway one of this job.
+      - name: Start container
+        run: >-
+          docker run --detach --name app --network host
+          --env ASPNETCORE_ENVIRONMENT=Production
+          --env "ConnectionStrings__Database=Host=localhost;Port=5432;Database=pup_budget_planner;Username=postgres;Password=postgres"
+          pup-budget-planner:ci
+
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          base=http://localhost:8080
+          # The API answers /api/health only after the migrations ran.
+          for i in $(seq 1 60); do curl --silent --fail "$base/api/health" > /dev/null && break; sleep 1; done
+          curl --silent --fail "$base/api/health" | grep --quiet '"Healthy"'
+          curl --silent --fail "$base/" | grep --quiet '<div id="root">'
+          curl --silent --fail "$base/some/client/route" | grep --quiet '<div id="root">'
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' "$base/api/no-such-endpoint")" = 404
+          echo "Image OK: $(docker image inspect pup-budget-planner:ci --format '{{.Size}}') bytes"
+
+      - name: Container logs
+        if: always()
+        run: docker logs app

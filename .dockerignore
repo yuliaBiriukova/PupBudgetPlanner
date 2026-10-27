@@ -1,0 +1,22 @@
+# Only sources go into the build context; dependencies and outputs are produced inside the image.
+.git
+.github
+.claude
+.vs
+.vscode
+.idea
+docs
+**/node_modules
+**/bin
+**/obj
+**/TestResults
+backend/tests
+frontend/dist
+frontend/storybook-static
+frontend/playwright-report
+frontend/test-results
+frontend/coverage
+**/*.user
+**/.env
+**/.env.*
+**/*.local

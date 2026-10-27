@@ -2,6 +2,30 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (11)
+
+**Done**
+- F-008: CI pipeline merged into `develop` (PR #8).
+- F-009 (code part): multi-stage `Dockerfile` (Node 24 → .NET 10 SDK publish with ReadyToRun → `aspnet:10.0`,
+  non-root, port 8080, workstation GC) and `.dockerignore`. The API serves the React build from `wwwroot` with an
+  `index.html` fallback for client routes; unknown `/api` routes stay ProblemDetails 404s; `/assets` cached for a
+  year, the rest `no-cache`. Forwarded headers (`For`/`Proto`) trusted from Render's proxy; HTTPS redirection only
+  in Development, HSTS in production.
+- `render.yaml`: Docker web service (free, Frankfurt, `main`, deploy after checks pass, health check
+  `/api/health`, `ConnectionStrings__Database` set in the dashboard) and the Storybook static site.
+- New CI job "Docker image": builds the image, runs it against PostgreSQL, smoke-tests health, SPA, client route
+  and API 404. No local Docker, so CI is where the image is checked.
+- Checked locally: the published app in `Production` against Neon `dev` (all routes and headers as expected);
+  ReadyToRun `linux-x64` publish works. Backend: clean build, 15 tests pass.
+- Owner setup steps written in the F-009 change file.
+
+**Decisions**
+- ADR 0010: Docker image and production hosting settings.
+
+**Next**
+- Owner: Render account + Blueprint, connection string (Neon `main`, direct), first release `develop` → `main`,
+  cron-job.org keep-awake ping. Then measure memory and cold start and finish F-009.
+
 ## 2026-10-27 (10)
 
 **Done**
