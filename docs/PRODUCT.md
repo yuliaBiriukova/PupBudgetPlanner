@@ -42,13 +42,15 @@ for the whole family. Works well on a phone and on a desktop. Anyone can sign up
    Switch any report / list between **Me**, **a family member**, and **Family (combined)**.
 7. **Settings** — display name, report currency (default UAH).
 8. **Installable on the phone** (PWA), responsive for mobile and desktop.
+9. **Awake during the day** — the free server is kept awake 07:00–23:00 Kyiv time; at night the first
+   request may take up to a minute.
 
 ### After MVP (candidates, in no fixed order)
 
 - Integration tests (Testcontainers, in CI).
 - Email via Resend: email confirmation, password reset, invitations by email.
 - Private accounts / transactions hidden from the family.
-- Category management: add, rename, reorder, **remove default categories**.
+- Category management: **add own categories**, rename, reorder, **remove default categories**.
 - Ukrainian localization.
 - Import history from the Google Sheets spreadsheet (2024–2026).
 - Import from Monefy CSV export.
@@ -87,7 +89,7 @@ for the whole family. Works well on a phone and on a desktop. Anyone can sign up
    merges categories that have the same group and name.
 6. **One family per person.** A person can leave a family; the family owner can remove members.
 7. **Average** in the yearly report = total ÷ number of months that already passed in that year
-   (the spreadsheet always divided by 12). *(See OPEN_QUESTIONS Q-004.)*
+   (the spreadsheet always divided by 12).
 
 ## Default categories
 
@@ -104,4 +106,4 @@ same category; meter categories such as electricity and water are dropped — th
 | Entertainment | Activities, Books, Games, Hobbies, Vacation |
 | Subscriptions | Spotify, Phone, Subscriptions |
 
-> "Emergency" is under Health in Yulia's sheet and under Home expenses in Vlad's — see Q-001.
+> "Emergency" was under Home expenses in Vlad's sheet; the default puts it under Health (agreed 2026-10-27).

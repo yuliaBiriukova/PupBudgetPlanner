@@ -5,24 +5,28 @@
 The frontend is a **single-page application (SPA)**: React is built into static files (HTML, JS, CSS)
 and everything runs in the browser. It talks to the backend REST API with JSON.
 
-Frontend and backend are hosted **separately on Render**, but look like **one website** to the browser:
+Frontend and backend are hosted **together as one service on Render**: one Docker container in which
+ASP.NET Core serves the React build (static files) and the API under `/api`.
 
 ```mermaid
 flowchart LR
-    U[Browser / installed PWA] -->|HTTPS| S["Render Static Site<br/>React SPA<br/>(free, never sleeps)"]
-    S -->|"rewrite /api/*"| A["Render Web Service<br/>ASP.NET Core API in Docker<br/>(free, sleeps when idle)"]
+    U[Browser / installed PWA] -->|HTTPS| A["Render Web Service (free)<br/>one Docker container<br/>ASP.NET Core: React SPA + /api"]
     A --> D[("Neon PostgreSQL<br/>(free)")]
     A --> N[NBU exchange rate API]
     A --> G[Google OAuth]
+    P["cron-job.org ping<br/>every 14 min, 07:00–23:00 Kyiv"] -.->|"/api/health"| A
+    SB["Render Static Site (free)<br/>Storybook"]
 ```
 
 Why this shape (details in [ADR 0002](decisions/0002-hosting-render-neon.md)):
 
-- The static site is served from a CDN and **never sleeps**, so the app opens instantly even when the
-  API is asleep. The UI shows "Waking up the server…" while the first API call is in progress.
-- The static site **rewrites `/api/*` to the API service**, so the browser sees a single origin:
-  no CORS, and the auth cookie is a simple first-party cookie.
+- **One origin, standard setup → least risk.** No proxying, no CORS, a plain first-party auth cookie, and
+  Google sign-in works with the standard ASP.NET Core configuration.
+- **Sleeping is handled:** the free service sleeps after 15 minutes without traffic. A free external ping keeps
+  it awake during the day; at night the PWA opens instantly from its cache and shows "Waking up the server…"
+  while the API starts (up to about a minute).
 - Render's free PostgreSQL expires after 30 days, so the database is on **Neon** (free forever, 0.5 GB).
+- Storybook is a separate free Render static site (static sites don't sleep and don't use instance hours).
 
 ## Repository layout
 
@@ -47,6 +51,8 @@ Why this shape (details in [ADR 0002](decisions/0002-hosting-render-neon.md)):
 │  ├─ .storybook/
 │  └─ e2e/             Playwright tests
 ├─ docs/
+│  └─ changes/         one folder per feature / improvement / bugfix (see docs/changes/README.md)
+├─ Dockerfile          multi-stage: build React → build API → one runtime image
 ├─ render.yaml         Render Blueprint (infrastructure as code)
 └─ .github/workflows/  CI
 ```
@@ -62,6 +68,12 @@ Why this shape (details in [ADR 0002](decisions/0002-hosting-render-neon.md)):
   (single instance — acceptable for the MVP).
 - **Validation:** FluentValidation. **Errors:** RFC 7807 `ProblemDetails`.
 - **OpenAPI:** built-in `Microsoft.AspNetCore.OpenApi`; the frontend generates TypeScript types from it.
+- **Hosting the SPA:** the React build is copied to `wwwroot`; ASP.NET Core serves it with static files and
+  `MapFallbackToFile("index.html")` for client-side routes. Everything under `/api` is the API.
+- **Behind Render's proxy:** forwarded headers (`X-Forwarded-Proto`/`Host`) are enabled so generated URLs
+  (e.g. the Google callback) use `https`.
+- **Data Protection keys are stored in the database.** Render's disk is wiped on every restart (and the free
+  service restarts after each sleep); with keys on disk, every user would be signed out each morning.
 - **Report calculation** is a pure, in-memory component (`ReportBuilder`): it gets transactions and rates
   and returns the report table. This keeps the most important logic fully unit-testable without a database.
   Data volume is small (thousands of rows per family per year).
@@ -106,7 +118,7 @@ erDiagram
 
 ## Authentication
 
-- **ASP.NET Core Identity** with an HTTP-only, `Secure`, `SameSite=Lax` **cookie**.
+- **ASP.NET Core Identity** with an HTTP-only, `Secure`, `SameSite=Lax` **cookie** (same origin as the SPA).
 - **Google sign-in** through Identity external logins (`AddGoogle`). A Google account and an
   email/password account with the same verified email are linked.
 - The SPA calls `/api/auth/*` endpoints (register, login, logout, me, external login).
@@ -124,7 +136,7 @@ erDiagram
 - **openapi-typescript + openapi-fetch** — typed API client generated from the backend OpenAPI document.
 - **react-i18next** — every text through translation keys (English now; Ukrainian later).
 - **vite-plugin-pwa** — installable app (manifest + service worker).
-- **Storybook** — component catalogue; published as a separate Render static site.
+- **Storybook** — component catalogue; published as a separate free Render static site.
 
 ## Testing
 
@@ -143,12 +155,14 @@ erDiagram
 
 ```mermaid
 flowchart LR
-    P[Push / PR] --> CI["GitHub Actions<br/>backend: build + tests<br/>frontend: lint, typecheck, tests, build<br/>storybook build<br/>Playwright E2E"]
-    CI -->|"main + all checks green"| R[Render auto-deploy<br/>API + SPA + Storybook]
+    F["feature / improvement / bugfix branch"] -->|PR| D[develop]
+    D -->|release PR| M[main]
+    F & D & M --> CI["GitHub Actions<br/>backend: build + tests<br/>frontend: lint, typecheck, tests, build<br/>storybook build<br/>Playwright E2E"]
+    M -->|"all checks green"| R["Render auto-deploy<br/>app + Storybook"]
 ```
 
-- One workflow file: `.github/workflows/ci.yml`.
-- Render services are described in `render.yaml` and deploy automatically from `main`
+- One workflow file: `.github/workflows/ci.yml`; it runs on pull requests and on pushes to `develop` and `main`.
+- **Only `main` is deployed.** Render services are described in `render.yaml`, track `main`, and deploy
   **only after the GitHub checks pass**.
 - Private repo → GitHub Actions has 2,000 free minutes/month; enough for this project.
 
@@ -158,7 +172,7 @@ flowchart LR
 |-------------|----------|-----|----------|
 | Local | `vite` dev server (proxy `/api` → API) | `dotnet run` | Neon `dev` branch |
 | CI | built SPA | built API | PostgreSQL service container |
-| Production | Render static site | Render web service | Neon `main` branch |
+| Production | served by the API container | Render web service | Neon `main` branch |
 
 Secrets (connection string, Google client ID/secret) are stored in **Render environment variables**
 and locally in **`dotnet user-secrets`** — never in the repository.
@@ -167,7 +181,8 @@ and locally in **`dotnet user-secrets`** — never in the repository.
 
 | Risk | Mitigation |
 |------|-----------|
-| Free API sleeps after 15 min idle; wake-up up to ~1 min | Instant SPA from static site + "waking up" indicator; optional keep-awake ping (Q-002) |
-| Google OAuth callback / cookies through the static-site rewrite | Verify in spike T-007; fallback: serve SPA from the API (one service) |
-| Render free API: 512 MB RAM, shared CPU | Small .NET footprint; measure in T-007 |
-| Neon free: 0.5 GB, 100 compute-hours/month | Far above our needs; `/api/health` does not touch the DB so pings don't wake it |
+| Free service sleeps after 15 min idle; wake-up up to ~1 min | Keep-awake ping 07:00–23:00 Kyiv (~500 of 750 free hours/month); PWA cache + "waking up" indicator at night |
+| Render changes its free tier or limits pinging | Upgrade to the Starter instance (~$7/month) — no code changes |
+| Users signed out after restarts | Data Protection keys stored in PostgreSQL |
+| Render free service: 512 MB RAM, shared CPU | Small .NET footprint; measured in F-009 |
+| Neon free: 0.5 GB, 100 compute-hours/month | Far above our needs; `/api/health` does not touch the DB, so pings don't wake it |
