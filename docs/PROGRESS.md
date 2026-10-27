@@ -15,6 +15,16 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - F-004: frontend scaffold.
 
+## 2026-10-27 (4)
+
+**Done**
+- F-001: planning docs merged into `develop` (PR #1, squash merge).
+- F-002: private GitHub repo `yuliaBiriukova/PupBudgetPlanner` with `main` and `develop` (default branch);
+  squash and merge commits allowed, rebase disabled, branches deleted after merge.
+
+**Next**
+- F-003: backend scaffold.
+
 ## 2026-10-27 (3)
 
 **Done**

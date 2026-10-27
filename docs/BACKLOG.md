@@ -12,8 +12,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 | ID | Feature | Status |
 |----|---------|--------|
-| [F-001](changes/features/F-001-planning-docs/F-001-planning-docs.md) | Planning documents | Review |
-| [F-002](changes/features/F-002-github-repository/F-002-github-repository.md) | GitHub repository | Todo — waiting for `gh auth login` |
+| [F-001](changes/features/F-001-planning-docs/F-001-planning-docs.md) | Planning documents | Done |
+| [F-002](changes/features/F-002-github-repository/F-002-github-repository.md) | GitHub repository | Done |
 | [F-003](changes/features/F-003-backend-scaffold/F-003-backend-scaffold.md) | Backend scaffold | Review |
 | [F-004](changes/features/F-004-frontend-scaffold/F-004-frontend-scaffold.md) | Frontend scaffold | Todo |
 | [F-005](changes/features/F-005-storybook/F-005-storybook.md) | Storybook | Todo |

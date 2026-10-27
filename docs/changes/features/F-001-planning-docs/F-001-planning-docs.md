@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M0 — Foundation |
-| Status | Review |
+| Status | Done |
 | Branch | `feature/F-001-planning-docs` |
 | Design | not needed |
 
@@ -34,4 +34,5 @@ Agree on what we build and how, and keep the plan in the repository.
 
 ## Notes
 
+- Merged into `develop` with [PR #1](https://github.com/yuliaBiriukova/PupBudgetPlanner/pull/1) on 2026-10-27.
 - Hosting revised to one Render service (ADR 0002) to minimise Google sign-in risk.
