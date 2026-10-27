@@ -45,7 +45,24 @@ dotnet test                                           # run all unit tests
 dotnet run --project src/PupBudgetPlanner.Api         # API on http://localhost:5297
 ```
 
+The API needs a PostgreSQL connection string (locally the Neon `dev` branch; use the direct, not pooled,
+connection). Set it once — it stays out of the repository:
+
+```bash
+cd backend
+dotnet user-secrets set "ConnectionStrings:Database" "Host=<host>;Database=<db>;Username=<user>;Password=<password>;SSL Mode=Require" --project src/PupBudgetPlanner.Api
+```
+
+Migrations are applied when the API starts. `GET /api/health` returns 200 without touching the database.
 In Development the OpenAPI document is at `http://localhost:5297/openapi/v1.json`.
+
+Adding a migration (see [ADR 0009](docs/decisions/0009-database-conventions.md)):
+
+```bash
+cd backend
+dotnet tool restore   # once: installs the dotnet-ef version that matches EF Core
+dotnet ef migrations add <Name> -p src/PupBudgetPlanner.Infrastructure -s src/PupBudgetPlanner.Infrastructure -o Persistence/Migrations
+```
 
 ### Frontend
 

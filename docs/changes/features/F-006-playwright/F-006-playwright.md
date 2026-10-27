@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M0 — Foundation |
-| Status | Review |
+| Status | Done |
 | Branch | `feature/F-006-playwright` |
 | Design | not needed |
 

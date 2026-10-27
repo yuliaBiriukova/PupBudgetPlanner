@@ -2,6 +2,26 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (9)
+
+**Done**
+- F-006: Playwright setup merged into `develop` (PR #6).
+- F-007: EF Core 10 + Npgsql in Infrastructure: `AppDbContext` with snake_case names, first migration
+  (`data_protection_keys`), migrations applied on start-up, Data Protection keys stored in the database.
+  Connection string `ConnectionStrings:Database` from user-secrets locally, environment variable in production.
+  `GET /api/health` (no database access). New test projects `Api.Tests` and `Infrastructure.Tests`
+  (7 tests in total); `dotnet-ef` as a local tool. Build is clean, tests pass.
+- Neon project created by the owner (branches `main` and `dev`). Checked against `dev`: migration
+  applied, Data Protection key stored and reused after a restart, `/api/health` returns 200 without a query.
+- API produces JSON only; frontend API types regenerated (they now include `/api/health`).
+
+**Decisions**
+- ADR 0009: snake_case database names, migrations and a design-time factory in Infrastructure, EF Core
+  versions pinned transitively.
+
+**Next**
+- F-008: CI pipeline.
+
 ## 2026-10-27 (8)
 
 **Done**
