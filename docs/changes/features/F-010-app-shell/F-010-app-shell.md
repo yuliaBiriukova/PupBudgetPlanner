@@ -14,21 +14,22 @@ The frame of the app: navigation on mobile and desktop, theme, and the waking-up
 
 ## Acceptance criteria
 
-- [ ] Navigation to Transactions, Accounts, Reports, Family, Settings works on mobile and desktop
-- [ ] Primary color and theme chosen; light/dark mode switch
-- [ ] "Waking up the server…" indicator when the API answers slowly
-- [ ] The add-transaction action is reachable from every page on mobile
-- [ ] The desktop sidebar can be collapsed — by dragging its edge (the way Claude's UI does it) or with an
+- [x] Navigation to Transactions, Accounts, Reports, Family, Settings works on mobile and desktop
+- [x] Primary color and theme chosen; light/dark mode switch
+- [x] "Waking up the server…" indicator when the API answers slowly
+- [x] The add-transaction action is reachable from every page on mobile
+- [x] The desktop sidebar can be collapsed — by dragging its edge (the way Claude's UI does it) or with an
       icon button; not with a text row like "Collapse menu"
 
 ## Tasks
 
-- [ ] Look at how Claude's UI collapses and resizes its sidebar
+- [ ] Look at how Claude's UI collapses and resizes its sidebar (not done: needs a claude.ai sign-in; the
+      chosen pattern follows its known behaviour, the logo turning into the expand button)
 - [x] 3 HTML prototypes (with the `design-screen` skill); round 3 block by block, mix chosen
-- [ ] Implement layout components
-- [ ] Routes with placeholder pages
-- [ ] Waking-up indicator
-- [ ] Storybook stories
+- [x] Implement layout components
+- [x] Routes with placeholder pages
+- [x] Waking-up indicator
+- [x] Storybook stories
 
 ## Design
 
@@ -137,10 +138,53 @@ deeper on darker papers). Every pair (text, muted text on page / sidebar / hover
 logo mark, income, expense, tooltip, focus) passes WCAG AA in both modes; the panel shows a swatch for each
 scheme (page, button, logo).
 
+## Implementation (2026-10-27)
+
+In `frontend/src/app/shell/`, Mantine components with CSS modules; every color is a theme token.
+
+- **Theme** (`src/app/theme.ts`): `charcoal` primary (shade 8 light, 1 dark, auto contrast), `sky` for the logo
+  and accent, neutral `gray` / `dark` scales; a CSS variables resolver adds the tokens Mantine has no name for
+  (`--pup-color-sidebar`, `-accent`, `-logo`, `-active-bg`, …) per scheme. Fonts: Unbounded 300 for headings
+  and the app name, Manrope 400/500, self-hosted (ADR 0011). Radius 12 / 24 px; weights 400 and 500 only.
+- **Layout** (`AppLayout`): from 768 px (`sm`) a sidebar; below it a top bar, the pill tab bar and the More
+  sheet. The switch is done in JavaScript (`useMediaQuery`, read synchronously), so only one navigation exists
+  at a time.
+- **Sidebar** (`Sidebar`, `useSidebar`): as in the prototype, only the grid column's width animates (240 ms);
+  icons stay on one axis; the logo is the expand button in the rail (`inert` while open) and focus follows the
+  replaced control. Drag the edge (208–320 px, snaps to the 72 px rail below 150 px) or use ← → / Enter on it;
+  double-click toggles. The minimum width is measured from the head row once the font has loaded, so
+  "Pup Budget" is never cut. Collapsed by default below 1024 px; the choice is kept in `localStorage`
+  (`pup.sidebar`).
+- **Sheets** (`shared/ui/BottomSheet`): on the phone, More and Add are bottom sheets as in the prototype: grab
+  handle, rounded top only, as tall as the content (at most 90% of the screen). More shows only the list (its
+  title is for screen readers); Add has the title in the display face and a close button. Built from Drawer's
+  parts and styled through `classNames`, because `Drawer.Content`'s `className` also lands on the full-screen
+  inner box.
+- **Add** opens a sheet (phone) or dialog (desktop) that says the form is coming; quick add is F-018.
+- **Waking up** (`useServerWake`, `WakePill`): the shell asks `/api/health` once at start-up (retrying for
+  about a minute), so a sleeping server starts waking at once. When any request has been running for 3 s, a dark
+  pill at the top shows "Waking up the server… N s"; when it answers, a "Connected" notification follows.
+- **Routes:** `/` goes to `/transactions`; each section has a placeholder page; unknown addresses show "Page not
+  found" inside the shell. The old home page is gone.
+- **No signed-in user yet** (F-011): the sidebar bottom and the phone top bar take an optional user; until then
+  they show only the theme switch.
+- **Bundle:** React, Mantine and other libraries are split into their own chunks (`vite.config.ts`), so the
+  build has no size warning and libraries stay cached between releases.
+- **Fixed on the way:** the API client now looks up `fetch` on every call; it kept the one from start-up,
+  which bypassed request mocks in tests. After the owner's testing: icons no longer shrink in the rail (only
+  labels give way), and the phone sheets no longer fill the screen.
+
 ## Tests
 
-- Unit: Layout and indicator component tests.
-- E2E (Playwright): Navigate between all sections on desktop and mobile.
+- Unit (Vitest, 22 tests): sidebar width rules (drag clamps, snapping, keyboard steps); the shell on a phone
+  (tab bar, More, Add, theme) and a desktop (sidebar sections, collapse with focus and memory, default collapsed
+  below 1024 px, keyboard resize, Add); waking up (pill after 3 s with seconds, then "Connected"; nothing when
+  the server answers quickly). Tests pick a screen width with `setScreenWidth` (`src/test/screen.ts`).
+- E2E (Playwright, desktop Chrome and Pixel 7): opens on Transactions; navigates all sections; Add on every page;
+  the sidebar collapses to 72 px (every icon 20 px on the rail's axis) and expands to 248 px; on the phone More
+  and Add are bottom sheets less than half the screen tall; the theme switch.
+- Storybook: Shell/AppLayout (phone and desktop, light and dark, signed in and out, collapsed, More and Add
+  open, collapse play test, not found), Shell/WakePill, Shell/Logo, Shared/BottomSheet, Shared/PlaceholderPage.
 
 ## Notes
 

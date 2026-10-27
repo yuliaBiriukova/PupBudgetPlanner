@@ -2,6 +2,23 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (16)
+
+**Done**
+- F-010: the app shell is built (`frontend/src/app/shell/`). Theme: charcoal and sky, Unbounded + Manrope
+  (self-hosted, ADR 0011). Desktop sidebar with the smooth collapse, logo-as-expand button and drag / keyboard
+  resize; phone top bar, pill tab bar, More and Add sheets; routes with placeholder pages; the waking-up pill.
+- Tests: 22 unit tests, E2E on desktop and phone (12 passed, 2 skipped: device-specific tests), Storybook
+  stories. Build without warnings: libraries split into their own chunks.
+- Fixed: the API client bypassed MSW in tests (kept `fetch` from start-up).
+- Fixed after the owner's testing: icons shrank to dots in the collapsed sidebar (only labels may shrink now);
+  More and Add on the phone filled the screen. They are now bottom sheets like the prototype (shared
+  `BottomSheet`: grab handle, rounded top, as tall as the content). E2E checks for both.
+
+**Next**
+- Open the F-010 pull request into `develop`.
+- F-011: sign up and sign in; then the shell shows the signed-in person.
+
 ## 2026-10-27 (15)
 
 **Done**

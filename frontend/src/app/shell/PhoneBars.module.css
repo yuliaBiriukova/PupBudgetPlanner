@@ -1,0 +1,104 @@
+.top {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  height: 56px;
+  padding: 0 8px 0 16px;
+}
+
+.topBrand {
+  margin-right: auto;
+}
+
+/* Tab bar: icon tabs, the open one spelled out in a pill; Add at the thumb end */
+.tabs {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--pup-color-rule);
+  background: var(--mantine-color-body);
+}
+
+.tab {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 44px;
+  min-height: 48px;
+  border-radius: 999px;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.tab[aria-current='page'],
+.tab[data-active] {
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 0;
+  padding: 0 14px 0 12px;
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+  font-weight: 500;
+}
+
+.tabs svg {
+  flex: none;
+}
+
+.tabLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab:not([aria-current='page'], [data-active]) .tabLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.add {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-left: auto;
+  border-radius: var(--mantine-radius-xl);
+  background: var(--mantine-primary-color-filled);
+  color: var(--mantine-primary-color-contrast);
+}
+
+.add:hover {
+  background: var(--mantine-primary-color-filled-hover);
+}
+
+/* More sheet */
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 12px;
+  border-radius: var(--mantine-radius-md);
+  color: var(--mantine-color-text);
+  text-decoration: none;
+}
+
+.menuItem:hover {
+  background: var(--pup-color-hover);
+}
+
+.menuItem[aria-current='page'] {
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+}
