@@ -61,6 +61,8 @@ npm run format         # Prettier (format:check only checks)
 npm run typecheck      # TypeScript
 npm run build          # production build to dist/
 npm run api:types      # regenerate src/shared/api/schema.ts from the running API's OpenAPI document
+npm run storybook      # Storybook on http://localhost:6006
+npm run build-storybook # static Storybook to storybook-static/
 ```
 
 ## Branches
