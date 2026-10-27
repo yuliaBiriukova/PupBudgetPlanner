@@ -2,6 +2,18 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (18)
+
+**Done**
+- B-001: fixed the flaky unit test "shows nothing when the server answers quickly" that failed CI on `develop`
+  after PR #14. It moved the fake clock before the real health check had answered; it now waits for the
+  request to finish. The health mock in that test answers after a real 50 ms delay, so the case is checked
+  every run.
+
+**Next**
+- Merge B-001, then the release `develop` → `main` (PR #13).
+- F-011: sign up and sign in; then the shell shows the signed-in person.
+
 ## 2026-10-27 (17)
 
 **Done**

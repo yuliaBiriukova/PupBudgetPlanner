@@ -83,4 +83,4 @@ Milestones M7–M13 in [ROADMAP.md](ROADMAP.md). Their features get IDs and fold
 
 | ID | Bug | Status |
 |----|-----|--------|
-| — | | |
+| [B-001](changes/bugfixes/B-001-flaky-server-wake-test/B-001-flaky-server-wake-test.md) | Flaky "server answers quickly" unit test | Done |
