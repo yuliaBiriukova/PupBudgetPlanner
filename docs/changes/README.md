@@ -1,23 +1,23 @@
 # Changes
 
 Every feature, improvement and bugfix has **its own folder** here with all related files:
-the description (`README.md`), HTML design prototypes, screenshots and notes.
+the description file (named like the folder), HTML design prototypes, screenshots and notes.
 
 ```
 docs/changes/
 ├─ features/
 │  └─ F-010-app-shell/
-│     ├─ README.md
+│     ├─ F-010-app-shell.md
 │     └─ prototypes/
 │        ├─ variant-1.html
 │        ├─ variant-2.html
 │        └─ variant-3.html
 ├─ improvements/
 │  └─ I-001-short-name/
-│     └─ README.md
+│     └─ I-001-short-name.md
 └─ bugfixes/
    └─ B-001-short-name/
-      └─ README.md
+      └─ B-001-short-name.md
 ```
 
 ## Rules
@@ -26,9 +26,11 @@ docs/changes/
   Numbered separately per type, never reused.
 - Folder name = branch name without the type prefix: branch `feature/F-010-app-shell` →
   folder `features/F-010-app-shell/`.
-- Create the folder when the change is added to [BACKLOG.md](../BACKLOG.md), not when work starts.
-- Keep the status in the README in sync with the backlog.
-- Screens: 3 HTML prototypes in `prototypes/`; the chosen variant is recorded in the README.
+- The description file has the same name as the folder: `F-010-app-shell/F-010-app-shell.md`.
+- Create the folder and the description file as soon as the change is added to the plan
+  ([BACKLOG.md](../BACKLOG.md)), not when work starts.
+- Keep the status in the description file in sync with the backlog.
+- Screens: 3 HTML prototypes in `prototypes/`; the chosen variant is recorded in the description file.
 
 ## Template: feature / improvement
 

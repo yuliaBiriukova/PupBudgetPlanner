@@ -28,7 +28,7 @@ Move money between own accounts, including buying and selling currency.
 
 ## Design
 
-Prototypes: shared with F-018 — see `../F-018-quick-add-income-expense/prototypes/`. Chosen variant: —
+Prototypes: shared with F-018 — see [`../F-018-quick-add-income-expense/prototypes/`](../F-018-quick-add-income-expense/prototypes/). Chosen variant: —
 
 ## Tests
 

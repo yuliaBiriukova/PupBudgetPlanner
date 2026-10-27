@@ -2,6 +2,21 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (3)
+
+**Done**
+- Data model: enums documented (`TransactionType`, `CategoryKind`, `Currency`, `Institution`, `FamilyRole`,
+  `RateSource`), stored as text; consistency rules for transactions.
+- Change description files renamed from `README.md` to the folder name (`F-018-…/F-018-….md`);
+  backlog links point to them.
+- Rules added: squash merge for PRs into `develop` (merge commit for releases into `main`); every PR has a
+  short description of its changes (template in `.github/pull_request_template.md`); a folder and description
+  file are created as soon as a change is added to the plan.
+
+**Next**
+- Owner finishes reviewing the planning docs.
+- F-002: `gh auth login`, create the repo, configure merge settings, open the F-001 pull request.
+
 ## 2026-10-27 (2)
 
 **Done**

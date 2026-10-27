@@ -14,7 +14,7 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 1. Every new screen starts with **3 design variants as HTML prototypes** — self-contained `.html` files
    that open in any browser and show mobile and desktop layouts. They live in the change folder:
    `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.
-2. The user picks one (or a mix). The choice is recorded in the change `README.md` and in
+2. The user picks one (or a mix). The choice is recorded in the change's description file and in
    [Screen decisions](#9-screen-decisions) below.
 3. Components are built in **Storybook** first (all states, mobile and desktop), then wired to the API.
 

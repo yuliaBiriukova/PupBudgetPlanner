@@ -28,9 +28,12 @@ This file tells Claude (and any human contributor) how we work on this project.
 | Bugfix | `B-001` | `bugfix/B-001-short-name` | `docs/changes/bugfixes/B-001-short-name/` |
 
 - IDs are numbered separately per type and never reused.
-- **Every change gets its own folder** in `docs/changes/<type>/` holding all related files:
-  `README.md` (from the templates in [docs/changes/README.md](docs/changes/README.md)), HTML design
-  prototypes, screenshots, notes.
+- **Every change gets its own folder** in `docs/changes/<type>/` holding all related files: the
+  description file **named like the folder** (`F-018-quick-add-income-expense/F-018-quick-add-income-expense.md`,
+  from the templates in [docs/changes/README.md](docs/changes/README.md)), HTML design prototypes,
+  screenshots, notes.
+- **When a new feature, improvement or bugfix is added to the plan**, create its folder and description
+  file right away, together with its row in `docs/BACKLOG.md` (and `docs/ROADMAP.md` if it changes a milestone).
 - Short names are lowercase kebab-case and identical in the branch and the folder.
 
 ## Git workflow
@@ -41,12 +44,21 @@ This file tells Claude (and any human contributor) how we work on this project.
   - `develop` — integration branch; all development branches start from it and return to it.
   - `feature/…`, `improvement/…`, `bugfix/…` — **always branched from `develop`**, merged back into
     `develop` through a pull request so the user can review the code.
+- **Merging**
+  - Pull requests into `develop` are merged with **squash merge**: one commit per change on `develop`,
+    titled like the PR (`F-012: Add expense form`). The branch is deleted after the merge.
+  - Release pull requests `develop` → `main` use a **merge commit** (not squash), so `main` and `develop`
+    share history and the next release has no false conflicts.
+- **Pull requests**
+  - Title: `<ID>: <short description>` (e.g. `F-012: Add expense form`).
+  - Description (from `.github/pull_request_template.md`): a short summary, the list of changes made,
+    a link to the change's description file, and how it was tested.
 - **Commit messages** start with the change ID and say briefly what was done:
   `F-012: Add expense form validation`, `B-007: Fix balance after transfer edit`.
 - **Before every push:**
   1. Pull the latest `develop` into the branch: `git pull origin develop` (merge, no rebase of pushed commits).
   2. Clean the Playwright output folders (`frontend/playwright-report/`, `frontend/test-results/`).
-  3. Update `docs/ROADMAP.md`, `docs/BACKLOG.md`, `docs/PROGRESS.md`, the change's `README.md`
+  3. Update `docs/ROADMAP.md`, `docs/BACKLOG.md`, `docs/PROGRESS.md`, the change's description file
      and any other affected docs.
   4. Make sure the build and all tests pass.
 - Never commit secrets. Local secrets go to `dotnet user-secrets` / `.env.local`.
@@ -56,7 +68,7 @@ This file tells Claude (and any human contributor) how we work on this project.
 - Before building any screen, propose **3 design variants as HTML prototypes**: self-contained
   `.html` files (open directly in a browser, mobile and desktop layouts) saved in the change folder:
   `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.
-- Wait for the user's choice; record it in the change `README.md` and in the
+- Wait for the user's choice; record it in the change's description file and in the
   "Screen decisions" table of `docs/DESIGN_RULES.md`.
 - Follow `docs/DESIGN_RULES.md` (its "Custom rules" section wins over everything else).
 - Every reusable component and screen gets **Storybook** stories (mobile viewport, loading /
@@ -64,7 +76,7 @@ This file tells Claude (and any human contributor) how we work on this project.
 
 ## Definition of done (per change)
 
-- [ ] Acceptance criteria in the change `README.md` are met.
+- [ ] Acceptance criteria in the change's description file are met.
 - [ ] Code follows the conventions below and builds without warnings.
 - [ ] Unit tests cover the new logic (backend: xUnit; frontend: Vitest + React Testing Library).
 - [ ] User-facing flows are covered by **Playwright** E2E tests.
