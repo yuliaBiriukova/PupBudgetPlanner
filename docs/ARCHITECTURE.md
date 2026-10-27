@@ -64,7 +64,8 @@ Why this shape (details in [ADR 0002](decisions/0002-hosting-render-neon.md)):
   and depends only on `Domain` and its own interfaces; `Infrastructure` implements those interfaces;
   `Api` wires everything together.
 - **No MediatR / AutoMapper** (both went commercial; plain services and hand-written mapping are simpler to read).
-- **EF Core + Npgsql (PostgreSQL)**, code-first migrations. Migrations are applied on API start-up
+- **EF Core + Npgsql (PostgreSQL)**, code-first migrations, snake_case table and column names
+  ([ADR 0009](decisions/0009-database-conventions.md)). Migrations are applied on API start-up
   (single instance — acceptable for the MVP).
 - **Validation:** FluentValidation. **Errors:** RFC 7807 `ProblemDetails`.
 - **OpenAPI:** built-in `Microsoft.AspNetCore.OpenApi`; the frontend generates TypeScript types from it.

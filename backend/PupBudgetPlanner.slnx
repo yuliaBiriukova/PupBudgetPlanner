@@ -6,7 +6,9 @@
     <Project Path="src/PupBudgetPlanner.Infrastructure/PupBudgetPlanner.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/PupBudgetPlanner.Api.Tests/PupBudgetPlanner.Api.Tests.csproj" />
     <Project Path="tests/PupBudgetPlanner.Application.Tests/PupBudgetPlanner.Application.Tests.csproj" />
     <Project Path="tests/PupBudgetPlanner.Domain.Tests/PupBudgetPlanner.Domain.Tests.csproj" />
+    <Project Path="tests/PupBudgetPlanner.Infrastructure.Tests/PupBudgetPlanner.Infrastructure.Tests.csproj" />
   </Folder>
 </Solution>
