@@ -14,6 +14,11 @@ export default defineConfig({
       '/api': apiProxyTarget,
     },
   },
+  // `vite preview` serves the production build (used by E2E in CI) and reuses the /api proxy above.
+  preview: {
+    port: 4173,
+    strictPort: true,
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],

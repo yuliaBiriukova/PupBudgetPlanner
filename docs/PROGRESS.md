@@ -2,6 +2,22 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (10)
+
+**Done**
+- F-007: database and health check merged into `develop` (PR #7).
+- F-008: GitHub Actions workflow `.github/workflows/ci.yml` with three parallel jobs — Backend (restore,
+  Release build, tests), Frontend (lint, format check, type-check, unit tests, build, Storybook build) and
+  E2E (Playwright against the real API with a PostgreSQL 17 service container; report uploaded on failure).
+  npm and NuGet caching; older PR runs cancelled on a new push.
+- Playwright's `webServer` now starts the API too (user-secrets / Neon `dev` locally) and, in CI, serves the
+  production build with `vite preview` on port 4173. New E2E test: `/api/health` through the app's proxy.
+  E2E (4 tests) passes locally in both modes; backend build is clean, 7 tests pass; lint, format, type-check,
+  unit tests, build and Storybook build pass.
+
+**Next**
+- F-009: deployment to Render.
+
 ## 2026-10-27 (9)
 
 **Done**
