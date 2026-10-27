@@ -2,6 +2,19 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (5)
+
+**Done**
+- F-003: backend scaffold in `backend/`: `PupBudgetPlanner.slnx` with Domain, Application, Infrastructure, Api and
+  Domain.Tests, Application.Tests; central package management, warnings as errors, analyzers, `.editorconfig`.
+  `dotnet build` is clean and `dotnet test` passes (3 tests).
+
+**Decisions**
+- ADR 0007: backend tests run on Microsoft.Testing.Platform (required by xUnit v3 4.x on the .NET 10 SDK).
+
+**Next**
+- F-004: frontend scaffold.
+
 ## 2026-10-27 (3)
 
 **Done**

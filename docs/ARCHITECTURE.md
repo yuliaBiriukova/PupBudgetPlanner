@@ -169,7 +169,7 @@ erDiagram
 
 | Level | Tools | What | When |
 |-------|-------|------|------|
-| Backend unit | xUnit v3, NSubstitute, AwesomeAssertions | Domain rules, application services, ReportBuilder, validators | MVP |
+| Backend unit | xUnit v3 on Microsoft.Testing.Platform ([ADR 0007](decisions/0007-test-runner-mtp.md)), NSubstitute, AwesomeAssertions | Domain rules, application services, ReportBuilder, validators | MVP |
 | Frontend unit / component | Vitest, React Testing Library, MSW | Hooks, components, forms | MVP |
 | UI / E2E | **Playwright** | Real user flows in a browser against the real API + PostgreSQL (in CI) | MVP |
 | Visual | Storybook stories (+ Playwright screenshots later) | Components in all states | MVP |
