@@ -34,4 +34,5 @@ Every push and pull request is built and tested automatically.
 
 ## Notes
 
-- —
+- Frontend jobs use the Node version from `frontend/.nvmrc` (`actions/setup-node` with `node-version-file`), see ADR 0008.
+- Frontend checks: `npm ci`, `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build`.

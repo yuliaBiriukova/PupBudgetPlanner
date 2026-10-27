@@ -155,7 +155,7 @@ erDiagram
 
 ## Frontend
 
-- **React + TypeScript + Vite**.
+- **React + TypeScript + Vite**, on Node 24 LTS; TypeScript pinned to 5.9 ([ADR 0008](decisions/0008-frontend-toolchain.md)).
 - **Mantine** — UI components, `@mantine/charts`, `@mantine/dates`, `@mantine/form` (+ zod schemas),
   `@mantine/notifications`. Icons: Tabler Icons.
 - **TanStack Query** — fetching / caching / refreshing server data.

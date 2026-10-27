@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M0 — Foundation |
-| Status | Review |
+| Status | Done |
 | Branch | `feature/F-003-backend-scaffold` |
 | Design | not needed |
 
