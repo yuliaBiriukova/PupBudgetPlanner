@@ -4,7 +4,7 @@ import { Notifications } from '@mantine/notifications';
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { createQueryClient } from './queryClient';
-import { theme } from './theme';
+import { cssVariablesResolver, theme } from './theme';
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -16,7 +16,11 @@ export function AppProviders({ children, queryClient }: AppProvidersProps) {
   const [client] = useState(() => queryClient ?? createQueryClient());
 
   return (
-    <MantineProvider theme={theme} defaultColorScheme="auto">
+    <MantineProvider
+      theme={theme}
+      cssVariablesResolver={cssVariablesResolver}
+      defaultColorScheme="auto"
+    >
       <DatesProvider settings={{ locale: 'en', firstDayOfWeek: 1 }}>
         <Notifications />
         <QueryClientProvider client={client}>{children}</QueryClientProvider>

@@ -1,0 +1,31 @@
+.region {
+  position: absolute;
+  top: 64px;
+  left: 50%;
+  z-index: 6;
+  transform: translateX(-50%);
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--pup-color-tooltip);
+  box-shadow: var(--pup-shadow-float);
+  color: var(--pup-color-on-tooltip);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.seconds {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+@media (min-width: $mantine-breakpoint-sm) {
+  .region {
+    top: 20px;
+  }
+}

@@ -13,7 +13,7 @@ describe('NotFoundPage', () => {
     await user.click(screen.getByRole('link', { name: 'Go to the home page' }));
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Pup Budget Planner' }),
+      await screen.findByRole('heading', { level: 1, name: 'Transactions' }),
     ).toBeInTheDocument();
   });
 });

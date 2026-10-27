@@ -1,0 +1,25 @@
+.logo {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--pup-color-logo);
+  color: var(--pup-color-logo-mark);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--pup-font-display);
+  font-size: 15px;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}

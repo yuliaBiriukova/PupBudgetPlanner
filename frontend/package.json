@@ -16,12 +16,15 @@
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
     "e2e:report": "playwright show-report",
+    "design:check": "node scripts/design-check.mjs",
     "clean:playwright": "node -e \"for (const d of ['playwright-report', 'test-results']) require('node:fs').rmSync(d, { recursive: true, force: true })\"",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "api:types": "openapi-typescript http://localhost:5297/openapi/v1.json -o src/shared/api/schema.ts"
   },
   "dependencies": {
+    "@fontsource/manrope": "^5.3.0",
+    "@fontsource/unbounded": "^5.3.0",
     "@mantine/charts": "^9.7.4",
     "@mantine/core": "^9.7.4",
     "@mantine/dates": "^9.7.4",
@@ -55,6 +58,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "axe-core": "^4.14.0",
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",

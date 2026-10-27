@@ -1,0 +1,51 @@
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.main {
+  flex: 1;
+  overflow: hidden auto;
+}
+
+.content {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 8px 16px 32px;
+}
+
+@media (min-width: $mantine-breakpoint-sm) {
+  /* The sidebar column; collapsing animates its width (not while dragging, which follows the pointer) */
+  .root {
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  }
+
+  .root:not([data-resizing]) {
+    transition: grid-template-columns 240ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .root[data-resizing] {
+    cursor: col-resize;
+    user-select: none;
+  }
+
+  .content {
+    padding: 28px 40px 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root:not([data-resizing]) {
+    transition: none;
+  }
+}
