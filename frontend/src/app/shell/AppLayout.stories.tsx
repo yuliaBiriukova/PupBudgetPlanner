@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { expect, userEvent, within } from 'storybook/test';
-import { routes } from '../routes';
+import { sectionRoutes } from '../routes';
 import { AppLayout } from './AppLayout';
 import type { ShellUser } from './sections';
 import { healthQuery } from './useServerWake';
@@ -23,7 +23,7 @@ function awakeQueryClient() {
 /** The shell with the app's pages, at a given address; the API counts as awake, so no request is made. */
 function ShellStory({ path, user }: ShellStoryProps) {
   const [router] = useState(() =>
-    createMemoryRouter([{ element: <AppLayout user={user} />, children: routes[0]?.children }], {
+    createMemoryRouter([{ element: <AppLayout user={user} />, children: sectionRoutes }], {
       initialEntries: [path],
     }),
   );

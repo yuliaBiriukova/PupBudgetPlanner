@@ -1,0 +1,46 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PupBudgetPlanner.Application.Auth;
+
+namespace PupBudgetPlanner.Infrastructure.Identity;
+
+internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
+{
+    public void Configure(EntityTypeBuilder<AppUser> builder)
+    {
+        builder.ToTable("users");
+        builder.Property(user => user.DisplayName).HasMaxLength(AuthLimits.DisplayNameMaxLength);
+        builder.HasIndex(user => user.NormalizedEmail).HasDatabaseName("ix_users_normalized_email");
+        builder.HasIndex(user => user.NormalizedUserName).HasDatabaseName("ix_users_normalized_user_name");
+    }
+}
+
+/// <summary>
+/// Identity names its tables and indexes itself (<c>AspNetUsers</c>, <c>EmailIndex</c>); the naming convention
+/// only renames defaults, so they are renamed here to the database's snake_case (ADR 0009).
+/// </summary>
+internal sealed class IdentityTableConfiguration :
+    IEntityTypeConfiguration<IdentityRole<Guid>>,
+    IEntityTypeConfiguration<IdentityRoleClaim<Guid>>,
+    IEntityTypeConfiguration<IdentityUserClaim<Guid>>,
+    IEntityTypeConfiguration<IdentityUserLogin<Guid>>,
+    IEntityTypeConfiguration<IdentityUserRole<Guid>>,
+    IEntityTypeConfiguration<IdentityUserToken<Guid>>
+{
+    public void Configure(EntityTypeBuilder<IdentityRole<Guid>> builder)
+    {
+        builder.ToTable("roles");
+        builder.HasIndex(role => role.NormalizedName).HasDatabaseName("ix_roles_normalized_name");
+    }
+
+    public void Configure(EntityTypeBuilder<IdentityRoleClaim<Guid>> builder) => builder.ToTable("role_claims");
+
+    public void Configure(EntityTypeBuilder<IdentityUserClaim<Guid>> builder) => builder.ToTable("user_claims");
+
+    public void Configure(EntityTypeBuilder<IdentityUserLogin<Guid>> builder) => builder.ToTable("user_logins");
+
+    public void Configure(EntityTypeBuilder<IdentityUserRole<Guid>> builder) => builder.ToTable("user_roles");
+
+    public void Configure(EntityTypeBuilder<IdentityUserToken<Guid>> builder) => builder.ToTable("user_tokens");
+}

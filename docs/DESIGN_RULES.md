@@ -18,6 +18,9 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
   row. (2026-10-27)
 - The app name is never cut off: the sidebar can't be resized narrower than its logo row with the full
   "Pup Budget". (2026-10-27)
+- Text on a filled button takes its color from the current scheme (`--pup-color-on-primary` in the theme), never
+  from Mantine's autoContrast: it reads the light-mode shade only, which made white text on the light dark-mode
+  button. (2026-10-28)
 
 ## 2. Process
 

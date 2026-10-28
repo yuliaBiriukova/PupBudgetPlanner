@@ -26,6 +26,7 @@ interface SidebarProps {
   state: SidebarState;
   user?: ShellUser;
   onAdd: () => void;
+  onSignOut?: () => void;
 }
 
 /** The width the head row needs to show the whole app name: padding, logo, name and the collapse button. */
@@ -71,7 +72,7 @@ function RailTip({
  * The desktop sidebar. Collapses to a 72 px icon rail with the button next to the logo; in the rail the logo
  * itself is the expand button. Its right edge can be dragged (or moved with ← → and Enter) to resize it.
  */
-export function Sidebar({ state, user, onAdd }: SidebarProps) {
+export function Sidebar({ state, user, onAdd, onSignOut }: SidebarProps) {
   const { t } = useTranslation();
   const headRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLButtonElement>(null);
@@ -194,7 +195,13 @@ export function Sidebar({ state, user, onAdd }: SidebarProps) {
         <div className={cx(classes.footTools, classes.fade)}>
           <ColorSchemeToggle variant="subtle" size={36} />
           {user && (
-            <ActionIcon variant="subtle" color="gray" size={36} aria-label={t('shell.signOut')}>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size={36}
+              aria-label={t('shell.signOut')}
+              onClick={onSignOut}
+            >
               <IconLogout size={20} stroke={1.6} />
             </ActionIcon>
           )}

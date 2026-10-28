@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PupBudgetPlanner.Infrastructure.Identity;
 
 namespace PupBudgetPlanner.Infrastructure.Persistence;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IDataProtectionKeyContext
+/// <summary>The app's database: Identity's tables (users, external logins, …) plus the app's own.</summary>
+public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
+    : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>(options), IDataProtectionKeyContext
 {
     /// <summary>ASP.NET Core Data Protection keys (kept in the database because Render's disk is wiped on restart).</summary>
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
@@ -14,6 +19,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             .UseNpgsql(connectionString)
             .UseSnakeCaseNamingConvention();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder) =>
-        modelBuilder.ApplyConfigurationsFromAssembly(InfrastructureAssembly.Instance);
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        // Identity's own table and key setup first, so the app's configurations can refine it
+        base.OnModelCreating(builder);
+        builder.ApplyConfigurationsFromAssembly(InfrastructureAssembly.Instance);
+    }
 }

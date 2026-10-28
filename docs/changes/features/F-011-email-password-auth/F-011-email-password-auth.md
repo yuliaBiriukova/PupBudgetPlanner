@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M1 — Authentication & app shell |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-011-email-password-auth` |
 | Design | 3 HTML prototypes required |
 
@@ -14,21 +14,21 @@ Anyone can create an account and sign in.
 
 ## Acceptance criteria
 
-- [ ] Sign up with display name, email, password and password confirmation; sign in; sign out
-- [ ] Session kept in an HTTP-only secure cookie; antiforgery protection on state-changing requests
-- [ ] Pages other than sign in / sign up require authentication
-- [ ] Clear validation and error messages that don't reveal whether an email has an account (ADR 0012)
-- [ ] Sign-in and sign-up rate-limited per IP; sign-in takes the same time for unknown and known emails
-- [ ] No email confirmation and no password reset yet (post-MVP, Resend)
+- [x] Sign up with display name, email, password and password confirmation; sign in; sign out
+- [x] Session kept in an HTTP-only secure cookie; antiforgery protection on state-changing requests
+- [x] Pages other than sign in / sign up require authentication
+- [x] Clear validation and error messages that don't reveal whether an email has an account (ADR 0012)
+- [x] Sign-in and sign-up rate-limited per IP; sign-in takes the same time for unknown and known emails
+- [x] No email confirmation and no password reset yet (post-MVP, Resend)
 
 ## Tasks
 
 - [x] 3 HTML prototypes for sign in / sign up; round 2: variant 4, a mix of 1 and 2 (chosen)
-- [ ] Identity setup and `/api/auth` endpoints (register, login, logout, me)
-- [ ] Antiforgery
-- [ ] Rate limiting on the auth endpoints; neutral error for a taken email (ADR 0012)
-- [ ] Frontend forms and protected routes
-- [ ] Storybook stories
+- [x] Identity setup and `/api/auth` endpoints (register, login, logout, me)
+- [x] Antiforgery
+- [x] Rate limiting on the auth endpoints; neutral error for a taken email (ADR 0012)
+- [x] Frontend forms and protected routes
+- [x] Storybook stories
 
 ## Design
 
@@ -105,11 +105,98 @@ dark, and the waking-up note, looked at.
 
 Chosen variant: **variant 4** (owner, 2026-10-28).
 
+## Implementation (2026-10-28)
+
+**Backend** ([ADR 0003](../../../decisions/0003-auth-identity-google.md),
+[ADR 0012](../../../decisions/0012-account-enumeration.md), [ADR 0013](../../../decisions/0013-auth-api.md))
+
+- **Application** (`Auth/`): `RegisterRequest`, `SignInRequest`, `CurrentUser`, the `IAuthService` interface, and
+  FluentValidation validators with the same limits as the frontend: name up to 50, email up to 256, password
+  8–128 characters, length only.
+- **Infrastructure** (`Identity/`): `AppUser` (Identity user with `DisplayName`, version 7 GUIDs), `AuthService` on
+  Identity's `UserManager` / `SignInManager`, and the `AddIdentity` migration. Identity's tables and indexes are
+  renamed to snake_case (`users`, `user_logins`, `ix_users_normalized_email`, …). An unknown email still checks a
+  password hash, so it takes as long as a wrong password. Lockout: 5 wrong passwords → 15 minutes.
+- **API**: `AuthController`:
+  - `GET /api/auth/me`: 200 with the person, or 204; it also issues the antiforgery token.
+  - `POST /api/auth/register`: 200, 400, the neutral 409, or 429.
+  - `POST /api/auth/login`: 200, 400, 401 or 429.
+  - `POST /api/auth/logout`: 204.
+
+  Around it:
+  - Every other endpoint needs a signed-in person (fallback policy). Health, the SPA fallback and the
+    OpenAPI document are open.
+  - Cookie: HTTP-only, `SameSite=Lax`, HTTPS-only outside Development, 30 days sliding. An API answers
+    401 / 403 instead of redirecting.
+  - Antiforgery: the token comes in the readable `XSRF-TOKEN` cookie and goes back in the `X-XSRF-TOKEN` header.
+    A small `AntiforgeryFilter` checks every POST / PUT / PATCH / DELETE, because MVC's own filter needs the
+    view services.
+  - A `ValidationFilter` runs the validators and answers ValidationProblemDetails with camelCase field names.
+  - Rate limit: 10 attempts per minute per IP on register and login (1000 in Development, for the E2E tests).
+
+**Frontend** (`src/features/auth/`, `src/app/SignedInLayout.tsx`)
+
+- Routes: `/sign-in` and `/sign-up` inside `GuestOnly`, which sends a signed-in person on into the app.
+  Everything else is inside `SignedInLayout`:
+  - while the API says who is signed in, a start-up screen shows (logo, and the waking-up pill at night);
+  - nobody signed in goes to sign-in and comes back to the page they asked for;
+  - the shell gets the person's name and a working Sign out (sidebar and More).
+- `authApi.ts`: `currentUserQuery` (null when signed out; retried for about a minute while the server wakes up) and
+  the `useSignIn` / `useRegister` / `useSignOut` mutations.
+  - Before posting, they make sure the token is there. Afterwards they ask `me` again for a token that belongs
+    to the new person.
+  - Signing out clears every cached query.
+  - Failures map to one message each: credentials, email unavailable, too many attempts, network, unknown.
+- The API client adds the antiforgery header to every request that changes something.
+- Forms: Mantine `useForm` with zod schemas (`schemaResolver`), messages through i18n:
+  - errors appear under the field with an icon and replace the hint;
+  - one failure banner sits above the fields;
+  - the show / hide button is 44 px, in the tab order, and its name says what it does now;
+  - the button keeps its place and says "Signing in…" while the request runs;
+  - the waking-up note sits above the button.
+- Layout as variant 4. It switches to two halves from Mantine's `md` breakpoint (992 px; the prototype used 900).
+- **Not in this change:** "Continue with Google" (F-012). It comes with the feature, so the screen never shows a
+  button that does nothing.
+- **Fixed on the way:**
+  - In dark mode the text of filled primary buttons was white on the light button (Mantine's autoContrast
+    reads the light-mode shade). It affected the "Page not found" button too. Filled primary buttons now take
+    `--pup-color-on-primary` from the theme.
+  - Fields with an error no longer turn the typed text red.
+
 ## Tests
 
-- Unit: Validators, auth service.
-- E2E (Playwright): Sign up, sign out, sign in, wrong password.
+- **Backend unit** (58 in total, 30 new):
+  - validators;
+  - `AuthService`: sign-up signs in, a taken email doesn't; an unknown email still checks a hash; lockout;
+    a cookie that outlived its account;
+  - `AuthController`: status codes, the neutral 409, the readable token cookie, anonymous and rate-limited
+    actions;
+  - the rate limiter (per IP, blocks after the limit), the antiforgery filter and the validation filter.
+- **Frontend unit** (40 in total, 18 new):
+  - zod rules;
+  - a signed-out person is sent to sign in and back to the page they wanted, with the antiforgery header sent;
+  - wrong password, too many attempts, field checks before any request, show / hide password;
+  - creating an account (the name in the sidebar), passwords that differ, the neutral taken-email banner and
+    its link, the switch;
+  - signing out from More and from the sidebar.
+- **E2E** (Playwright, desktop Chrome and Pixel 7):
+  - a `setup` project creates a person and shares the cookies, so the shell tests run signed in;
+  - `auth.spec.ts`: creates an account, signs out, signs in again and stays signed in after a reload; a page asks
+    to sign in first, then opens; a wrong password and an unknown email get the same message; a taken email gets
+    the neutral banner.
+  - 23 passed, 2 skipped (they apply to the other device).
+- **Storybook:** Auth/Sign in and create account: phone and desktop, light and dark, wrong password, too many
+  attempts, busy, waking up, field errors (play tests), taken email, network error. Also App/StartupScreen.
+- **Checked in the running app** (API on Neon `dev`):
+  - curl through every endpoint (no token → 400, the neutral 409, the same 401 for an unknown email and a wrong
+    password, 204 after logout);
+  - screenshots at 375 and 1440 px in light and dark of sign-in and sign-up (empty, with field errors, with a
+    wrong password) and of the signed-in shell. They caught the dark-mode button text;
+  - axe on all those states: 0 issues, no horizontal scroll.
 
 ## Notes
 
-- —
+- E2E runs create real accounts (`e2e-…@example.com`). CI starts from an empty database each time. Locally they
+  pile up in the Neon `dev` branch, and a run with `E2E_BASE_URL` against production would create them there too.
+- The frontend needs Node 24 (ADR 0008). The default `nvm` Node on this machine is 20, and Vitest fails to start
+  on it.

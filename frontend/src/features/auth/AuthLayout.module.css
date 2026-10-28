@@ -1,0 +1,99 @@
+/* Phone: the name on a charcoal band, the form card overlapping it like the app's sheets */
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  min-height: 100dvh;
+  background: var(--pup-color-surface);
+}
+
+.hero {
+  padding: 24px 20px 48px;
+  background: var(--pup-color-hero);
+  color: var(--pup-color-on-hero);
+}
+
+.heroBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero .logo {
+  width: 44px;
+  height: 44px;
+}
+
+.wordmark {
+  margin: 16px 0 0;
+  font-family: var(--pup-font-display);
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.about {
+  display: none;
+}
+
+.formSide {
+  position: relative;
+  margin-top: -24px;
+  padding: 20px 16px calc(32px + env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0;
+  background: var(--pup-color-surface);
+}
+
+.formWrap {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Desktop: two halves — the name and what the app does on charcoal, the form on the light surface */
+@media (min-width: $mantine-breakpoint-md) {
+  .root {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-content: stretch;
+  }
+
+  .hero {
+    display: flex;
+    padding: 40px 56px;
+  }
+
+  .heroBody {
+    max-width: 480px;
+    margin: auto 0;
+  }
+
+  .hero .logo {
+    width: 56px;
+    height: 56px;
+  }
+
+  .wordmark {
+    margin-top: 24px;
+    font-size: 48px;
+  }
+
+  .about {
+    display: block;
+    max-width: 420px;
+    margin: 28px 0 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--pup-color-hero-rule);
+    color: var(--pup-color-hero-muted);
+    line-height: 1.5;
+  }
+
+  .formSide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 0;
+    padding: 40px 48px;
+    border-radius: 0;
+  }
+}

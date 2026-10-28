@@ -2,6 +2,36 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-28 (4)
+
+**Done**
+- F-011: owner chose variant 4 (recorded in the F-011 description and `DESIGN_RULES.md`).
+- F-011 built:
+  - **Backend:** Identity accounts (`users` and the other Identity tables in snake_case, new migration) and
+    `/api/auth` me / register / login / logout. Every other endpoint needs a signed-in person. The cookie is
+    HTTP-only and lasts 30 days. Antiforgery is a readable cookie plus a header. Errors are neutral
+    (ADR 0012), with rate limits per IP and lockout.
+  - **Frontend:** the variant 4 sign-in and sign-up pages, a start-up screen while the app asks who is signed
+    in, redirects both ways, and the person's name and a working Sign out in the shell.
+- Tests:
+  - backend 58 (30 new);
+  - frontend unit 40 (18 new);
+  - E2E 23 passed, 2 skipped. A setup project signs the shell tests in.
+  - Storybook stories for the auth screens and the start-up screen.
+- Checked in the running app against Neon `dev`: curl through every endpoint; screenshots at 375 and 1440 px in
+  light and dark; axe 0 issues.
+- Fixed on the way: dark-mode filled buttons had white text on the light button (also "Page not found"); new
+  custom design rule.
+
+**Decisions**
+- ADR 0013: auth API details: endpoints, fallback policy, cookie, antiforgery filter, length-only passwords,
+  lockout, rate limits, table names.
+- "Continue with Google" comes with F-012, not as a dead button now.
+
+**Next**
+- Owner reviews the F-011 pull request.
+- F-012: sign in with Google.
+
 ## 2026-10-28 (3)
 
 **Done**

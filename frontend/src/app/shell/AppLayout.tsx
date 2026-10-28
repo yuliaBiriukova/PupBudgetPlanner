@@ -11,12 +11,13 @@ import { useSidebar } from './useSidebar';
 import { WakePill } from './WakePill';
 
 interface AppLayoutProps {
-  /** The signed-in person; sign-in arrives in F-011. */
+  /** The signed-in person. */
   user?: ShellUser;
+  onSignOut?: () => void;
 }
 
 /** The frame around every page: sidebar on desktop; top bar, tab bar and More on the phone. */
-export function AppLayout({ user }: AppLayoutProps) {
+export function AppLayout({ user, onSignOut }: AppLayoutProps) {
   const isDesktop = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
   const sidebar = useSidebar();
   const wake = useServerWake();
@@ -29,7 +30,7 @@ export function AppLayout({ user }: AppLayoutProps) {
       data-resizing={sidebar.resizing || undefined}
       style={{ '--sidebar-width': `${String(sidebar.columnWidth)}px` } as CSSProperties}
     >
-      {isDesktop && <Sidebar state={sidebar} user={user} onAdd={add.open} />}
+      {isDesktop && <Sidebar state={sidebar} user={user} onAdd={add.open} onSignOut={onSignOut} />}
       <div className={classes.column}>
         {!isDesktop && <TopBar user={user} />}
         <WakePill waking={wake.waking} seconds={wake.seconds} />
@@ -40,7 +41,9 @@ export function AppLayout({ user }: AppLayoutProps) {
         </main>
         {!isDesktop && <TabBar onAdd={add.open} onMore={more.open} />}
       </div>
-      {!isDesktop && <MoreSheet opened={moreOpened} onClose={more.close} user={user} />}
+      {!isDesktop && (
+        <MoreSheet opened={moreOpened} onClose={more.close} user={user} onSignOut={onSignOut} />
+      )}
       <AddTransactionSheet opened={addOpened} onClose={add.close} asSheet={!isDesktop} />
     </div>
   );
