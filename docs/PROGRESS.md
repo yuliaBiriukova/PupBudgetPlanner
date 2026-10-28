@@ -12,11 +12,11 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   - Playwright check with screenshots looked at before showing design variants and before every UI commit;
   - a reported bug or proposed feature / improvement gets its folder, description and backlog row first;
   - priority `High` / `Medium` / `Low` for improvements, bugfixes and features added later (new backlog column);
-  - design starts from references: other apps, the internet, Mobbin.
-- B-002 given priority `Medium` (backlog and description file).
+  - design starts from references: Mobbin and open examples on the internet — nothing that needs the owner's
+    sign-in (banking apps, Claude's UI).
+- B-002 closed by the owner: `Done`, priority `Medium`.
 
 **Next**
-- Release B-002 to `main` and check the tab icon on Render.
 - F-011: sign up and sign in — first under the new rules (references on Mobbin, Playwright look-check).
 
 ## 2026-10-28

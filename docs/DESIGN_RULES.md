@@ -21,9 +21,10 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 
 ## 2. Process
 
-1. **References first.** Look at how others solve the same screen: well-made apps (budgeting and beyond),
-   examples on the internet and **Mobbin** (mobbin.com, search by pattern or by app). The references used and
-   what each one gave are listed in the change's description file.
+1. **References first.** Look at how others solve the same screen: **Mobbin** (mobbin.com, search by pattern or
+   by app) and other examples open on the internet. Only references that open without the owner's sign-in — no
+   banking apps or Claude's UI. The references used and what each one gave are listed in the change's
+   description file.
 2. Every new screen starts with **3 design variants as HTML prototypes** — self-contained `.html` files
    that open in any browser and show mobile and desktop layouts. They live in the change folder:
    `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.

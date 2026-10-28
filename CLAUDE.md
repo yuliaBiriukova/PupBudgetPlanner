@@ -91,11 +91,12 @@ This file tells Claude (and any human contributor) how we work on this project.
 
 ## Screens and design
 
-- **Start from references.** Before designing a screen, look at how others solve it: well-made apps
-  (budgeting and others), examples on the internet and **Mobbin** (mobbin.com — real app screens by pattern,
-  e.g. "add transaction", "sidebar", "sign in"). Note in the change's description file which references were
-  used and what was taken from each. Mobbin needs the owner's account: if it asks to sign in, ask the owner to
-  sign in in the browser.
+- **Start from references.** Before designing a screen, look at how others solve it: **Mobbin** (mobbin.com —
+  real app screens by pattern, e.g. "add transaction", "sidebar", "sign in") and other examples that are open on
+  the internet (product sites, app store screenshots, design galleries). Never use as a reference an app or site
+  that needs the owner's sign-in (banking apps, Claude's UI and the like), and don't ask the owner to sign in
+  anywhere for references. Note in the change's description file which references were used and what was taken
+  from each.
 - Before building any screen, propose **3 design variants as HTML prototypes**: self-contained
   `.html` files (open directly in a browser, mobile and desktop layouts) saved in the change folder:
   `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.

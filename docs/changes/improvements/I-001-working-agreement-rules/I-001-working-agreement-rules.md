@@ -22,8 +22,8 @@ every request from the owner is planned in the repo before any code is written.
       was invisible, and the app name was cut off in the sidebar by default.
 - [x] When the owner reports a bug or proposes a feature or improvement, its folder, description file and
       backlog row are created first, before any code. Every such change has a priority.
-- [x] UI design starts from references: how well-made apps solve the same screen, examples on the internet and
-      Mobbin.
+- [x] UI design starts from references: Mobbin and other examples open on the internet. Nothing that needs the
+      owner's sign-in (banking apps, Claude's UI), and the owner is never asked to sign in for references.
 - [x] The rules are in `CLAUDE.md`, `docs/changes/README.md` (templates), `docs/DESIGN_RULES.md`, the
       `design-screen` skill and the PR template.
 

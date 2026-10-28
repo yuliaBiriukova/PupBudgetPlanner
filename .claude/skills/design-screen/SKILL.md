@@ -20,10 +20,10 @@ like *this* app. Follow the steps in order; don't write HTML before step 3.
 Before the brief, see how others solve this screen — don't invent from the average:
 
 - **Mobbin** (mobbin.com): search the pattern ("add expense", "transaction list", "sign in", "bottom sheet")
-  and well-made finance apps (Monobank, Revolut, Copilot, YNAB, Monefy and others). It needs the owner's
-  account: if it asks to sign in, ask the owner to sign in in the browser; never enter credentials.
-- Other examples on the internet (design galleries, the apps' own sites) and apps the owner uses (e.g.
-  Claude's UI for interaction patterns).
+  and well-made finance apps.
+- Other examples open on the internet: design galleries, product sites, app store screenshots.
+- Only what opens without the owner's sign-in. No banking apps, no Claude's UI, nothing that needs the
+  owner's account — and don't ask the owner to sign in anywhere for references.
 - Write down 3–6 references in the change's description file ("Design" section): link — what we take from it
   (a layout, an interaction, a detail). Take ideas, not a copy of someone's look.
 
@@ -82,8 +82,8 @@ waking-up state, `setNavCollapsed(bool | null)`, and `setLogo(name)` with a `LOG
 - Read every label on every button, in every state and scheme, and check that names and titles are whole at
   default sizes. The first F-010 build shipped a primary button whose text was invisible and an app name cut
   off in the sidebar — the owner found both by hand. Showing a variant means you have seen it is clean.
-- For interaction patterns (collapsing a sidebar, sheets, menus), look at how a well-made app the owner uses
-  does it (e.g. Claude's own UI, Mobbin references) before inventing one.
+- For interaction patterns (collapsing a sidebar, sheets, menus), look at how well-made apps do it (Mobbin,
+  open examples on the internet) before inventing one.
 - The same look-check applies when the chosen design is built in the app: before every commit that changes
   UI, run the E2E tests and look at Playwright screenshots of the changed screens.
 
