@@ -15,6 +15,12 @@ public interface IAuthService
 
     Task SignOutAsync(CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Signs in with the login an external provider (Google) has just confirmed. The first time, it creates the
+    /// account, or links the login to the account with the same verified email (F-012).
+    /// </summary>
+    Task<ExternalSignInOutcome> SignInWithExternalLoginAsync(CancellationToken cancellationToken);
+
     /// <summary>The person behind the request's cookie, or null when nobody is signed in.</summary>
     Task<CurrentUser?> GetCurrentUserAsync(ClaimsPrincipal principal, CancellationToken cancellationToken);
 }

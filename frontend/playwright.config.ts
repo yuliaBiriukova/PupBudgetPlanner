@@ -54,6 +54,14 @@ export default defineConfig({
           command: apiCommand,
           cwd: '../backend',
           url: 'http://localhost:5297/api/health',
+          // A Google client that only gets as far as Google's sign-in page (e2e/auth.spec.ts); a real one from the
+          // environment wins
+          env: {
+            Authentication__Google__ClientId:
+              process.env.Authentication__Google__ClientId ?? 'e2e-google-client',
+            Authentication__Google__ClientSecret:
+              process.env.Authentication__Google__ClientSecret ?? 'e2e-google-secret',
+          },
           reuseExistingServer: !isCI,
           timeout: 180_000,
         },

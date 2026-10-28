@@ -2,6 +2,40 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-28 (5)
+
+**Done**
+- F-011 was merged into `develop` (PR #18).
+- F-012 built:
+  - **Backend:** Google sign-in through Identity external logins. `GET /api/auth/google` sends the person to
+    Google, the callback is `/api/auth/google/callback`, and `/api/auth/google/complete` signs them in and
+    returns them to the page they wanted. The first sign-in creates the account, or links to the one with the
+    same email Google has verified. A cancel or failure comes back to sign in with one message. Without a
+    Google client the app still starts.
+  - **Frontend:** "or" and "Continue with Google" under the form on sign in and create account (variant 4),
+    "Opening Google…" after the click, and the banner for a failed Google sign-in.
+  - Render lists the two Google variables; README has the user-secrets commands.
+- Fixed on the way: the Vite proxy rewrote the `Host` header, so locally Google would have come back to the
+  API's port instead of the app.
+- Tests:
+  - backend 88 (30 new);
+  - frontend unit 43 (3 new);
+  - E2E 27 passed, 2 skipped (4 new): the redirect to Google with our callback, and a foreign callback coming
+    back with the message;
+  - a Storybook story for the Google error.
+- Checked: screenshots at 375 and 1440 px, light and dark (sign in, create account, the error, "Opening
+  Google…"); axe 0 issues.
+
+**Decisions**
+- Owner's choice: Google sign-in links to an existing email-and-password account, removes its password (nobody
+  proved the email before) and ends its other sessions.
+- ADR 0014: the Google flow, matching and linking, lockout not applying to Google, the proxy keeping `Host`.
+
+**Next**
+- Owner creates the Google OAuth client (steps in the F-012 description), sets it on Render and in user-secrets,
+  and checks Google sign-in after the release.
+- F-013: default categories for every new person, email or Google.
+
 ## 2026-10-28 (4)
 
 **Done**

@@ -96,3 +96,44 @@ test('a taken email gets a neutral message with a way to sign in', async ({ page
   await banner.getByRole('link', { name: en.auth.errors.signInWithEmail }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
 });
+
+// Google blocks automated sign-ins, so the test stops at Google's door; the whole flow is checked by hand (F-012)
+test('Continue with Google sends the person to Google with our callback', async ({
+  page,
+  baseURL,
+}) => {
+  // The API answers with a redirect to Google; the test reads it and stops there (Playwright doesn't intercept
+  // the request a redirect leads to)
+  let google: URL | undefined;
+  let returnUrl: string | null = null;
+  await page.route('**/api/auth/google?*', async (route) => {
+    returnUrl = new URL(route.request().url()).searchParams.get('returnUrl');
+    const response = await route.fetch({ maxRedirects: 0 });
+    google = new URL(response.headers().location);
+    await route.fulfill({ contentType: 'text/html', body: '<title>Google</title>' });
+  });
+  await page.goto('/reports');
+
+  await page.getByRole('link', { name: en.auth.continueWithGoogle }).click();
+
+  await expect(page).toHaveTitle('Google');
+  expect(returnUrl).toBe('/reports');
+  expect(google?.origin).toBe('https://accounts.google.com');
+  expect(google?.searchParams.get('redirect_uri')).toBe(
+    `${baseURL ?? ''}/api/auth/google/callback`,
+  );
+  expect(google?.searchParams.get('response_type')).toBe('code');
+  expect(google?.searchParams.get('scope')?.split(' ')).toEqual(
+    expect.arrayContaining(['openid', 'profile', 'email']),
+  );
+  expect(google?.searchParams.get('state')).toBeTruthy();
+});
+
+test('a Google sign-in that fails comes back to sign in with a message', async ({ page }) => {
+  // What arrives when the sign-in at Google was started somewhere else, or has expired
+  await page.goto('/api/auth/google/callback?code=from-somewhere-else&state=not-ours');
+
+  await expect(page).toHaveURL(/\/sign-in\?error=google$/);
+  await expect(page.getByRole('alert')).toHaveText(en.auth.errors.google);
+  await expect(page.getByRole('link', { name: en.auth.continueWithGoogle })).toBeVisible();
+});

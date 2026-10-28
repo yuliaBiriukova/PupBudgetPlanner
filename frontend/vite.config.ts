@@ -11,7 +11,9 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     proxy: {
-      '/api': apiProxyTarget,
+      // Keeps the browser's Host, so the API builds links to the app, not to itself: Google's redirect URI is
+      // http://localhost:5173/api/auth/google/callback (F-012). The shorthand `'/api': target` would rewrite it.
+      '/api': { target: apiProxyTarget, changeOrigin: false },
     },
   },
   // Libraries in their own chunks: none passes the 500 kB warning, and they stay cached between releases

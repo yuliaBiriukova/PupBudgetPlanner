@@ -53,6 +53,15 @@ cd backend
 dotnet user-secrets set "ConnectionStrings:Database" "Host=<host>;Database=<db>;Username=<user>;Password=<password>;SSL Mode=Require" --project src/PupBudgetPlanner.Api
 ```
 
+"Continue with Google" needs the Google OAuth client (how to create it: [F-012](docs/changes/features/F-012-google-sign-in/F-012-google-sign-in.md#google-oauth-client-owner)).
+Without it the app works, and the Google button comes back with an error:
+
+```bash
+cd backend
+dotnet user-secrets set "Authentication:Google:ClientId" "<client id>" --project src/PupBudgetPlanner.Api
+dotnet user-secrets set "Authentication:Google:ClientSecret" "<client secret>" --project src/PupBudgetPlanner.Api
+```
+
 Migrations are applied when the API starts. `GET /api/health` returns 200 without touching the database.
 In Development the OpenAPI document is at `http://localhost:5297/openapi/v1.json`.
 
