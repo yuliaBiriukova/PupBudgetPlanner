@@ -15,6 +15,18 @@ like *this* app. Follow the steps in order; don't write HTML before step 3.
   everything, including this skill), the change's description file, and the "Screen decisions" table.
 - Earlier chosen prototypes in `docs/changes/**/prototypes/` — new screens must look like the same app.
 
+## 1a. Look at references
+
+Before the brief, see how others solve this screen — don't invent from the average:
+
+- **Mobbin** (mobbin.com): search the pattern ("add expense", "transaction list", "sign in", "bottom sheet")
+  and well-made finance apps.
+- Other examples open on the internet: design galleries, product sites, app store screenshots.
+- Only what opens without the owner's sign-in. No banking apps, no Claude's UI, nothing that needs the
+  owner's account — and don't ask the owner to sign in anywhere for references.
+- Write down 3–6 references in the change's description file ("Design" section): link — what we take from it
+  (a layout, an interaction, a detail). Take ideas, not a copy of someone's look.
+
 ## 2. Brief (write it down, 5 lines)
 
 - **Who and when:** a Kyiv couple. Daily: entering an expense on the phone in a few seconds, often one-handed,
@@ -64,11 +76,16 @@ waking-up state, `setNavCollapsed(bool | null)`, and `setLogo(name)` with a `LOG
   the phone, icon scale 16/20/24, clipped text, overlapping floating elements, WCAG AA contrast and other axe
   rules, visible focus, console errors. It exits with 1 when anything is found; the report with screenshots is
   `frontend/test-results/design-check/report.html`. Don't trust a clean run you haven't seen fail once.
-- **Look at the screenshots** (375 and 1440 px), and zoom into nav items, buttons and list rows to check
-  icon/text alignment and type weight. Critique each against the slop check and the brief; fix and re-check.
-  Watch CSS specificity: a reset can silently override component colors.
-- For interaction patterns (collapsing a sidebar, sheets, menus), look at how a well-made app the owner uses
-  does it (e.g. Claude's own UI) before inventing one.
+- **Look at the screenshots** (375 and 1440 px, light and dark), and zoom into nav items, buttons and list rows
+  to check icon/text alignment and type weight. Critique each against the slop check and the brief; fix and
+  re-check. Watch CSS specificity: a reset can silently override component colors.
+- Read every label on every button, in every state and scheme, and check that names and titles are whole at
+  default sizes. The first F-010 build shipped a primary button whose text was invisible and an app name cut
+  off in the sidebar — the owner found both by hand. Showing a variant means you have seen it is clean.
+- For interaction patterns (collapsing a sidebar, sheets, menus), look at how well-made apps do it (Mobbin,
+  open examples on the internet) before inventing one.
+- The same look-check applies when the chosen design is built in the app: before every commit that changes
+  UI, run the E2E tests and look at Playwright screenshots of the changed screens.
 
 ## 6. Present and record
 
