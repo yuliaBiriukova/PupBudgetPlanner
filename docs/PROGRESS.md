@@ -30,10 +30,12 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Owner's choice: Google sign-in links to an existing email-and-password account, removes its password (nobody
   proved the email before) and ends its other sessions.
 - ADR 0014: the Google flow, matching and linking, lockout not applying to Google, the proxy keeping `Host`.
+- The Google app stays in Testing, with the family as test users: Google publishes it only with a privacy
+  policy link, and the app has no such page yet.
 
 **Next**
-- Owner creates the Google OAuth client (steps in the F-012 description), sets it on Render and in user-secrets,
-  and checks Google sign-in after the release.
+- Owner has created the Google OAuth client (own project, test users); sets it on Render and checks Google
+  sign-in after the release.
 - F-013: default categories for every new person, email or Google.
 
 ## 2026-10-28 (4)

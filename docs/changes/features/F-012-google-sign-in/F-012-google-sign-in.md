@@ -23,7 +23,7 @@ One-click sign-in with a Google account.
 
 ## Tasks
 
-- [ ] Owner creates a Google OAuth client (Google Cloud Console → Credentials; steps below)
+- [x] Owner creates a Google OAuth client (Google Cloud Console → Google Auth Platform; steps below)
 - [x] Configure `AddGoogle` and callback path
 - [x] External login endpoint and account linking
 - [x] Button in the UI
@@ -48,15 +48,25 @@ Owner's choice (2026-10-28), out of three:
 
 In [Google Cloud Console](https://console.cloud.google.com/) (free):
 
-1. Create a project, e.g. `Pup Budget Planner`.
-2. **Google Auth Platform → Branding** (the OAuth consent screen): app name `Pup Budget`, your support email,
-   developer contact email. **Audience:** External. Scopes: only the basic `openid`, `email`, `profile` (they
-   need no Google review). Publish the app (**Audience → Publish app**): in "Testing" only the listed test users
-   can sign in.
-3. **Clients → Create client → Web application**, name `Pup Budget`. Authorized redirect URIs:
+1. Create a separate project, e.g. `Pup Budget Planner`. A project has one sign-in screen, so don't reuse
+   another app's project: its users would see our name.
+2. **Google Auth Platform → Get started** (the OAuth consent screen): app name `Pup Budget`, your support email,
+   **Audience:** External, your contact email. Scopes: only the basic `openid`, `email`, `profile` (they need no
+   Google review). On **Branding**, leave the logo empty (a logo needs Google's review) and the app domain links
+   too.
+3. **Audience → Test users → Add users**: the Gmail addresses that will sign in with Google (yours and the
+   family's, up to 100). The app stays in **Testing**:
+   - only these people can use "Continue with Google"; anyone else gets "access blocked" from Google, and email
+     and password still work for everyone;
+   - Google may show them a warning that it hasn't verified the app; they choose **Continue**;
+   - **Publish app** needs a home page and a privacy policy link on Branding, and the app has no privacy policy
+     page yet. Once it has one: home page `https://pup-budget-planner.onrender.com`, the policy's link, authorized
+     domain `pup-budget-planner.onrender.com`, then publish.
+4. **Clients → Create client → Web application**, name `Pup Budget`. Leave the JavaScript origins empty. Authorized
+   redirect URIs:
    - `https://pup-budget-planner.onrender.com/api/auth/google/callback`
    - `http://localhost:5173/api/auth/google/callback` (local development, through the Vite proxy)
-4. Copy the client ID and the client secret. Locally, in `backend/src/PupBudgetPlanner.Api`:
+5. Copy the client ID and the client secret (the secret is shown in full only once). Locally, in `backend/src/PupBudgetPlanner.Api`:
    `dotnet user-secrets set "Authentication:Google:ClientId" "<id>"` and the same for `ClientSecret`.
    On Render, the environment variables `Authentication__Google__ClientId` and `Authentication__Google__ClientSecret`.
 
@@ -127,12 +137,14 @@ Details and reasons in [ADR 0014](../../../decisions/0014-google-sign-in.md).
 ## After the release (owner)
 
 1. Create the Google OAuth client (steps above) and set it on Render and in user-secrets.
-2. On https://pup-budget-planner.onrender.com: "Continue with Google" with a new Google account → you land in the
-   app with your Google name. Sign out, then sign in with Google again → the same account.
+2. On https://pup-budget-planner.onrender.com: "Continue with Google" with a Google account from the test users
+   list that has no account here yet → you land in the app with your Google name. Sign out, then sign in with Google again → the same account.
 3. Optional, linking: create an account with email and password using your Gmail address, then sign out and
    use "Continue with Google". You land in the same account, and the password no longer works.
 
 ## Notes
 
+- 2026-10-28: the setup steps first said to publish the Google app. Google allows that only with a privacy
+  policy link, so the app stays in Testing with test users for now.
 - Google's sign-in branding asks for its "G" in its own colors, so `GoogleLogo` has them in the SVG and not as
   theme tokens.
