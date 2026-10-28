@@ -2,6 +2,39 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-28 (3)
+
+**Done**
+- F-011 started (branch `feature/F-011-email-password-auth`): three sign-in / sign-up prototypes made with the
+  `design-screen` skill in the F-010 theme: Ledger page (the form beside a sample of the yearly report),
+  Pocket (charcoal page, form docked under the thumb, a pill switch) and Receipt (a paper strip with a torn edge).
+  Each shows sign in, create account, their error states, the busy button and the waking-up note.
+- References noted in the F-011 description (YNAB, Stripe, Lunch Money, an Eleken roundup). Mobbin's screens need
+  an account, so it wasn't used.
+- Design check: 0 issues on all three. It first caught a small "Sign in instead" link and inputs without a focus
+  outline. Screenshots at 375 and 1440 px, light and dark, were looked at, and they caught the floating
+  waking-up pill covering the logo row. It is now a note in the form.
+
+- F-011 round 2, from the owner's feedback (variant 1's layout without the report table, variant 2's colors and
+  form, not variant 3): `prototypes/variant-4.html`. Desktop: charcoal brand half and the form half. Phone: a
+  charcoal band with the name, and the form card overlapping it. Design check 0 issues; screenshots looked at.
+- Variant 4 revised: the tagline "Every hryvnia in its place." removed. A taken email on Create account now gets a
+  neutral banner ("We couldn't create an account with this email" + "Sign in with this email") instead of
+  saying the account exists; format errors have their own screen in the prototype.
+- Variant 4: the desktop line under the name is now "Income, expenses and transfers across all your accounts and
+  currencies. Monthly and yearly reports build themselves, for you and your family." (owner's pick of 8). Create
+  account got a Confirm password field: without password reset (no email until after the MVP), a typo would
+  lock the person out.
+
+**Decisions**
+- ADR 0012: no account enumeration. One message for a wrong email or password, a neutral sign-up message for a
+  taken email, rate limiting on the auth endpoints per IP. Sign-up moves to "Check your email" once email exists
+  (after the MVP).
+
+**Next**
+- Owner confirms variant 4 or asks for changes. Then the Identity setup and `/api/auth` endpoints, the forms and
+  the protected routes.
+
 ## 2026-10-28 (2)
 
 **Done**

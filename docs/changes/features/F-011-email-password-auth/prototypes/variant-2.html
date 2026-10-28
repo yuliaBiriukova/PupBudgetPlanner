@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>F-011 · Variant 2 · Pocket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(460px, calc(100vw - 32px)); background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.pv-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.pv-notes li + li { margin-top: 4px; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='tablet'] .frame { width: 834px; height: min(1050px, 100%); border: 12px solid #16181d; border-radius: 28px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+@media (max-width: 600px) {
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+}
+
+/* ---------- Tokens: the F-010 theme (charcoal and sky); the charcoal of the buttons becomes the page above the form ---------- */
+.app {
+  --hero: #26292e; --on-hero: #f5f6f7; --hero-muted: #b4b9bf;
+  --bg: #f5f6f7; --seg-bg: #ebedf0; --surface: #fcfcfd; --text: #1c1e21; --muted: #57585b; --rule: #d7d8d9;
+  --field-border: #7c828a; --hover: #e8e9ea;
+  --primary: #26292e; --primary-hover: #363a40; --on-primary: #f5f6f7;
+  --accent: #2a62a3; --logo: #8ec1ec; --logo-mark: #1c1e21;
+  --error: #b3261e; --error-bg: #fbeceb; --error-text: #8c1d18;
+  --pill: #1c1e21; --on-pill: #f5f6f7; --focus: #2a62a3; --focus-hero: #8ec1ec;
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+  --r-sm: 12px; --r-lg: 24px;
+}
+.app[data-scheme='dark'] {
+  --hero: #0b0c0d; --on-hero: #e9eaec; --hero-muted: #a4a5a7;
+  --bg: #121315; --seg-bg: #121315; --surface: #1b1c1e; --text: #e9eaec; --muted: #a4a5a7; --rule: #37383a;
+  --field-border: #71747b; --hover: #26272a;
+  --primary: #e9eaec; --primary-hover: #d3d6da; --on-primary: #121315;
+  --accent: #8ec1ec; --logo: #8ec1ec; --logo-mark: #121315;
+  --error: #f2958c; --error-bg: #3a1d1b; --error-text: #f6b8b2;
+  --pill: #e9eaec; --on-pill: #121315; --focus: #8ec1ec; --focus-hero: #8ec1ec;
+}
+
+/* ---------- Structure ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; background: var(--hero); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; color-scheme: light; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+:where(.app) :where(button, input) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, p) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.amt { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Phone: the name on the charcoal page, the form docked at the bottom under the thumb */
+.layout { height: 100%; overflow: hidden auto; display: flex; flex-direction: column; }
+.column { flex: 1 0 auto; display: flex; flex-direction: column; }
+.hero { flex: 1 0 auto; min-height: 188px; display: flex; flex-direction: column; justify-content: flex-end; padding: 28px 20px 28px; color: var(--on-hero); }
+.hero :focus-visible { outline-color: var(--focus-hero); }
+.logo { width: 56px; height: 56px; display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--logo); color: var(--logo-mark); }
+.wordmark { font-family: var(--font-display); font-weight: 300; font-size: 34px; line-height: 1.1; letter-spacing: -.01em; margin-top: 20px; white-space: nowrap; }
+.tagline { color: var(--hero-muted); margin-top: 8px; font-size: 16px; }
+.card { flex: none; background: var(--surface); border-radius: var(--r-lg) var(--r-lg) 0 0; padding: 16px 16px calc(24px + env(safe-area-inset-bottom)); }
+
+/* The bold element: one switch between signing in and creating an account */
+.seg { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 999px; background: var(--seg-bg); }
+.seg a { display: grid; place-items: center; min-height: 44px; border-radius: 999px; color: var(--muted); text-decoration: none; font-weight: 500; }
+.seg a:hover { color: var(--text); }
+.seg a[aria-current='page'] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(15, 17, 20, .14); }
+.app[data-scheme='dark'] .seg a[aria-current='page'] { background: #2e3035; box-shadow: none; }
+
+/* Form */
+form { margin-top: 20px; display: grid; gap: 20px; }
+.field label { display: block; font-weight: 500; font-size: 14px; margin-bottom: 6px; }
+.control { position: relative; display: flex; }
+.control input { width: 100%; height: 52px; padding: 0 16px; border: 1px solid var(--field-border); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font-size: 16px; }
+.control input:focus { outline: 1px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.control.has-toggle input { padding-right: 56px; }
+.toggle { position: absolute; right: 4px; top: 4px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: none; border-radius: 10px; color: var(--muted); cursor: pointer; }
+.toggle:hover { color: var(--text); background: var(--hover); }
+.msg { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 13px; color: var(--muted); }
+.field[data-invalid] .control input { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }
+.field[data-invalid] .msg { color: var(--error); }
+.text-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.field .text-link { margin-top: -4px; }
+.banner { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-sm); background: var(--error-bg); color: var(--error-text); }
+.banner .ic { margin-top: 2px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 20px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; font-weight: 500; font-size: 16px; width: 100%; text-decoration: none; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-primary[aria-busy='true'] { cursor: progress; }
+.btn-google { background: var(--surface); color: var(--text); border-color: var(--field-border); }
+.btn-google:hover { background: var(--hover); }
+.or { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+.or::before, .or::after { content: ''; flex: 1; border-top: 1px solid var(--rule); }
+.spinner { width: 20px; height: 20px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(1turn); } }
+
+/* Waking up: in the form, right above the button it delays */
+.wake { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: var(--r-sm); background: var(--seg-bg); color: var(--text); font-size: 14px; }
+.wake .ic { margin-top: 1px; color: var(--accent); }
+.wake .amt { color: var(--muted); }
+/* Out of the grid while empty, so it adds no gap; it stays in the page so it is announced when it fills */
+.live:empty { position: absolute; }
+.toast { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 10px 16px; border-radius: 999px; background: var(--pill); color: var(--on-pill); font-size: 14px; z-index: 6; white-space: nowrap; }
+
+/* ---------- Desktop: the same card, centred on the charcoal page ---------- */
+@container app (min-width: 900px) {
+  .layout { padding: 40px; }
+  .column { flex: none; width: 440px; margin: auto; }
+  .hero { flex: none; min-height: 0; padding: 0 4px 32px; }
+  .wordmark { font-size: 40px; }
+  .card { border-radius: var(--r-lg); padding: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="frame">
+    <div class="app" id="app" data-scheme="light">
+      <div class="layout" data-scroll>
+        <div class="column">
+          <header class="hero">
+            <span class="logo" data-logo aria-hidden="true"></span>
+            <p class="wordmark">Pup Budget</p>
+            <p class="tagline">Every hryvnia in its place.</p>
+          </header>
+          <main class="card" id="form"></main>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DIRECTION = {
+  name: 'Variant 2 · Pocket',
+  thesis: 'Thumb first: the name sits on the charcoal page, the form is docked at the bottom of the phone like the app’s own sheets, and one switch flips between Sign in and Create account.',
+  notes: [
+    'Phone: the top part (logo, big "Pup Budget", one line) takes whatever room is left; the form card is anchored to the bottom, so the fields and the button are under the thumb.',
+    'The charcoal of the buttons becomes the page in light mode — a bold, quiet frame. Dark mode: near-black page, the card one step lighter.',
+    'Sign in / Create account is a pill switch at the top of the card instead of a link under the form; the heading is for screen readers only.',
+    'Bigger touch targets than the app’s defaults: 52 px fields and a 52 px pill button.',
+    'Desktop: the same card, 440 px, centred on the charcoal page with the name above it.',
+    'Continue with Google is drawn here so the layout leaves room for it; it is built in F-012. No "Forgot password?" yet (needs email, after the MVP).',
+    'Simulate cold start: a note right above the button says the server is waking up, with the seconds.',
+  ],
+};
+
+const ICONS = {
+  stack: ['M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z', 'M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4', 'M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z', 'M3 6v10c0 .888 .772 1.45 2 2', 'M3 11c0 .888 .772 1.45 2 2'],
+  eye: ['M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0', 'M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6'],
+  eyeOff: ['M10.585 10.587a2 2 0 0 0 2.829 2.828', 'M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87', 'M3 3l18 18'],
+  alert: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 8v4', 'M12 16h.01'],
+  zzz: ['M4 12h6l-6 8h6', 'M14 4h6l-6 8h6'],
+};
+const icon = (n, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n].map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+const GOOGLE = `<svg class="ic" width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`;
+
+const PAGES = [
+  { id: 'signin', label: 'Sign in' },
+  { id: 'signup', label: 'Create account' },
+  { id: 'signin-error', label: 'Sign in: wrong password' },
+  { id: 'signup-error', label: 'Create account: errors' },
+];
+
+const app = document.getElementById('app');
+const stage = document.getElementById('stage');
+const mq = matchMedia('(prefers-color-scheme: dark)');
+const state = { page: 'signin', schemePref: 'light', waking: false, elapsed: 0, busy: false };
+
+function applyScheme() {
+  const scheme = state.schemePref === 'system' ? (mq.matches ? 'dark' : 'light') : state.schemePref;
+  app.dataset.scheme = scheme;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+}
+mq.addEventListener('change', applyScheme);
+
+// ---------- Form markup (the same fields in every variant) ----------
+function field({ id, label, type = 'text', autocomplete, inputmode, value = '', hint, error, extra = '' }) {
+  const pw = type === 'password';
+  const msg = error || hint;
+  return `<div class="field"${error ? ' data-invalid' : ''}>
+    <label for="${id}">${label}</label>
+    <div class="control${pw ? ' has-toggle' : ''}">
+      <input id="${id}" name="${id}" type="${type}" autocomplete="${autocomplete}"${inputmode ? ` inputmode="${inputmode}"` : ''} value="${value}"${msg ? ` aria-describedby="${id}-msg"` : ''}${error ? ' aria-invalid="true"' : ''} required>
+      ${pw ? `<button type="button" class="toggle" data-action="toggle-pw" aria-label="Show password" aria-pressed="false" aria-controls="${id}">${icon('eye')}</button>` : ''}
+    </div>
+    ${msg ? `<p class="msg" id="${id}-msg">${error ? icon('alert', 16) : ''}${msg}</p>` : ''}${extra}
+  </div>`;
+}
+
+function formHtml(page) {
+  const signup = page.startsWith('signup');
+  const err = page.endsWith('error');
+  const busy = state.busy;
+  const fields = signup
+    ? field({ id: 'name', label: 'Your name', autocomplete: 'name', value: err ? 'Olena' : '', hint: 'Your family sees this name.' })
+      + field({ id: 'email', label: 'Email', type: 'email', autocomplete: 'email', inputmode: 'email', value: err ? 'olena@example.com' : '', error: err ? 'This email already has an account.' : '', extra: err ? '<a href="#signin" class="text-link" data-nav="signin">Sign in instead</a>' : '' })
+      + field({ id: 'password', label: 'Password', type: 'password', autocomplete: 'new-password', value: err ? 'abc' : '', hint: 'At least 8 characters.', error: err ? 'Use at least 8 characters.' : '' })
+    : field({ id: 'email', label: 'Email', type: 'email', autocomplete: 'email', inputmode: 'email', value: err ? 'olena@example.com' : '' })
+      + field({ id: 'password', label: 'Password', type: 'password', autocomplete: 'current-password' });
+  const submit = signup ? 'Create account' : 'Sign in';
+  const busyLabel = signup ? 'Creating your account…' : 'Signing in…';
+  return `<h1 class="sr">${signup ? 'Create your Pup Budget account' : 'Sign in to Pup Budget'}</h1>
+    <nav class="seg" aria-label="Sign in or create an account">
+      <a href="#signin" data-nav="signin"${signup ? '' : ' aria-current="page"'}>Sign in</a>
+      <a href="#signup" data-nav="signup"${signup ? ' aria-current="page"' : ''}>Create account</a>
+    </nav>
+    <form novalidate data-form="${signup ? 'signup' : 'signin'}">
+      ${err && !signup ? `<div class="banner" role="alert">${icon('alert')}<span>That email and password don’t match. Check both and try again.</span></div>` : ''}
+      ${fields}
+      <div class="live" role="status" aria-live="polite">${state.waking ? `<p class="wake">${icon('zzz', 16)}<span>Waking up the server… <span class="amt" data-elapsed>${state.elapsed} s</span><br>It sleeps at night; this takes up to a minute.</span></p>` : ''}</div>
+      <button class="btn btn-primary" type="submit" ${busy ? 'aria-busy="true" aria-disabled="true"' : ''}>${busy ? `<span class="spinner" aria-hidden="true"></span>${busyLabel}` : submit}</button>
+      <div class="or">or</div>
+      <button class="btn btn-google" type="button" data-action="google">${GOOGLE}Continue with Google</button>
+    </form>`;
+}
+
+function render() {
+  app.dataset.page = state.page;
+  document.getElementById('form').innerHTML = formHtml(state.page);
+  document.querySelectorAll('[data-page-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pageSet === state.page)));
+}
+function go(id) { state.page = id; state.busy = false; render(); }
+
+// Waking up (the app shows it after ~3 s without an answer; here at once)
+let wakeTimer;
+function coldStart() {
+  clearInterval(wakeTimer);
+  const start = Date.now();
+  state.waking = true; state.elapsed = 0; render();
+  wakeTimer = setInterval(() => {
+    state.elapsed = Math.floor((Date.now() - start) / 1000);
+    document.querySelectorAll('[data-elapsed]').forEach((el) => { el.textContent = `${state.elapsed} s`; });
+    if (state.elapsed >= 9) endColdStart(true);
+  }, 250);
+}
+function endColdStart(announce = false) {
+  clearInterval(wakeTimer);
+  state.waking = false; render();
+  if (announce) toast('Connected');
+}
+function toast(text) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = text;
+  app.appendChild(t); setTimeout(() => t.remove(), 2200);
+}
+
+document.querySelectorAll('[data-logo]').forEach((el) => { el.innerHTML = icon('stack', 24); });
+
+// Preview bar (review aid)
+document.body.insertAdjacentHTML('afterbegin', `<div class="pv-bar"><b>F-011 · ${DIRECTION.name}</b>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="tablet">Tablet</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>Screen</span>${PAGES.map((p) => `<button data-page-set="${p.id}">${p.label}</button>`).join('')}</div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <button data-action="cold">Simulate cold start</button><button data-action="notes" aria-expanded="false">About this direction</button>
+  <div class="pv-notes" id="notes" hidden><b>${DIRECTION.name}</b><p style="margin:4px 0 0">${DIRECTION.thesis}</p><ul>${DIRECTION.notes.map((n) => `<li>${n}</li>`).join('')}</ul></div></div>`);
+function setView(v) { stage.dataset.view = v; document.querySelectorAll('button[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); }
+setView(innerWidth >= 1200 ? 'desktop' : 'phone');
+
+document.addEventListener('click', (e) => {
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { e.preventDefault(); go(nav.dataset.nav); return; }
+  const p = e.target.closest('[data-page-set]');
+  if (p) { go(p.dataset.pageSet); return; }
+  const s = e.target.closest('[data-scheme-set]');
+  if (s) { state.schemePref = s.dataset.schemeSet; applyScheme(); return; }
+  const v = e.target.closest('button[data-view]');
+  if (v) { setView(v.dataset.view); return; }
+  const a = e.target.closest('[data-action]');
+  if (!a) return;
+  ({
+    'toggle-pw': () => {
+      const input = document.getElementById(a.getAttribute('aria-controls'));
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      a.setAttribute('aria-pressed', String(show));
+      a.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      a.innerHTML = icon(show ? 'eyeOff' : 'eye');
+    },
+    google: () => toast('Google sign-in comes in F-012'),
+    cold: coldStart,
+    notes: () => { const n = document.getElementById('notes'); n.hidden = !n.hidden; a.setAttribute('aria-expanded', String(!n.hidden)); },
+  })[a.dataset.action]?.();
+});
+// Submitting shows the busy button, then goes on as the app would
+document.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (state.busy) return;
+  const kind = e.target.dataset.form;
+  state.busy = true; render();
+  setTimeout(() => { state.busy = false; render(); toast(kind === 'signup' ? 'Account created' : 'Signed in'); }, 1400);
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('notes').hidden = true; });
+applyScheme();
+render();
+</script>
+</body>
+</html>
