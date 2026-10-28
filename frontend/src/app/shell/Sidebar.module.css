@@ -1,0 +1,219 @@
+/*
+ * Collapsing animates only the width (the grid column in AppLayout): the padding never changes, so every icon,
+ * the logo and the avatar stay on one vertical axis 36 px from the edge, the middle of the 72 px rail. Labels
+ * fade and get clipped by the shrinking width; the controls near the edge fade out.
+ */
+.sidebar {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  height: 100%;
+  padding: 12px;
+  border-right: 1px solid var(--pup-color-rule);
+  background: var(--pup-color-sidebar);
+}
+
+.head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  margin-bottom: 12px;
+  padding: 0 54px 0 2px;
+}
+
+.name {
+  margin-right: auto;
+}
+
+/* Only labels give way when the sidebar narrows; icons keep their 20 px */
+.sidebar svg {
+  flex: none;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity 160ms ease 60ms;
+}
+
+.fade {
+  transition:
+    opacity 160ms ease 60ms,
+    visibility 0s;
+}
+
+.sidebar[data-collapsed] .label {
+  opacity: 0;
+  transition-delay: 0s;
+}
+
+.sidebar[data-collapsed] .fade {
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 120ms ease,
+    visibility 0s 120ms;
+}
+
+/* The logo is the expand button in the rail; while the sidebar is open it is inert */
+.logoButton {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--mantine-radius-md);
+}
+
+.sidebar[data-collapsed] .logoButton:hover {
+  background: var(--pup-color-hover);
+}
+
+.expandIcon {
+  display: none;
+}
+
+.sidebar[data-collapsed] .logoButton:is(:hover, :focus-visible) .expandIcon {
+  display: block;
+}
+
+.sidebar[data-collapsed] .logoButton:is(:hover, :focus-visible) > :first-child {
+  display: none;
+}
+
+.collapseButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  margin-bottom: 14px;
+  padding: 0 14px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-primary-color-filled);
+  color: var(--mantine-primary-color-contrast);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: gap 240ms;
+}
+
+.add:hover {
+  background: var(--mantine-primary-color-filled-hover);
+}
+
+.sidebar[data-collapsed] .add {
+  gap: 0;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: var(--mantine-radius-md);
+  color: var(--mantine-color-text);
+  font-size: 14px;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.link:hover {
+  background: var(--pup-color-hover);
+}
+
+/* The open section: an accent bar at the sidebar's edge and an accent icon */
+.link[aria-current='page'] {
+  font-weight: 500;
+}
+
+.link[aria-current='page'] > svg {
+  color: var(--pup-color-accent);
+}
+
+.link[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: -12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--pup-color-accent);
+}
+
+.foot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  margin-top: auto;
+  padding: 0 80px 0 8px;
+}
+
+.footTools {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  display: flex;
+  gap: 4px;
+}
+
+.footName {
+  font-size: 14px;
+}
+
+.resize {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  z-index: 3;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.resize::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 2px;
+  background: transparent;
+  transition: background 150ms;
+}
+
+.resize:hover::after,
+.resize:focus-visible::after,
+.resize[data-active]::after {
+  background: var(--mantine-primary-color-filled);
+}
+
+.resize:focus-visible {
+  outline: none;
+}

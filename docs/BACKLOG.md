@@ -20,13 +20,13 @@ Index of all changes. The details of each change live in its folder in [changes/
 | [F-006](changes/features/F-006-playwright/F-006-playwright.md) | Playwright setup | Done |
 | [F-007](changes/features/F-007-database/F-007-database.md) | Database and health check | Done |
 | [F-008](changes/features/F-008-ci-pipeline/F-008-ci-pipeline.md) | CI pipeline | Done |
-| [F-009](changes/features/F-009-render-deployment/F-009-render-deployment.md) | Deployment to Render | In progress |
+| [F-009](changes/features/F-009-render-deployment/F-009-render-deployment.md) | Deployment to Render | Done |
 
 ### M1 — Authentication & app shell
 
 | ID | Feature | Status |
 |----|---------|--------|
-| [F-010](changes/features/F-010-app-shell/F-010-app-shell.md) | 🎨 App shell and navigation | Todo |
+| [F-010](changes/features/F-010-app-shell/F-010-app-shell.md) | 🎨 App shell and navigation | Done |
 | [F-011](changes/features/F-011-email-password-auth/F-011-email-password-auth.md) | 🎨 Sign up and sign in with email and password | Todo |
 | [F-012](changes/features/F-012-google-sign-in/F-012-google-sign-in.md) | Sign in with Google | Todo |
 | [F-013](changes/features/F-013-default-categories/F-013-default-categories.md) | Default categories | Todo |
@@ -83,4 +83,4 @@ Milestones M7–M13 in [ROADMAP.md](ROADMAP.md). Their features get IDs and fold
 
 | ID | Bug | Status |
 |----|-----|--------|
-| — | | |
+| [B-001](changes/bugfixes/B-001-flaky-server-wake-test/B-001-flaky-server-wake-test.md) | Flaky "server answers quickly" unit test | Done |

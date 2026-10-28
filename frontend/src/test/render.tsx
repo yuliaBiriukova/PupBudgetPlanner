@@ -11,10 +11,12 @@ function createTestQueryClient() {
 /** Renders the whole app at the given URL with all providers, as in the browser. */
 export function renderApp(url = '/') {
   const router = createMemoryRouter(routes, { initialEntries: [url] });
+  const queryClient = createTestQueryClient();
 
-  return render(
-    <AppProviders queryClient={createTestQueryClient()}>
+  const result = render(
+    <AppProviders queryClient={queryClient}>
       <RouterProvider router={router} />
     </AppProviders>,
   );
+  return { ...result, queryClient };
 }

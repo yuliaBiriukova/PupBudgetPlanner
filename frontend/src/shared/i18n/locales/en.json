@@ -1,13 +1,51 @@
 {
   "app": {
-    "name": "Pup Budget Planner"
+    "name": "Pup Budget Planner",
+    "shortName": "Pup Budget"
   },
-  "home": {
-    "comingSoon": "Your budget planner is being set up. Accounts, transactions and reports are coming soon."
+  "common": {
+    "close": "Close"
+  },
+  "nav": {
+    "main": "Main navigation",
+    "transactions": "Transactions",
+    "accounts": "Accounts",
+    "reports": "Reports",
+    "family": "Family",
+    "settings": "Settings",
+    "more": "More"
+  },
+  "shell": {
+    "sidebar": "Sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "resizeSidebar": "Resize sidebar",
+    "resizeHint": "Drag to resize, double-click to collapse",
+    "collapsed": "Collapsed",
+    "widthPixels": "{{width}} pixels",
+    "addTransaction": "Add transaction",
+    "signOut": "Sign out"
+  },
+  "add": {
+    "comingSoon": "Adding expenses, income and transfers is coming soon."
+  },
+  "wake": {
+    "message": "Waking up the server…",
+    "seconds": "{{seconds}} s",
+    "connected": "Connected"
+  },
+  "placeholder": {
+    "transactions": "Your expenses, income and transfers will be listed here.",
+    "accounts": "Your accounts and their balances will be shown here.",
+    "reports": "Monthly and yearly reports, like your spreadsheet, will be here.",
+    "family": "Invite your family and see your money together here.",
+    "settings": "Your name and report currency will be set here."
   },
   "colorScheme": {
     "switchToDark": "Switch to dark mode",
-    "switchToLight": "Switch to light mode"
+    "switchToLight": "Switch to light mode",
+    "dark": "Dark mode",
+    "light": "Light mode"
   },
   "notFound": {
     "title": "Page not found",

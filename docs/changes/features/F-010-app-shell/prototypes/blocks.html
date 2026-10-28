@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>F-010 · Shell blocks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500&family=IBM+Plex+Sans:wght@400;500&family=Manrope:wght@400;500&family=Rubik:wght@400;500&family=Spectral:wght@300;400&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar, block panel and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.proto-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.proto-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.proto-bar button, .proto-panel button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.proto-bar button:hover, .proto-panel button:hover { background: #363c47; }
+.proto-bar button[aria-pressed='true'], .proto-panel button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.proto-bar button:focus-visible, .proto-panel button:focus-visible, .proto-panel textarea:focus-visible { outline: 2px solid #8ab4ff; outline-offset: 2px; }
+.proto-wrap { flex: 1; min-height: 0; display: flex; position: relative; }
+.proto-panel { flex: none; width: 330px; overflow-y: auto; background: #22262d; color: #e9ecef; font-size: 13px; line-height: 1.45; padding: 14px 16px 24px; }
+.proto-panel h2 { font-size: 12px; font-weight: 600; color: #9aa1ab; margin: 18px 0 6px; }
+.proto-panel h2:first-of-type { margin-top: 6px; }
+.pp-tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.pp-intro { color: #b9bfc8; margin: 0 0 10px; }
+.pp-block { border: 0; margin: 0 0 12px; padding: 0; }
+.pp-block legend { font-weight: 600; padding: 0; margin-bottom: 5px; }
+.pp-opts { display: flex; flex-wrap: wrap; gap: 4px; }
+.pp-opts button { padding: 3px 8px; font-size: 12px; }
+.pp-desc { margin: 5px 0 0; color: #b9bfc8; font-size: 12px; }
+.pp-sw { display: inline-flex; margin-right: 6px; vertical-align: -2px; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,.25); }
+.pp-sw i { width: 8px; height: 12px; }
+.pp-mix textarea { width: 100%; height: 150px; margin: 6px 0; background: #1b1e24; color: #e9ecef; border: 1px solid #3d434d; border-radius: 6px; font: 12px/1.5 system-ui, sans-serif; padding: 8px; resize: vertical; }
+.proto-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(480px, calc(100vw - 32px)); background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.proto-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.proto-notes li + li { margin-top: 4px; }
+.stage { flex: 1; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='tablet'] .frame { width: 834px; height: min(1050px, 100%); border: 12px solid #16181d; border-radius: 28px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+@media (max-width: 1100px) {
+  .proto-panel { position: absolute; left: 0; top: 0; bottom: 0; z-index: 9; box-shadow: 8px 0 30px rgba(0,0,0,.3); }
+  .proto-panel:not(.open) { display: none; }
+}
+@media (min-width: 1101px) { .pv-blocks { display: none; } }
+@media (max-width: 600px) {
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+  .proto-panel { width: 100%; }
+}
+
+/* ---------- Shell structure ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+:where(.app) :where(button, input, select) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, h3, p) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.amt { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.side { display: none; }
+.main { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+.top { flex: none; display: flex; align-items: center; gap: 4px; height: 56px; padding: 0 8px 0 16px; background: var(--bg); }
+.top > :first-child { margin-right: auto; }
+.top[hidden] { display: none; }
+.top-title { font-family: var(--font-head); font-weight: var(--head-w); font-size: 20px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand-name { font-family: var(--font-head); font-size: var(--brand-size); font-weight: var(--brand-w); letter-spacing: var(--brand-track); }
+.logo { width: 32px; height: 32px; display: grid; place-items: center; flex: none; background: var(--logo-bg); color: var(--logo-fg); border-radius: calc(var(--r-sm) + 4px); }
+.scroll { flex: 1; overflow: hidden auto; }
+.content { padding: 8px 16px 32px; max-width: 880px; margin: 0 auto; }
+.app[data-page='reports'] .content { max-width: 1180px; }
+.icon-btn { width: 44px; height: 44px; display: inline-grid; place-items: center; flex: none; border: 0; background: none; border-radius: var(--r-sm); cursor: pointer; color: var(--text); text-decoration: none; }
+.icon-btn:hover { background: var(--hover); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: inline-grid; place-items: center; flex: none; font-size: 13px; font-weight: 500; background: var(--hover); color: var(--text); }
+
+/* Whose money: Me / Vlad / Family */
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--r-sm); background: var(--hover); }
+.seg button { min-height: 44px; padding: 0 14px; border: 0; background: none; border-radius: max(2px, calc(var(--r-sm) - 2px)); cursor: pointer; color: var(--muted); }
+.seg button[aria-pressed='true'] { background: var(--surface); color: var(--text); }
+.scope-phone { display: none; flex: none; padding: 4px 16px 8px; }
+.scope-phone .seg { display: flex; }
+.scope-phone .seg button { flex: 1; }
+@container app (max-width: 767px) { .app[data-b-scope='shell'] .scope-phone { display: block; } }
+
+/* Phone tab bar: shared parts */
+.tabs { flex: none; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; padding: 6px 4px calc(8px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--rule); }
+.tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 0; min-height: 52px; border: 0; background: none; cursor: pointer; text-decoration: none; color: var(--muted); font-size: 11px; line-height: 1; }
+.tab[aria-current], .app:is([data-page='family'], [data-page='settings']) .tab-more { color: var(--active-text); font-weight: 500; }
+.tab-add { display: grid; place-items: center; }
+.tab-add button, .tab-add-end, .pfab, .dfab { display: grid; place-items: center; border: 0; cursor: pointer; background: var(--primary); color: var(--on-primary); }
+.tab-add button:hover, .tab-add-end:hover, .pfab:hover, .dfab:hover { background: var(--primary-hover); }
+.tab-add button { width: 52px; height: 52px; border-radius: var(--r-lg); }
+.pfab, .dfab, .tab-add-end { display: none; }
+
+@container app (max-width: 767px) {
+/* A — classic bar, the Add button raised out of it */
+.app[data-b-tabbar='classic'] .tab-add button { margin-top: -22px; box-shadow: 0 0 0 5px var(--bg); }
+/* B — floating bar */
+.app[data-b-tabbar='floating'] .tabs { position: absolute; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 5; background: var(--raised); border: 1px solid var(--rule-soft); border-radius: calc(var(--r-lg) + 8px); padding: 6px 4px; box-shadow: var(--float-shadow); }
+.app[data-b-tabbar='floating'] .tab-add button { width: 48px; height: 48px; }
+.app[data-b-tabbar='floating'] .content { padding-bottom: 112px; }
+/* C — four tabs and a separate Add button above the bar, under the right thumb */
+.app[data-b-tabbar='fab'] .tabs { grid-template-columns: repeat(4, 1fr); }
+.app[data-b-tabbar='fab'] .pfab { display: flex; position: absolute; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom)); z-index: 5; height: 56px; gap: 8px; padding: 0 20px 0 16px; border-radius: var(--r-lg); box-shadow: var(--float-shadow); font-weight: 500; align-items: center; }
+.app[data-b-tabbar='fab'] .content { padding-bottom: 104px; }
+/* D — icon tabs, the open section spells its name, Add at the thumb end */
+.app[data-b-tabbar='pill'] .tabs { display: flex; gap: 2px; padding: 8px 8px calc(10px + env(safe-area-inset-bottom)); }
+.app[data-b-tabbar='pill'] .tab { flex: none; flex-direction: row; gap: 8px; width: 44px; min-height: 48px; border-radius: 999px; font-size: 13px; }
+.app[data-b-tabbar='pill'] .tab:not([aria-current]) .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.app[data-b-tabbar='pill'] .tab[aria-current] { flex: 0 1 auto; min-width: 0; width: auto; padding: 0 14px 0 12px; background: var(--active-bg); }
+.app[data-b-tabbar='pill'] .tab[aria-current] .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app[data-b-tabbar='pill'] .tab-add-end { display: grid; flex: none; width: 52px; height: 52px; margin-left: auto; border-radius: var(--r-lg); }
+}
+
+/* ---------- Desktop: sidebar, expanded (resizable) or collapsed to an icon rail ---------- */
+@container app (min-width: 768px) {
+  .app { grid-template-columns: var(--side-w, 248px) minmax(0, 1fr); }
+  /* Collapsing animates only the width: every icon keeps its place on one vertical axis (36 px from the edge,
+     the middle of the 72 px rail), labels fade and get clipped, controls near the edge fade out */
+  .app:not([data-resizing]) { transition: grid-template-columns .24s cubic-bezier(.2, 0, 0, 1); }
+  .app .top, .app .tabs, .app .pfab, .app .scope-phone { display: none; }
+  .side { display: flex; flex-direction: column; gap: 2px; position: relative; z-index: 4; min-width: 0; padding: 12px; background: var(--side); color: var(--text); }
+  .side-head { position: relative; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 0 0 8px; margin-bottom: 12px; }
+  .app:is([data-b-collapse='head'], [data-b-collapse='logo']) .side-head { padding-right: 54px; }
+  .app[data-b-collapse='logo'] .side-head { padding-left: 2px; }
+  .side-head .brand-name { margin-right: auto; white-space: nowrap; }
+  .side-toggle { position: absolute; top: 0; right: 0; }
+  .side :is(.lbl, .add-lbl, .brand-name) { min-width: 0; overflow: hidden; text-overflow: ellipsis; transition: opacity .16s ease .06s; }
+  .app[data-collapsed] .side :is(.lbl, .add-lbl, .brand-name) { opacity: 0; transition-delay: 0s; }
+  .side-fade { transition: opacity .16s ease .06s, visibility 0s; }
+  .app[data-collapsed] .side-fade { opacity: 0; visibility: hidden; transition: opacity .12s ease, visibility 0s .12s; }
+  .side-add { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 0; border-radius: var(--r-sm); cursor: pointer; background: var(--primary); color: var(--on-primary); white-space: nowrap; font-weight: 500; transition: gap .24s; }
+  .side-add:hover { background: var(--primary-hover); }
+  .app[data-collapsed] .side-add { gap: 0; }
+  .add-group { display: flex; gap: 4px; margin-bottom: 14px; }
+  .add-group > .side-add { flex: 1; min-width: 0; }
+  .add-group > .side-add:not(:only-child) { padding: 0 10px; }
+  .add-alt { width: 36px; height: 40px; display: grid; place-items: center; flex: none; border: 1px solid var(--rule); border-radius: var(--r-sm); background: transparent; color: var(--text); cursor: pointer; }
+  .add-alt:hover { background: var(--hover); }
+  .side-link { position: relative; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border: 0; border-radius: var(--r-sm); background: none; cursor: pointer; text-decoration: none; color: var(--text); white-space: nowrap; width: 100%; text-align: left; line-height: 1; font-size: 14px; }
+  .side-link:hover { background: var(--hover); }
+  .side-scope { margin-bottom: 14px; }
+  .side-scope .seg { display: flex; }
+  .side-scope .seg button { flex: 1; min-height: 32px; padding: 0 6px; font-size: 13px; }
+  .scope-rail { display: none; }
+  .side-foot { margin-top: auto; display: grid; gap: 2px; padding-top: 10px; }
+  .side-user { display: flex; align-items: center; gap: 10px; padding: 6px 8px; white-space: nowrap; min-width: 0; }
+  .side-user small { display: block; color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+  .foot-compact { position: relative; display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 80px 0 8px; min-width: 0; }
+  .foot-compact .user-name { font-size: 14px; white-space: nowrap; }
+  .foot-tools { position: absolute; right: 0; top: 2px; display: flex; gap: 4px; }
+  .icon-btn.sm { width: 36px; height: 36px; }
+  .theme-seg { display: flex; gap: 2px; padding: 3px; margin: 0 4px 4px; border-radius: var(--r-sm); background: var(--hover); }
+  .theme-seg button { flex: 1; height: 32px; display: grid; place-items: center; border: 0; background: none; border-radius: max(2px, calc(var(--r-sm) - 2px)); cursor: pointer; color: var(--muted); }
+  .theme-seg button[aria-pressed='true'] { background: var(--surface); color: var(--text); }
+  .theme-one { display: none; margin-left: 2px; }
+  .side-resize { position: absolute; top: 0; right: -4px; width: 8px; height: 100%; cursor: col-resize; z-index: 3; touch-action: none; }
+  .side-resize::after { content: ''; position: absolute; top: 0; bottom: 0; left: 3px; width: 2px; background: transparent; transition: background .15s; }
+  .side-resize:hover::after, .side-resize:focus-visible::after, .app[data-resizing] .side-resize::after { background: var(--focus); }
+  .app[data-resizing] { cursor: col-resize; user-select: none; }
+  .content { padding: 28px 40px 48px; }
+
+  /* Collapsed: an icon rail with tooltips (the options that can't shrink in place switch their layout) */
+  .app[data-collapsed] .add-group { flex-direction: column; gap: 4px; }
+  .app[data-collapsed] .add-group > .side-add { flex: none; padding: 0 14px; }
+  .app[data-collapsed] .add-alt { width: 48px; }
+  .app[data-collapsed] .side-scope .seg { display: none; }
+  .app[data-collapsed] .scope-rail { display: grid; place-items: center; width: 44px; height: 44px; margin-left: 2px; border: 1px solid var(--rule); border-radius: 50%; background: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text); }
+  .app[data-collapsed] .theme-seg { display: none; }
+  .app[data-collapsed] .theme-one { display: inline-grid; }
+  .app[data-collapsed] .side [data-tip]:is(:hover, :focus-visible)::after { content: attr(data-tip); position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); padding: 6px 10px; border-radius: var(--r-sm); background: var(--tip-bg); color: var(--tip-text); font-size: 13px; font-weight: 400; white-space: nowrap; pointer-events: none; z-index: 20; }
+}
+
+/* Block: sidebar surface */
+@container app (min-width: 768px) {
+  .app[data-b-sidebar='panel'] .side { border-right: 1px solid var(--rule); }
+  .app[data-b-sidebar='floating'] .side { margin: 10px 0 10px 10px; background: var(--raised); border: 1px solid var(--rule-soft); border-radius: var(--r-lg); box-shadow: var(--float-shadow); }
+  .app[data-b-sidebar='floating'] .side-resize { right: -9px; }
+  .app[data-scheme='light'][data-b-sidebar='inverted'] .side { background: var(--inv-side); }
+  .app[data-scheme='dark'][data-b-sidebar='inverted'] .side { background: var(--deep); }
+  .app[data-b-sidebar='seamless'] .side { background: var(--bg); }
+}
+
+/* Block: how the open section is marked */
+@container app (min-width: 768px) {
+  .app[data-b-marker='fill'] .side-link[aria-current] { background: var(--active-bg); color: var(--active-text); font-weight: 500; }
+  .app[data-b-marker='bar'] .side-link[aria-current] { font-weight: 500; }
+  .app[data-b-marker='bar'] .side-link[aria-current]::before { content: ''; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+  .app[data-b-marker='bar'][data-b-sidebar='floating'] .side-link[aria-current]::before { left: -13px; }
+  .app[data-b-marker='bar'] .side-link[aria-current] .ic { color: var(--accent); }
+  .app[data-b-marker='icon'] .side-link[aria-current] { font-weight: 500; }
+  .app[data-b-marker='icon'] .side-link[aria-current] .ic { color: var(--accent); }
+  .app[data-b-marker='icon'] .side-link[aria-current]::after { content: ''; position: absolute; right: 12px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--accent); }
+  .app[data-b-marker='icon'][data-collapsed] .side-link[aria-current]::after { right: 4px; top: 8px; margin: 0; }
+  .app[data-b-marker='tab'] .side-link[aria-current] { background: var(--logo-bg); color: var(--logo-fg); font-weight: 500; }
+}
+
+/* Block: how the sidebar collapses (dragging the edge works in every option) */
+.logo-btn, .edge-toggle { display: none; }
+@container app (min-width: 768px) {
+  .app[data-b-collapse='edge'] .edge-toggle { display: grid; place-items: center; position: absolute; top: 20px; right: -14px; z-index: 5; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--rule); background: var(--surface); color: var(--text); cursor: pointer; box-shadow: var(--float-shadow); }
+  .app[data-b-collapse='edge'] .edge-toggle:hover { background: var(--hover); }
+  .app[data-b-collapse='edge'] .side-resize { top: 56px; height: calc(100% - 56px); }
+  .app[data-b-collapse='edge'][data-b-sidebar='floating'] .edge-toggle { right: -19px; }
+  .app[data-b-collapse='foot'] .foot-toggle { justify-self: start; margin-left: 2px; }
+  .app[data-b-collapse='head'][data-collapsed] .side-head { flex-direction: column; height: auto; gap: 8px; padding: 0; }
+  .app[data-b-collapse='head'][data-collapsed] .side-toggle { position: static; }
+  .app[data-b-collapse='logo'] .logo-btn { display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 0; background: none; border-radius: var(--r-sm); color: var(--text); }
+  .app[data-b-collapse='logo'][data-collapsed] .logo-btn { cursor: pointer; }
+  .logo-btn .logo-hover { display: none; }
+  .app[data-collapsed] .logo-btn:is(:hover, :focus-visible) .logo { display: none; }
+  .app[data-collapsed] .logo-btn:is(:hover, :focus-visible) .logo-hover { display: block; }
+  .app[data-collapsed] .logo-btn:hover { background: var(--hover); }
+}
+
+/* Block: Add on desktop — FAB variant */
+@container app (min-width: 768px) {
+  .app[data-b-dadd='fab'] .dfab { display: flex; align-items: center; gap: 8px; position: absolute; right: 28px; bottom: 28px; z-index: 5; height: 52px; padding: 0 22px 0 18px; border-radius: var(--r-lg); box-shadow: var(--float-shadow); font-weight: 500; }
+  .app[data-b-dadd='fab'] .content { padding-bottom: 110px; }
+}
+
+/* Block: phone top bar */
+@container app (max-width: 767px) {
+  .app[data-b-ptop='title'] .page-head h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .app[data-b-ptop='title'] .page-head { margin-top: 0; }
+  .app[data-b-ptop='title'] .page-head:has(> h1:only-child) { margin: 0; }
+  .app[data-b-ptop='none'] .content { padding-top: 16px; }
+}
+
+/* Page building blocks (sample content, styled neutrally so the shell is what you judge) */
+.page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; margin: 8px 0 18px; }
+h1 { font-family: var(--font-head); font-weight: var(--head-w); font-size: var(--h1); line-height: 1.15; }
+.month { display: inline-flex; align-items: center; gap: 2px; }
+.month span { font-weight: 500; }
+.summary { margin-bottom: 24px; }
+.summary-label, .summary-split, .page-note { font-size: 13px; color: var(--muted); }
+.summary-amount { font-family: var(--font-num); font-weight: var(--num-w); font-size: var(--sum); line-height: 1.1; margin: 4px 0 8px; display: inline-block; }
+.app[data-b-type='ledger'] .summary-amount { padding-bottom: 6px; border-bottom: 3px double var(--text); margin-bottom: 10px; }
+.summary-split { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.page-note { margin: -6px 0 14px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 56px; padding: 8px 0; }
+.row-main, .row-side { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.row-side { align-items: flex-end; text-align: right; flex: none; }
+.row-sub { font-size: 13px; color: var(--muted); }
+.day { margin-top: 20px; }
+.day-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 13px; font-weight: 500; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.day-date { font-weight: 400; }
+.tx { border-bottom: 1px solid var(--rule-soft); }
+.tx .amt, .account-bal { font-family: var(--font-num); font-weight: var(--num-w); font-size: var(--row-num); }
+.neg { color: var(--neg); } .pos { color: var(--pos); } .neu { color: var(--text); }
+.accounts, .members { border-top: 1px solid var(--rule); }
+.account { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 60px; border-bottom: 1px solid var(--rule-soft); }
+.table-wrap { overflow-x: auto; border-top: 1px solid var(--rule); }
+table.report { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 13px; }
+table.report th, table.report td { padding: 9px 12px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--rule-soft); }
+table.report th:first-child, table.report td:first-child { text-align: left; position: sticky; left: 0; z-index: 1; background: var(--bg); }
+table.report thead th { font-weight: 500; color: var(--muted); font-size: 12px; }
+table.report tr.group th { font-family: var(--font-head); font-weight: var(--head-w); font-size: 14px; text-align: left; padding-top: 16px; border-bottom-color: var(--rule); }
+table.report td.total { font-weight: 500; }
+.member { display: flex; align-items: center; gap: 12px; min-height: 60px; border-bottom: 1px solid var(--rule-soft); }
+.member .row-main { flex: 1; }
+.role { font-size: 13px; color: var(--muted); }
+.form { display: grid; gap: 18px; max-width: 480px; }
+.field label, .field .label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; }
+.input { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--rule); background: var(--surface); border-radius: var(--r-sm); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--r-sm); cursor: pointer; white-space: nowrap; text-decoration: none; line-height: 1; font-weight: 500; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-quiet { background: transparent; border-color: var(--rule); color: var(--text); }
+.btn-quiet:hover { background: var(--hover); }
+@container app (min-width: 768px) {
+  .seg button { min-height: 34px; }
+  h1 { font-size: var(--h1-d); }
+  .summary-amount { font-size: var(--sum-d); }
+}
+
+/* Block: waking up (shown in the app after ~3 s without an answer; here at once) */
+.wake { display: none; }
+.app[data-waking] .wake.on { display: flex; }
+.wake .sec { font-variant-numeric: tabular-nums; }
+.wake small, .wake-card small { font-size: 12px; color: var(--muted); }
+.wake-banner { flex: none; align-items: center; gap: 12px; padding: 10px 16px; background: var(--side); border-bottom: 1px solid var(--rule); }
+.wake-banner .txt { display: flex; flex-direction: column; gap: 1px; }
+.wake-banner .sec { margin-left: auto; }
+.wake-pill { position: absolute; top: 64px; left: 50%; transform: translateX(-50%); z-index: 6; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; background: var(--tip-bg); color: var(--tip-text); white-space: nowrap; font-size: 14px; box-shadow: var(--float-shadow); }
+.app[data-b-ptop='none'] .wake-pill { top: 12px; }
+.wake-pill .sec { opacity: .8; }
+.wake-splash { position: absolute; inset: 0; z-index: 40; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; background: var(--bg); }
+.wake-splash .logo { width: 56px; height: 56px; border-radius: calc(var(--r-lg) + 2px); animation: breathe 2.4s ease-in-out infinite; }
+.wake-splash p { max-width: 280px; }
+.wake-splash .sec { color: var(--muted); font-size: 13px; }
+@keyframes breathe { 50% { transform: scale(.92); opacity: .75; } }
+.wake-card { display: flex; flex-direction: column; gap: 14px; margin: min(16vh, 120px) auto 0; max-width: 420px; padding: 20px; border: 1px solid var(--rule); border-radius: var(--r-lg); background: var(--surface); }
+.wake-card .wake-line { display: flex; align-items: center; gap: 12px; }
+.wake-card .txt { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.wake-card .sec { align-self: flex-start; color: var(--muted); font-size: 13px; }
+.progress { width: 100%; height: 3px; border-radius: 3px; background: var(--rule-soft); overflow: hidden; }
+.progress::after { content: ''; display: block; width: 35%; height: 100%; border-radius: 3px; background: var(--accent); animation: slide 1.6s ease-in-out infinite; }
+@keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
+@container app (min-width: 768px) { .wake-pill { top: 20px; } }
+.sk { background: var(--skeleton); border-radius: 4px; position: relative; overflow: hidden; }
+.sk::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, var(--shimmer), transparent); animation: sk 1.4s infinite; }
+@keyframes sk { to { transform: translateX(100%); } }
+
+/* Sheets */
+.overlay { position: absolute; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; background: var(--overlay); }
+.overlay[hidden] { display: none; }
+.sheet { width: 100%; background: var(--surface); color: var(--text); border-radius: var(--r-lg) var(--r-lg) 0 0; padding: 10px 16px 20px; animation: up .2s ease-out; }
+@keyframes up { from { transform: translateY(24px); opacity: .5; } }
+.sheet .grab { width: 36px; height: 4px; border-radius: 4px; background: var(--rule); margin: 0 auto 12px; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.sheet-head h2 { font-family: var(--font-head); font-weight: var(--head-w); font-size: 20px; }
+.menu-item { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 52px; padding: 0 12px; border: 0; background: none; border-radius: var(--r-sm); cursor: pointer; text-decoration: none; color: var(--text); text-align: left; line-height: 1; }
+.menu-item:hover { background: var(--hover); }
+.menu-item[aria-current] { background: var(--active-bg); color: var(--active-text); }
+.more-user { display: flex; align-items: center; gap: 12px; padding: 4px 4px 14px; }
+.more-user small { display: block; color: var(--muted); font-size: 13px; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tile { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 14px; min-height: 92px; padding: 14px; border: 1px solid var(--rule); border-radius: var(--r-lg); background: none; cursor: pointer; text-decoration: none; color: var(--text); text-align: left; line-height: 1.2; }
+.tile:hover { background: var(--hover); }
+.tile[aria-current] { background: var(--active-bg); color: var(--active-text); border-color: transparent; }
+.amount-input { width: 100%; min-height: 64px; margin: 14px 0; border: 0; border-bottom: 1px solid var(--rule); background: none; text-align: center; font-variant-numeric: tabular-nums; font-family: var(--font-num); font-weight: var(--num-w); font-size: 38px; }
+.sheet .note { font-size: 12px; color: var(--muted); text-align: center; margin-top: 10px; }
+.sheet .seg { display: flex; }
+.sheet .seg button { flex: 1; }
+@container app (min-width: 768px) {
+  .overlay { align-items: center; }
+  .sheet { width: 440px; border-radius: var(--r-lg); padding: 20px 24px 24px; }
+  .sheet .grab { display: none; }
+}
+.toast { position: absolute; left: 50%; bottom: 100px; transform: translateX(-50%); z-index: 60; padding: 10px 16px; border-radius: var(--r-sm); background: var(--tip-bg); color: var(--tip-text); white-space: nowrap; }
+@container app (min-width: 768px) { .toast { bottom: 24px; } }
+@media (prefers-reduced-motion: reduce) { .app, .app *, .app *::after { animation: none !important; transition: none !important; } }
+
+/* ---------- Block: type ---------- */
+.app[data-b-type='ledger'] { --font-text: 'IBM Plex Sans', system-ui, sans-serif; --font-head: 'Spectral', Georgia, serif; --font-num: 'Spectral', Georgia, serif; --head-w: 400; --num-w: 300; --h1: 30px; --h1-d: 34px; --sum: 46px; --sum-d: 56px; --row-num: 17px; --brand-size: 19px; --brand-w: 400; --brand-track: 0; }
+.app[data-b-type='banknote'] { --font-text: 'Manrope', system-ui, sans-serif; --font-head: 'Unbounded', system-ui, sans-serif; --font-num: 'Unbounded', system-ui, sans-serif; --head-w: 300; --num-w: 300; --h1: 24px; --h1-d: 28px; --sum: 32px; --sum-d: 42px; --row-num: 14px; --brand-size: 15px; --brand-w: 300; --brand-track: .02em; }
+.app[data-b-type='rubik'] { --font-text: 'Rubik', system-ui, sans-serif; --font-head: 'Rubik', system-ui, sans-serif; --font-num: 'Rubik', system-ui, sans-serif; --head-w: 400; --num-w: 400; --h1: 26px; --h1-d: 30px; --sum: 40px; --sum-d: 52px; --row-num: 15px; --brand-size: 17px; --brand-w: 400; --brand-track: 0; }
+.app[data-b-type='fira'] { --font-text: 'Fira Sans', system-ui, sans-serif; --font-head: 'Fira Sans', system-ui, sans-serif; --font-num: 'Fira Sans', system-ui, sans-serif; --head-w: 300; --num-w: 300; --h1: 30px; --h1-d: 36px; --sum: 46px; --sum-d: 58px; --row-num: 16px; --brand-size: 18px; --brand-w: 400; --brand-track: -.01em; }
+
+/* ---------- Block: corners ---------- */
+.app[data-b-corners='sharp'] { --r-sm: 4px; --r-lg: 10px; }
+.app[data-b-corners='soft'] { --r-sm: 8px; --r-lg: 16px; }
+.app[data-b-corners='round'] { --r-sm: 12px; --r-lg: 24px; }
+
+/* ---------- Block: colors (each palette in a light and a dark tone; the inverted sidebar takes the dark tone) ---------- */
+.app[data-b-palette='ink'][data-tone='light'], .app[data-b-palette='ink'] [data-tone='light'] {
+  --bg: #fbfaf6; --surface: #ffffff; --side: #f4f2ec; --raised: #ffffff; --rule: #e2ddd1; --rule-soft: #ece8de; --text: #22252b; --muted: #5e6470; --hover: #efece4;
+  --primary: #1f2f4d; --primary-hover: #2a3d61; --on-primary: #ffffff; --active-bg: #e6e9f0; --active-text: #1f2f4d; --accent: #1f2f4d;
+  --logo-bg: #c9a227; --logo-fg: #1f2f4d; --pos: #2e7d4f; --neg: #b3261e; --focus: #1f2f4d;
+  --skeleton: #ece8de; --shimmer: rgba(255,255,255,.6); --overlay: rgba(20,22,26,.35); --tip-bg: #22252b; --tip-text: #fbfaf6; --float-shadow: 0 8px 24px rgba(31,47,77,.10);
+}
+.app[data-b-palette='ink'][data-tone='dark'], .app[data-b-palette='ink'] [data-tone='dark'] {
+  --bg: #16171a; --surface: #1d1e22; --side: #1a1b1e; --raised: #222328; --rule: #33353b; --rule-soft: #2a2c31; --text: #e8e6e1; --muted: #a6a49e; --hover: #26272c;
+  --primary: #e8e6e1; --primary-hover: #ffffff; --on-primary: #16171a; --active-bg: #2a2c33; --active-text: #f1ead6; --accent: #d9b84a;
+  --logo-bg: #c9a227; --logo-fg: #16171a; --pos: #7cc79a; --neg: #ff8f85; --focus: #e8e6e1;
+  --skeleton: #26272c; --shimmer: rgba(255,255,255,.05); --overlay: rgba(0,0,0,.55); --tip-bg: #e8e6e1; --tip-text: #16171a; --float-shadow: 0 10px 28px rgba(0,0,0,.45);
+  --inv-side: #1c2638; --deep: #0f1012;
+}
+.app[data-b-palette='sepia'][data-tone='light'], .app[data-b-palette='sepia'] [data-tone='light'] {
+  --bg: #f7f8f4; --surface: #ffffff; --side: #ffffff; --raised: #ffffff; --rule: #e1e4db; --rule-soft: #ebede6; --text: #1f2421; --muted: #59605b; --hover: #eef0ea;
+  --primary: #6b4423; --primary-hover: #7d5230; --on-primary: #ffffff; --active-bg: #f1e9dc; --active-text: #5a381b; --accent: #6b4423;
+  --logo-bg: #5f6c2a; --logo-fg: #f7f8f4; --pos: #2f7a46; --neg: #a8322b; --focus: #6b4423;
+  --skeleton: #e9ebe4; --shimmer: rgba(255,255,255,.7); --overlay: rgba(25,28,24,.35); --tip-bg: #1f2421; --tip-text: #f7f8f4; --float-shadow: 0 8px 24px rgba(59,42,26,.10);
+}
+.app[data-b-palette='sepia'][data-tone='dark'], .app[data-b-palette='sepia'] [data-tone='dark'] {
+  --bg: #141613; --surface: #1c1f1b; --side: #191c18; --raised: #22261f; --rule: #2f332d; --rule-soft: #262a24; --text: #e9ebe4; --muted: #a8aea4; --hover: #252923;
+  --primary: #dcb98f; --primary-hover: #e8c9a3; --on-primary: #2a1c0f; --active-bg: #322b20; --active-text: #e8c9a3; --accent: #dcb98f;
+  --logo-bg: #8b9a4a; --logo-fg: #141613; --pos: #7fcb94; --neg: #f2908a; --focus: #dcb98f;
+  --skeleton: #252923; --shimmer: rgba(255,255,255,.05); --overlay: rgba(0,0,0,.55); --tip-bg: #e9ebe4; --tip-text: #141613; --float-shadow: 0 10px 28px rgba(0,0,0,.45);
+  --inv-side: #2b2118; --deep: #0d0f0c;
+}
+.app[data-b-palette='sun'][data-tone='light'], .app[data-b-palette='sun'] [data-tone='light'] {
+  --bg: #f1f2f5; --surface: #ffffff; --side: #ffffff; --raised: #ffffff; --rule: #e3e5ea; --rule-soft: #eceef2; --text: #15171c; --muted: #5b616d; --hover: #e9ebf0;
+  --primary: #f2c230; --primary-hover: #f6cf55; --on-primary: #15171c; --active-bg: #fbefc4; --active-text: #5c4700; --accent: #9a7400;
+  --logo-bg: #2f6fd6; --logo-fg: #ffffff; --pos: #18714a; --neg: #c62f2f; --focus: #15171c;
+  --skeleton: #e3e5ea; --shimmer: rgba(255,255,255,.7); --overlay: rgba(16,18,23,.35); --tip-bg: #15171c; --tip-text: #ffffff; --float-shadow: 0 10px 28px rgba(16,18,23,.14);
+}
+.app[data-b-palette='sun'][data-tone='dark'], .app[data-b-palette='sun'] [data-tone='dark'] {
+  --bg: #101217; --surface: #181b22; --side: #14171d; --raised: #20242d; --rule: #262a33; --rule-soft: #1f232b; --text: #eceef2; --muted: #9aa1ad; --hover: #1d2129;
+  --primary: #f2c230; --primary-hover: #f6cf55; --on-primary: #15171c; --active-bg: #262b35; --active-text: #f2c230; --accent: #f2c230;
+  --logo-bg: #2f6fd6; --logo-fg: #ffffff; --pos: #4cc38a; --neg: #ff8a80; --focus: #f2c230;
+  --skeleton: #1d2129; --shimmer: rgba(255,255,255,.05); --overlay: rgba(0,0,0,.6); --tip-bg: #eceef2; --tip-text: #101217; --float-shadow: 0 10px 28px rgba(0,0,0,.5);
+  --inv-side: #15171c; --deep: #0a0b0e;
+}
+.app[data-b-palette='graphite'][data-tone='light'], .app[data-b-palette='graphite'] [data-tone='light'] {
+  --bg: #f6f5f3; --surface: #ffffff; --side: #eeece8; --raised: #ffffff; --rule: #dedad4; --rule-soft: #e9e6e1; --text: #1d1e20; --muted: #5d5f64; --hover: #e6e3de;
+  --primary: #232427; --primary-hover: #393b40; --on-primary: #ffffff; --active-bg: #fbe4d6; --active-text: #8a3a10; --accent: #c4511a;
+  --logo-bg: #e8743b; --logo-fg: #1d1e20; --pos: #2e7d4f; --neg: #b3261e; --focus: #232427;
+  --skeleton: #e9e6e1; --shimmer: rgba(255,255,255,.6); --overlay: rgba(20,20,20,.35); --tip-bg: #1d1e20; --tip-text: #f6f5f3; --float-shadow: 0 8px 24px rgba(29,30,32,.10);
+}
+.app[data-b-palette='graphite'][data-tone='dark'], .app[data-b-palette='graphite'] [data-tone='dark'] {
+  --bg: #151515; --surface: #1d1d1e; --side: #19191a; --raised: #232325; --rule: #313133; --rule-soft: #262628; --text: #ecebe8; --muted: #a3a29e; --hover: #252527;
+  --primary: #ecebe8; --primary-hover: #ffffff; --on-primary: #151515; --active-bg: #3a2519; --active-text: #f6a675; --accent: #f08a4b;
+  --logo-bg: #e8743b; --logo-fg: #151515; --pos: #7cc79a; --neg: #ff8f85; --focus: #ecebe8;
+  --skeleton: #252527; --shimmer: rgba(255,255,255,.05); --overlay: rgba(0,0,0,.55); --tip-bg: #ecebe8; --tip-text: #151515; --float-shadow: 0 10px 28px rgba(0,0,0,.45);
+  --inv-side: #222326; --deep: #0c0c0c;
+}
+
+/* ---------- Block: logo color (tunes the ink palette; the other palettes keep their own logo color) ---------- */
+.app[data-b-palette='ink'][data-b-logocolor='copper'][data-tone], .app[data-b-palette='ink'][data-b-logocolor='copper'] [data-tone] { --logo-bg: #cd8a5c; }
+.app[data-b-palette='ink'][data-b-logocolor='copper'][data-tone='dark'], .app[data-b-palette='ink'][data-b-logocolor='copper'] [data-tone='dark'] { --accent: #dea079; }
+.app[data-b-palette='ink'][data-b-logocolor='sky'][data-tone], .app[data-b-palette='ink'][data-b-logocolor='sky'] [data-tone] { --logo-bg: #a9c1e0; }
+.app[data-b-palette='ink'][data-b-logocolor='sky'][data-tone='dark'], .app[data-b-palette='ink'][data-b-logocolor='sky'] [data-tone='dark'] { --accent: #a9c1e0; }
+.app[data-b-palette='ink'][data-b-logocolor='sage'][data-tone], .app[data-b-palette='ink'][data-b-logocolor='sage'] [data-tone] { --logo-bg: #a3b89c; }
+.app[data-b-palette='ink'][data-b-logocolor='sage'][data-tone='dark'], .app[data-b-palette='ink'][data-b-logocolor='sage'] [data-tone='dark'] { --accent: #a9c2a4; }
+</style>
+</head>
+<body>
+<div class="proto-wrap">
+<aside class="proto-panel" id="proto-panel" aria-label="Design blocks"></aside>
+<div class="stage"><div class="frame">
+<div class="app" id="app">
+  <aside class="side" id="side" aria-label="Sidebar"></aside>
+  <div class="main">
+    <header class="top" id="top"></header>
+    <div class="scope-phone" id="scope-phone"></div>
+    <div class="wake" id="wake" role="status" aria-live="polite"></div>
+    <main class="scroll" data-scroll><div class="content" id="page"></div></main>
+    <button class="pfab" data-action="add">__ADD__</button>
+    <button class="dfab" data-action="add">__ADD__</button>
+    <nav class="tabs" id="tabs" aria-label="Main navigation"></nav>
+  </div>
+  <div class="wake" id="splash" role="status" aria-live="polite"></div>
+  <div class="overlay" id="more" hidden></div>
+  <div class="overlay" id="add" hidden></div>
+</div>
+</div></div>
+</div>
+<script>
+// ---------- The blocks and their options (the first option of each block is the default) ----------
+const BLOCKS = {
+  palette: { group: 'Look', label: 'Colors', options: {
+    ink: ['Ink and copper', 'Paper white, ink-blue buttons; the logo color is the next block (copper by default). Calm and bookish; dark mode is warm charcoal.'],
+    sepia: ['Sepia and olive', 'Hryvnia-note colors: sepia buttons, an olive logo, a greenish paper. Warm, a little old-fashioned.'],
+    sun: ['Sunflower and azure', 'A yellow Add button and a blue logo on cool greys. The brightest, most "app-like"; best in dark mode.'],
+    graphite: ['Graphite and tangerine', 'New: near-black buttons, a tangerine logo and tangerine marks for the open section. Modern and quiet, one warm spark.'],
+  } },
+  type: { group: 'Look', label: 'Type', options: {
+    ledger: ['Spectral + IBM Plex Sans', 'Light serif for headings and amounts, a plain sans for the rest. Reads like a typeset ledger.'],
+    banknote: ['Unbounded + Manrope', 'Wide, light display type for headings and amounts, as on banknotes. The most characterful.'],
+    rubik: ['Rubik', 'One rounded sans everywhere. Friendly and compact, like a banking app.'],
+    fira: ['Fira Sans', 'New: one humanist sans with light 300 headings and big light amounts. Clean, Ukrainian-friendly, a little technical.'],
+  } },
+  corners: { group: 'Look', label: 'Corners', options: {
+    sharp: ['Sharp', 'Radius 4 / 10 px. Precise, paper-like.'],
+    soft: ['Soft', 'Radius 8 / 16 px. In between.'],
+    round: ['Round', 'Radius 12 / 24 px. Pebble-like buttons, the Add button almost a circle.'],
+  } },
+  logo: { group: 'Look', label: 'Logo', options: {
+    coin: ['P-coin', 'A coin whose edge becomes the letter P.'],
+    hryvnia: ['Hryvnia sign', 'The ₴ sign on the tile: says "money, in hryvnias" at once.'],
+    stack: ['Coin stack', 'Two stacks of coins: savings, growing.'],
+    ledger: ['Ledger grid', 'A spreadsheet grid with a double rule under the total, a nod to the family sheet.'],
+  } },
+  logocolor: { group: 'Look', label: 'Logo color', options: {
+    copper: ['Copper', 'With ink and gold colors: a light copper, the classic partner of ink blue (blue and orange are opposites). Warm, with the mark in ink.'],
+    sky: ['Pale blue', 'With ink and gold colors: a light tint of the ink itself. Calm and all-blue; the logo stands out less.'],
+    sage: ['Sage', 'With ink and gold colors: a soft grey-green. Quiet and natural, though close to the income green.'],
+    gold: ['Gold (before)', 'The round-2 gold, to compare.'],
+  } },
+  sidebar: { group: 'Desktop sidebar', label: 'Surface', options: {
+    panel: ['Tinted panel', 'A slightly tinted column with a hairline border. Classic, clear.'],
+    floating: ['Floating card', 'The sidebar floats as a card with a margin and a soft shadow.'],
+    inverted: ['Dark column', 'A dark sidebar even in light mode (ink-blue, dark sepia, graphite…). The strongest frame.'],
+    seamless: ['Seamless', 'No panel at all: the sidebar is the page background; the line shows only when you resize.'],
+  } },
+  marker: { group: 'Desktop sidebar', label: 'Open section', options: {
+    fill: ['Tinted fill', 'The open section sits on a tinted pill.'],
+    bar: ['Edge bar', 'A short accent bar at the sidebar edge and an accent icon; no fill.'],
+    icon: ['Icon and dot', 'Only the icon turns accent and a small dot appears. The quietest.'],
+    tab: ['Logo-colored tab', 'The open section is filled with the logo color: the boldest, and never confused with Add.'],
+  } },
+  collapse: { group: 'Desktop sidebar', label: 'Collapse button', options: {
+    head: ['Next to the logo', 'An icon button at the top right of the sidebar; in the rail it sits under the logo.'],
+    edge: ['On the edge', 'A small round button sitting on the sidebar edge, the way many editors do it.'],
+    foot: ['At the bottom', 'An icon button at the bottom of the sidebar, out of the way.'],
+    logo: ['Logo turns into it', "As in Claude's sidebar: a button at the top when open; in the rail the logo itself becomes the expand button on hover."],
+  } },
+  dadd: { group: 'Desktop sidebar', label: 'Add on desktop', options: {
+    button: ['One button', 'A full-width "Add transaction" button under the logo.'],
+    types: ['Expense first', 'A wide "Add expense" button plus small Income and Transfer buttons: one click for each type.'],
+    fab: ['Floating button', 'No button in the sidebar; a floating "Add" at the bottom right of the page, as on the phone.'],
+  } },
+  foot: { group: 'Desktop sidebar', label: 'Bottom of sidebar', options: {
+    full: ['Theme row and profile', 'A "Dark mode" row and your name with email.'],
+    compact: ['One line', 'Avatar and name, with theme and sign-out as icon buttons on the same line.'],
+    switcher: ['Theme switch', 'A light / dark / device switch above the profile.'],
+  } },
+  tabbar: { group: 'Phone', label: 'Tab bar', options: {
+    classic: ['Raised Add', 'A bar with five places; Add sits in the centre and rises out of the bar.'],
+    floating: ['Floating bar', 'The bar floats above the page with rounded ends and a shadow.'],
+    fab: ['Add above the bar', 'Four tabs, and a separate "Add" button above the bar under the right thumb.'],
+    pill: ['Icons, open one named', 'Icon tabs; the open section shows its name in a pill. Add is the last button, under the thumb.'],
+  } },
+  ptop: { group: 'Phone', label: 'Top bar', options: {
+    brand: ['Logo bar', 'Logo and name, the theme switch and your avatar.'],
+    title: ['Page title', 'The page name in the bar instead of the logo; one less heading on the page.'],
+    none: ['No bar', 'No top bar at all: more room for the page; the theme switch lives in More.'],
+  } },
+  more: { group: 'Phone', label: '"More" menu', options: {
+    list: ['List', 'A bottom sheet with a plain list: Family, Settings, theme, sign out.'],
+    tiles: ['Profile and tiles', 'Your profile on top and large tiles below.'],
+  } },
+  scope: { group: 'Everywhere', label: 'Whose money', options: {
+    page: ['Per page', 'Each page (transactions, reports) has its own Me / Vlad / Family switch, designed with that page.'],
+    shell: ['In the shell', 'One Me / Vlad / Family switch in the shell (sidebar, or under the phone bar) that applies to every page.'],
+  } },
+  wake: { group: 'Everywhere', label: 'Waking up', options: {
+    banner: ['Banner', 'A strip at the top of the page with a seconds counter; the page shows placeholders under it.'],
+    card: ['Card', 'A card in the middle of the page explains the wait, with a moving progress line.'],
+    splash: ['Splash', 'The whole screen: the logo breathes slowly with the text under it.'],
+    pill: ['Pill', 'A small dark pill at the top: "Waking up the server… 12 s"; the page shows placeholders.'],
+  } },
+};
+// More color schemes, each a light and a dark tone. The rest of the tokens are derived from these few colors, so
+// every scheme keeps the same structure: page and sidebar tints, ink for text, one button color, the edge-bar
+// accent and a logo color that differs from the buttons. Income green and expense red stay fixed.
+const PALETTE_SPECS = {
+  flag: { name: 'Flag blue and yellow', desc: 'The Ukrainian blue for buttons and the bar, a yellow logo. In dark mode the yellow becomes the button and the logo turns blue. Bold and proud.',
+    light: { bg: '#f5f7fb', side: '#e9eef6', text: '#141c2b', primary: '#0057b7', onPrimary: '#ffffff', accent: '#0057b7', logo: '#ffd500', logoFg: '#0b2a55' },
+    dark: { bg: '#0e1420', text: '#e8edf5', primary: '#ffd500', onPrimary: '#14181f', accent: '#ffd500', logo: '#3a7bd5', logoFg: '#ffffff' } },
+  cobalt: { name: 'Cobalt and apricot', desc: 'A clear cobalt blue for buttons and an apricot logo on neutral paper. Brighter and more modern than ink.',
+    light: { bg: '#f7f7f4', side: '#eeeeea', text: '#1a1d24', primary: '#2554c7', onPrimary: '#ffffff', accent: '#2554c7', logo: '#f4a46b', logoFg: '#1a1d24' },
+    dark: { bg: '#11131a', text: '#e8eaf0', primary: '#8fb0ff', onPrimary: '#0f1530', accent: '#8fb0ff', logo: '#f4a46b', logoFg: '#11131a' } },
+  ocean: { name: 'Ocean and sand', desc: 'Deep sea-blue buttons on sandy paper, a sand-colored logo. Summer in Odesa; dark mode is a night sea.',
+    light: { bg: '#f8f6f1', side: '#efe8dc', text: '#1b2530', primary: '#0f4c75', onPrimary: '#ffffff', accent: '#0f4c75', logo: '#e2c48c', logoFg: '#0f2a40' },
+    dark: { bg: '#0e1720', text: '#e6edf2', primary: '#e6edf2', onPrimary: '#0e1720', accent: '#7fb8de', logo: '#e2c48c', logoFg: '#0e1720' } },
+  petrol: { name: 'Petrol and saffron', desc: 'Dark blue-green buttons, a saffron logo, a cool grey-green paper. Calm, a bit unusual.',
+    light: { bg: '#f4f7f6', side: '#e8efed', text: '#15252a', primary: '#134e5a', onPrimary: '#ffffff', accent: '#134e5a', logo: '#e8a93a', logoFg: '#15252a' },
+    dark: { bg: '#0e1618', text: '#e3ecea', primary: '#e3ecea', onPrimary: '#0e1618', accent: '#f0b95a', logo: '#e8a93a', logoFg: '#0e1618' } },
+  teal: { name: 'Teal and coral', desc: 'Teal buttons and a coral logo: fresh, a little playful, still serious about money.',
+    light: { bg: '#f4f8f8', side: '#e6efef', text: '#142527', primary: '#0e5f66', onPrimary: '#ffffff', accent: '#0e5f66', logo: '#ef7d64', logoFg: '#142527' },
+    dark: { bg: '#0d1617', text: '#e2eeee', primary: '#e2eeee', onPrimary: '#0d1617', accent: '#6cc4c4', logo: '#ef7d64', logoFg: '#0d1617' } },
+  charcoal: { name: 'Charcoal and sky', desc: 'Near-black buttons, a pale sky-blue logo and a blue bar. Neutral and crisp, the least colorful.',
+    light: { bg: '#f5f6f7', side: '#ebedf0', text: '#1c1e21', primary: '#26292e', onPrimary: '#ffffff', accent: '#2a62a3', logo: '#8ec1ec', logoFg: '#1c1e21' },
+    dark: { bg: '#121315', text: '#e9eaec', primary: '#e9eaec', onPrimary: '#121315', accent: '#8ec1ec', logo: '#8ec1ec', logoFg: '#121315' } },
+  steel: { name: 'Steel and mint', desc: 'Blue-grey steel buttons and a mint logo on cool paper. Quiet and technical.',
+    light: { bg: '#f4f6f8', side: '#e8ecf0', text: '#1b222b', primary: '#3b4b5e', onPrimary: '#ffffff', accent: '#3b4b5e', logo: '#8fd3b6', logoFg: '#1b222b' },
+    dark: { bg: '#11151a', text: '#e6ebf0', primary: '#e6ebf0', onPrimary: '#11151a', accent: '#8fd3b6', logo: '#8fd3b6', logoFg: '#11151a' } },
+  midnight: { name: 'Midnight and lime', desc: 'Midnight-blue buttons and a lime logo. Sharp contrast; at its best in dark mode.',
+    light: { bg: '#f6f7f4', side: '#eceee7', text: '#1a1f26', primary: '#1e2a38', onPrimary: '#ffffff', accent: '#1e2a38', logo: '#c5dc4a', logoFg: '#1a1f26' },
+    dark: { bg: '#0c1016', text: '#e8ebef', primary: '#e8ebef', onPrimary: '#0c1016', accent: '#c5dc4a', logo: '#c5dc4a', logoFg: '#0c1016' } },
+  cocoa: { name: 'Cocoa and pistachio', desc: 'Dark chocolate buttons and a pistachio logo on cream paper. Warm and cosy, like a café receipt.',
+    light: { bg: '#faf7f3', side: '#f1eae1', text: '#2a211c', primary: '#4a352b', onPrimary: '#ffffff', accent: '#4a352b', logo: '#a8c47a', logoFg: '#2a211c' },
+    dark: { bg: '#161210', text: '#efe7df', primary: '#efe7df', onPrimary: '#161210', accent: '#c3d99a', logo: '#a8c47a', logoFg: '#161210' } },
+  wine: { name: 'Wine and blush', desc: 'Deep wine buttons and a blush logo on a faint pink paper. Soft and personal.',
+    light: { bg: '#fbf6f4', side: '#f3e8e4', text: '#2a1e1f', primary: '#5a2e3a', onPrimary: '#ffffff', accent: '#5a2e3a', logo: '#e8a9a0', logoFg: '#2a1e1f' },
+    dark: { bg: '#161112', text: '#f0e6e6', primary: '#f0e6e6', onPrimary: '#161112', accent: '#e8a9a0', logo: '#e8a9a0', logoFg: '#161112' } },
+  kraft: { name: 'Kraft and teal', desc: 'Brown kraft-paper background, near-black buttons and a teal logo. Like an envelope of cash; the most tactile.',
+    light: { bg: '#f3ece0', side: '#e8dcc8', text: '#2b241b', primary: '#2b241b', onPrimary: '#f3ece0', accent: '#2b241b', logo: '#3f7d8c', logoFg: '#f3ece0' },
+    dark: { bg: '#17140f', text: '#ece3d3', primary: '#ece3d3', onPrimary: '#17140f', accent: '#7fb6c3', logo: '#3f7d8c', logoFg: '#f3ece0' } },
+  apricot: { name: 'Apricot and navy', desc: 'Apricot buttons with dark text and a navy logo: the warmest, most cheerful scheme.',
+    light: { bg: '#fbf8f4', side: '#f5ede3', text: '#1e2533', primary: '#f2a65a', onPrimary: '#1e2533', accent: '#9e4f17', logo: '#24335a', logoFg: '#fbf8f4' },
+    dark: { bg: '#141820', text: '#eceef2', primary: '#f2a65a', onPrimary: '#1e2533', accent: '#f2a65a', logo: '#4a6fb5', logoFg: '#ffffff' } },
+  sky: { name: 'Sky and marigold', desc: 'Sky-blue buttons with dark text and a marigold logo. Light and airy, the most "phone app".',
+    light: { bg: '#f4f8fb', side: '#e7f0f7', text: '#102030', primary: '#6fb9ec', onPrimary: '#102030', accent: '#1f6fa8', logo: '#f0a73a', logoFg: '#102030' },
+    dark: { bg: '#0e141a', text: '#e6eef5', primary: '#6fb9ec', onPrimary: '#102030', accent: '#6fb9ec', logo: '#f0a73a', logoFg: '#102030' } },
+};
+const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const mix = (a, b, t) => '#' + hexRgb(a).map((v, i) => Math.round(v + (hexRgb(b)[i] - v) * t).toString(16).padStart(2, '0')).join('');
+const lum = (h) => { const c = hexRgb(h).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+function paletteTokens(spec, tone, lightSpec) {
+  const { bg, text, primary, onPrimary, accent, logo, logoFg } = spec;
+  if (tone === 'light') return {
+    bg, surface: mix(bg, '#ffffff', 0.7), side: spec.side, raised: mix(bg, '#ffffff', 0.7), rule: mix(bg, text, 0.14), 'rule-soft': mix(bg, text, 0.08),
+    text, muted: mix(text, bg, 0.27), hover: mix(bg, text, 0.06), primary, 'primary-hover': lum(primary) < 0.3 ? mix(primary, '#ffffff', 0.12) : mix(primary, '#000000', 0.08), 'on-primary': onPrimary,
+    'active-bg': mix(bg, accent, 0.07), 'active-text': accent, accent, 'logo-bg': logo, 'logo-fg': logoFg, pos: lum(bg) < 0.86 ? '#236640' : '#2e7d4f', neg: lum(bg) < 0.86 ? '#a3221b' : '#b3261e', focus: accent,
+    skeleton: mix(bg, text, 0.07), shimmer: 'rgba(255,255,255,.6)', overlay: 'rgba(15,17,20,.35)', 'tip-bg': text, 'tip-text': bg, 'float-shadow': '0 8px 24px rgba(15,17,20,.10)',
+  };
+  return {
+    bg, surface: mix(bg, '#ffffff', 0.04), side: mix(bg, '#ffffff', 0.025), raised: mix(bg, '#ffffff', 0.07), rule: mix(bg, text, 0.17), 'rule-soft': mix(bg, text, 0.1),
+    text, muted: mix(text, bg, 0.32), hover: mix(bg, text, 0.07), primary, 'primary-hover': mix(primary, '#ffffff', 0.15), 'on-primary': onPrimary,
+    'active-bg': mix(bg, accent, 0.16), 'active-text': accent, accent, 'logo-bg': logo, 'logo-fg': logoFg, pos: '#7cc79a', neg: '#ff8f85', focus: text,
+    skeleton: mix(bg, text, 0.07), shimmer: 'rgba(255,255,255,.05)', overlay: 'rgba(0,0,0,.55)', 'tip-bg': text, 'tip-text': bg, 'float-shadow': '0 10px 28px rgba(0,0,0,.45)',
+    'inv-side': lum(lightSpec.primary) < 0.2 ? mix(lightSpec.primary, '#000000', 0.15) : mix(lightSpec.text, '#000000', 0.1), deep: mix(bg, '#000000', 0.35),
+  };
+}
+const paletteCSS = Object.entries(PALETTE_SPECS).map(([id, spec]) => ['light', 'dark'].map((tone) => {
+  const sel = `.app[data-b-palette='${id}'][data-tone='${tone}'], .app[data-b-palette='${id}'] [data-tone='${tone}']`;
+  return `${sel} { ${Object.entries(paletteTokens(spec[tone], tone, spec.light)).map(([k, v]) => `--${k}: ${v};`).join(' ')} }`;
+}).join('\n')).join('\n');
+document.head.insertAdjacentHTML('beforeend', `<style id="palettes">${paletteCSS}</style>`);
+for (const [id, spec] of Object.entries(PALETTE_SPECS)) BLOCKS.palette.options[id] = [spec.name, spec.desc];
+// Swatches for the block panel: page, button, logo
+const SWATCHES = {
+  ink: ['#fbfaf6', '#1f2f4d', '#cd8a5c'], sepia: ['#f7f8f4', '#6b4423', '#5f6c2a'], sun: ['#f1f2f5', '#f2c230', '#2f6fd6'], graphite: ['#f6f5f3', '#232427', '#e8743b'],
+  ...Object.fromEntries(Object.entries(PALETTE_SPECS).map(([id, sp]) => [id, [sp.light.bg, sp.light.primary, sp.light.logo]])),
+};
+
+// The owner's pick (2026-10-27; colors: charcoal and sky); blocks added later default to their first option
+const CHOSEN = { palette: 'charcoal', type: 'banknote', corners: 'round', logo: 'stack', logocolor: 'copper', sidebar: 'panel', marker: 'bar', collapse: 'logo', dadd: 'button', foot: 'compact', tabbar: 'pill', ptop: 'brand', more: 'list', scope: 'page', wake: 'pill' };
+const DEFAULTS = { ...Object.fromEntries(Object.entries(BLOCKS).map(([id, b]) => [id, Object.keys(b.options)[0]])), ...CHOSEN };
+const STROKE = { ledger: 1.6, banknote: 1.6, rubik: 1.7, fira: 1.5 };
+</script>
+<script>
+// ---------- Icons: Tabler outlines (24 × 24) ----------
+const ICONS = {
+  receipt: ['M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2', 'M9 7h6', 'M9 11h6', 'M9 15h4'],
+  wallet: ['M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12', 'M20 12v4h-4a2 2 0 0 1 0 -4h4'],
+  chart: ['M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M4 20h14'],
+  users: ['M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2', 'M16 3.13a4 4 0 0 1 0 7.75', 'M21 21v-2a4 4 0 0 0 -3 -3.85'],
+  settings: ['M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z', 'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0'],
+  plus: ['M12 5l0 14', 'M5 12l14 0'],
+  minus: ['M5 12l14 0'],
+  transfer: ['M7 10h14l-4 -4', 'M17 14h-14l4 4'],
+  dots: ['M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  sun: ['M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7'],
+  moon: ['M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z'],
+  auto: ['M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0', 'M12 3v18', 'M12 9l4.65 -4.65', 'M12 14.3l7.37 -7.37', 'M12 19.6l8.85 -8.85'],
+  left: ['M15 6l-6 6l6 6'],
+  right: ['M9 6l6 6l-6 6'],
+  x: ['M18 6l-12 12', 'M6 6l12 12'],
+  logout: ['M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2', 'M9 12h12l-3 -3', 'M18 15l3 -3'],
+  collapse: ['M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z', 'M9 4v16', 'M15 10l-2 2l2 2'],
+  expand: ['M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z', 'M9 4v16', 'M14 10l2 2l-2 2'],
+  zzz: ['M4 12h6l-6 8h6', 'M14 4h6l-6 8h6'],
+  userPlus: ['M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0', 'M16 19h6', 'M19 16v6', 'M6 21v-2a4 4 0 0 1 4 -4h4'],
+};
+const LOGO_PATHS = {
+  coin: ['M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0', 'M10 16.5v-9h2.75a2.5 2.5 0 0 1 0 5h-2.75'],
+  hryvnia: ['M8 7.5a2.5 2.5 0 0 1 2.5 -2.5h1.06a3.19 3.19 0 0 1 1.31 6.1l-3.76 1.79a3.19 3.19 0 0 0 1.31 6.11h1.08a2.5 2.5 0 0 0 2.5 -2.5', 'M7 10.5h10', 'M7 13.5h10'],
+  stack: ['M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z', 'M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4', 'M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z', 'M3 6v10c0 .888 .772 1.45 2 2', 'M3 11c0 .888 .772 1.45 2 2'],
+  ledger: ['M4 5a1 1 0 0 1 1 -1h14a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-14a1 1 0 0 1 -1 -1z', 'M4 9h16', 'M9 4v16', 'M12.5 13h4.5', 'M12.5 16h4.5', 'M12.5 17.6h4.5'],
+};
+const LOGOS = Object.fromEntries(Object.keys(LOGO_PATHS).map((k) => [k, BLOCKS.logo.options[k][0]]));
+const svg = (paths, size, stroke) => `<svg class="ic" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths.map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+const icon = (name, size = 20) => svg(ICONS[name], size, STROKE[picks.type]);
+const logoMark = (size = 20) => svg(LOGO_PATHS[picks.logo], size, 1.7);
+
+// ---------- Sample data ----------
+const PAGES = [
+  { id: 'transactions', label: 'Transactions', icon: 'receipt' },
+  { id: 'accounts', label: 'Accounts', icon: 'wallet' },
+  { id: 'reports', label: 'Reports', icon: 'chart' },
+  { id: 'family', label: 'Family', icon: 'users' },
+  { id: 'settings', label: 'Settings', icon: 'settings' },
+];
+const SYMBOL = { UAH: ['', ' ₴'], USD: ['$', ''], EUR: ['€', ''] };
+function money(n, cur = 'UAH', sign = '') {
+  const [int, dec] = Math.abs(n).toFixed(2).split('.');
+  const [pre, post] = SYMBOL[cur];
+  return `${sign}${pre}${int.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}.${dec}${post}`;
+}
+const DAYS = [
+  { label: 'Today', date: '27 October', total: '−1 395.00 ₴', items: [
+    { t: 'exp', cat: 'Groceries', note: 'Silpo', acc: 'Monobank UAH', amt: 1250, cur: 'UAH' },
+    { t: 'exp', cat: 'Eating out', note: 'Coffee', acc: 'Cash UAH', amt: 145, cur: 'UAH' },
+    { t: 'tr', cat: 'Transfer', note: 'Monobank UAH → Cash UAH', acc: '', amt: 2000, cur: 'UAH' },
+  ] },
+  { label: 'Yesterday', date: '26 October', total: '+51 012.50 ₴', items: [
+    { t: 'inc', cat: 'Salary', note: 'October', acc: 'PrivatBank USD', amt: 1250, cur: 'USD' },
+    { t: 'exp', cat: 'Subscriptions', note: 'Spotify', acc: 'Monobank UAH', amt: 199, cur: 'UAH' },
+    { t: 'exp', cat: 'Transportation', note: 'Uklon', acc: 'Monobank UAH', amt: 238.5, cur: 'UAH' },
+  ] },
+  { label: 'Saturday', date: '25 October', total: '−1 916.70 ₴', items: [
+    { t: 'exp', cat: 'Activities', note: 'Museum tickets', acc: 'Cash EUR', amt: 24, cur: 'EUR' },
+    { t: 'exp', cat: 'Groceries', note: 'ATB', acc: 'Monobank UAH', amt: 864.3, cur: 'UAH' },
+  ] },
+];
+const ACCOUNTS = [
+  { name: 'Monobank UAH', inst: 'Monobank', bal: 24350, cur: 'UAH' },
+  { name: 'PrivatBank USD', inst: 'PrivatBank', bal: 1200, cur: 'USD' },
+  { name: 'Cash UAH', inst: 'Cash', bal: 1850, cur: 'UAH' },
+  { name: 'Cash EUR', inst: 'Cash', bal: 300, cur: 'EUR' },
+];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+const REPORT = [
+  { group: 'Income', rows: [['Salary', 50000, 2]] },
+  { group: 'Home expenses', rows: [['Rent', 18000, 0], ['Bills', 3200, 9]] },
+  { group: 'Daily living', rows: [['Groceries', 7800, 14], ['Eating out', 2100, 30], ['Transportation', 1400, 22]] },
+];
+const SCOPES = [['me', 'Me'], ['vlad', 'Vlad'], ['family', 'Family']];
+const SCOPE_NET = { me: 'Your net in October', vlad: "Vlad's net in October", family: 'Family net in October' };
+
+// ---------- Pages ----------
+const plain = (n) => money(n).replace(' ₴', '');
+function txRow(x) {
+  const cls = x.t === 'exp' ? 'neg' : x.t === 'inc' ? 'pos' : 'neu';
+  const sign = x.t === 'exp' ? '−' : x.t === 'inc' ? '+' : '';
+  return `<div class="row tx"><div class="row-main"><span class="row-title">${x.cat}</span><span class="row-sub">${x.note}</span></div><div class="row-side"><span class="amt ${cls}">${money(x.amt, x.cur, sign)}</span>${x.acc ? `<span class="row-sub">${x.acc}</span>` : ''}</div></div>`;
+}
+const monthSwitch = () => `<div class="month"><button class="icon-btn" aria-label="Previous month">${icon('left')}</button><span>October 2026</span><button class="icon-btn" aria-label="Next month">${icon('right')}</button></div>`;
+const summary = (label, amount, split) => `<section class="summary" aria-label="${label}"><p class="summary-label">${label}</p><p class="summary-amount amt">${amount}</p>${split ? `<p class="summary-split">${split}</p>` : ''}</section>`;
+const RENDER = {
+  transactions: () => `
+    <div class="page-head"><h1>Transactions</h1>${monthSwitch()}</div>
+    ${summary(picks.scope === 'shell' ? SCOPE_NET[state.scope] : 'Net in October', `+${money(33569.5)}`, `<span>Income <span class="amt pos">+${money(52000)}</span></span><span>Expenses <span class="amt neg">−${money(18430.5)}</span></span>`)}
+    <div class="days">${DAYS.map((d) => `<section class="day"><h2 class="day-head"><span>${d.label} <span class="day-date">${d.date}</span></span><span class="amt">${d.total}</span></h2>${d.items.map(txRow).join('')}</section>`).join('')}</div>`,
+  accounts: () => `
+    <div class="page-head"><h1>Accounts</h1><button class="btn btn-quiet">${icon('plus', 16)}New account</button></div>
+    ${summary('Total balance', money(87950), "In hryvnias at today's NBU rate")}
+    <div class="accounts">${ACCOUNTS.map((a) => `<div class="account"><div class="row-main"><span class="row-title">${a.name}</span><span class="row-sub">${a.inst}</span></div><span class="amt account-bal">${money(a.bal, a.cur)}</span></div>`).join('')}</div>`,
+  reports: () => {
+    const val = (base, j, i) => base + ((i * 37 + j * 13) % 9) * j * 10;
+    const body = REPORT.map((g) => `<tr class="group"><th scope="rowgroup" colspan="${MONTHS.length + 3}">${g.group}</th></tr>` + g.rows.map(([name, base, j]) => {
+      const vals = MONTHS.map((_, i) => val(base, j, i));
+      const total = vals.reduce((a, b) => a + b, 0);
+      return `<tr><td>${name}</td>${vals.map((v) => `<td>${plain(v)}</td>`).join('')}<td class="total">${plain(total)}</td><td>${plain(total / MONTHS.length)}</td></tr>`;
+    }).join('')).join('');
+    return `
+    <div class="page-head"><h1>Reports</h1><div class="seg" role="group" aria-label="Period"><button aria-pressed="true">Year</button><button aria-pressed="false">Month</button></div></div>
+    <p class="page-note">2026, in hryvnias at the NBU rate on each transaction's date</p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Yearly report"><table class="report"><thead><tr><th scope="col">Category</th>${MONTHS.map((m) => `<th scope="col">${m}</th>`).join('')}<th scope="col">Total</th><th scope="col">Avg</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  },
+  family: () => `
+    <div class="page-head"><h1>Family</h1><button class="btn btn-primary">${icon('userPlus', 16)}Invite member</button></div>
+    <div class="members">
+      <div class="member"><span class="avatar">Y</span><div class="row-main"><span class="row-title">Yulia</span><span class="row-sub">yulia@example.com</span></div><span class="role">Owner</span></div>
+      <div class="member"><span class="avatar">V</span><div class="row-main"><span class="row-title">Vlad</span><span class="row-sub">vlad@example.com</span></div><span class="role">Member</span></div>
+    </div>
+    <p class="page-note" style="margin-top:14px">You see each other's accounts, transactions and the family report.</p>`,
+  settings: () => `
+    <div class="page-head"><h1>Settings</h1></div>
+    <div class="form">
+      <div class="field"><label for="dn">Display name</label><input id="dn" class="input" value="Yulia"></div>
+      <div class="field"><label for="rc">Report currency</label><select id="rc" class="input"><option>UAH, Ukrainian hryvnia</option><option>USD, US dollar</option><option>EUR, euro</option></select></div>
+      <div class="field"><span class="label" id="th">Theme</span><div class="seg" role="group" aria-labelledby="th"><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div></div>
+      <div><button class="btn btn-quiet">${icon('logout', 16)}Sign out</button></div>
+    </div>`,
+};
+function skeleton() {
+  const row = '<div class="row"><div style="flex:1"><div class="sk" style="height:12px;width:40%;margin-bottom:8px"></div><div class="sk" style="height:10px;width:24%"></div></div><div class="sk" style="height:12px;width:84px"></div></div>';
+  if (picks.wake === 'card') {
+    return `<div class="wake-card" role="status" aria-live="polite"><div class="wake-line"><span class="logo">${logoMark()}</span><span class="txt"><span>Waking up the server…</span><small>It sleeps at night to stay free. Usually 20–60 seconds.</small></span><span class="sec amt" data-elapsed>0 s</span></div><div class="progress"></div></div>`;
+  }
+  return `<div class="page-head"><div class="sk" style="height:28px;width:180px"></div></div>
+    <div class="summary"><div class="sk" style="height:12px;width:110px;margin-bottom:10px"></div><div class="sk" style="height:40px;width:240px;margin-bottom:10px"></div><div class="sk" style="height:12px;width:260px"></div></div>
+    <div class="days">${row}${row}${row}${row}</div>`;
+}
+
+// ---------- Shell, rebuilt whenever a block changes ----------
+const app = document.getElementById('app');
+const stage = document.querySelector('.stage');
+const state = { page: 'transactions', schemePref: 'system', waking: false, scope: 'me' };
+const PICKS_KEY = 'pup.f010.blocks.picks';
+let picks = { ...DEFAULTS };
+try { Object.assign(picks, JSON.parse(localStorage.getItem(PICKS_KEY)) ?? {}); } catch { /* storage blocked */ }
+for (const [id, v] of Object.entries(picks)) if (!BLOCKS[id]?.options[v]) picks[id] = DEFAULTS[id];
+
+const navLink = (p, cls) => `<a href="#${p.id}" class="${cls}" data-nav="${p.id}" data-tip="${p.label}">${icon(p.icon, cls === 'tab' ? 24 : 20)}<span class="lbl">${p.label}</span></a>`;
+const scopeSeg = (cls) => `<div class="seg ${cls}" role="group" aria-label="Whose money">${SCOPES.map(([id, l]) => `<button data-scope="${id}">${l}</button>`).join('')}</div>`;
+const themeBtn = (cls = 'icon-btn') => `<button class="${cls}" data-action="theme" aria-label="Switch light or dark mode" data-theme-tip data-tip="Dark mode"><span data-theme-icon></span></button>`;
+
+function sideHTML() {
+  const c = picks.collapse;
+  const toggle = (cls) => `<button class="icon-btn ${cls}" data-action="collapse" data-collapse-btn></button>`;
+  const head = `<div class="side-head">
+    ${c === 'logo' ? `<button class="logo-btn" data-action="collapse" aria-label="Expand sidebar" data-tip="Expand sidebar"><span class="logo">${logoMark()}</span><span class="logo-hover">${icon('expand')}</span></button>` : `<span class="logo">${logoMark()}</span>`}
+    <span class="brand-name">Pup Budget</span>${c === 'head' ? toggle('side-toggle') : c === 'logo' ? toggle('side-toggle side-fade') : ''}</div>`;
+  const add = {
+    button: `<div class="add-group"><button class="side-add" data-action="add" data-tip="Add transaction">${icon('plus')}<span class="add-lbl">Add transaction</span></button></div>`,
+    types: `<div class="add-group"><button class="side-add" data-action="add" aria-label="Add expense" data-tip="Add expense">${icon('minus')}<span class="add-lbl">Expense</span></button><button class="add-alt" data-action="add" aria-label="Add income" data-tip="Add income">${icon('plus')}</button><button class="add-alt" data-action="add" aria-label="Add transfer" data-tip="Add transfer">${icon('transfer')}</button></div>`,
+    fab: '',
+  }[picks.dadd];
+  const scope = picks.scope === 'shell' ? `<div class="side-scope">${scopeSeg('')}<button class="scope-rail" data-action="scope-next" data-scope-rail></button></div>` : '';
+  const user = '<div class="side-user"><span class="avatar" aria-hidden="true">Y</span><span class="lbl"><span>Yulia</span><small>yulia@example.com</small></span></div>';
+  const foot = {
+    full: `<button class="side-link" data-action="theme" data-theme-tip data-tip="Dark mode"><span data-theme-icon></span><span class="lbl" data-theme-label>Dark mode</span></button>${user}`,
+    compact: `<div class="foot-compact"><span class="avatar" aria-hidden="true">Y</span><span class="lbl user-name">Yulia</span><span class="foot-tools side-fade">${themeBtn('icon-btn sm')}<button class="icon-btn sm" aria-label="Sign out">${icon('logout')}</button></span></div>`,
+    switcher: `<div class="theme-seg" role="group" aria-label="Theme"><button data-scheme-set="light" aria-label="Light" title="Light">${icon('sun')}</button><button data-scheme-set="dark" aria-label="Dark" title="Dark">${icon('moon')}</button><button data-scheme-set="system" aria-label="Same as the device" title="Same as the device">${icon('auto')}</button></div>${themeBtn('icon-btn theme-one')}${user}`,
+  }[picks.foot];
+  return `${head}${add}${scope}<nav class="side-nav" aria-label="Main navigation">${PAGES.map((p) => navLink(p, 'side-link')).join('')}</nav>
+    <div class="side-foot">${foot}${c === 'foot' ? toggle('foot-toggle') : ''}</div>
+    ${c === 'edge' ? '<button class="edge-toggle" data-action="collapse" data-collapse-btn data-edge></button>' : ''}
+    <div class="side-resize" id="side-resize" role="separator" aria-orientation="vertical" aria-label="Resize sidebar" aria-valuemin="72" aria-valuemax="320" tabindex="0" title="Drag to resize, double-click to collapse"></div>`;
+}
+function topHTML() {
+  const avatar = '<a href="#settings" class="icon-btn" data-nav="settings" aria-label="Settings"><span class="avatar" aria-hidden="true">Y</span></a>';
+  if (picks.ptop === 'brand') return `<div class="brand"><span class="logo">${logoMark()}</span><span class="brand-name">Pup Budget</span></div>${themeBtn()}${avatar}`;
+  if (picks.ptop === 'title') return `<span class="top-title" data-page-title></span>${themeBtn()}${avatar}`;
+  return '';
+}
+function tabsHTML() {
+  const t = picks.tabbar;
+  const more = `<button class="tab tab-more" data-action="more" aria-haspopup="dialog">${icon('dots', 24)}<span class="lbl">More</span></button>`;
+  const addBtn = `<div class="tab-add"><button data-action="add" aria-label="Add transaction">${icon('plus', 24)}</button></div>`;
+  const [tx, acc, rep] = [PAGES[0], PAGES[1], PAGES[2]].map((p) => navLink(p, 'tab'));
+  if (t === 'classic' || t === 'floating') return tx + acc + addBtn + rep + more;
+  if (t === 'fab') return tx + acc + rep + more;
+  return tx + acc + rep + more + `<button class="tab-add-end" data-action="add" aria-label="Add transaction">${icon('plus', 24)}</button>`;
+}
+function moreHTML() {
+  const cur = (id) => (state.page === id ? ' aria-current="page"' : '');
+  if (picks.more === 'tiles') {
+    return `<div class="sheet" role="dialog" aria-modal="true" aria-label="More"><div class="grab"></div>
+      <div class="more-user"><span class="avatar" aria-hidden="true">Y</span><span><span>Yulia</span><small>yulia@example.com</small></span></div>
+      <div class="tiles">
+        <a href="#family" class="tile" data-nav="family"${cur('family')}>${icon('users', 24)}Family</a>
+        <a href="#settings" class="tile" data-nav="settings"${cur('settings')}>${icon('settings', 24)}Settings</a>
+        <button class="tile" data-action="theme"><span data-theme-icon data-size="24"></span><span data-theme-label>Dark mode</span></button>
+        <button class="tile">${icon('logout', 24)}Sign out</button>
+      </div></div>`;
+  }
+  return `<div class="sheet" role="dialog" aria-modal="true" aria-label="More"><div class="grab"></div>
+    <a href="#family" class="menu-item" data-nav="family"${cur('family')}>${icon('users')}Family</a>
+    <a href="#settings" class="menu-item" data-nav="settings"${cur('settings')}>${icon('settings')}Settings</a>
+    <button class="menu-item" data-action="theme"><span data-theme-icon></span><span data-theme-label>Dark mode</span></button>
+    <button class="menu-item">${icon('logout')}Sign out</button></div>`;
+}
+function wakeHTML() {
+  const text = 'Waking up the server…';
+  if (picks.wake === 'banner') return `<span>${icon('zzz')}</span><span class="txt"><span>${text}</span><small>It sleeps at night to stay free. Usually 20–60 seconds.</small></span><span class="sec" data-elapsed>0 s</span>`;
+  if (picks.wake === 'pill') return `<span>${text}</span><span class="sec" data-elapsed>0 s</span>`;
+  if (picks.wake === 'splash') return `<span class="logo">${logoMark(24)}</span><p>${text}</p><small>It sleeps at night to stay free. Usually 20–60 seconds.</small><span class="sec" data-elapsed>0 s</span>`;
+  return '';
+}
+function renderShell() {
+  for (const [id, v] of Object.entries(picks)) app.setAttribute(`data-b-${id}`, v);
+  const addLabel = `${icon('plus', 24)}<span>Add</span>`;
+  document.querySelectorAll('.pfab, .dfab').forEach((b) => { b.innerHTML = addLabel; b.setAttribute('aria-label', 'Add transaction'); });
+  document.getElementById('side').innerHTML = sideHTML();
+  const top = document.getElementById('top');
+  top.innerHTML = topHTML();
+  top.hidden = picks.ptop === 'none';
+  document.getElementById('scope-phone').innerHTML = picks.scope === 'shell' ? scopeSeg('') : '';
+  document.getElementById('tabs').innerHTML = tabsHTML();
+  const wake = document.getElementById('wake');
+  const splash = document.getElementById('splash');
+  wake.className = `wake ${picks.wake === 'banner' || picks.wake === 'pill' ? `on wake-${picks.wake}` : ''}`;
+  wake.innerHTML = picks.wake === 'banner' || picks.wake === 'pill' ? wakeHTML() : '';
+  splash.className = `wake ${picks.wake === 'splash' ? 'on wake-splash' : ''}`;
+  splash.innerHTML = picks.wake === 'splash' ? wakeHTML() : '';
+  document.getElementById('add').innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="add-title"><div class="grab"></div>
+    <div class="sheet-head"><h2 id="add-title">Add transaction</h2><button class="icon-btn" data-action="close" aria-label="Close">${icon('x')}</button></div>
+    <div class="seg" role="group" aria-label="Type"><button aria-pressed="true">Expense</button><button aria-pressed="false">Income</button><button aria-pressed="false">Transfer</button></div>
+    <input class="amount-input" inputmode="decimal" placeholder="0.00 ₴" aria-label="Amount">
+    <button class="btn btn-primary" style="width:100%" data-action="close">Save expense</button>
+    <p class="note">Placeholder: the form is designed in F-018.</p></div>`;
+  bindResize();
+}
+
+const mq = matchMedia('(prefers-color-scheme: dark)');
+function applyScheme() {
+  const scheme = state.schemePref === 'system' ? (mq.matches ? 'dark' : 'light') : state.schemePref;
+  app.dataset.scheme = scheme;
+  app.dataset.tone = scheme;
+  document.getElementById('side').dataset.tone = picks.sidebar === 'inverted' ? 'dark' : scheme;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+  document.querySelectorAll('[data-theme-icon]').forEach((el) => { el.innerHTML = icon(scheme === 'dark' ? 'sun' : 'moon', Number(el.dataset.size ?? 20)); });
+  document.querySelectorAll('[data-theme-label]').forEach((el) => { el.textContent = scheme === 'dark' ? 'Light mode' : 'Dark mode'; });
+  document.querySelectorAll('[data-theme-tip]').forEach((el) => { el.dataset.tip = scheme === 'dark' ? 'Light mode' : 'Dark mode'; });
+}
+mq.addEventListener('change', applyScheme);
+function applyScope() {
+  document.querySelectorAll('[data-scope]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.scope === state.scope)));
+  const [, label] = SCOPES.find(([id]) => id === state.scope);
+  document.querySelectorAll('[data-scope-rail]').forEach((b) => {
+    b.textContent = label === 'Family' ? 'Fam' : label;
+    b.setAttribute('aria-label', `Showing: ${label}. Switch`);
+    b.dataset.tip = `Showing: ${label}`;
+  });
+}
+
+function render() {
+  app.dataset.page = state.page;
+  document.getElementById('more').innerHTML = moreHTML();
+  document.querySelectorAll('[data-nav]').forEach((el) => (el.dataset.nav === state.page ? el.setAttribute('aria-current', 'page') : el.removeAttribute('aria-current')));
+  document.querySelectorAll('[data-page-title]').forEach((el) => { el.textContent = PAGES.find((p) => p.id === state.page).label; });
+  document.getElementById('page').innerHTML = state.waking ? skeleton() : RENDER[state.page]();
+  document.querySelector('[data-scroll]').scrollTo(0, 0);
+  applyScheme();
+  applyScope();
+}
+function go(id) { state.page = id; closeSheets(); render(); }
+
+// Sidebar: an icon button toggles it; dragging the edge resizes it and snaps to the icon rail when narrow.
+// It never gets narrower than its head row (logo, the whole app name, collapse button), measured in the current type.
+const NAV_KEY = 'pup.f010.blocks.nav';
+const SIDE_MIN = 208, SIDE_MAX = 320, SIDE_RAIL = 72, SNAP = 150;
+let sideMin = SIDE_MIN;
+function measureSideMin() {
+  const side = document.getElementById('side');
+  const head = side.querySelector('.side-head');
+  if (!head || getComputedStyle(side).display === 'none') return;
+  const px = (v) => parseFloat(v) || 0;
+  const hs = getComputedStyle(head), ss = getComputedStyle(side);
+  const kids = [...head.children].filter((el) => getComputedStyle(el).display !== 'none' && getComputedStyle(el).position !== 'absolute');
+  const content = kids.reduce((sum, el) => sum + (el.classList.contains('brand-name') ? el.scrollWidth : el.offsetWidth), 0);
+  const need = content + px(hs.columnGap) * (kids.length - 1) + px(hs.paddingLeft) + px(hs.paddingRight)
+    + px(ss.paddingLeft) + px(ss.paddingRight) + px(ss.borderLeftWidth) + px(ss.borderRightWidth) + px(ss.marginLeft) + 4;
+  sideMin = Math.min(SIDE_MAX, Math.max(SIDE_MIN, Math.ceil(need)));
+}
+let navPref = null;
+try { navPref = JSON.parse(localStorage.getItem(NAV_KEY)); } catch { /* storage blocked */ }
+function saveNav() { try { localStorage.setItem(NAV_KEY, JSON.stringify(navPref)); } catch { /* storage blocked */ } }
+function applyNav() {
+  const collapsed = navPref?.collapsed ?? app.clientWidth < 1024;
+  app.toggleAttribute('data-collapsed', collapsed);
+  if (!collapsed) measureSideMin();
+  const width = Math.max(sideMin, navPref?.width ?? 248);
+  app.style.setProperty('--side-w', `${collapsed ? SIDE_RAIL : width}px`);
+  const label = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
+  document.querySelectorAll('[data-collapse-btn]').forEach((btn) => {
+    btn.setAttribute('aria-expanded', String(!collapsed));
+    btn.setAttribute('aria-label', label);
+    btn.dataset.tip = label;
+    btn.innerHTML = 'edge' in btn.dataset ? icon(collapsed ? 'right' : 'left', 16) : icon(collapsed ? 'expand' : 'collapse');
+  });
+  document.querySelectorAll('.logo-btn').forEach((b) => { b.inert = !collapsed; });
+  const handle = document.getElementById('side-resize');
+  handle.setAttribute('aria-valuemin', String(sideMin));
+  handle.setAttribute('aria-valuenow', String(collapsed ? SIDE_RAIL : width));
+  handle.setAttribute('aria-valuetext', collapsed ? 'Collapsed' : `${width} pixels`);
+}
+function setNavCollapsed(value) {
+  navPref = value === null ? null : { width: navPref?.width ?? 248, collapsed: value };
+  if (value === null) { try { localStorage.removeItem(NAV_KEY); } catch { /* storage blocked */ } } else saveNav();
+  applyNav();
+}
+function resizeTo(w) {
+  navPref = w < SNAP ? { width: navPref?.width ?? 248, collapsed: true } : { width: Math.round(Math.min(SIDE_MAX, Math.max(sideMin, w))), collapsed: false };
+  applyNav();
+}
+function bindResize() {
+  const handle = document.getElementById('side-resize');
+  handle.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    handle.setPointerCapture(e.pointerId);
+    app.dataset.resizing = '';
+    const left = document.getElementById('side').getBoundingClientRect().left;
+    const move = (ev) => resizeTo(ev.clientX - left);
+    const up = () => { delete app.dataset.resizing; saveNav(); handle.removeEventListener('pointermove', move); handle.removeEventListener('pointerup', up); };
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', up);
+  });
+  handle.addEventListener('dblclick', () => setNavCollapsed(!app.hasAttribute('data-collapsed')));
+  handle.addEventListener('keydown', (e) => {
+    const collapsed = app.hasAttribute('data-collapsed');
+    const w = navPref?.width ?? 248;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); collapsed || w - 16 < sideMin ? setNavCollapsed(true) : resizeTo(w - 16); saveNav(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); collapsed ? setNavCollapsed(false) : resizeTo(w + 16); saveNav(); }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNavCollapsed(!collapsed); }
+  });
+}
+new ResizeObserver(applyNav).observe(app);
+document.fonts?.ready.then(applyNav);
+document.fonts?.addEventListener('loadingdone', applyNav);
+
+// Sheets
+function openSheet(id) { closeSheets(); const o = document.getElementById(id); o.hidden = false; o.querySelector('button, input, a')?.focus(); }
+function closeSheets() { document.querySelectorAll('.overlay').forEach((o) => { o.hidden = true; }); }
+
+// Waking up
+let wakeTimer;
+function coldStart() {
+  clearInterval(wakeTimer);
+  closeSheets();
+  state.waking = true; app.dataset.waking = '';
+  const start = Date.now();
+  render();
+  wakeTimer = setInterval(() => {
+    const s = Math.floor((Date.now() - start) / 1000);
+    document.querySelectorAll('[data-elapsed]').forEach((el) => { el.textContent = `${s} s`; });
+    if (s >= 9) endColdStart(true);
+  }, 250);
+}
+function endColdStart(announce = false) {
+  clearInterval(wakeTimer);
+  state.waking = false; delete app.dataset.waking;
+  render();
+  if (announce) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = 'Connected';
+    app.appendChild(t); setTimeout(() => t.remove(), 2200);
+  }
+}
+
+// ---------- Blocks: pick, reset, mix at random ----------
+function savePicks() { try { localStorage.setItem(PICKS_KEY, JSON.stringify(picks)); } catch { /* storage blocked */ } }
+function applyBlocks() { renderShell(); render(); applyNav(); updatePanel(); }
+function setBlock(id, option) { picks[id] = option; savePicks(); applyBlocks(); }
+function resetBlocks() { picks = { ...DEFAULTS }; savePicks(); applyBlocks(); }
+function setLogo(name) { setBlock('logo', name); }
+function randomBlocks() {
+  for (const [id, b] of Object.entries(BLOCKS)) { const k = Object.keys(b.options); picks[id] = k[Math.floor(Math.random() * k.length)]; }
+  savePicks(); applyBlocks();
+}
+const mixText = () => Object.entries(BLOCKS).map(([id, b]) => `${b.group}, ${b.label.toLowerCase()}: ${b.options[picks[id]][0]}`).join('\n');
+
+const panel = document.getElementById('proto-panel');
+function buildPanel() {
+  let html = `<div class="pp-tools"><button data-pp="random">Mix at random</button><button data-pp="reset">Reset</button><button data-pp="close" class="pv-blocks">Close</button></div>
+    <p class="pp-intro" style="margin-top:10px">It opens with your chosen mix (Reset brings it back). Pick an option for each block; the preview changes at once and your mix is remembered. Dragging the sidebar edge works with every option.</p>`;
+  let group = '';
+  for (const [id, b] of Object.entries(BLOCKS)) {
+    if (b.group !== group) { group = b.group; html += `<h2>${group}</h2>`; }
+    html += `<fieldset class="pp-block"><legend>${b.label}</legend><div class="pp-opts">${Object.entries(b.options).map(([k, [name]], i) => `<button data-pick="${id}:${k}" title="${name}">${id === 'palette' ? `<span class="pp-sw" aria-hidden="true">${SWATCHES[k].map((c) => `<i style="background:${c}"></i>`).join('')}</span>` : ''}${String.fromCharCode(65 + i)}. ${name}</button>`).join('')}</div><p class="pp-desc" data-desc="${id}"></p></fieldset>`;
+  }
+  html += `<div class="pp-mix"><h2>Your mix</h2><textarea id="mix" readonly aria-label="Your mix"></textarea><button data-pp="copy">Copy</button></div>`;
+  panel.innerHTML = html;
+}
+function updatePanel() {
+  panel.querySelectorAll('[data-pick]').forEach((b) => { const [id, k] = b.dataset.pick.split(':'); b.setAttribute('aria-pressed', String(picks[id] === k)); });
+  panel.querySelectorAll('[data-desc]').forEach((p) => { p.textContent = BLOCKS[p.dataset.desc].options[picks[p.dataset.desc]][1]; });
+  document.getElementById('mix').value = mixText();
+}
+
+// Preview bar (review aid)
+document.body.insertAdjacentHTML('afterbegin', `<div class="proto-bar"><b>F-010 · App shell, block by block</b>
+  <button class="pv-blocks" data-pp="toggle" aria-expanded="false">Blocks</button>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="tablet">Tablet</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <button data-action="cold">Simulate cold start</button><button data-pp="notes" aria-expanded="false">About</button>
+  <div class="proto-notes" id="notes" hidden><b>Mix and match</b><p style="margin:4px 0 0">Round 3: instead of three fixed directions, every block of the shell has its own options. The colors, type and logos of round 2 are here as options, plus new ones.</p><ul>
+    <li><b>Sidebar (≥ 768 px):</b> collapse it with the button (where it sits is a block), or drag its right edge: 208–320 px, snaps to the icon rail when dragged narrow; double-click, or ← → / Enter on the focused edge. Collapsed by default below 1024 px; remembered.</li>
+    <li><b>Phone:</b> Add is always one tap away; More holds Family, Settings and the theme.</li>
+    <li>Page content is neutral sample data so you judge the frame; each page gets its own design in its feature.</li></ul></div></div>`);
+function setView(v) { stage.dataset.view = v; document.querySelectorAll('button[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); }
+setView(innerWidth >= 1300 ? 'desktop' : 'phone');
+
+document.addEventListener('click', (e) => {
+  const pick = e.target.closest('[data-pick]');
+  if (pick) { const [id, k] = pick.dataset.pick.split(':'); setBlock(id, k); return; }
+  const pp = e.target.closest('[data-pp]');
+  if (pp) {
+    ({
+      random: randomBlocks,
+      reset: resetBlocks,
+      toggle: () => { panel.classList.toggle('open'); pp.setAttribute('aria-expanded', String(panel.classList.contains('open'))); },
+      close: () => panel.classList.remove('open'),
+      notes: () => { const n = document.getElementById('notes'); n.hidden = !n.hidden; pp.setAttribute('aria-expanded', String(!n.hidden)); },
+      copy: async () => {
+        const ta = document.getElementById('mix');
+        try { await navigator.clipboard.writeText(ta.value); pp.textContent = 'Copied'; } catch { ta.select(); pp.textContent = 'Press Ctrl+C'; }
+        setTimeout(() => { pp.textContent = 'Copy'; }, 1600);
+      },
+    })[pp.dataset.pp]?.();
+    return;
+  }
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { e.preventDefault(); go(nav.dataset.nav); return; }
+  const s = e.target.closest('[data-scheme-set]');
+  if (s) { state.schemePref = s.dataset.schemeSet; applyScheme(); return; }
+  const sc = e.target.closest('[data-scope]');
+  if (sc) { state.scope = sc.dataset.scope; render(); return; }
+  const v = e.target.closest('button[data-view]');
+  if (v) { setView(v.dataset.view); return; }
+  if (e.target.classList.contains('overlay')) { closeSheets(); return; }
+  const a = e.target.closest('[data-action]');
+  if (!a) return;
+  ({
+    add: () => openSheet('add'),
+    more: () => openSheet('more'),
+    close: closeSheets,
+    theme: () => { state.schemePref = app.dataset.scheme === 'dark' ? 'light' : 'dark'; applyScheme(); },
+    collapse: () => {
+      setNavCollapsed(!app.hasAttribute('data-collapsed'));
+      if (picks.collapse === 'logo') document.querySelector(app.hasAttribute('data-collapsed') ? '.logo-btn' : '.side-toggle')?.focus();
+    },
+    'scope-next': () => { const i = SCOPES.findIndex(([id]) => id === state.scope); state.scope = SCOPES[(i + 1) % SCOPES.length][0]; render(); },
+    cold: coldStart,
+  })[a.dataset.action]?.();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeSheets(); document.getElementById('notes').hidden = true; } });
+
+buildPanel();
+applyBlocks();
+</script>
+</body>
+</html>

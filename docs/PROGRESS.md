@@ -2,6 +2,117 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-27 (18)
+
+**Done**
+- B-001: fixed the flaky unit test "shows nothing when the server answers quickly" that failed CI on `develop`
+  after PR #14. It moved the fake clock before the real health check had answered; it now waits for the
+  request to finish. The health mock in that test answers after a real 50 ms delay, so the case is checked
+  every run.
+
+**Next**
+- Merge B-001, then the release `develop` → `main` (PR #13).
+- F-011: sign up and sign in; then the shell shows the signed-in person.
+
+## 2026-10-27 (17)
+
+**Done**
+- F-010 merged into `develop` (PR #12) and marked Done in its description and the backlog.
+
+**Decisions**
+- Owner dropped the F-010 task to compare the sidebar with Claude's UI: it needed a claude.ai sign-in, and the
+  chosen logo-as-expand-button pattern already follows it.
+
+**Next**
+- Release `develop` → `main` (PR #13).
+- F-011: sign up and sign in; then the shell shows the signed-in person.
+
+## 2026-10-27 (16)
+
+**Done**
+- F-010: the app shell is built (`frontend/src/app/shell/`). Theme: charcoal and sky, Unbounded + Manrope
+  (self-hosted, ADR 0011). Desktop sidebar with the smooth collapse, logo-as-expand button and drag / keyboard
+  resize; phone top bar, pill tab bar, More and Add sheets; routes with placeholder pages; the waking-up pill.
+- Tests: 22 unit tests, E2E on desktop and phone (12 passed, 2 skipped: device-specific tests), Storybook
+  stories. Build without warnings: libraries split into their own chunks.
+- Fixed: the API client bypassed MSW in tests (kept `fetch` from start-up).
+- Fixed after the owner's testing: icons shrank to dots in the collapsed sidebar (only labels may shrink now);
+  More and Add on the phone filled the screen. They are now bottom sheets like the prototype (shared
+  `BottomSheet`: grab handle, rounded top, as tall as the content). E2E checks for both.
+- Browser icon: the app logo instead of the Vite template icon (SVG, ICO and an iPhone touch icon).
+
+**Next**
+- Open the F-010 pull request into `develop`.
+- F-011: sign up and sign in; then the shell shows the signed-in person.
+
+## 2026-10-27 (15)
+
+**Done**
+- F-010: the sidebar collapse is smooth: only the width animates, and icons, logo and avatar stay on one axis
+  (checked frame by frame). Labels fade out, and the collapse button and footer icons fade.
+- F-010: 13 new color schemes in `blocks.html` (17 in all), light and dark, within the chosen setup. Each is 8
+  colors per mode; the rest is derived. Every text and control pair passes WCAG AA in both modes.
+
+**Decisions**
+- Owner picked **charcoal and sky** as the color scheme; recorded in the F-010 description and `DESIGN_RULES.md`.
+
+**Next**
+- F-010: theme in `theme.ts`, layout components, routes with placeholder pages, the waking-up pill, Storybook.
+
+## 2026-10-27 (14)
+
+**Done**
+- F-010 round 2: three new full directions made with the `design-screen` skill: Ledger, Banknote and Pocket
+  (`prototypes/variant-1…3.html`), with a drag-to-resize sidebar that also collapses with an icon button.
+- F-010 round 3, at the owner's request (options for every block): `prototypes/blocks.html`, a mix-and-match
+  prototype with 14 blocks of 2–4 options each (colors, type, corners, logo; sidebar surface, open-section marker,
+  collapse button, desktop Add, sidebar bottom; phone tab bar, top bar, More menu; a whose-money switch; the
+  waking-up state). It has new options too: graphite and tangerine colors, Fira Sans, a dark sidebar column, a
+  Claude-like logo-as-expand button, and Expense, Income and Transfer as separate Add buttons.
+- Design check: tells apart horizontal scrollers (any `overflow-x` container, not only `.table-wrap`) and now
+  checks every option of a mix-and-match prototype (`BLOCKS` / `setBlock` / `resetBlocks`). `blocks.html`: 0
+  issues. A deliberately undersized button in one option was caught, so the option loop works.
+
+**Decisions**
+- Owner chose a mix: ink colors, Unbounded + Manrope, round corners, a coin-stack logo, a tinted sidebar with an
+  edge bar marking the open section, the logo as the expand button in the rail, a pill tab bar on the phone, and a
+  pill while the server wakes up. Gold logo replaced by copper `#cd8a5c` (pale blue and sage still in the
+  prototype to compare). The sidebar's minimum width now fits the whole app name (236 px with Unbounded). Recorded
+  in the F-010 description and in `DESIGN_RULES.md`.
+
+**Next**
+- F-010: theme in `theme.ts`, layout components, routes with placeholder pages, the waking-up pill, Storybook.
+
+## 2026-10-27 (13)
+
+**Done**
+- F-010: first round of app shell prototypes made and rejected by the owner (too close to the default component
+  library look, fonts too bold, icons and text misaligned). Prototypes removed; the feedback and technical
+  findings are in the F-010 description, new custom rules in `DESIGN_RULES.md`.
+- Kept: project skill `design-screen` (`.claude/skills/`) against generic "AI default" design, and a Playwright +
+  axe design check for HTML prototypes: `npm run design:check -- <file.html>` in `frontend/` (`axe-core` added as
+  a dev dependency).
+
+**Next**
+- F-010 from the start: look at how Claude's UI collapses its sidebar, then 3 new prototypes with the skill.
+
+## 2026-10-27 (12)
+
+**Done**
+- F-009: code merged into `develop` (PR #9); first release `develop` → `main` (PR #10, merge commit).
+- Owner set up Render (Blueprint on `main`, connection string to Neon `main`) and the cron-job.org keep-awake ping
+  (`*/14 7-22 * * *`, Europe/Kyiv). Live: https://pup-budget-planner.onrender.com, Storybook at
+  https://pup-budget-planner-storybook.onrender.com.
+- Production checked: health, SPA and client routes, API 404, HTTPS redirect, HSTS, caching, Brotli; Playwright
+  E2E 4/4 against the production URL.
+- Render's free plan has no metrics, so the CI "Docker image" job now runs the container with a 512 MB limit and
+  reports `docker stats`: 44 MiB after start-up, 57 MiB after 400 requests. Image 251 MB; warm requests 0.15–0.17 s.
+- Cold start after 17 min idle (cron job paused): 23.4 s for the first request, then 0.17–0.19 s.
+- F-009 done; **M0 Foundation done.**
+
+**Next**
+- M1: F-010 app shell and navigation (3 design prototypes first).
+
 ## 2026-10-27 (11)
 
 **Done**

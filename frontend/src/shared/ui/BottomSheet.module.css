@@ -1,0 +1,32 @@
+/* A phone sheet: as tall as its content, rounded on top only, with a grab handle */
+.content {
+  height: auto;
+  max-height: 90dvh;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-radius: var(--mantine-radius-xl) var(--mantine-radius-xl) 0 0;
+  background: var(--pup-color-surface);
+}
+
+.grab {
+  width: 36px;
+  height: 4px;
+  margin: 10px auto 2px;
+  border-radius: 4px;
+  background: var(--pup-color-rule);
+}
+
+.header {
+  position: static;
+  padding: 6px 12px 4px 20px;
+  background: transparent;
+}
+
+.title {
+  font-family: var(--pup-font-display);
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.body {
+  padding: 4px 16px 20px;
+}

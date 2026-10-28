@@ -7,13 +7,25 @@ everything below when they conflict.
 
 _Add project-specific rules here (one rule per bullet, with the date it was added)._
 
-- _(none yet)_
+- No dogs, paws or puppy imagery: "Pup" is the owners' nickname (пуп → пупик), not a puppy. (2026-10-27)
+- The logo is a budget symbol — not a love symbol (hearts etc.) — and its color differs from the primary
+  buttons, which can sit right next to it (sidebar). (2026-10-27)
+- The app must not look like the component library's default theme: Mantine is the toolkit, not the look.
+  (2026-10-27)
+- Restrained type weights: regular and medium for most text; heavy bold only where one thing must stand out.
+  (2026-10-27)
+- Icons and their text are aligned optically (same center line, consistent gap) in every nav item, button and
+  row. (2026-10-27)
+- The app name is never cut off: the sidebar can't be resized narrower than its logo row with the full
+  "Pup Budget". (2026-10-27)
 
 ## 2. Process
 
 1. Every new screen starts with **3 design variants as HTML prototypes** — self-contained `.html` files
    that open in any browser and show mobile and desktop layouts. They live in the change folder:
    `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.
+   Design work follows the **`design-screen`** skill (`.claude/skills/design-screen/`), and every variant passes
+   the Playwright + axe design check before it is shown: `npm run design:check -- <file.html>` in `frontend/`.
 2. The user picks one (or a mix). The choice is recorded in the change's description file and in
    [Screen decisions](#9-screen-decisions) below.
 3. Components are built in **Storybook** first (all states, mobile and desktop), then wired to the API.
@@ -23,7 +35,9 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 - **Mantine first.** Use Mantine components and theme tokens (colors, spacing, radius, fonts).
   No hard-coded colors or pixel sizes in components; custom styles only through CSS modules using
   Mantine CSS variables.
-- **Theme** lives in one place (`frontend/src/app/theme.ts`). Primary color: chosen during F-010.
+- **Theme** lives in one place (`frontend/src/app/theme.ts`). Colors: charcoal and sky. Buttons charcoal `#26292e` (light) / `#e9eaec` (dark), logo sky `#8ec1ec`, accent
+  `#2a62a3` (light) / `#8ec1ec` (dark), page `#f5f6f7` / `#121315`. Fonts: Unbounded 300 for
+  headings and amounts, Manrope 400/500 for text (F-010).
 - **Light and dark mode** supported from the start (follows the system setting, can be switched).
 - **Icons:** Tabler Icons, one size scale (16 / 20 / 24).
 
@@ -69,4 +83,4 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 
 | Screen | Chosen variant | Date | Notes |
 |--------|----------------|------|-------|
-| — | | | |
+| App shell (F-010) | Mix from `blocks.html`: charcoal and sky colors, Unbounded + Manrope, round corners, coin-stack logo, tinted sidebar with an edge-bar marker, logo-as-expand-button collapse, pill tab bar on the phone, waking-up pill | 2026-10-27 | Colors chosen from 17 schemes. Full list in the [F-010 description](changes/features/F-010-app-shell/F-010-app-shell.md#chosen-2026-10-27) |
