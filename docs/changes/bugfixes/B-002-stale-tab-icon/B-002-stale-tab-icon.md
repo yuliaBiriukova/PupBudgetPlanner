@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | Type | Bugfix |
+| Priority | Medium |
 | Status | Review |
 | Branch | `bugfix/B-002-stale-tab-icon` |
 | Found in | Production (https://pup-budget-planner.onrender.com), 2026-10-28, owner's browser after the F-010 release |

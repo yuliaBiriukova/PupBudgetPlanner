@@ -2,7 +2,7 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
-## 2026-10-28
+## 2026-10-28 (2)
 
 **Done**
 - I-001: new working rules from the owner, in `CLAUDE.md`, `docs/changes/README.md`, `docs/DESIGN_RULES.md`,
@@ -13,9 +13,22 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   - a reported bug or proposed feature / improvement gets its folder, description and backlog row first;
   - priority `High` / `Medium` / `Low` for improvements, bugfixes and features added later (new backlog column);
   - design starts from references: other apps, the internet, Mobbin.
+- B-002 given priority `Medium` (backlog and description file).
 
 **Next**
+- Release B-002 to `main` and check the tab icon on Render.
 - F-011: sign up and sign in — first under the new rules (references on Mobbin, Playwright look-check).
+
+## 2026-10-28
+
+**Done**
+- B-002: the tab icon on Render was still the Vite template icon. The server sends the new logo; browsers kept
+  the old icon cached under the same URL, `/favicon.svg`. The icon links in `index.html` now carry `?v=2`, and
+  the smoke E2E test checks that each declared icon URL is versioned and loads the logo.
+
+**Next**
+- Release B-002 to `main` and check the tab icon on Render.
+- F-011: sign up and sign in; then the shell shows the signed-in person.
 
 ## 2026-10-27 (18)
 
@@ -27,17 +40,6 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Merge B-001, then the release `develop` → `main` (PR #13).
-- F-011: sign up and sign in; then the shell shows the signed-in person.
-
-## 2026-10-28 (18)
-
-**Done**
-- B-002: the tab icon on Render was still the Vite template icon. The server sends the new logo; browsers kept
-  the old icon cached under the same URL, `/favicon.svg`. The icon links in `index.html` now carry `?v=2`, and
-  the smoke E2E test checks that each declared icon URL is versioned and loads the logo.
-
-**Next**
-- Release B-002 to `main` and check the tab icon on Render.
 - F-011: sign up and sign in; then the shell shows the signed-in person.
 
 ## 2026-10-27 (17)

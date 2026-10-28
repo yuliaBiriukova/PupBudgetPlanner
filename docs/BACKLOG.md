@@ -86,4 +86,4 @@ Milestones M7–M13 in [ROADMAP.md](ROADMAP.md). Their features get IDs and fold
 | ID | Bug | Priority | Status |
 |----|-----|----------|--------|
 | [B-001](changes/bugfixes/B-001-flaky-server-wake-test/B-001-flaky-server-wake-test.md) | Flaky "server answers quickly" unit test | High | Done |
-| [B-002](changes/bugfixes/B-002-stale-tab-icon/B-002-stale-tab-icon.md) | Tab icon still shows the Vite template icon | Review |
+| [B-002](changes/bugfixes/B-002-stale-tab-icon/B-002-stale-tab-icon.md) | Tab icon still shows the Vite template icon | Medium | Review |
