@@ -2,6 +2,15 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-28 (6)
+
+**Done**
+- Owner's request: planned F-027 "Delete my account" for after the MVP (M9 — Privacy & categories, priority
+  Low). Its description lists the acceptance criteria and four open points with proposals (Q-010).
+
+**Next**
+- Nothing changes for the MVP: F-013 is still next after F-012.
+
 ## 2026-10-28 (4)
 
 **Done**
