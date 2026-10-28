@@ -107,3 +107,7 @@ same category; meter categories such as electricity and water are dropped — th
 | Subscriptions | Spotify, Phone, Subscriptions |
 
 > "Emergency" was under Home expenses in Vlad's sheet; the default puts it under Health (agreed 2026-10-27).
+
+> Some of these are the owner's own rather than generic: Bank commission, English / Piano lessons, Driving,
+> Spotify, Emergency. They stay the default while only the family uses the app (owner's choice, 2026-10-28).
+> A generic set for other people comes with adding own categories after the MVP (Q-011).

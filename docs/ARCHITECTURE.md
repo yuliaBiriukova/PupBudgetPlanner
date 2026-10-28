@@ -111,6 +111,9 @@ erDiagram
 
 - `Amount` is always positive; `Type` gives the direction.
 - Money: `numeric(18,2)`; rates: `numeric(18,6)`.
+- Categories: every account gets its own copy of the default set (`DefaultCategories`) in the transaction that
+  creates it; group names are unique per person, category names per group
+  ([ADR 0015](decisions/0015-default-categories-seeding.md)).
 
 #### Enums
 

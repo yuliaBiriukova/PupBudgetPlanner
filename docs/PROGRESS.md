@@ -2,6 +2,33 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-28 (7)
+
+**Done**
+- F-013 built; M1 is done.
+  - **Domain:** the first business entities, `CategoryGroup` and `Category`, and `CategoryKind`.
+    `DefaultCategories` is the spreadsheet set in its order.
+  - **Database:** `category_groups` and `categories` (kind as text, cascade from the account, unique names per
+    person / group). The `AddCategories` migration also gives every existing account the set.
+  - **Sign-up:** email sign-up and the first Google sign-in create the account and its categories in one
+    transaction (`AccountCreator`).
+- Tests:
+  - backend 96 (8 new);
+  - E2E 27 passed, 2 skipped against this build. Once, "creates an account, signs out and signs in again"
+    stayed on `/transactions` after Sign out on desktop. It passed 3 of 3 on a rerun; watch it if it comes back.
+- Checked on the Neon `dev` database:
+  - all existing accounts were backfilled;
+  - a new sign-up got the set;
+  - every account has 7 groups and 33 categories, identical.
+
+**Decisions**
+- Owner's choice: the current set, including the owner's own categories, stays the default while only the
+  family uses the app. A generic set for other people is open question Q-011 (with M9).
+- ADR 0015: seeding in the account's transaction; the backfill is a frozen SQL copy in the migration.
+
+**Next**
+- M2: F-014 accounts and balances (🎨 three prototypes first).
+
 ## 2026-10-28 (6)
 
 **Done**
