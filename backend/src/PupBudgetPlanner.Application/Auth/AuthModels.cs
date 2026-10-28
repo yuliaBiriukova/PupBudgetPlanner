@@ -33,3 +33,17 @@ public enum SignInOutcome
 }
 
 public sealed record SignInAttempt(SignInOutcome Outcome, CurrentUser? User = null);
+
+public enum ExternalSignInOutcome
+{
+    SignedIn,
+
+    /// <summary>No login from the provider on this request: it expired, or the callback was opened directly.</summary>
+    NoExternalLogin,
+
+    /// <summary>The provider didn't give an email it has verified, so it can't be matched to an account.</summary>
+    EmailNotVerified,
+
+    /// <summary>Creating the account or linking the login to it failed.</summary>
+    AccountNotLinked,
+}

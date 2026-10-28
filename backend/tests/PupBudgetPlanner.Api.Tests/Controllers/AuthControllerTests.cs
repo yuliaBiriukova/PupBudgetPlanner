@@ -1,10 +1,13 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using PupBudgetPlanner.Api.Auth;
 using PupBudgetPlanner.Api.Controllers;
@@ -28,7 +31,7 @@ public sealed class AuthControllerTests
         // Problem() needs a ProblemDetailsFactory from the request's services
         var services = new ServiceCollection().AddProblemDetails();
         services.AddMvcCore();
-        controller = new AuthController(auth, antiforgery)
+        controller = new AuthController(auth, antiforgery, NullLogger<AuthController>.Instance)
         {
             ControllerContext = new ControllerContext
             {
@@ -125,6 +128,75 @@ public sealed class AuthControllerTests
         await auth.Received(1).SignOutAsync(Arg.Any<CancellationToken>());
     }
 
+    private static IAuthenticationSchemeProvider Schemes(bool googleConfigured)
+    {
+        var schemes = Substitute.For<IAuthenticationSchemeProvider>();
+        schemes.GetSchemeAsync(GoogleSignIn.Scheme).Returns(googleConfigured
+            ? new AuthenticationScheme(GoogleSignIn.Scheme, "Google", typeof(GoogleHandler))
+            : null);
+        return schemes;
+    }
+
+    [Fact]
+    public async Task Continue_with_google_sends_the_person_to_google_and_back_to_the_page_they_wanted()
+    {
+        var result = await controller.Google("/reports?year=2026", Schemes(googleConfigured: true), CancellationToken.None);
+
+        var challenge = result.Should().BeOfType<ChallengeResult>().Subject;
+        challenge.AuthenticationSchemes.Should().Equal(GoogleSignIn.Scheme);
+        challenge.Properties!.RedirectUri.Should().Be("/api/auth/google/complete?returnUrl=%2Freports%3Fyear%3D2026");
+        challenge.Properties.Items.Should().Contain("LoginProvider", GoogleSignIn.Scheme);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("reports")]
+    [InlineData("https://evil.example/")]
+    [InlineData("//evil.example/")]
+    [InlineData("/\\evil.example/")]
+    public async Task Continue_with_google_only_returns_to_a_path_in_the_app(string? returnUrl)
+    {
+        var result = await controller.Google(returnUrl, Schemes(googleConfigured: true), CancellationToken.None);
+
+        result.Should().BeOfType<ChallengeResult>()
+            .Which.Properties!.RedirectUri.Should().Be("/api/auth/google/complete?returnUrl=%2F");
+    }
+
+    [Fact]
+    public async Task Continue_with_google_without_a_google_client_comes_back_with_the_error()
+    {
+        var result = await controller.Google("/reports", Schemes(googleConfigured: false), CancellationToken.None);
+
+        result.Should().BeOfType<RedirectResult>().Which.Url.Should().Be("/sign-in?error=google");
+    }
+
+    [Theory]
+    [InlineData("/reports", "/reports")]
+    [InlineData("//evil.example/", "/")]
+    [InlineData(null, "/")]
+    public async Task Google_complete_signs_in_and_opens_the_page_they_wanted(string? returnUrl, string expected)
+    {
+        auth.SignInWithExternalLoginAsync(Arg.Any<CancellationToken>()).Returns(ExternalSignInOutcome.SignedIn);
+
+        var result = await controller.GoogleComplete(returnUrl, CancellationToken.None);
+
+        result.Should().BeOfType<RedirectResult>().Which.Url.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(ExternalSignInOutcome.NoExternalLogin)]
+    [InlineData(ExternalSignInOutcome.EmailNotVerified)]
+    [InlineData(ExternalSignInOutcome.AccountNotLinked)]
+    public async Task Google_complete_that_fails_comes_back_to_sign_in_with_the_error(ExternalSignInOutcome outcome)
+    {
+        auth.SignInWithExternalLoginAsync(Arg.Any<CancellationToken>()).Returns(outcome);
+
+        var result = await controller.GoogleComplete("/reports", CancellationToken.None);
+
+        result.Should().BeOfType<RedirectResult>().Which.Url.Should().Be("/sign-in?error=google");
+    }
+
     [Fact]
     public void Auth_endpoints_are_open_without_signing_in()
     {
@@ -134,7 +206,8 @@ public sealed class AuthControllerTests
     [Theory]
     [InlineData(nameof(AuthController.Register))]
     [InlineData(nameof(AuthController.Login))]
-    public void Register_and_login_are_rate_limited(string action)
+    [InlineData(nameof(AuthController.Google))]
+    public void Register_login_and_continue_with_google_are_rate_limited(string action)
     {
         var attribute = typeof(AuthController).GetMethod(action)!
             .GetCustomAttributes(typeof(EnableRateLimitingAttribute), inherit: false)

@@ -278,3 +278,57 @@ describe('signing out', () => {
     ).toBeInTheDocument();
   });
 });
+
+describe('continuing with Google', () => {
+  beforeEach(() => {
+    document.cookie = 'XSRF-TOKEN=token-from-the-api; path=/';
+  });
+
+  afterEach(() => {
+    document.cookie = 'XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+  });
+
+  it('links to the API with the page the person wanted, on sign in and on create account', async () => {
+    signedOutServer();
+    const user = userEvent.setup();
+    renderApp('/reports?year=2026');
+
+    const google = await screen.findByRole('link', { name: 'Continue with Google' });
+    expect(google).toHaveAttribute('href', '/api/auth/google?returnUrl=%2Freports%3Fyear%3D2026');
+
+    await user.click(screen.getByRole('link', { name: 'Create account' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Create your Pup Budget account' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Continue with Google' })).toHaveAttribute(
+      'href',
+      '/api/auth/google?returnUrl=%2Freports%3Fyear%3D2026',
+    );
+  });
+
+  it('links without a return page when the person opened sign in directly', async () => {
+    signedOutServer();
+    renderApp('/sign-in');
+
+    expect(await screen.findByRole('link', { name: 'Continue with Google' })).toHaveAttribute(
+      'href',
+      '/api/auth/google',
+    );
+  });
+
+  it('says when Google sign-in didn’t work, until the next attempt', async () => {
+    signedOutServer();
+    renderApp('/sign-in?error=google');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Google sign-in didn’t work. Try again, or use your email and password.',
+    );
+
+    await fillSignIn('olena@example.com', 'wrong-password');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'That email and password don’t match. Check both and try again.',
+    );
+  });
+});

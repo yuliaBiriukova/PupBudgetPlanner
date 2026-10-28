@@ -68,6 +68,19 @@ export const SignInTooManyAttempts: Story = {
   args: { failure: 'tooMany' },
 };
 
+/** A Google sign-in that didn't work comes back to sign in with this banner (F-012). */
+export const SignInGoogleFailed: Story = {
+  args: { failure: 'google' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('alert')).toHaveTextContent('Google sign-in didn’t work');
+    await expect(canvas.getByRole('link', { name: 'Continue with Google' })).toHaveAttribute(
+      'href',
+      '/api/auth/google',
+    );
+  },
+};
+
 export const SignInBusy: Story = {
   args: { pending: true },
 };

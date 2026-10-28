@@ -162,3 +162,23 @@
 .live:empty {
   position: absolute;
 }
+
+/* "or" between the form's button and the other ways in */
+.or {
+  --divider-color: var(--pup-color-rule);
+}
+
+.orLabel {
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.google {
+  border-color: var(--pup-color-field-border);
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+}
+
+.google:hover {
+  background: var(--pup-color-hover);
+}
