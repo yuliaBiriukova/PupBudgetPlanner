@@ -14,6 +14,17 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Merge B-001, then the release `develop` → `main` (PR #13).
 - F-011: sign up and sign in; then the shell shows the signed-in person.
 
+## 2026-10-28 (18)
+
+**Done**
+- B-002: the tab icon on Render was still the Vite template icon. The server sends the new logo; browsers kept
+  the old icon cached under the same URL, `/favicon.svg`. The icon links in `index.html` now carry `?v=2`, and
+  the smoke E2E test checks that each declared icon URL is versioned and loads the logo.
+
+**Next**
+- Release B-002 to `main` and check the tab icon on Render.
+- F-011: sign up and sign in; then the shell shows the signed-in person.
+
 ## 2026-10-27 (17)
 
 **Done**
