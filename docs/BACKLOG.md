@@ -5,6 +5,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 - Statuses: `Todo` · `In progress` · `Review` · `Done` · `Blocked`.
 - IDs: `F-xxx` feature (incl. setup work), `I-xxx` improvement, `B-xxx` bugfix.
 - 🎨 = screen work: 3 HTML design prototypes before implementation.
+- Priority (improvements, bugfixes and features added after planning): `High` · `Medium` · `Low` — see
+  [changes/README.md](changes/README.md#priority). Higher priority goes first.
 
 ## Features — MVP
 
@@ -75,13 +77,13 @@ Milestones M7–M13 in [ROADMAP.md](ROADMAP.md). Their features get IDs and fold
 
 ## Improvements
 
-| ID | Improvement | Status |
-|----|-------------|--------|
-| — | | |
+| ID | Improvement | Priority | Status |
+|----|-------------|----------|--------|
+| [I-001](changes/improvements/I-001-working-agreement-rules/I-001-working-agreement-rules.md) | Working agreement: PR hand-off, Playwright checks, change docs first, design references | High | Done |
 
 ## Bugfixes
 
-| ID | Bug | Status |
-|----|-----|--------|
-| [B-001](changes/bugfixes/B-001-flaky-server-wake-test/B-001-flaky-server-wake-test.md) | Flaky "server answers quickly" unit test | Done |
+| ID | Bug | Priority | Status |
+|----|-----|----------|--------|
+| [B-001](changes/bugfixes/B-001-flaky-server-wake-test/B-001-flaky-server-wake-test.md) | Flaky "server answers quickly" unit test | High | Done |
 | [B-002](changes/bugfixes/B-002-stale-tab-icon/B-002-stale-tab-icon.md) | Tab icon still shows the Vite template icon | Review |

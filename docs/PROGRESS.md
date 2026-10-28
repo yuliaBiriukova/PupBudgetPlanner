@@ -2,6 +2,21 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-28
+
+**Done**
+- I-001: new working rules from the owner, in `CLAUDE.md`, `docs/changes/README.md`, `docs/DESIGN_RULES.md`,
+  the `design-screen` skill and the PR template:
+  - the PR is the hand-off: it already marks the change `Done` in all docs; merging is the owner's job, no
+    separate "mark done" PR;
+  - Playwright check with screenshots looked at before showing design variants and before every UI commit;
+  - a reported bug or proposed feature / improvement gets its folder, description and backlog row first;
+  - priority `High` / `Medium` / `Low` for improvements, bugfixes and features added later (new backlog column);
+  - design starts from references: other apps, the internet, Mobbin.
+
+**Next**
+- F-011: sign up and sign in — first under the new rules (references on Mobbin, Playwright look-check).
+
 ## 2026-10-27 (18)
 
 **Done**

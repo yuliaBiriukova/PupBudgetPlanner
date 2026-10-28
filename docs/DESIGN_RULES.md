@@ -21,14 +21,21 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 
 ## 2. Process
 
-1. Every new screen starts with **3 design variants as HTML prototypes** — self-contained `.html` files
+1. **References first.** Look at how others solve the same screen: well-made apps (budgeting and beyond),
+   examples on the internet and **Mobbin** (mobbin.com, search by pattern or by app). The references used and
+   what each one gave are listed in the change's description file.
+2. Every new screen starts with **3 design variants as HTML prototypes** — self-contained `.html` files
    that open in any browser and show mobile and desktop layouts. They live in the change folder:
    `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.
    Design work follows the **`design-screen`** skill (`.claude/skills/design-screen/`), and every variant passes
    the Playwright + axe design check before it is shown: `npm run design:check -- <file.html>` in `frontend/`.
-2. The user picks one (or a mix). The choice is recorded in the change's description file and in
+   Its screenshots are also looked at, not just its exit code.
+3. The user picks one (or a mix). The choice is recorded in the change's description file and in
    [Screen decisions](#9-screen-decisions) below.
-3. Components are built in **Storybook** first (all states, mobile and desktop), then wired to the API.
+4. Components are built in **Storybook** first (all states, mobile and desktop), then wired to the API.
+5. **Before every commit that changes UI**, the changed screens are checked in Playwright: E2E tests pass and
+   screenshots at 375 and 1440 px, light and dark, have been looked at. The owner should never be the first to
+   find an invisible label or a cut-off name (both happened in the first F-010 build).
 
 ## 3. Foundation
 
