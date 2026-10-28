@@ -6,7 +6,7 @@ When a question is answered, move it to "Answered" with the answer and date, and
 
 | ID | Question | Proposal | Blocks |
 |----|----------|----------|--------|
-| — | | | |
+| Q-010 | Deleting an account: right away or after a grace period; how to confirm; a family owner with other members; export first? | Right away; password or Google again plus a typed word; hand the family over first; export once M11 has it. Details in [F-027](changes/features/F-027-delete-account/F-027-delete-account.md#open-points) | F-027 |
 
 ## Answered
 

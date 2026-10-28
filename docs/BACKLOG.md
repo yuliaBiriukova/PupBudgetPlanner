@@ -73,7 +73,14 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 ## After MVP
 
-Milestones M7–M13 in [ROADMAP.md](ROADMAP.md). Their features get IDs and folders when we plan them.
+Milestones M7–M13 in [ROADMAP.md](ROADMAP.md). Their features get IDs and folders when we plan them, or when the
+owner asks for one.
+
+### M9 — Privacy & categories
+
+| ID | Feature | Priority | Status |
+|----|---------|----------|--------|
+| [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) | 🎨 Delete my account | Low | Todo |
 
 ## Improvements
 
