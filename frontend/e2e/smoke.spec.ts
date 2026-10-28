@@ -12,17 +12,22 @@ test('the app opens on Transactions', async ({ page }) => {
 test('the browser icon is the app logo', async ({ page, request }) => {
   await page.goto('/');
 
-  await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute(
-    'href',
-    '/favicon.svg',
+  // The links the page declares, so a stale or broken URL fails here. Each carries ?v=: browsers keep
+  // tab icons by URL, and the scaffold's Vite icon was cached as /favicon.svg (B-002).
+  const icons = page.locator('link[rel="icon"], link[rel="apple-touch-icon"]');
+  await expect(icons).toHaveCount(3);
+  for (const icon of await icons.all()) {
+    await expect(icon).toHaveAttribute('href', /\?v=\d+$/);
+  }
+  const svg = await request.get(
+    (await page.locator('link[rel="icon"][type="image/svg+xml"]').getAttribute('href')) ?? '',
   );
-  const svg = await request.get('/favicon.svg');
   expect(await svg.text()).toContain('#8ec1ec');
-  for (const [path, type] of [
-    ['/favicon.ico', 'image/x-icon'],
-    ['/apple-touch-icon.png', 'image/png'],
+  for (const [selector, type] of [
+    ['link[rel="icon"][sizes="32x32"]', 'image/x-icon'],
+    ['link[rel="apple-touch-icon"]', 'image/png'],
   ]) {
-    const response = await request.get(path);
+    const response = await request.get((await page.locator(selector).getAttribute('href')) ?? '');
     expect(response.ok()).toBe(true);
     expect(response.headers()['content-type']).toContain(type);
   }

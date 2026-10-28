@@ -1,4 +1,9 @@
-import { createTheme, type CSSVariablesResolver, type MantineColorsTuple } from '@mantine/core';
+import {
+  Button,
+  createTheme,
+  type CSSVariablesResolver,
+  type MantineColorsTuple,
+} from '@mantine/core';
 
 // The single place for theme settings (docs/DESIGN_RULES.md). Colors: "charcoal and sky", chosen in F-010 from the
 // prototypes in docs/changes/features/F-010-app-shell/prototypes/blocks.html.
@@ -79,6 +84,16 @@ export const theme = createTheme({
   defaultRadius: 'md',
   cursorType: 'pointer',
   respectReducedMotion: true,
+  components: {
+    // autoContrast picks the text color once, from the light-mode shade, so dark mode got white text on the
+    // light button. Filled buttons in the primary color take the text color of the current scheme instead.
+    Button: Button.extend({
+      vars: (_theme, props) =>
+        (props.variant ?? 'filled') === 'filled' && props.color === undefined
+          ? { root: { '--button-color': 'var(--pup-color-on-primary)' } }
+          : { root: {} },
+    }),
+  },
 });
 
 /** Colors Mantine has no token for (sidebar, accent, logo), plus the page and text colors of both schemes. */
@@ -91,6 +106,7 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--mantine-color-body': '#f5f6f7',
     '--mantine-color-text': '#1c1e21',
     '--mantine-color-dimmed': '#57585b',
+    '--pup-color-on-primary': '#f5f6f7',
     '--pup-color-sidebar': '#ebedf0',
     '--pup-color-surface': '#fcfcfd',
     '--pup-color-rule': '#d7d8d9',
@@ -102,11 +118,25 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-tooltip': '#1c1e21',
     '--pup-color-on-tooltip': '#f5f6f7',
     '--pup-shadow-float': '0 8px 24px rgba(15, 17, 20, 0.1)',
+    // Sign-in screens (F-011): the charcoal brand half, the Sign in / Create account switch, field borders (3:1)
+    '--pup-color-hero': '#26292e',
+    '--pup-color-on-hero': '#f5f6f7',
+    '--pup-color-hero-muted': '#b4b9bf',
+    '--pup-color-hero-rule': '#474c54',
+    '--pup-color-switch': '#ebedf0',
+    '--pup-color-switch-active': '#fcfcfd',
+    '--pup-shadow-switch': '0 1px 3px rgba(15, 17, 20, 0.14)',
+    '--pup-color-field-border': '#7c828a',
+    // Errors: field messages and the banner
+    '--mantine-color-error': '#b3261e',
+    '--pup-color-error-bg': '#fbeceb',
+    '--pup-color-error-text': '#8c1d18',
   },
   dark: {
     '--mantine-color-body': '#121315',
     '--mantine-color-text': '#e9eaec',
     '--mantine-color-dimmed': '#a4a5a7',
+    '--pup-color-on-primary': '#121315',
     '--pup-color-sidebar': '#18191b',
     '--pup-color-surface': '#1b1c1e',
     '--pup-color-rule': '#37383a',
@@ -118,5 +148,16 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-tooltip': '#e9eaec',
     '--pup-color-on-tooltip': '#121315',
     '--pup-shadow-float': '0 10px 28px rgba(0, 0, 0, 0.45)',
+    '--pup-color-hero': '#0b0c0d',
+    '--pup-color-on-hero': '#e9eaec',
+    '--pup-color-hero-muted': '#a4a5a7',
+    '--pup-color-hero-rule': '#2e3035',
+    '--pup-color-switch': '#121315',
+    '--pup-color-switch-active': '#2e3035',
+    '--pup-shadow-switch': 'none',
+    '--pup-color-field-border': '#71747b',
+    '--mantine-color-error': '#f2958c',
+    '--pup-color-error-bg': '#3a1d1b',
+    '--pup-color-error-text': '#f6b8b2',
   },
 });

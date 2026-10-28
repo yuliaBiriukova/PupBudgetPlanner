@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { AUTH_FILE } from './e2e/auth.ts';
 
 const isCI = !!process.env.CI;
 
@@ -29,9 +30,19 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
-    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } },
+    // Creates a person and keeps their cookies, so the app's tests start signed in (auth.spec.ts starts signed out)
+    { name: 'setup', testMatch: /auth\.setup\.ts$/ },
+    {
+      name: 'desktop-chromium',
+      use: { ...devices['Desktop Chrome'], storageState: AUTH_FILE },
+      dependencies: ['setup'],
+    },
     // Chromium-based phone profile, so one browser download covers both projects.
-    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] } },
+    {
+      name: 'mobile-chromium',
+      use: { ...devices['Pixel 7'], storageState: AUTH_FILE },
+      dependencies: ['setup'],
+    },
   ],
   // Starts the API and the app unless E2E_BASE_URL points at a running app; locally servers that are already
   // running are reused. The API applies migrations before it answers /api/health.
@@ -43,6 +54,14 @@ export default defineConfig({
           command: apiCommand,
           cwd: '../backend',
           url: 'http://localhost:5297/api/health',
+          // A Google client that only gets as far as Google's sign-in page (e2e/auth.spec.ts); a real one from the
+          // environment wins
+          env: {
+            Authentication__Google__ClientId:
+              process.env.Authentication__Google__ClientId ?? 'e2e-google-client',
+            Authentication__Google__ClientSecret:
+              process.env.Authentication__Google__ClientSecret ?? 'e2e-google-secret',
+          },
           reuseExistingServer: !isCI,
           timeout: 180_000,
         },

@@ -37,7 +37,8 @@ public static class SpaHostingExtensions
 
     /// <summary>
     /// Client-side routes get <c>index.html</c>; unknown <c>/api</c> routes stay API 404s
-    /// (turned into ProblemDetails by the status code pages).
+    /// (turned into ProblemDetails by the status code pages). Both are open without signing in: the app shows
+    /// its own sign-in page, and a missing API route is a 404 for everyone.
     /// </summary>
     public static WebApplication MapSpaFallback(this WebApplication app)
     {
@@ -45,8 +46,8 @@ public static class SpaHostingExtensions
         {
             context.Response.StatusCode = StatusCodes.Status404NotFound;
             return Task.CompletedTask;
-        });
-        app.MapFallbackToFile(IndexFile, StaticFileOptions);
+        }).AllowAnonymous();
+        app.MapFallbackToFile(IndexFile, StaticFileOptions).AllowAnonymous();
         return app;
     }
 }

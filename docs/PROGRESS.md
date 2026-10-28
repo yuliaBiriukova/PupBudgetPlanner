@@ -2,6 +2,142 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-28 (6)
+
+**Done**
+- Owner's request: planned F-027 "Delete my account" for after the MVP (M9 — Privacy & categories, priority
+  Low). Its description lists the acceptance criteria and four open points with proposals (Q-010).
+
+**Next**
+- Nothing changes for the MVP: F-012 is merged (PR #19), F-013 is next.
+
+## 2026-10-28 (5)
+
+**Done**
+- F-011 was merged into `develop` (PR #18).
+- F-012 built:
+  - **Backend:** Google sign-in through Identity external logins. `GET /api/auth/google` sends the person to
+    Google, the callback is `/api/auth/google/callback`, and `/api/auth/google/complete` signs them in and
+    returns them to the page they wanted. The first sign-in creates the account, or links to the one with the
+    same email Google has verified. A cancel or failure comes back to sign in with one message. Without a
+    Google client the app still starts.
+  - **Frontend:** "or" and "Continue with Google" under the form on sign in and create account (variant 4),
+    "Opening Google…" after the click, and the banner for a failed Google sign-in.
+  - Render lists the two Google variables; README has the user-secrets commands.
+- Fixed on the way: the Vite proxy rewrote the `Host` header, so locally Google would have come back to the
+  API's port instead of the app.
+- Tests:
+  - backend 88 (30 new);
+  - frontend unit 43 (3 new);
+  - E2E 27 passed, 2 skipped (4 new): the redirect to Google with our callback, and a foreign callback coming
+    back with the message;
+  - a Storybook story for the Google error.
+- Checked: screenshots at 375 and 1440 px, light and dark (sign in, create account, the error, "Opening
+  Google…"); axe 0 issues.
+
+**Decisions**
+- Owner's choice: Google sign-in links to an existing email-and-password account, removes its password (nobody
+  proved the email before) and ends its other sessions.
+- ADR 0014: the Google flow, matching and linking, lockout not applying to Google, the proxy keeping `Host`.
+- The Google app stays in Testing, with the family as test users: Google publishes it only with a privacy
+  policy link, and the app has no such page yet.
+
+**Next**
+- Owner has created the Google OAuth client (own project, test users); sets it on Render and checks Google
+  sign-in after the release.
+- F-013: default categories for every new person, email or Google.
+
+## 2026-10-28 (4)
+
+**Done**
+- F-011: owner chose variant 4 (recorded in the F-011 description and `DESIGN_RULES.md`).
+- F-011 built:
+  - **Backend:** Identity accounts (`users` and the other Identity tables in snake_case, new migration) and
+    `/api/auth` me / register / login / logout. Every other endpoint needs a signed-in person. The cookie is
+    HTTP-only and lasts 30 days. Antiforgery is a readable cookie plus a header. Errors are neutral
+    (ADR 0012), with rate limits per IP and lockout.
+  - **Frontend:** the variant 4 sign-in and sign-up pages, a start-up screen while the app asks who is signed
+    in, redirects both ways, and the person's name and a working Sign out in the shell.
+- Tests:
+  - backend 58 (30 new);
+  - frontend unit 40 (18 new);
+  - E2E 23 passed, 2 skipped. A setup project signs the shell tests in.
+  - Storybook stories for the auth screens and the start-up screen.
+- Checked in the running app against Neon `dev`: curl through every endpoint; screenshots at 375 and 1440 px in
+  light and dark; axe 0 issues.
+- Fixed on the way: dark-mode filled buttons had white text on the light button (also "Page not found"); new
+  custom design rule.
+
+**Decisions**
+- ADR 0013: auth API details: endpoints, fallback policy, cookie, antiforgery filter, length-only passwords,
+  lockout, rate limits, table names.
+- "Continue with Google" comes with F-012, not as a dead button now.
+
+**Next**
+- Owner reviews the F-011 pull request.
+- F-012: sign in with Google.
+
+## 2026-10-28 (3)
+
+**Done**
+- F-011 started (branch `feature/F-011-email-password-auth`): three sign-in / sign-up prototypes made with the
+  `design-screen` skill in the F-010 theme: Ledger page (the form beside a sample of the yearly report),
+  Pocket (charcoal page, form docked under the thumb, a pill switch) and Receipt (a paper strip with a torn edge).
+  Each shows sign in, create account, their error states, the busy button and the waking-up note.
+- References noted in the F-011 description (YNAB, Stripe, Lunch Money, an Eleken roundup). Mobbin's screens need
+  an account, so it wasn't used.
+- Design check: 0 issues on all three. It first caught a small "Sign in instead" link and inputs without a focus
+  outline. Screenshots at 375 and 1440 px, light and dark, were looked at, and they caught the floating
+  waking-up pill covering the logo row. It is now a note in the form.
+
+- F-011 round 2, from the owner's feedback (variant 1's layout without the report table, variant 2's colors and
+  form, not variant 3): `prototypes/variant-4.html`. Desktop: charcoal brand half and the form half. Phone: a
+  charcoal band with the name, and the form card overlapping it. Design check 0 issues; screenshots looked at.
+- Variant 4 revised: the tagline "Every hryvnia in its place." removed. A taken email on Create account now gets a
+  neutral banner ("We couldn't create an account with this email" + "Sign in with this email") instead of
+  saying the account exists; format errors have their own screen in the prototype.
+- Variant 4: the desktop line under the name is now "Income, expenses and transfers across all your accounts and
+  currencies. Monthly and yearly reports build themselves, for you and your family." (owner's pick of 8). Create
+  account got a Confirm password field: without password reset (no email until after the MVP), a typo would
+  lock the person out.
+
+**Decisions**
+- ADR 0012: no account enumeration. One message for a wrong email or password, a neutral sign-up message for a
+  taken email, rate limiting on the auth endpoints per IP. Sign-up moves to "Check your email" once email exists
+  (after the MVP).
+
+**Next**
+- Owner confirms variant 4 or asks for changes. Then the Identity setup and `/api/auth` endpoints, the forms and
+  the protected routes.
+
+## 2026-10-28 (2)
+
+**Done**
+- I-001: new working rules from the owner, in `CLAUDE.md`, `docs/changes/README.md`, `docs/DESIGN_RULES.md`,
+  the `design-screen` skill and the PR template:
+  - the PR is the hand-off: it already marks the change `Done` in all docs; merging is the owner's job, no
+    separate "mark done" PR;
+  - Playwright check with screenshots looked at before showing design variants and before every UI commit;
+  - a reported bug or proposed feature / improvement gets its folder, description and backlog row first;
+  - priority `High` / `Medium` / `Low` for improvements, bugfixes and features added later (new backlog column);
+  - design starts from references: Mobbin and open examples on the internet — nothing that needs the owner's
+    sign-in (banking apps, Claude's UI).
+- B-002 closed by the owner: `Done`, priority `Medium`.
+
+**Next**
+- F-011: sign up and sign in — first under the new rules (references on Mobbin, Playwright look-check).
+
+## 2026-10-28
+
+**Done**
+- B-002: the tab icon on Render was still the Vite template icon. The server sends the new logo; browsers kept
+  the old icon cached under the same URL, `/favicon.svg`. The icon links in `index.html` now carry `?v=2`, and
+  the smoke E2E test checks that each declared icon URL is versioned and loads the logo.
+
+**Next**
+- Release B-002 to `main` and check the tab icon on Render.
+- F-011: sign up and sign in; then the shell shows the signed-in person.
+
 ## 2026-10-27 (18)
 
 **Done**

@@ -22,5 +22,6 @@
 
 - [ ] Latest `develop` pulled into the branch
 - [ ] Build and all tests pass
+- [ ] Changed screens checked in Playwright screenshots (phone and desktop, light and dark), or no UI changes
 - [ ] Playwright output folders cleaned
-- [ ] Roadmap, backlog, progress and the change's description file updated
+- [ ] Change marked `Done` in its description file and the backlog; roadmap and progress updated

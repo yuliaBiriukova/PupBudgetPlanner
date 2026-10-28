@@ -22,6 +22,11 @@ services:
       # Neon `main` branch, direct (not pooled) connection string in the Npgsql format. Set in the dashboard.
       - key: ConnectionStrings__Database
         sync: false
+      # The Google OAuth client for "Continue with Google" (F-012). Set in the dashboard.
+      - key: Authentication__Google__ClientId
+        sync: false
+      - key: Authentication__Google__ClientSecret
+        sync: false
 
   # Storybook: a static site (no sleeping, no instance hours).
   - type: web

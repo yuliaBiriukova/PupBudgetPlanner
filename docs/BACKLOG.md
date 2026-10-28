@@ -5,6 +5,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 - Statuses: `Todo` · `In progress` · `Review` · `Done` · `Blocked`.
 - IDs: `F-xxx` feature (incl. setup work), `I-xxx` improvement, `B-xxx` bugfix.
 - 🎨 = screen work: 3 HTML design prototypes before implementation.
+- Priority (improvements, bugfixes and features added after planning): `High` · `Medium` · `Low` — see
+  [changes/README.md](changes/README.md#priority). Higher priority goes first.
 
 ## Features — MVP
 
@@ -27,8 +29,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 | ID | Feature | Status |
 |----|---------|--------|
 | [F-010](changes/features/F-010-app-shell/F-010-app-shell.md) | 🎨 App shell and navigation | Done |
-| [F-011](changes/features/F-011-email-password-auth/F-011-email-password-auth.md) | 🎨 Sign up and sign in with email and password | Todo |
-| [F-012](changes/features/F-012-google-sign-in/F-012-google-sign-in.md) | Sign in with Google | Todo |
+| [F-011](changes/features/F-011-email-password-auth/F-011-email-password-auth.md) | 🎨 Sign up and sign in with email and password | Done |
+| [F-012](changes/features/F-012-google-sign-in/F-012-google-sign-in.md) | Sign in with Google | Done |
 | [F-013](changes/features/F-013-default-categories/F-013-default-categories.md) | Default categories | Todo |
 
 ### M2 — Accounts & categories
@@ -71,16 +73,24 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 ## After MVP
 
-Milestones M7–M13 in [ROADMAP.md](ROADMAP.md). Their features get IDs and folders when we plan them.
+Milestones M7–M13 in [ROADMAP.md](ROADMAP.md). Their features get IDs and folders when we plan them, or when the
+owner asks for one.
+
+### M9 — Privacy & categories
+
+| ID | Feature | Priority | Status |
+|----|---------|----------|--------|
+| [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) | 🎨 Delete my account | Low | Todo |
 
 ## Improvements
 
-| ID | Improvement | Status |
-|----|-------------|--------|
-| — | | |
+| ID | Improvement | Priority | Status |
+|----|-------------|----------|--------|
+| [I-001](changes/improvements/I-001-working-agreement-rules/I-001-working-agreement-rules.md) | Working agreement: PR hand-off, Playwright checks, change docs first, design references | High | Done |
 
 ## Bugfixes
 
-| ID | Bug | Status |
-|----|-----|--------|
-| [B-001](changes/bugfixes/B-001-flaky-server-wake-test/B-001-flaky-server-wake-test.md) | Flaky "server answers quickly" unit test | Done |
+| ID | Bug | Priority | Status |
+|----|-----|----------|--------|
+| [B-001](changes/bugfixes/B-001-flaky-server-wake-test/B-001-flaky-server-wake-test.md) | Flaky "server answers quickly" unit test | High | Done |
+| [B-002](changes/bugfixes/B-002-stale-tab-icon/B-002-stale-tab-icon.md) | Tab icon still shows the Vite template icon | Medium | Done |

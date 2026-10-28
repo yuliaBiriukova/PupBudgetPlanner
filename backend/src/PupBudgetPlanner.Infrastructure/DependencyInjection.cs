@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PupBudgetPlanner.Application.Auth;
+using PupBudgetPlanner.Infrastructure.Identity;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
 namespace PupBudgetPlanner.Infrastructure;
@@ -28,7 +31,37 @@ public static class DependencyInjection
             .SetApplicationName("PupBudgetPlanner")
             .PersistKeysToDbContext<AppDbContext>();
 
+        services.AddIdentityStores();
+
         return services;
+    }
+
+    /// <summary>
+    /// Identity's users, password rules and lockout, stored with EF Core. The cookie and the authentication
+    /// schemes are HTTP settings and live in the API.
+    /// </summary>
+    private static void AddIdentityStores(this IServiceCollection services)
+    {
+        services
+            .AddIdentityCore<AppUser>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+
+                // Length is the rule (NIST SP 800-63B); the validators give the friendly messages
+                options.Password.RequiredLength = AuthLimits.PasswordMinLength;
+                options.Password.RequiredUniqueChars = 1;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            })
+            .AddSignInManager()
+            .AddEntityFrameworkStores<AppDbContext>();
+
+        services.AddScoped<IAuthService, AuthService>();
     }
 
     /// <summary>Applies pending EF Core migrations (one API instance, so start-up is a safe place).</summary>

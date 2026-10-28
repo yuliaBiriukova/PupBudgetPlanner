@@ -28,9 +28,23 @@ docs/changes/
   folder `features/F-010-app-shell/`.
 - The description file has the same name as the folder: `F-010-app-shell/F-010-app-shell.md`.
 - Create the folder and the description file as soon as the change is added to the plan
-  ([BACKLOG.md](../BACKLOG.md)), not when work starts.
-- Keep the status in the description file in sync with the backlog.
-- Screens: 3 HTML prototypes in `prototypes/`; the chosen variant is recorded in the description file.
+  ([BACKLOG.md](../BACKLOG.md)), not when work starts. When the owner reports a bug or proposes a feature or
+  improvement, this is the very first step — before looking into the code.
+- Every improvement, bugfix and feature added after the initial plan has a [priority](#priority).
+- Keep the status in the description file in sync with the backlog. The pull request already sets the status
+  to `Done` (description file, backlog, roadmap, progress); merging it is the owner's job.
+- Screens: references first (well-made apps, the internet, Mobbin), then 3 HTML prototypes in `prototypes/`;
+  the references used and the chosen variant are recorded in the description file.
+
+## Priority
+
+| Priority | Meaning | When |
+|----------|---------|------|
+| `High` | Blocks use or development: wrong money data, a broken flow, red CI, a visible defect on a main screen | Next, before other work of the milestone |
+| `Medium` | Noticeable, but there is a workaround or it affects a side screen | Within the current milestone |
+| `Low` | Polish, nice to have | When there is room, or after the MVP |
+
+Claude proposes the priority from this table; the owner has the last word.
 
 ## Template: feature / improvement
 
@@ -41,6 +55,7 @@ docs/changes/
 |---|---|
 | Type | Feature / Improvement |
 | Milestone | Mx — Name |
+| Priority | High / Medium / Low |
 | Status | Todo / In progress / Review / Done / Blocked |
 | Branch | `feature/F-000-short-name` |
 | Design | 3 HTML prototypes required / not needed |
@@ -55,11 +70,13 @@ Why we do this, in one or two sentences.
 - [ ] Implementation step.
 
 ## Design
+References (Mobbin, other apps, the internet): link — what we take from it.
 Prototypes: `prototypes/`. Chosen variant: —
 
 ## Tests
 - Unit:
 - E2E (Playwright):
+- Screens checked in Playwright screenshots (phone / desktop, light / dark):
 
 ## Notes
 Decisions, links, open points.
@@ -73,6 +90,7 @@ Decisions, links, open points.
 | | |
 |---|---|
 | Type | Bugfix |
+| Priority | High / Medium / Low |
 | Status | Todo / In progress / Review / Done |
 | Branch | `bugfix/B-000-short-name` |
 | Found in | version / date / environment |

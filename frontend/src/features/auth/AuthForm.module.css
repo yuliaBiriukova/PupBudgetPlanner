@@ -1,0 +1,184 @@
+/* Sign in / Create account switch: two pills, the open one raised */
+.switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 20px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--pup-color-switch);
+}
+
+.switchLink {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border-radius: 999px;
+  color: var(--mantine-color-dimmed);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.switchLink:hover {
+  color: var(--mantine-color-text);
+}
+
+.switchLink[aria-current='page'] {
+  background: var(--pup-color-switch-active);
+  box-shadow: var(--pup-shadow-switch);
+  color: var(--mantine-color-text);
+}
+
+.form {
+  display: grid;
+  gap: 20px;
+}
+
+/* Fields: 52 px, labels above, hints and errors below */
+.label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.input {
+  height: 52px;
+  min-height: 52px;
+  padding-inline: 16px;
+  border-color: var(--pup-color-field-border);
+  border-radius: 12px;
+  background: var(--pup-color-surface);
+  font-size: 16px;
+}
+
+.input:focus,
+.input:focus-within {
+  border-color: var(--pup-color-accent);
+  outline: 1px solid var(--pup-color-accent);
+}
+
+/* The border and the message carry the error; what the person typed keeps the normal text color */
+.input[data-error] {
+  border-color: var(--mantine-color-error);
+  outline: 1px solid var(--mantine-color-error);
+  color: var(--mantine-color-text);
+}
+
+.input[data-error] .innerInput {
+  color: var(--mantine-color-text);
+}
+
+.innerInput {
+  padding-inline: 16px;
+  font-size: 16px;
+}
+
+.toggle {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border-radius: 10px;
+  color: var(--mantine-color-dimmed);
+}
+
+.description,
+.error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.description {
+  color: var(--mantine-color-dimmed);
+}
+
+.button {
+  height: 52px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* A failed attempt: one banner above the fields */
+.banner {
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--pup-color-error-bg);
+  color: var(--pup-color-error-text);
+}
+
+.bannerBody {
+  gap: 0;
+}
+
+.bannerMessage {
+  color: inherit;
+  font-size: 15px;
+}
+
+.bannerIcon {
+  color: inherit;
+}
+
+.bannerLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: -10px;
+  color: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* Waking up: right above the button it delays */
+.wake {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--pup-color-switch);
+  font-size: 14px;
+}
+
+.wake svg {
+  margin-top: 1px;
+  color: var(--pup-color-accent);
+}
+
+.seconds {
+  color: var(--mantine-color-dimmed);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The live region for the waking-up note: out of the grid while empty (no extra gap), still announced */
+.live:empty {
+  position: absolute;
+}
+
+/* "or" between the form's button and the other ways in */
+.or {
+  --divider-color: var(--pup-color-rule);
+}
+
+.orLabel {
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.google {
+  border-color: var(--pup-color-field-border);
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+}
+
+.google:hover {
+  background: var(--pup-color-hover);
+}
