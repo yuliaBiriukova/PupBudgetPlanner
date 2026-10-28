@@ -16,6 +16,8 @@ decision — write a new ADR that supersedes it.
 | [0009](0009-database-conventions.md) | Database conventions: snake_case names, migrations in Infrastructure | Accepted |
 | [0010](0010-docker-image.md) | Docker image and production hosting settings | Accepted |
 | [0011](0011-self-hosted-fonts.md) | Self-hosted fonts with Fontsource | Accepted |
+| [0012](0012-account-enumeration.md) | Not revealing which emails have an account | Accepted |
+| [0013](0013-auth-api.md) | Auth API: endpoints, antiforgery, password rules and limits | Accepted |
 
 Template for new ADRs:
 

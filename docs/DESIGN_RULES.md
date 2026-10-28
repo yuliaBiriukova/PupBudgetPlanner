@@ -18,6 +18,9 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
   row. (2026-10-27)
 - The app name is never cut off: the sidebar can't be resized narrower than its logo row with the full
   "Pup Budget". (2026-10-27)
+- Text on a filled button takes its color from the current scheme (`--pup-color-on-primary` in the theme), never
+  from Mantine's autoContrast: it reads the light-mode shade only, which made white text on the light dark-mode
+  button. (2026-10-28)
 
 ## 2. Process
 
@@ -92,3 +95,4 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 | Screen | Chosen variant | Date | Notes |
 |--------|----------------|------|-------|
 | App shell (F-010) | Mix from `blocks.html`: charcoal and sky colors, Unbounded + Manrope, round corners, coin-stack logo, tinted sidebar with an edge-bar marker, logo-as-expand-button collapse, pill tab bar on the phone, waking-up pill | 2026-10-27 | Colors chosen from 17 schemes. Full list in the [F-010 description](changes/features/F-010-app-shell/F-010-app-shell.md#chosen-2026-10-27) |
+| Sign in / create account (F-011) | Variant 4: variant 1's split layout (charcoal brand half, form half; on the phone a charcoal band with the form card overlapping it) with variant 2's form (Sign in / Create account pill switch, 52 px fields, pill buttons) | 2026-10-28 | No report table, no tagline; neutral message for a taken email (ADR 0012); Confirm password until reset exists. See the [F-011 description](changes/features/F-011-email-password-auth/F-011-email-password-auth.md#round-2-a-mix-of-variants-1-and-2-2026-10-28) |

@@ -3,11 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { cx } from '../../shared/ui/cx';
 import classes from './Logo.module.css';
 
+interface LogoProps {
+  /** Sets a bigger circle (the sign-in screens); the icon follows `iconSize`. */
+  className?: string;
+  iconSize?: 20 | 24;
+}
+
 /** The coin-stack mark on a sky circle. */
-export function Logo() {
+export function Logo({ className, iconSize = 20 }: LogoProps) {
   return (
-    <span className={classes.logo} aria-hidden="true">
-      <IconCoins size={20} stroke={1.7} />
+    <span className={cx(classes.logo, className)} aria-hidden="true">
+      <IconCoins size={iconSize} stroke={1.7} />
     </span>
   );
 }

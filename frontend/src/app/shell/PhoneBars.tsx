@@ -85,10 +85,11 @@ interface MoreSheetProps {
   opened: boolean;
   onClose: () => void;
   user?: ShellUser;
+  onSignOut?: () => void;
 }
 
 /** Phone bottom sheet with the sections that don't fit the tab bar, the theme switch and sign-out. */
-export function MoreSheet({ opened, onClose, user }: MoreSheetProps) {
+export function MoreSheet({ opened, onClose, user, onSignOut }: MoreSheetProps) {
   const { t } = useTranslation();
   const { setColorScheme } = useMantineColorScheme();
   const isDark = useComputedColorScheme('light', { getInitialValueInEffect: true }) === 'dark';
@@ -111,7 +112,13 @@ export function MoreSheet({ opened, onClose, user }: MoreSheetProps) {
         {isDark ? t('colorScheme.light') : t('colorScheme.dark')}
       </UnstyledButton>
       {user && (
-        <UnstyledButton className={classes.menuItem}>
+        <UnstyledButton
+          className={classes.menuItem}
+          onClick={() => {
+            onClose();
+            onSignOut?.();
+          }}
+        >
           <IconLogout size={20} stroke={1.6} />
           {t('shell.signOut')}
         </UnstyledButton>
