@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AuthFailure, SignInRequest } from './authApi';
 import classes from './AuthForm.module.css';
+import { ContinueWithGoogle } from './ContinueWithGoogle';
 import { FailureBanner, PasswordField, SubmitButton, TextField } from './AuthFormParts';
 import { signInSchema, type SignInValues } from './authSchemas';
 
@@ -62,6 +63,7 @@ export function SignInForm({
           label={t('auth.signIn')}
           pendingLabel={t('auth.signingIn')}
         />
+        <ContinueWithGoogle />
       </form>
     </>
   );

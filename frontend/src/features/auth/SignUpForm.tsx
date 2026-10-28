@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AuthFailure, RegisterRequest } from './authApi';
 import classes from './AuthForm.module.css';
+import { ContinueWithGoogle } from './ContinueWithGoogle';
 import { FailureBanner, PasswordField, SubmitButton, TextField } from './AuthFormParts';
 import { signUpSchema, type SignUpValues } from './authSchemas';
 
@@ -87,6 +88,7 @@ export function SignUpForm({
           label={t('auth.createAccount')}
           pendingLabel={t('auth.creatingAccount')}
         />
+        <ContinueWithGoogle />
       </form>
     </>
   );

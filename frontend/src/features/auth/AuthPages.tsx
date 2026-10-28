@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Navigate, useLocation } from 'react-router';
+import { Navigate, useLocation, useSearchParams } from 'react-router';
 import { useServerWake } from '../../app/shell/useServerWake';
 import {
   AuthError,
@@ -36,6 +36,9 @@ export function GuestOnly() {
 export function SignInPage() {
   const signIn = useSignIn();
   const notice = useWakeNote();
+  // A Google sign-in that didn't work comes back here with ?error=google, until the next attempt
+  const [params] = useSearchParams();
+  const googleFailed = signIn.isIdle && params.get('error') === 'google';
 
   return (
     <SignInForm
@@ -43,7 +46,7 @@ export function SignInPage() {
         signIn.mutate(values);
       }}
       pending={signIn.isPending}
-      failure={failureOf(signIn.error)}
+      failure={googleFailed ? 'google' : failureOf(signIn.error)}
       notice={notice}
     />
   );

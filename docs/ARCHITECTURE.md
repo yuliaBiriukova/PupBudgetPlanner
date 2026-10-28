@@ -150,9 +150,12 @@ erDiagram
 ## Authentication
 
 - **ASP.NET Core Identity** with an HTTP-only, `Secure`, `SameSite=Lax` **cookie** (same origin as the SPA).
-- **Google sign-in** through Identity external logins (`AddGoogle`). A Google account and an
-  email/password account with the same verified email are linked.
-- The SPA calls `/api/auth/*` endpoints (register, login, logout, me, external login). `me` also issues the
+- **Google sign-in** through Identity external logins (`AddGoogle`): "Continue with Google" links to
+  `/api/auth/google`, Google comes back to `/api/auth/google/callback`, and `/api/auth/google/complete` signs the
+  person in. The first sign-in creates the account, or links to the account with the same email Google has
+  verified. If that account's email was never confirmed, its password is removed and its other sessions end
+  ([ADR 0014](decisions/0014-google-sign-in.md)).
+- The SPA calls `/api/auth/*` endpoints (register, login, logout, me, Google). `me` also issues the
   antiforgery token; the app asks it again after signing in or out.
 - Every endpoint needs a signed-in person unless it says `[AllowAnonymous]` (fallback policy).
 - Protection against CSRF: `SameSite` cookie + antiforgery token (`XSRF-TOKEN` cookie → `X-XSRF-TOKEN` header) on
@@ -161,7 +164,7 @@ erDiagram
   limits per IP on sign-in and sign-up.
 - Adding more providers later (Microsoft, Apple) is configuration only.
 - Details: [ADR 0003](decisions/0003-auth-identity-google.md), [ADR 0012](decisions/0012-account-enumeration.md),
-  [ADR 0013](decisions/0013-auth-api.md).
+  [ADR 0013](decisions/0013-auth-api.md), [ADR 0014](decisions/0014-google-sign-in.md).
 
 ## Frontend
 

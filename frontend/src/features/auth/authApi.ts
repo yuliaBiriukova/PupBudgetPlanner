@@ -12,7 +12,8 @@ export interface AuthLocationState {
 }
 
 /** Why signing in or creating an account didn't work; each has its own message (ADR 0012). */
-export type AuthFailure = 'credentials' | 'emailUnavailable' | 'tooMany' | 'network' | 'unknown';
+export type AuthFailure =
+  'credentials' | 'emailUnavailable' | 'tooMany' | 'network' | 'google' | 'unknown';
 
 export class AuthError extends Error {
   readonly failure: AuthFailure;
@@ -118,4 +119,14 @@ export function useSignOut() {
       void queryClient.invalidateQueries({ queryKey: currentUserQuery.queryKey });
     },
   });
+}
+
+/**
+ * "Continue with Google": the API sends the person to Google and back to `from` (a path in the app). A failed
+ * attempt comes back to sign in with `?error=google`.
+ */
+export function googleSignInUrl(from?: string): string {
+  return from
+    ? `/api/auth/google?${new URLSearchParams({ returnUrl: from }).toString()}`
+    : '/api/auth/google';
 }
