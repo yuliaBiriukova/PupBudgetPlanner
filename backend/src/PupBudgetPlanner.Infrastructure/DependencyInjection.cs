@@ -61,6 +61,7 @@ public static class DependencyInjection
             .AddSignInManager()
             .AddEntityFrameworkStores<AppDbContext>();
 
+        services.AddScoped<IAccountCreator, AccountCreator>();
         services.AddScoped<IAuthService, AuthService>();
     }
 

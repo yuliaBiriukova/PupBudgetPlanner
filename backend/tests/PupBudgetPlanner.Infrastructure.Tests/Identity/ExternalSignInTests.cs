@@ -18,6 +18,7 @@ public sealed class ExternalSignInTests
 
     private readonly SignInManager<AppUser> signInManager;
     private readonly IAuthenticationService authentication = Substitute.For<IAuthenticationService>();
+    private readonly IAccountCreator accountCreator = Substitute.For<IAccountCreator>();
     private readonly AuthService service;
 
     public ExternalSignInTests()
@@ -35,7 +36,7 @@ public sealed class ExternalSignInTests
         {
             RequestServices = new ServiceCollection().AddSingleton(authentication).BuildServiceProvider(),
         };
-        service = new AuthService(userManager, signInManager, Substitute.For<IPasswordHasher<AppUser>>());
+        service = new AuthService(userManager, signInManager, Substitute.For<IPasswordHasher<AppUser>>(), accountCreator);
     }
 
     private static AppUser Olena(bool emailConfirmed) => new()
@@ -73,7 +74,7 @@ public sealed class ExternalSignInTests
 
     private void CreatingAccountsWorks()
     {
-        userManager.CreateAsync(Arg.Any<AppUser>()).Returns(IdentityResult.Success);
+        accountCreator.CreateAsync(Arg.Any<AppUser>(), null, Arg.Any<CancellationToken>()).Returns(IdentityResult.Success);
         userManager.AddLoginAsync(Arg.Any<AppUser>(), Arg.Any<UserLoginInfo>()).Returns(IdentityResult.Success);
     }
 
@@ -101,7 +102,7 @@ public sealed class ExternalSignInTests
         await signInManager.Received(1).SignInAsync(olena, true, "Google");
         await authentication.Received(1).SignOutAsync(
             Arg.Any<HttpContext>(), IdentityConstants.ExternalScheme, Arg.Any<AuthenticationProperties?>());
-        await userManager.DidNotReceive().CreateAsync(Arg.Any<AppUser>());
+        await accountCreator.DidNotReceive().CreateAsync(Arg.Any<AppUser>(), Arg.Any<string?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -113,9 +114,12 @@ public sealed class ExternalSignInTests
         var outcome = await service.SignInWithExternalLoginAsync(CancellationToken.None);
 
         outcome.Should().Be(ExternalSignInOutcome.SignedIn);
-        await userManager.Received(1).CreateAsync(Arg.Is<AppUser>(u =>
-            u.Email == "olena@example.com" && u.UserName == "olena@example.com" && u.EmailConfirmed
-            && u.DisplayName == "Olena Koval" && u.PasswordHash == null));
+        await accountCreator.Received(1).CreateAsync(
+            Arg.Is<AppUser>(u =>
+                u.Email == "olena@example.com" && u.UserName == "olena@example.com" && u.EmailConfirmed
+                && u.DisplayName == "Olena Koval" && u.PasswordHash == null),
+            null,
+            Arg.Any<CancellationToken>());
         await userManager.Received(1).AddLoginAsync(
             Arg.Is<AppUser>(u => u.Email == "olena@example.com"),
             Arg.Is<UserLoginInfo>(l => l.LoginProvider == "Google" && l.ProviderKey == "google-123"));
@@ -137,7 +141,7 @@ public sealed class ExternalSignInTests
         await service.SignInWithExternalLoginAsync(CancellationToken.None);
 
         expected.Length.Should().BeLessThanOrEqualTo(AuthLimits.DisplayNameMaxLength);
-        await userManager.Received(1).CreateAsync(Arg.Is<AppUser>(u => u.DisplayName == expected));
+        await accountCreator.Received(1).CreateAsync(Arg.Is<AppUser>(u => u.DisplayName == expected), null, Arg.Any<CancellationToken>());
     }
 
     [Theory]
@@ -177,7 +181,7 @@ public sealed class ExternalSignInTests
         olena.LockoutEnd.Should().BeNull();
         await userManager.Received(1).AddLoginAsync(olena, Arg.Is<UserLoginInfo>(l => l.ProviderKey == "google-123"));
         await signInManager.Received(1).SignInAsync(olena, true, "Google");
-        await userManager.DidNotReceive().CreateAsync(Arg.Any<AppUser>());
+        await accountCreator.DidNotReceive().CreateAsync(Arg.Any<AppUser>(), Arg.Any<string?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -246,7 +250,7 @@ public sealed class ExternalSignInTests
     public async Task It_fails_when_the_account_cannot_be_created()
     {
         GoogleGives();
-        userManager.CreateAsync(Arg.Any<AppUser>())
+        accountCreator.CreateAsync(Arg.Any<AppUser>(), null, Arg.Any<CancellationToken>())
             .Returns(IdentityResult.Failed(new IdentityErrorDescriber().DuplicateEmail("olena@example.com")));
 
         var outcome = await service.SignInWithExternalLoginAsync(CancellationToken.None);

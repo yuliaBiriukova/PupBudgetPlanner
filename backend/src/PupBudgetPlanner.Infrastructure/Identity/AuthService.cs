@@ -8,7 +8,8 @@ namespace PupBudgetPlanner.Infrastructure.Identity;
 internal sealed class AuthService(
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
-    IPasswordHasher<AppUser> passwordHasher) : IAuthService
+    IPasswordHasher<AppUser> passwordHasher,
+    IAccountCreator accountCreator) : IAuthService
 {
     /// <summary>
     /// A real hash of a throwaway password, checked when the email is unknown, so that answer takes as long
@@ -28,7 +29,7 @@ internal sealed class AuthService(
             DisplayName = request.DisplayName.Trim(),
         };
 
-        var created = await userManager.CreateAsync(user, request.Password);
+        var created = await accountCreator.CreateAsync(user, request.Password, cancellationToken);
         if (!created.Succeeded)
         {
             // The validator checked everything else; a failure here is the email being taken
@@ -81,7 +82,9 @@ internal sealed class AuthService(
             }
 
             var existing = await userManager.FindByEmailAsync(email);
-            user = existing is null ? await CreateAsync(email, login) : await LinkAsync(existing, login);
+            user = existing is null
+                ? await CreateAsync(email, login, cancellationToken)
+                : await LinkAsync(existing, login);
             if (user is null)
             {
                 return ExternalSignInOutcome.AccountNotLinked;
@@ -114,7 +117,7 @@ internal sealed class AuthService(
         bool.TryParse(principal.FindFirstValue(ExternalClaims.EmailVerified), out var verified) && verified;
 
     /// <summary>A new account for the provider's person: the email is confirmed and there is no password.</summary>
-    private async Task<AppUser?> CreateAsync(string email, ExternalLoginInfo login)
+    private async Task<AppUser?> CreateAsync(string email, ExternalLoginInfo login, CancellationToken cancellationToken)
     {
         var user = new AppUser
         {
@@ -125,7 +128,7 @@ internal sealed class AuthService(
             DisplayName = DisplayNameOf(login.Principal, email),
         };
 
-        var created = await userManager.CreateAsync(user);
+        var created = await accountCreator.CreateAsync(user, password: null, cancellationToken);
         return created.Succeeded ? await AddLoginAsync(user, login) : null;
     }
 

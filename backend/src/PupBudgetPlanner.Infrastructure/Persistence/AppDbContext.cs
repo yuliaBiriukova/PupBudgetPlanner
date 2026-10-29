@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PupBudgetPlanner.Domain.Categories;
 using PupBudgetPlanner.Infrastructure.Identity;
 
 namespace PupBudgetPlanner.Infrastructure.Persistence;
@@ -12,6 +13,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 {
     /// <summary>ASP.NET Core Data Protection keys (kept in the database because Render's disk is wiped on restart).</summary>
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
+
+    public DbSet<CategoryGroup> CategoryGroups => Set<CategoryGroup>();
+
+    public DbSet<Category> Categories => Set<Category>();
 
     /// <summary>The provider settings shared by the app and the design-time factory.</summary>
     internal static void Configure(DbContextOptionsBuilder options, string connectionString) =>

@@ -16,6 +16,7 @@ public sealed class AuthServiceTests
 
     private readonly SignInManager<AppUser> signInManager;
     private readonly IPasswordHasher<AppUser> passwordHasher = Substitute.For<IPasswordHasher<AppUser>>();
+    private readonly IAccountCreator accountCreator = Substitute.For<IAccountCreator>();
     private readonly AuthService service;
 
     public AuthServiceTests()
@@ -28,7 +29,7 @@ public sealed class AuthServiceTests
             null,
             null,
             null);
-        service = new AuthService(userManager, signInManager, passwordHasher);
+        service = new AuthService(userManager, signInManager, passwordHasher, accountCreator);
     }
 
     private static readonly AppUser Olena = new()
@@ -42,23 +43,24 @@ public sealed class AuthServiceTests
     [Fact]
     public async Task Register_creates_the_account_with_the_email_as_user_name_and_signs_in()
     {
-        userManager.CreateAsync(Arg.Any<AppUser>(), "kyiv-budget-26").Returns(IdentityResult.Success);
+        accountCreator.CreateAsync(Arg.Any<AppUser>(), "kyiv-budget-26", Arg.Any<CancellationToken>()).Returns(IdentityResult.Success);
 
         var result = await service.RegisterAsync(
             new RegisterRequest("  Olena ", " olena@example.com ", "kyiv-budget-26"), CancellationToken.None);
 
         result.Outcome.Should().Be(RegisterOutcome.Registered);
         result.User.Should().BeEquivalentTo(new { DisplayName = "Olena", Email = "olena@example.com" });
-        await userManager.Received(1).CreateAsync(
+        await accountCreator.Received(1).CreateAsync(
             Arg.Is<AppUser>(u => u.UserName == "olena@example.com" && u.Email == "olena@example.com" && u.DisplayName == "Olena"),
-            "kyiv-budget-26");
+            "kyiv-budget-26",
+            Arg.Any<CancellationToken>());
         await signInManager.Received(1).SignInAsync(Arg.Any<AppUser>(), true, null);
     }
 
     [Fact]
     public async Task Register_reports_an_unavailable_email_and_does_not_sign_in()
     {
-        userManager.CreateAsync(Arg.Any<AppUser>(), Arg.Any<string>())
+        accountCreator.CreateAsync(Arg.Any<AppUser>(), Arg.Any<string?>(), Arg.Any<CancellationToken>())
             .Returns(IdentityResult.Failed(new IdentityErrorDescriber().DuplicateEmail("olena@example.com")));
 
         var result = await service.RegisterAsync(
