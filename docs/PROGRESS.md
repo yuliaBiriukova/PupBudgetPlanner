@@ -28,6 +28,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
     is skipped.
 - People columns come by the list's own width (a container query, 720 px): on a tablet next to the sidebar they
   ran into each other, so there the list keeps the phone's card rows; Joined is a little wider for "Blocked <date>".
+- The search field has no visible label (owner's request); screen readers still hear "Search people". The count
+  moved into the field and shows only while searching ("2 of 9"): the tab already has the total.
 - Used, expired and cancelled links are cards with icons, like Waiting, and the lines between the link groups are
   gone (owner's requests).
 - Variant 7 matched to the app: Mantine's check and dash icons centered in the box, the primary-color focus ring on

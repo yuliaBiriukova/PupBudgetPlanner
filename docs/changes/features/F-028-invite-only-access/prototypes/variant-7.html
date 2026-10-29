@@ -283,6 +283,9 @@ body { display: flex; flex-direction: column; height: 100dvh; background: #d7dad
 .search-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
 .search-top label { font-weight: 500; font-size: 14px; }
 .search-top .count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+/* No label on the search field (the icon and the placeholder say it); while searching, how many match sits before the clear button */
+.search-box .count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.search-box .count:empty { display: none; }
 /* The icon and the clear button sit in the row, not on top of the field */
 .search-box { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 4px 0 14px; border: 1px solid var(--field-border); border-radius: var(--r-sm); background: var(--surface); }
 .search-box:focus-within { border-color: var(--accent); outline: 1px solid var(--accent); }
@@ -899,7 +902,8 @@ function bulkBar() {
     <button class="btn btn-on-pill" type="button" data-nav="people-bulk-delete">${icon('trash')}Delete</button>
     <button class="icon-btn" type="button" data-action="clear-picks" aria-label="Clear the picks">${icon('x')}</button></div>`;
 }
-const countText = () => { const n = PEOPLE5.filter(matches).length; return state.query.trim() ? `${n} of ${PEOPLE5.length}` : `${PEOPLE5.length} people`; };
+// The tab shows how many people there are; while searching, the field says how many match
+const countText = () => (state.query.trim() ? `${PEOPLE5.filter(matches).length} of ${PEOPLE5.length}` : '');
 
 // ---------- Variant 7: Invite links tab ----------
 function waitingRow(l) {
@@ -943,9 +947,9 @@ function peoplePage() {
   </nav>`;
   const body = links
     ? `<p class="lead">A link works once, for 7 days. Pup Budget shows a link only when you make it.</p><div id="links-list">${linksBody(all)}</div>`
-    : `<div class="search"><div class="search-wrap">
-        <div class="search-top"><label for="people-search">Search people</label><span class="count" id="people-count" aria-live="polite">${countText()}</span></div>
-        <div class="search-box"><span class="lead-ic">${icon('search')}</span><input id="people-search" type="search" autocomplete="off" placeholder="Name or email" value="${esc(state.query)}" data-search>
+    : `<p class="lead">Only people you invite can create an account. Everyone here can sign in.</p><div class="search"><div class="search-wrap">
+        <div class="search-box"><span class="lead-ic">${icon('search')}</span><input id="people-search" type="search" autocomplete="off" placeholder="Name or email" aria-label="Search people" value="${esc(state.query)}" data-search>
+          <span class="count" id="people-count" aria-live="polite">${countText()}</span>
           ${state.query ? `<button class="icon-btn clear" type="button" data-action="clear-search" aria-label="Clear search">${icon('x')}</button>` : ''}</div>
       </div></div>
       <div class="people-view" data-actions="${picks.actions}" id="people-list">${peopleList()}</div>

@@ -65,29 +65,27 @@
   color: var(--mantine-color-dimmed);
 }
 
-/* Search: a visible label with the count on the same line */
+/* Search: no visible label (the icon and the placeholder say it); while searching, how many match and the clear
+   button sit at the end of the field */
 .search {
   max-width: 420px;
   margin: 16px 0 14px;
 }
 
-.searchTop {
+.searchRight {
   display: flex;
-  gap: 12px;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 6px;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  padding-right: 4px;
 }
 
 .searchCount {
   color: var(--mantine-color-dimmed);
   font-size: 14px;
   font-variant-numeric: tabular-nums;
-}
-
-.searchLabel {
-  font-size: 14px;
-  font-weight: 500;
+  white-space: nowrap;
 }
 
 .searchInput {

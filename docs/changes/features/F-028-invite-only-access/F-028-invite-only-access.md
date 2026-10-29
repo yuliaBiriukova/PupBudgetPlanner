@@ -70,7 +70,8 @@ What is decided so far (rounds 1–3 of the design, see "Design"):
 - **People page** (admin only): under a line at the bottom of the sidebar's sections; under More on the phone.
   Title "People" with **New invite link** on the right (full width on the phone), then **underline tabs**
   (text tabs with the accent bar, like the sidebar marker) with counts: People · Invite links (waiting).
-  - **People tab:** a short line on who can sign up, the search field, then the people as card rows: initials,
+  - **People tab:** a short line on who can sign up, the search field (no visible label: the icon and "Name or
+    email" say it; while searching it shows "2 of 9" next to the clear button, the tab has the total), then the people as card rows: initials,
     name and email, joined, invited with which link ("Before invites" for accounts made while sign-up was open,
     "Admin" for the admin). Blocked people stay in the list with a Blocked tag and the date.
   - **Columns:** they show once the list is at least 720 px wide (its own width, not the window's); narrower, as on a

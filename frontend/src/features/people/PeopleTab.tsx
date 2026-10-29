@@ -22,7 +22,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useId, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cx } from '../../shared/ui/cx';
 import { formatDate } from '../../shared/format/date';
@@ -60,7 +60,6 @@ const orderKey = (sort: PeopleSort) => `${sort.key}${sort.desc ? 'Desc' : 'Asc'}
  */
 export function PeopleTab() {
   const { t } = useTranslation();
-  const searchId = useId();
   // Opening the tab fetches the list again: someone may have signed up with a link meanwhile
   const people = useQuery({ ...peopleQuery, refetchOnMount: 'always' });
   const unblock = usePeopleAction();
@@ -112,26 +111,15 @@ export function PeopleTab() {
     );
   };
 
-  const count = query.trim()
-    ? t('people.search.countOf', { count: shown.length, total: all.length })
-    : t('people.search.count', { count: all.length });
+  // The tab shows how many people there are; while searching, the field says how many match
+  const searching = people.isSuccess && query.trim() !== '';
 
   return (
     <>
       <p className={classes.lead}>{t('people.lead')}</p>
       <div className={classes.search}>
-        <div className={classes.searchTop}>
-          <label htmlFor={searchId} className={classes.searchLabel}>
-            {t('people.search.label')}
-          </label>
-          {people.isSuccess && (
-            <span className={classes.searchCount} aria-live="polite">
-              {count}
-            </span>
-          )}
-        </div>
         <TextInput
-          id={searchId}
+          aria-label={t('people.search.label')}
           type="search"
           autoComplete="off"
           placeholder={t('people.search.placeholder')}
@@ -141,18 +129,26 @@ export function PeopleTab() {
           }}
           leftSection={<IconSearch size={20} stroke={1.7} />}
           rightSection={
-            query ? (
-              <CloseButton
-                size="lg"
-                radius="xl"
-                aria-label={t('people.search.clear')}
-                onClick={() => {
-                  setQuery('');
-                }}
-              />
-            ) : null
+            <div className={classes.searchRight}>
+              {/* Always there, so screen readers hear the count change as the person types */}
+              <span className={classes.searchCount} aria-live="polite">
+                {searching
+                  ? t('people.search.countOf', { count: shown.length, total: all.length })
+                  : ''}
+              </span>
+              {query && (
+                <CloseButton
+                  size="lg"
+                  radius="xl"
+                  aria-label={t('people.search.clear')}
+                  onClick={() => {
+                    setQuery('');
+                  }}
+                />
+              )}
+            </div>
           }
-          rightSectionWidth={52}
+          rightSectionWidth={searching ? 136 : query ? 52 : 0}
           classNames={{ input: classes.searchInput }}
         />
       </div>

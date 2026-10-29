@@ -134,8 +134,6 @@
       "label": "Search people",
       "placeholder": "Name or email",
       "clear": "Clear search",
-      "count_one": "{{count}} person",
-      "count_other": "{{count}} people",
       "countOf": "{{count}} of {{total}}",
       "noneTitle": "No one matches “{{query}}”",
       "noneText": "Check the spelling, or search by part of the email."
