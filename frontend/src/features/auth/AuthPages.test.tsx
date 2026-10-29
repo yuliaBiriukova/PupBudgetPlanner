@@ -6,7 +6,10 @@ import { renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server, testUser } from '../../test/server';
 
-/** A server where nobody is signed in until a sign-in or sign-up succeeds. */
+/**
+ * A server where nobody is signed in until a sign-in or sign-up succeeds. Sign-up is open here; the invite-only
+ * screens have their own tests (InvitePage.test.tsx).
+ */
 function signedOutServer() {
   let user: typeof testUser | null = null;
   const sent: { url: string; token: string | null; body: unknown }[] = [];
@@ -14,6 +17,7 @@ function signedOutServer() {
     http.get('/api/auth/me', () =>
       user ? HttpResponse.json(user) : new HttpResponse(null, { status: 204 }),
     ),
+    http.get('/api/auth/sign-up', () => HttpResponse.json({ mode: 'Open' })),
     http.post('/api/auth/login', async ({ request }) => {
       const body = (await request.json()) as { email: string; password: string };
       sent.push({ url: request.url, token: request.headers.get('X-XSRF-TOKEN'), body });

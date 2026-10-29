@@ -37,4 +37,6 @@ Prototypes: `prototypes/` (not created yet). Chosen variant: —
 
 ## Notes
 
-- —
+- Uses the invitation links of [F-028](../F-028-invite-only-access/F-028-invite-only-access.md) with a family
+  attached: a family owner's link also lets a new person create an account while sign-up is invite-only
+  (owner's decision, 2026-10-29).

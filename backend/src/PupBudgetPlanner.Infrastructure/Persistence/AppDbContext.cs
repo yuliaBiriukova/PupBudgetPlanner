@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PupBudgetPlanner.Domain.Categories;
+using PupBudgetPlanner.Domain.Invitations;
 using PupBudgetPlanner.Infrastructure.Identity;
 
 namespace PupBudgetPlanner.Infrastructure.Persistence;
@@ -17,6 +18,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<CategoryGroup> CategoryGroups => Set<CategoryGroup>();
 
     public DbSet<Category> Categories => Set<Category>();
+
+    public DbSet<Invitation> Invitations => Set<Invitation>();
 
     /// <summary>The provider settings shared by the app and the design-time factory.</summary>
     internal static void Configure(DbContextOptionsBuilder options, string connectionString) =>

@@ -1,9 +1,12 @@
 import {
   Button,
+  Checkbox,
   createTheme,
+  Input,
   type CSSVariablesResolver,
   type MantineColorsTuple,
 } from '@mantine/core';
+import themeClasses from './theme.module.css';
 
 // The single place for theme settings (docs/DESIGN_RULES.md). Colors: "charcoal and sky", chosen in F-010 from the
 // prototypes in docs/changes/features/F-010-app-shell/prototypes/blocks.html.
@@ -93,6 +96,20 @@ export const theme = createTheme({
           ? { root: { '--button-color': 'var(--pup-color-on-primary)' } }
           : { root: {} },
     }),
+    // Fields in focus get a 2 px accent border (theme.module.css): Mantine only changes the border color
+    Input: Input.extend({ classNames: { input: themeClasses.input } }),
+    // A rounded square (the md default made the 20 px box a circle, like a radio) in the accent, the color of
+    // picked rows and the active section
+    Checkbox: Checkbox.extend({
+      defaultProps: { radius: 'xs' },
+      classNames: { input: themeClasses.checkboxInput },
+      vars: () => ({
+        root: {
+          '--checkbox-color': 'var(--pup-color-accent)',
+          '--checkbox-icon-color': 'var(--pup-color-surface)',
+        },
+      }),
+    }),
   },
 });
 
@@ -131,6 +148,10 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--mantine-color-error': '#b3261e',
     '--pup-color-error-bg': '#fbeceb',
     '--pup-color-error-text': '#8c1d18',
+    // Delete buttons (F-028)
+    '--pup-color-danger': '#b3261e',
+    '--pup-color-danger-hover': '#9c211a',
+    '--pup-color-on-danger': '#fcfcfd',
   },
   dark: {
     '--mantine-color-body': '#121315',
@@ -159,5 +180,8 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--mantine-color-error': '#f2958c',
     '--pup-color-error-bg': '#3a1d1b',
     '--pup-color-error-text': '#f6b8b2',
+    '--pup-color-danger': '#f2958c',
+    '--pup-color-danger-hover': '#f6b8b2',
+    '--pup-color-on-danger': '#121315',
   },
 });

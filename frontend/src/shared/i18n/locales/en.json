@@ -13,7 +13,8 @@
     "reports": "Reports",
     "family": "Family",
     "settings": "Settings",
-    "more": "More"
+    "more": "More",
+    "people": "People"
   },
   "shell": {
     "sidebar": "Sidebar",
@@ -91,7 +92,10 @@
       "tooMany": "Too many attempts. Wait a few minutes and try again.",
       "network": "Couldn’t reach the server. Check your connection and try again.",
       "google": "Google sign-in didn’t work. Try again, or use your email and password.",
-      "unknown": "That didn’t go through. Try again in a moment."
+      "unknown": "That didn’t go through. Try again in a moment.",
+      "inviteOnly": "There’s no Pup Budget account for this sign-in, and new accounts need an invite link. Ask the person who told you about Pup Budget.",
+      "inviteGone": "This invite link doesn’t work any more. Ask the person who sent it for a new one.",
+      "blocked": "Your access to Pup Budget is turned off. Ask the person who invited you."
     },
     "wake": {
       "note": "It sleeps at night; this takes up to a minute."
@@ -99,6 +103,159 @@
     "startup": {
       "failed": "Couldn’t reach the server.",
       "retry": "Try again"
+    },
+    "loading": "Loading…",
+    "inviteOnly": {
+      "title": "Pup Budget is invite-only for now",
+      "text": "To create an account, you need an invite link. Ask the person who told you about Pup Budget to send you one.",
+      "haveAccount": "Already have an account? Sign in with your email or Google.",
+      "goToSignIn": "Go to sign in"
+    },
+    "invite": {
+      "checking": "Checking the invite link…",
+      "failed": "Couldn’t check the invite link.",
+      "retry": "Try again",
+      "invited": "{{name}} invited you to Pup Budget",
+      "until": "Create your account to join. This link works once, until {{date}}.",
+      "haveAccount": "Already have an account?",
+      "goneTitle": "This invite link doesn’t work any more",
+      "goneText": "It may have been used already, cancelled or expired. Ask the person who sent it for a new one.",
+      "goneHint": "Already have an account? Sign in with it as usual."
     }
+  },
+  "people": {
+    "tabsLabel": "People or invite links",
+    "tabs": {
+      "people": "People",
+      "links": "Invite links"
+    },
+    "lead": "Only people you invite can create an account. Everyone here can sign in.",
+    "search": {
+      "label": "Search people",
+      "placeholder": "Name or email",
+      "clear": "Clear search",
+      "countOf": "{{count}} of {{total}}",
+      "noneTitle": "No one matches “{{query}}”",
+      "noneText": "Check the spelling, or search by part of the email."
+    },
+    "columns": {
+      "person": "Person",
+      "joined": "Joined",
+      "invitedWith": "Invited with"
+    },
+    "sort": {
+      "button": "Sort: {{order}}",
+      "state": ", sorted: {{order}}",
+      "personAsc": "Name, A to Z",
+      "personDesc": "Name, Z to A",
+      "joinedDesc": "Newest first",
+      "joinedAsc": "Oldest first",
+      "invitedAsc": "Invited with, A to Z",
+      "invitedDesc": "Invited with, Z to A"
+    },
+    "pickAll": "Pick all shown",
+    "pick": "Pick {{name}}",
+    "actionsFor": "Actions for {{name}}",
+    "youAdmin": "You, admin",
+    "admin": "Admin",
+    "blocked": "Blocked",
+    "blockedOn": "Blocked {{date}}",
+    "beforeInvites": "Before invites",
+    "beforeInvitesLegend": "“Before invites” means the account was made while sign-up was open.",
+    "meta": "Joined {{date}}, {{invitedWith}}",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "errors": {
+      "load": "Couldn’t load the people.",
+      "loadLinks": "Couldn’t load the invite links.",
+      "action": "That didn’t go through. Try again in a moment.",
+      "tooMany": "Pick at most {{max}} people at a time."
+    },
+    "bulk": {
+      "label": "Picked people",
+      "picked_one": "{{count}} picked",
+      "picked_other": "{{count}} picked",
+      "block": "Block",
+      "unblock": "Unblock",
+      "delete": "Delete",
+      "clear": "Clear the picks",
+      "max": "That’s the most at once"
+    },
+    "block": {
+      "action": "Block",
+      "titleOne": "Block {{name}}?",
+      "titleMany_one": "Block {{count}} person?",
+      "titleMany_other": "Block {{count}} people?",
+      "textOne": "{{name}} is signed out on every device and can’t sign in. Their data stays, and you can unblock them any time.",
+      "textMany": "They are signed out on every device and can’t sign in. Their data stays, and you can unblock them any time.",
+      "confirm": "Block",
+      "confirmMany_one": "Block {{count}}",
+      "confirmMany_other": "Block {{count}}",
+      "doneOne": "{{name}} is blocked",
+      "doneMany_one": "{{count}} person is blocked",
+      "doneMany_other": "{{count}} people are blocked"
+    },
+    "unblock": {
+      "action": "Unblock",
+      "doneOne": "{{name}} can sign in again",
+      "doneMany_one": "{{count}} person can sign in again",
+      "doneMany_other": "{{count}} people can sign in again"
+    },
+    "delete": {
+      "action": "Delete account",
+      "titleOne": "Delete {{name}}’s account?",
+      "titleMany_one": "Delete {{count}} account?",
+      "titleMany_other": "Delete {{count}} accounts?",
+      "textOne": "This deletes the account and everything in it: accounts, transactions, categories and settings. It can’t be undone.",
+      "textMany": "This deletes these accounts and everything in them: accounts, transactions, categories and settings. It can’t be undone.",
+      "again": "To join again, {{name}} would need a new invite link.",
+      "typeEmail": "Type {{email}} to confirm",
+      "typeWord": "Type delete to confirm",
+      "word": "delete",
+      "confirm": "Delete account",
+      "confirmMany_one": "Delete {{count}} account",
+      "confirmMany_other": "Delete {{count}} accounts",
+      "doneOne": "{{name}}’s account is deleted",
+      "doneMany_one": "{{count}} account is deleted",
+      "doneMany_other": "{{count}} accounts are deleted"
+    },
+    "newLink": {
+      "button": "New invite link",
+      "title": "New invite link",
+      "intro": "One person can create an account with it within 7 days.",
+      "noteLabel": "Who is it for? (optional, only you see it)",
+      "create": "Create link",
+      "readyTitle": "Your invite link is ready",
+      "linkLabel": "Invite link",
+      "copy": "Copy link",
+      "copiedButton": "Copied",
+      "copied": "Link copied",
+      "share": "Share",
+      "send": "Send it in any messenger. It works once, until {{date}}.",
+      "once": "Copy it now: Pup Budget can’t show this link again. Lost it? Cancel it and make a new one.",
+      "done": "Done"
+    },
+    "links": {
+      "lead": "A link works once, for 7 days. Pup Budget shows a link only when you make it.",
+      "waiting": "Waiting",
+      "noneWaiting": "No links are waiting. Make one with New invite link.",
+      "used": "Used",
+      "old": "Expired and cancelled",
+      "show": "Show",
+      "hide": "Hide",
+      "noNote": "No note",
+      "worksUntil": "Works until {{until}}, made {{made}}",
+      "daysLeft_one": "{{count}} day left",
+      "daysLeft_other": "{{count}} days left",
+      "cancel": "Cancel",
+      "cancelLink": "link",
+      "cancelLabel": "Cancel link: {{note}}",
+      "cancelled": "Link cancelled",
+      "expired": "Expired, not used",
+      "deletedAccount": "Deleted account",
+      "cancelledStatus": "Cancelled",
+      "none": "None yet."
+    },
+    "metaBlocked": "Blocked {{date}}, {{invitedWith}}"
   }
 }

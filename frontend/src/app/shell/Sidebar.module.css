@@ -164,6 +164,13 @@
   background: var(--pup-color-accent);
 }
 
+/* The admin's sections sit under a line after the others (F-028) */
+.navRule {
+  height: 1px;
+  margin: 8px 14px;
+  background: var(--pup-color-rule);
+}
+
 .foot {
   position: relative;
   display: flex;
@@ -205,7 +212,12 @@
   left: 3px;
   width: 2px;
   background: transparent;
-  transition: background 150ms;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .resize::after {
+    transition: background 150ms;
+  }
 }
 
 .resize:hover::after,

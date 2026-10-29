@@ -27,6 +27,12 @@ services:
         sync: false
       - key: Authentication__Google__ClientSecret
         sync: false
+      # Invite-only sign-up (F-028, ADR 0016): the admin's email, kept out of the repository. Set in the dashboard.
+      - key: Access__AdminEmails__0
+        sync: false
+      # InviteOnly (the default) or Open.
+      - key: Access__SignUp
+        value: InviteOnly
 
   # Storybook: a static site (no sleeping, no instance hours).
   - type: web

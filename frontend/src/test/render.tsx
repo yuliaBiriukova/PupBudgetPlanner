@@ -14,7 +14,7 @@ export function renderApp(url = '/') {
   const queryClient = createTestQueryClient();
 
   const result = render(
-    <AppProviders queryClient={queryClient}>
+    <AppProviders queryClient={queryClient} env="test">
       <RouterProvider router={router} />
     </AppProviders>,
   );

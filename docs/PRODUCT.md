@@ -10,7 +10,8 @@ That is double work, and the free Monefy version has no custom categories and no
 
 One web application where each person enters daily expenses, income and transfers, and the
 monthly / yearly report (the same shape as the spreadsheet) is built automatically — per person and
-for the whole family. Works well on a phone and on a desktop. Anyone can sign up.
+for the whole family. Works well on a phone and on a desktop. While the app is for family and friends, only
+people the owner invites can sign up (F-028); later it can open to everyone.
 
 ## Users
 
@@ -22,7 +23,8 @@ for the whole family. Works well on a phone and on a desktop. Anyone can sign up
 
 ### MVP
 
-1. **Sign up / sign in** — email + password, and Google sign-in.
+1. **Sign up / sign in** — email + password, and Google sign-in. Sign-up only with an invite link from the
+   owner (the admin), who sees everyone with access and can block or delete an account.
 2. **Accounts (where the money is)** — e.g. "Monobank UAH", "PrivatBank USD", "Cash EUR".
    Each account has one currency and an opening balance. Current balance per account and the
    total in the report currency.

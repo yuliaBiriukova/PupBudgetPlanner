@@ -2,7 +2,26 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
-## 2026-10-29 (5)
+## 2026-10-29 (7)
+
+**Done**
+- F-028, found by the owner testing on localhost: bulk delete of 201 people failed with a 400 (the API takes at
+  most 200) and a misleading "Try again in a moment". Fixed as approved:
+  - Pick all shown stops at 200, the rest of the check boxes are disabled, and the bar says "That's the most at
+    once";
+  - a refused request says "Pick at most 200 people at a time.";
+  - disabled check boxes now look grey.
+- Flaky menu unit tests fixed (approved): Mantine's transitions are off in unit tests (`env="test"`). The flake
+  noted in F-028 is gone: 64 tests passed in 10 runs out of 10.
+- The dev database was cleaned by the owner through the People page: only the owner's account is left.
+- `develop` (with I-003) merged into the branch.
+- Checked: lint, typecheck, build, unit tests 64 (2 new), the "People at max" stories at 375 and 1440 px, light and
+  dark. E2E ran in CI, not locally (it would add test accounts to the cleaned dev database).
+
+**Next**
+- Owner: merge PR #23; set `Access__AdminEmails__0` on Render before the release; release `develop` → `main`.
+
+## 2026-10-29 (6)
 
 **Done**
 - Owner's request: I-003 "Owner approval before implementation" (priority High). Claude writes no backend or
@@ -15,6 +34,134 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the I-003 PR and PR #23 (F-028).
+
+## 2026-10-29 (5)
+
+**Done**
+- F-028: the owner approved variant 7 and the build. The approval came after the build: variant 7 had been
+  recorded as chosen and built without being shown first. Recorded in the description (`Approved` row) and in
+  DESIGN_RULES "Screen decisions". The rule that prevents this from now on is I-003 (PR #24).
+
+**Next**
+- Owner: review PR #23 again; after the release set `Access__AdminEmails__0` on Render and look through the
+  "Before invites" accounts.
+
+## 2026-10-29 (4)
+
+**Done**
+- F-028 review of the People tab (owner's comments on PR #23):
+  - check boxes show only on hover: in their own column left of the initials, shown on hover or keyboard focus
+    and on every row once anyone is picked; always shown on the phone (no hover there). The owner turned down a
+    first try that put the box in place of the initials;
+  - card side paddings: the check box and the ⋯ now sit 16–20 px from the card's edges (the initials were 6 px
+    from the left edge); empty check boxes have the fields' border, so they show in dark mode;
+  - the check box is 12 px from the initials, the same as the initials from the name;
+  - sorting: Person, Joined and Invited with headers on the desktop (a second click turns the order around),
+    a Sort menu on the phone;
+  - "Block…" and "Delete account…" lost the "…" (a new custom rule in DESIGN_RULES).
+- Prototype variant 7 updated to match: check boxes on the left, shown on hover, sort headers and the phone's Sort menu
+  (a new screen "Sorted: newest first"), menu items without "…".
+- Design check on the app (it now opens pages of the running app too, with `--storage` for signed-in pages):
+  - Check boxes are themed once (`theme.ts`): a rounded square in the accent; the md radius had made them circles
+    and the primary color made them charcoal, unlike the prototype;
+  - every field in focus has the sign-in fields' 2 px accent border, set once in the theme (Mantine alone only
+    changed the border color); a first try with the buttons' offset ring made a double ring and was dropped;
+  - Cancel link is 44 px tall on the phone;
+  - the sidebar's resize line no longer fades in when reduced motion is on;
+  - the check itself: a check box inside its label counts the label as the target, and screen-reader-only text
+    is skipped.
+- People columns come by the list's own width (a container query, 720 px): on a tablet next to the sidebar they
+  ran into each other, so there the list keeps the phone's card rows; Joined is a little wider for "Blocked <date>".
+- The search field has no visible label (owner's request); screen readers still hear "Search people". The count
+  moved into the field and shows only while searching ("2 of 9"): the tab already has the total.
+- Variant 7: Copy on a new link no longer makes the card jump (it redrew the dialog and replayed the card's
+  entrance; now only the button changes). The app was not affected.
+- Used, expired and cancelled links are cards with icons, like Waiting, and the lines between the link groups are
+  gone (owner's requests).
+- Variant 7 matched to the app: Mantine's check and dash icons centered in the box, the primary-color focus ring on
+  buttons, the accent border on fields (drawn by the search box, no ring on the input inside), the link cards with
+  icons, no lines between groups, "Cancel link" without a gap.
+- Q-012 answered: accounts made before invites keep access; the admin reviews them on the People page after the
+  release.
+- Checked: unit tests (2 new for sorting), E2E (35 passed, 2 skipped), the design check on variant 7 and on the
+  app's People pages (0 issues), screenshots at 375 and 1440 px,
+  light and dark, of the hover, picked, sorted and menu states.
+
+**Next**
+- Owner: review PR #23 again; after the release set `Access__AdminEmails__0` on Render and look through the
+  "Before invites" accounts.
+
+## 2026-10-29 (3)
+
+**Done**
+- F-028 built (same branch and PR as the plan); M1 is done again.
+  - **Backend:** `Invitation` (hashed token, 7 days, once, cancel), invite-only `register` and first Google
+    sign-in, the admin from `Access:AdminEmails`, `/api/admin/people` (list, block, unblock, delete, in bulk) and
+    `/api/admin/invitations`, `/api/invitations/{token}` for the invite page, `/api/auth/sign-up`. Blocking ends
+    cookies within a minute; deletion removes the account's data. Migration `AddInvitations` (join dates of
+    existing accounts from their UUIDv7 ids).
+  - **Frontend:** `/invite/:token`, the invite-only Create account, Google and blocked messages, the People page
+    (underline tabs, search, card rows with check boxes and a ⋯ menu, a bar for bulk Block / Delete, folded link
+    groups, the New invite link dialog with Copy / Share), People in the sidebar and under More for the admin.
+  - **Tests:** backend 161 (65 new), frontend unit 60 (17 new), E2E 35 passed, 2 skipped (an E2E admin and invite
+    links for every new account); Storybook stories for both screens.
+- Checked: screenshots of every screen at 375 and 1440 px, light and dark, looked at; the People page in the
+  browser pane with the local test admin. Five visual fixes on the way (see the description).
+
+**Decisions**
+- ADR 0016: hashed invite links, the admin from configuration (password sign-up of an admin email only in
+  Development), blocking via the security stamp checked every minute, no sign-in method shown.
+
+**Next**
+- Owner: review PR #23; after the release set `Access__AdminEmails__0` on Render; confirm Q-012.
+- I-002 (corners across the app) is proposed as its own change. Then M2: F-014.
+
+## 2026-10-29 (2)
+
+**Done**
+- F-028 started on its planning branch and PR (owner's request): five references and three HTML prototypes
+  (Guest list, Receipt, Pocket) covering the invite page, a broken link, Create account without a link, Google
+  without an account, and the People page with a new link, block and delete. Design check 0 issues; screenshots
+  at 375 and 1440 px, light and dark, looked at.
+- Product: sign-up is described as invite-only while the app is for family and friends.
+
+**Decisions**
+- The invite link is shown only once (only its hash is stored); a broken link never says who made it.
+
+- Round 2 on the owner's feedback: variant 4 mixes variant 1's sign-in screens, variant 2's pop-up for a new
+  link and variant 3's two tabs, with three tab styles and three ways to show people (card rows, table, cards)
+  to pick from.
+
+- Round 3: underline tabs chosen; variant 5 adds search for people and a switch that hides expired and cancelled
+  links, and offers three people views (card rows, table, compact) and three links views (grouped, card rows,
+  table). The F-028 description now has a "Screens and behavior" section and acceptance criteria for search and
+  hiding links.
+
+- Round 4: card rows and grouped links chosen. The People page no longer shows how someone signs in (privacy);
+  used links are hidden by default too; one corner system (pills for buttons, tabs and nav items, circles for
+  icon buttons, 12 px fields and rows, 24 px dialogs), to be applied to the app in I-002. Variant 6 offers three
+  ways to reach a person's actions instead of a ⋯ menu and two ways to show old links.
+
+- Design chosen: check boxes for bulk Block / Delete plus a ⋯ menu per row, folded Used and Expired and cancelled
+  groups (variant 7, recorded in the description and DESIGN_RULES).
+
+**Next**
+- Build F-028: backend, then the frontend.
+
+## 2026-10-29
+
+**Done**
+- Owner's request: planned F-028 "Invite-only access" in M1 (priority High). F-011 and F-012 are on `main`, so
+  anyone can create an account on production today. The description lists the acceptance criteria and tasks.
+
+**Decisions**
+- Owner's choices: one invitation link per person (works once, 7 days, can be cancelled); only the admin invites
+  (F-023 family links will also let new people sign up); the admin can block a person or delete their account;
+  the admin is the owner, by email, from the `Access:AdminEmails` setting (kept out of the repository).
+- Open: Q-012, what happens to accounts that already exist on production (proposal: they keep access).
+
+**Next**
+- F-028 before F-014: references and 3 HTML prototypes first.
 
 ## 2026-10-28 (7)
 

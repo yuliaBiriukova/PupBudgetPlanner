@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using PupBudgetPlanner.Application.Access;
 
 namespace PupBudgetPlanner.Api.Auth;
 
@@ -36,10 +37,18 @@ public static class AuthSetup
 
         authentication.AddGoogleIfConfigured(configuration);
 
-        // Every endpoint needs a signed-in person unless it says [AllowAnonymous]
+        // A new security stamp (blocking someone, linking Google) ends the old cookies within a minute (ADR 0016)
+        services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.FromMinutes(1));
+
+        // Every endpoint needs a signed-in person unless it says [AllowAnonymous]; the People page needs the admin
         services
             .AddAuthorizationBuilder()
-            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
+            .AddAdminPolicy();
+        services.AddSingleton<IAuthorizationHandler, AdminRequirementHandler>();
+
+        // The admin may create their account with a password and no invite link only locally and in the E2E tests
+        services.PostConfigure<AccessOptions>(options => options.AdminPasswordSignUp = environment.IsDevelopment());
 
         services.AddAntiforgery(options =>
         {

@@ -1,7 +1,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using PupBudgetPlanner.Application.Access;
 using PupBudgetPlanner.Application.Auth;
+using PupBudgetPlanner.Infrastructure.Access;
 
 namespace PupBudgetPlanner.Infrastructure.Identity;
 
@@ -9,7 +12,8 @@ internal sealed class AuthService(
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
     IPasswordHasher<AppUser> passwordHasher,
-    IAccountCreator accountCreator) : IAuthService
+    IAccountCreator accountCreator,
+    IOptions<AccessOptions> access) : IAuthService
 {
     /// <summary>
     /// A real hash of a throwaway password, checked when the email is unknown, so that answer takes as long
@@ -21,6 +25,16 @@ internal sealed class AuthService(
     public async Task<RegisterResult> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
     {
         var email = request.Email.Trim();
+        var options = access.Value;
+
+        // While sign-up is invite-only a link is required; the admin's own password sign-up only in Development
+        var required = options.SignUp == SignUpMode.InviteOnly && !(options.AdminPasswordSignUp && options.IsAdmin(email));
+        var invitation = InvitationFor(request.InviteToken, required);
+        if (required && invitation is null)
+        {
+            return new RegisterResult(RegisterOutcome.InvitationRequired);
+        }
+
         var user = new AppUser
         {
             Id = Guid.CreateVersion7(),
@@ -29,11 +43,13 @@ internal sealed class AuthService(
             DisplayName = request.DisplayName.Trim(),
         };
 
-        var created = await accountCreator.CreateAsync(user, request.Password, cancellationToken);
-        if (!created.Succeeded)
+        switch (await accountCreator.CreateAsync(user, request.Password, invitation, cancellationToken))
         {
-            // The validator checked everything else; a failure here is the email being taken
-            return new RegisterResult(RegisterOutcome.EmailUnavailable);
+            case AccountCreation.Refused:
+                // The validator checked everything else; a failure here is the email being taken
+                return new RegisterResult(RegisterOutcome.EmailUnavailable);
+            case AccountCreation.InvitationInvalid:
+                return new RegisterResult(RegisterOutcome.InvitationInvalid);
         }
 
         await signInManager.SignInAsync(user, isPersistent: true);
@@ -49,17 +65,25 @@ internal sealed class AuthService(
             return new SignInAttempt(SignInOutcome.InvalidCredentials);
         }
 
-        var result = await signInManager.PasswordSignInAsync(
-            user, request.Password, isPersistent: true, lockoutOnFailure: true);
-
+        // The password first, then the cookie: a blocked person is told so only after the right password (F-028)
+        var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
         if (result.IsLockedOut)
         {
             return new SignInAttempt(SignInOutcome.LockedOut);
         }
 
-        return result.Succeeded
-            ? new SignInAttempt(SignInOutcome.SignedIn, ToCurrentUser(user))
-            : new SignInAttempt(SignInOutcome.InvalidCredentials);
+        if (!result.Succeeded)
+        {
+            return new SignInAttempt(SignInOutcome.InvalidCredentials);
+        }
+
+        if (user.BlockedAt is not null)
+        {
+            return new SignInAttempt(SignInOutcome.Blocked);
+        }
+
+        await signInManager.SignInAsync(user, isPersistent: true);
+        return new SignInAttempt(SignInOutcome.SignedIn, ToCurrentUser(user));
     }
 
     public Task SignOutAsync(CancellationToken cancellationToken) => signInManager.SignOutAsync();
@@ -82,13 +106,40 @@ internal sealed class AuthService(
             }
 
             var existing = await userManager.FindByEmailAsync(email);
-            user = existing is null
-                ? await CreateAsync(email, login, cancellationToken)
-                : await LinkAsync(existing, login);
+            if (existing is null)
+            {
+                // Google has verified the email, so the admin's first sign-in needs no link
+                var options = access.Value;
+                var required = options.SignUp == SignUpMode.InviteOnly && !options.IsAdmin(email);
+                var invitation = InvitationFor(InviteTokenOf(login), required);
+                if (required && invitation is null)
+                {
+                    return ExternalSignInOutcome.InvitationRequired;
+                }
+
+                var (created, outcome) = await CreateAsync(email, login, invitation, cancellationToken);
+                if (outcome == AccountCreation.InvitationInvalid)
+                {
+                    return ExternalSignInOutcome.InvitationInvalid;
+                }
+
+                user = created;
+            }
+            else
+            {
+                user = await LinkAsync(existing, login);
+            }
+
             if (user is null)
             {
                 return ExternalSignInOutcome.AccountNotLinked;
             }
+        }
+
+        if (user.BlockedAt is not null)
+        {
+            await signInManager.Context.SignOutAsync(IdentityConstants.ExternalScheme);
+            return ExternalSignInOutcome.Blocked;
         }
 
         // Lockout counts wrong passwords; it doesn't stop a login the provider has just confirmed
@@ -105,19 +156,26 @@ internal sealed class AuthService(
             return null;
         }
 
-        // A cookie can outlive its account (deleted user): treat it as signed out
+        // A cookie can outlive its account (deleted) or its access (blocked): treat it as signed out
         var user = await userManager.GetUserAsync(principal);
-        return user is null ? null : ToCurrentUser(user);
+        return user is null || user.BlockedAt is not null ? null : ToCurrentUser(user);
     }
 
-    private static CurrentUser ToCurrentUser(AppUser user) =>
-        new(user.Id, user.DisplayName, user.Email ?? string.Empty);
+    private CurrentUser ToCurrentUser(AppUser user) =>
+        new(user.Id, user.DisplayName, user.Email ?? string.Empty, access.Value.IsAdmin(user.Email));
+
+    private static InvitationUse? InvitationFor(string? token, bool required) =>
+        string.IsNullOrWhiteSpace(token) ? null : new InvitationUse(InvitationToken.Hash(token), required);
+
+    private static string? InviteTokenOf(ExternalLoginInfo login) =>
+        login.AuthenticationProperties?.Items.TryGetValue(ExternalClaims.InviteTokenItem, out var token) == true ? token : null;
 
     private static bool IsEmailVerified(ClaimsPrincipal principal) =>
         bool.TryParse(principal.FindFirstValue(ExternalClaims.EmailVerified), out var verified) && verified;
 
     /// <summary>A new account for the provider's person: the email is confirmed and there is no password.</summary>
-    private async Task<AppUser?> CreateAsync(string email, ExternalLoginInfo login, CancellationToken cancellationToken)
+    private async Task<(AppUser? User, AccountCreation Outcome)> CreateAsync(
+        string email, ExternalLoginInfo login, InvitationUse? invitation, CancellationToken cancellationToken)
     {
         var user = new AppUser
         {
@@ -128,8 +186,8 @@ internal sealed class AuthService(
             DisplayName = DisplayNameOf(login.Principal, email),
         };
 
-        var created = await accountCreator.CreateAsync(user, password: null, cancellationToken);
-        return created.Succeeded ? await AddLoginAsync(user, login) : null;
+        var outcome = await accountCreator.CreateAsync(user, password: null, invitation, cancellationToken);
+        return outcome == AccountCreation.Created ? (await AddLoginAsync(user, login), outcome) : (null, outcome);
     }
 
     /// <summary>

@@ -89,6 +89,8 @@ erDiagram
     USER ||--o| FAMILY_MEMBER : "is in (0..1)"
     FAMILY ||--|{ FAMILY_MEMBER : has
     FAMILY ||--o{ FAMILY_INVITATION : has
+    USER ||--o{ INVITATION : "makes (admin)"
+    USER ||--o| INVITATION : "joined with"
     USER ||--o{ ACCOUNT : owns
     USER ||--o{ CATEGORY_GROUP : owns
     CATEGORY_GROUP ||--|{ CATEGORY : contains
@@ -98,7 +100,8 @@ erDiagram
     CATEGORY ||--o{ TRANSACTION : "classifies"
     EXCHANGE_RATE
 
-    USER { guid Id string Email string DisplayName Currency ReportCurrency }
+    USER { guid Id string Email string DisplayName Currency ReportCurrency datetime CreatedAt datetime BlockedAt }
+    INVITATION { guid Id bytes TokenHash string Note guid CreatedById datetime ExpiresAt guid UsedById datetime UsedAt datetime CancelledAt }
     FAMILY { guid Id string Name guid OwnerUserId }
     FAMILY_MEMBER { guid FamilyId guid UserId FamilyRole Role }
     FAMILY_INVITATION { guid Id guid FamilyId string Token datetime ExpiresAt }
@@ -114,6 +117,9 @@ erDiagram
 - Categories: every account gets its own copy of the default set (`DefaultCategories`) in the transaction that
   creates it; group names are unique per person, category names per group
   ([ADR 0015](decisions/0015-default-categories-seeding.md)).
+- Invitations (F-028): an invite link for one person, valid once for 7 days; only the token's SHA-256 is stored.
+  Its status (waiting, used, expired, cancelled) comes from the dates. A blocked person keeps their data
+  (`BlockedAt`) ([ADR 0016](decisions/0016-invite-only-sign-up.md)). F-023 will attach a family to it.
 
 #### Enums
 

@@ -1,6 +1,8 @@
 // Design check for HTML prototypes (docs/changes/**/prototypes/*.html), run with Playwright and axe-core.
 // Usage (in frontend/): npm run design:check -- ../docs/changes/features/F-xxx-name/prototypes/variant-1.html
 // Options: --out <folder> (default test-results/design-check). Exit code 1 when issues are found.
+// Pages of the running app are checked too: pass their http(s) addresses, and --storage <file> with a Playwright
+// storage state for pages that need a signed-in person.
 //
 // A prototype gets the full check when it exposes these optional globals: go(pageId) with PAGES [{ id }],
 // state.schemePref + applyScheme() for light/dark, setView(name), coldStart() / endColdStart() for the
@@ -22,9 +24,18 @@ const AXE = readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
 const args = process.argv.slice(2);
 const outIndex = args.indexOf('--out');
 const OUT = resolve(outIndex >= 0 ? args.splice(outIndex, 2)[1] : 'test-results/design-check');
-const FILES = args.map((f) => resolve(f));
+const storageIndex = args.indexOf('--storage');
+const STORAGE = storageIndex >= 0 ? resolve(args.splice(storageIndex, 2)[1]) : undefined;
+const isUrl = (f) => /^https?:\/\//.test(f);
+const FILES = args.map((f) => (isUrl(f) ? f : resolve(f)));
+const nameOf = (f) =>
+  isUrl(f)
+    ? new URL(f).pathname.replace(/\W+/g, '-').replace(/^-|-$/g, '') || 'home'
+    : basename(f, '.html');
 if (FILES.length === 0) {
-  console.error('Usage: npm run design:check -- <prototype.html> [more.html] [--out folder]');
+  console.error(
+    'Usage: npm run design:check -- <prototype.html | http://localhost:5173/page> [more] [--out folder] [--storage state.json]',
+  );
   process.exit(2);
 }
 mkdirSync(`${OUT}/shots`, { recursive: true });
@@ -68,7 +79,8 @@ function inspect({ mobile }) {
   };
   const visuallyHidden = (el) => {
     const s = getComputedStyle(el);
-    return s.clipPath !== 'none' && s.clipPath !== '';
+    // clip-path, or the older clip that screen-reader-only text (Mantine's VisuallyHidden) uses
+    return (s.clipPath !== 'none' && s.clipPath !== '') || (s.clip !== 'auto' && s.clip !== '');
   };
 
   // Content inside a horizontal scroll container (a wide table, a row of cards) may extend past the screen
@@ -97,7 +109,9 @@ function inspect({ mobile }) {
   const min = mobile ? 44 : 24;
   for (const el of root.querySelectorAll('a, button, input, select, textarea, [role="button"]')) {
     if (!visible(el) || visuallyHidden(el)) continue;
-    const r = el.getBoundingClientRect();
+    // A check box or radio inside its label is clicked anywhere on the label
+    const label = el.matches('input') ? el.closest('label') : null;
+    const r = (label ?? el).getBoundingClientRect();
     if (r.width < min - 0.5 || r.height < min - 0.5)
       out.push([
         'touch-target',
@@ -206,12 +220,13 @@ const browser = await chromium.launch();
 const consoleErrors = [];
 const shots = [];
 for (const file of FILES) {
-  const name = basename(file, '.html');
+  const name = nameOf(file);
   for (const vp of VIEWPORTS) {
     const context = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       hasTouch: vp.mobile,
       reducedMotion: 'reduce',
+      storageState: STORAGE,
     });
     const page = await context.newPage();
     page.on(
@@ -230,7 +245,8 @@ for (const file of FILES) {
         });
       }
     };
-    await page.goto(pathToFileURL(file).href);
+    await page.goto(isUrl(file) ? file : pathToFileURL(file).href);
+    if (isUrl(file)) await page.waitForLoadState('networkidle');
     await prepare();
     const kit = await has(page, 'go');
     const pages = kit ? await page.evaluate(() => PAGES.map((p) => p.id)) : [''];
@@ -414,9 +430,21 @@ for (const file of FILES) {
           if (!el || el === document.body || el.closest('.proto-bar')) return null;
           const s = getComputedStyle(el);
           const label = el.getAttribute('aria-label') ?? el.textContent.trim().slice(0, 20);
+          // A line drawn by ::after (a resize handle's) counts too
+          const after = getComputedStyle(el, '::after');
+          const line =
+            after.content !== 'none' &&
+            !['transparent', 'rgba(0, 0, 0, 0)'].includes(after.backgroundColor);
+          // A field's wrapper (a search box with its icon) may draw the ring with :focus-within
+          const ring = (x) => {
+            const c = getComputedStyle(x);
+            return c.outlineStyle !== 'none' && parseFloat(c.outlineWidth) > 0;
+          };
+          const wrapped =
+            el.matches('input, textarea') && el.parentElement && ring(el.parentElement);
           return {
             el: `${el.tagName.toLowerCase()} "${label}"`,
-            ok: s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0,
+            ok: (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || line || wrapped,
           };
         });
         if (f && !f.ok)
@@ -460,7 +488,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,sans-
 .t{overflow-x:auto}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
 .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;align-items:start}figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px}
 figure.wide{grid-column:span 2}@media (max-width:480px){figure.wide{grid-column:auto}}img{width:100%;display:block}figcaption{font-size:12px;margin-top:4px}</style></head>
-<body><main><h1>Design check</h1><p>${list.length} issues, ${consoleErrors.length} console errors · ${FILES.map((f) => esc(basename(f))).join(', ')}</p>
+<body><main><h1>Design check</h1><p>${list.length} issues, ${consoleErrors.length} console errors · ${FILES.map((f) => esc(nameOf(f))).join(', ')}</p>
 ${list.length ? `<div class="t"><table><thead><tr><th>File</th><th>Check</th><th>Element</th><th>Detail</th><th>Where</th></tr></thead><tbody>${rows}</tbody></table></div>` : ''}
 <h2>Screenshots</h2><div class="g">${figures}</div></main></body></html>`,
 );

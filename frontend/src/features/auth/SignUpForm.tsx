@@ -15,6 +15,8 @@ interface SignUpFormProps {
   /** Shown right above the button (the waking-up note). */
   notice?: ReactNode;
   initialValues?: Partial<SignUpValues>;
+  /** The invite link's token: it goes with the account request and through Google (F-028). */
+  inviteToken?: string;
 }
 
 export function SignUpForm({
@@ -23,6 +25,7 @@ export function SignUpForm({
   failure,
   notice,
   initialValues,
+  inviteToken,
 }: SignUpFormProps) {
   const { t } = useTranslation();
   const form = useForm<SignUpValues>({
@@ -48,6 +51,7 @@ export function SignUpForm({
             displayName: values.displayName.trim(),
             email: values.email.trim(),
             password: values.password,
+            ...(inviteToken ? { inviteToken } : {}),
           });
         })}
       >
@@ -88,7 +92,7 @@ export function SignUpForm({
           label={t('auth.createAccount')}
           pendingLabel={t('auth.creatingAccount')}
         />
-        <ContinueWithGoogle />
+        <ContinueWithGoogle invite={inviteToken} />
       </form>
     </>
   );
