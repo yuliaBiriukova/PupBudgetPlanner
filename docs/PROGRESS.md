@@ -5,6 +5,18 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 ## 2026-10-29 (9)
 
 **Done**
+- I-004 started on `improvement/I-004-custom-scroll-bars`, design round 1 (not approved yet, so no app code):
+  references (Mantine ScrollArea and Modal, Material 3 dialogs and sheets, Apple HIG scroll views, Radix) and
+  3 prototypes in the change folder: 1 · Quiet pill (CSS only, always visible grey pill), 2 · Shows while you scroll
+  (overlay bar that fades, edge fades), 3 · Sky rail (hairline rail with an accent thumb). All pass the design
+  check; screenshots at 375 and 1440 px, light and dark, looked at.
+
+**Next**
+- Owner: pick a variant (or a mix). Then the final prototype, approval, and the build.
+
+## 2026-10-29 (9)
+
+**Done**
 - I-007, approved by the owner's request (docs only): a "Clean up test data" rule in `CLAUDE.md`. Accounts and
   data made for testing (by hand, through the API, or by E2E tests against the shared `dev` database) are removed
   in the same session through the People page or `POST /api/admin/people/delete`; test invite links are cancelled

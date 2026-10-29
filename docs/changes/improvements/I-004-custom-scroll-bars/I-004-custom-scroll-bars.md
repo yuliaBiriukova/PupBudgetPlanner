@@ -5,7 +5,7 @@
 | Type | Improvement |
 | Milestone | M2 — Accounts & categories |
 | Priority | Medium |
-| Status | Todo |
+| Status | In progress (design round 1, waiting for the owner's choice) |
 | Branch | `improvement/I-004-custom-scroll-bars` (planned on `plan/f028-follow-ups`) |
 | Design | 3 HTML prototypes required (scroll bar style) |
 | Approved | — |
@@ -23,14 +23,46 @@ itself. Found by the owner after F-028, 2026-10-29.
 - [ ] Same on the phone sheet.
 
 ## Tasks
-- [ ] References: how well-made apps style scroll bars in dialogs and side panels.
-- [ ] 3 prototypes of the scroll bar and a long dialog; owner picks and approves one.
+- [x] References: how well-made apps style scroll bars in dialogs and side panels.
+- [ ] 3 prototypes of the scroll bar and a long dialog; owner picks and approves one. (Round 1 built
+      2026-10-29; waiting for the choice.)
 - [ ] One shared style (theme tokens, no hard-coded colors) applied to `ResponsiveDialog`, `BottomSheet` and the
       other scrolling areas.
 - [ ] Stories: a long dialog and a long sheet.
 
 ## Design
-References: —
+### References
+- [Mantine ScrollArea](https://mantine.dev/core/scroll-area/): the four ways a custom bar can behave (on hover,
+  while scrolling, always, never), the thumb size and the gap that keeps content clear of it. Variants 2 and 3
+  would be built with it.
+- [Mantine Modal, "scroll inside"](https://mantine.dev/core/modal/): a sticky header with the body in a
+  `ScrollArea.Autosize` (`scrollAreaComponent`): the title and close button stay, only the body scrolls.
+- [Material 3 dialogs](https://m3.material.io/components/dialogs/guidelines): when a dialog has to scroll, the title
+  stays pinned at the top and it doesn't scroll with the page behind; a divider marks the edge. Taken: the hairline
+  under the title once the list has moved (variants 1 and 3).
+- [Material 3 bottom sheets](https://m3.material.io/components/bottom-sheets/guidelines): a tall modal sheet
+  scrolls inside itself. Taken: the phone sheet keeps its grab handle and title and scrolls its body.
+- [Apple HIG, scroll views](https://developer.apple.com/design/human-interface-guidelines/scroll-views): the
+  indicator appears once people scroll, so make it obvious in other ways that there is more; small bars in panels.
+  Taken: variant 2's bar that shows while scrolling and its edge fades.
+- [Radix Scroll Area](https://www.radix-ui.com/primitives/docs/components/scroll-area): a thin rounded thumb inset
+  inside a small panel, with no track or arrows.
+
+### Round 1 (2026-10-29)
+One shared prototype (the People page, a long "Pick a category" dialog with the default categories that becomes the
+phone sheet, a long dropdown, a short window in which the sidebar scrolls); the variants differ in the scroll bar.
+The page column keeps the browser's own bar in all three.
+
+| Variant | Thesis | Built with |
+|---------|--------|------------|
+| [1 · Quiet pill](prototypes/variant-1.html) | The browser's bar, only quieter: a 4 px grey pill (the fields' border color, 3:1), 6 px under the mouse, always there while there is more; no track or arrows; a hairline under the dialog title once scrolled | One global CSS rule, nothing wrapped; Firefox only colors it |
+| [2 · Shows while you scroll](prototypes/variant-2.html) | Like a phone or a Mac: a 6 px pill floats over the content, shows while scrolling or under the pointer and fades after a second; the list fades out at the edges with more behind them | Mantine `ScrollArea` type "scroll" in every scrolling area |
+| [3 · Sky rail](prototypes/variant-3.html) | The bold one: a 1 px rail like a ledger's margin line with a 6 px sky-blue thumb (the accent, the sidebar's "you are here" color); always there; content keeps clear of it | Mantine `ScrollArea` type "always" with offset |
+
+Checked: `npm run design:check` on all three (0 issues), and screenshots of the long dialog, the dialog scrolled,
+the phone sheet, the dropdown and the short window at 375 and 1440 px, light and dark, with the browser's scroll
+bars on (headless Chromium hides them by default).
+
 Prototypes: `prototypes/`. Chosen variant: —
 
 ## Tests
