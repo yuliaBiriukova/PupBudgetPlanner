@@ -145,6 +145,16 @@
       "joined": "Joined",
       "invitedWith": "Invited with"
     },
+    "sort": {
+      "button": "Sort: {{order}}",
+      "state": ", sorted: {{order}}",
+      "personAsc": "Name, A to Z",
+      "personDesc": "Name, Z to A",
+      "joinedDesc": "Newest first",
+      "joinedAsc": "Oldest first",
+      "invitedAsc": "Invited with, A to Z",
+      "invitedDesc": "Invited with, Z to A"
+    },
     "pickAll": "Pick all shown",
     "pick": "Pick {{name}}",
     "actionsFor": "Actions for {{name}}",
@@ -172,7 +182,7 @@
       "clear": "Clear the picks"
     },
     "block": {
-      "action": "Block…",
+      "action": "Block",
       "titleOne": "Block {{name}}?",
       "titleMany_one": "Block {{count}} person?",
       "titleMany_other": "Block {{count}} people?",
@@ -192,7 +202,7 @@
       "doneMany_other": "{{count}} people can sign in again"
     },
     "delete": {
-      "action": "Delete account…",
+      "action": "Delete account",
       "titleOne": "Delete {{name}}’s account?",
       "titleMany_one": "Delete {{count}} account?",
       "titleMany_other": "Delete {{count}} accounts?",

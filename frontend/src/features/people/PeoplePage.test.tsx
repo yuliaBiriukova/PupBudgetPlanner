@@ -39,11 +39,17 @@ const PEOPLE: Person[] = [
     invited: false,
     invitationNote: null,
   }),
-  person('p-iryna', 'Iryna Melnyk', 'iryna.melnyk@example.com'),
-  person('p-oksana', 'Oksana Melnychuk', 'oksana.m@example.com'),
+  person('p-iryna', 'Iryna Melnyk', 'iryna.melnyk@example.com', {
+    joinedAt: '2026-11-08T10:00:00Z',
+  }),
+  person('p-oksana', 'Oksana Melnychuk', 'oksana.m@example.com', {
+    joinedAt: '2026-11-07T10:00:00Z',
+    invitationNote: null,
+  }),
   person('p-max', 'Max', 'max.trial@example.com', {
     invited: false,
     invitationNote: null,
+    joinedAt: '2026-11-01T10:00:00Z',
     blockedAt: '2026-11-10T10:00:00Z',
   }),
 ];
@@ -92,6 +98,14 @@ function adminServer() {
     }),
   );
   return actions;
+}
+
+/** The names in the list, top to bottom. */
+function rowNames() {
+  return screen
+    .getAllByRole('listitem')
+    .map((row) => row.querySelector('p > span')?.textContent)
+    .filter(Boolean);
 }
 
 beforeEach(() => {
@@ -148,6 +162,41 @@ describe('the People page', () => {
     expect(screen.getByText('Max')).toBeInTheDocument();
   });
 
+  it('sorts by a column header and turns the order around on a second click', async () => {
+    adminServer();
+    const user = userEvent.setup();
+    renderApp('/people');
+
+    await screen.findByText('Iryna Melnyk');
+    expect(rowNames()).toEqual(['Iryna Melnyk', 'Max', 'Oksana Melnychuk', 'Yulia Biriukova']);
+
+    await user.click(screen.getByRole('button', { name: 'Joined' }));
+    expect(rowNames()).toEqual(['Iryna Melnyk', 'Oksana Melnychuk', 'Yulia Biriukova', 'Max']);
+    expect(
+      screen.getByRole('button', { name: 'Joined, sorted: Newest first' }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /^Joined/ }));
+    expect(rowNames()).toEqual(['Max', 'Yulia Biriukova', 'Oksana Melnychuk', 'Iryna Melnyk']);
+
+    // The admin, links by their note, a link without one, then accounts from before invites
+    await user.click(screen.getByRole('button', { name: 'Invited with' }));
+    expect(rowNames()).toEqual(['Yulia Biriukova', 'Iryna Melnyk', 'Oksana Melnychuk', 'Max']);
+  });
+
+  it('sorts from a menu on the phone', async () => {
+    setScreenWidth(375);
+    adminServer();
+    const user = userEvent.setup();
+    renderApp('/people');
+
+    await screen.findByText('Iryna Melnyk');
+    await user.click(screen.getByRole('button', { name: 'Sort: Name, A to Z' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Name, Z to A' }));
+    expect(rowNames()).toEqual(['Yulia Biriukova', 'Oksana Melnychuk', 'Max', 'Iryna Melnyk']);
+    expect(screen.getByRole('button', { name: 'Sort: Name, Z to A' })).toBeInTheDocument();
+  });
+
   it('blocks everyone picked after asking', async () => {
     const actions = adminServer();
     const user = userEvent.setup();
@@ -187,7 +236,7 @@ describe('the People page', () => {
     renderApp('/people');
 
     await user.click(await screen.findByRole('button', { name: 'Actions for Max' }));
-    await user.click(await screen.findByRole('menuitem', { name: 'Delete account…' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Delete account' }));
     const dialog = await screen.findByRole('dialog', { name: 'Delete Max’s account?' });
     const confirm = within(dialog).getByRole('button', { name: 'Delete account' });
     expect(confirm).toBeDisabled();

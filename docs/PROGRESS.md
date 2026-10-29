@@ -2,6 +2,21 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29 (4)
+
+**Done**
+- F-028 review of the People tab (owner's comments on PR #23):
+  - check boxes show only on hover: they sit over the initials, show on hover or keyboard focus and on every
+    row once anyone is picked; on the phone tapping the initials picks;
+  - sorting: Person, Joined and Invited with headers on the desktop (a second click turns the order around),
+    a Sort menu on the phone;
+  - "Block…" and "Delete account…" lost the "…" (a new custom rule in DESIGN_RULES).
+- Checked: unit tests (2 new for sorting), E2E, screenshots at 375 and 1440 px, light and dark, of the hover,
+  picked, sorted and menu states.
+
+**Next**
+- Owner: review PR #23 again; after the release set `Access__AdminEmails__0` on Render; confirm Q-012.
+
 ## 2026-10-29 (3)
 
 **Done**

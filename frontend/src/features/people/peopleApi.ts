@@ -95,3 +95,37 @@ export function matchesSearch(person: Person, query: string): boolean {
     person.email.toLocaleLowerCase().includes(q)
   );
 }
+
+export type SortKey = 'person' | 'joined' | 'invited';
+export interface PeopleSort {
+  key: SortKey;
+  desc: boolean;
+}
+
+/** The first click on a column: names and links A to Z, the newest people first. */
+export const FIRST_DIRECTION: Record<SortKey, boolean> = {
+  person: false,
+  joined: true,
+  invited: false,
+};
+
+const byText = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' });
+
+// "Invited with" in the order the column reads: the admin, links by their note, links without a note, before invites
+const invitedRank = (p: Person) => (p.isAdmin ? 0 : !p.invited ? 3 : p.invitationNote ? 1 : 2);
+
+const compare: Record<SortKey, (a: Person, b: Person) => number> = {
+  person: (a, b) => byText(a.displayName, b.displayName),
+  joined: (a, b) => Date.parse(a.joinedAt) - Date.parse(b.joinedAt),
+  invited: (a, b) =>
+    invitedRank(a) - invitedRank(b) || byText(a.invitationNote ?? '', b.invitationNote ?? ''),
+};
+
+/** The people in the picked order; ties go by name. */
+export function sortPeople(people: readonly Person[], sort: PeopleSort): Person[] {
+  const sign = sort.desc ? -1 : 1;
+  return [...people].sort(
+    (a, b) =>
+      sign * compare[sort.key](a, b) || byText(a.displayName, b.displayName) || byText(a.id, b.id),
+  );
+}

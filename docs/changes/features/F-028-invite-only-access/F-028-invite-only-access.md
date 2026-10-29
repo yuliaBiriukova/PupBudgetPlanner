@@ -73,8 +73,14 @@ What is decided so far (rounds 1–3 of the design, see "Design"):
   - **People tab:** a short line on who can sign up, the search field, then the people as card rows: initials,
     name and email, joined, invited with which link ("Before invites" for accounts made while sign-up was open,
     "Admin" for the admin). Blocked people stay in the list with a Blocked tag and the date.
-  - **One person:** a ⋯ button on the row opens a menu: Block… or Unblock, and Delete account….
-  - **Several people:** a check box on each row (and "Pick all shown" in the header) picks people; a bar then
+  - **Sorting:** on the desktop the column headers (Person, Joined, Invited with) sort the list; a second click
+    turns the order around, and an arrow shows the current one. Names and links start A to Z, Joined starts with
+    the newest. The phone has a "Sort: …" menu above the list with the same six orders. The list starts by name.
+  - **One person:** a ⋯ button on the row opens a menu: Block or Unblock, and Delete account (no "…" at the end,
+    though they open a dialog).
+  - **Several people:** a check box on each row (and "Pick all shown" in the header) picks people. The check box
+    sits over the initials and shows on hover (and on keyboard focus); once anyone is picked, every row shows
+    it. On the phone there is no hover: tapping the initials picks the person. A bar then
     shows how many are picked with Block, Unblock (when a picked person is blocked) and Delete, and a button to
     clear the picks. Searching keeps only the picks that are still shown. The admin's own row has no check box
     and no menu.

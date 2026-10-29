@@ -107,6 +107,46 @@
   display: none;
 }
 
+/* The phone's sort menu; the desktop sorts by the column headers */
+.sortRow {
+  display: flex;
+  justify-content: flex-end;
+  margin: -6px 0 6px;
+}
+
+.sortMenuButton {
+  min-height: 44px;
+  padding: 0 12px;
+  color: var(--mantine-color-dimmed);
+  font-weight: 400;
+}
+
+.sortButton {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  justify-self: start;
+  min-height: 32px;
+  margin-left: -8px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sortButton:hover {
+  background: var(--pup-color-hover);
+  color: var(--mantine-color-text);
+}
+
+.sortButton[data-active] {
+  color: var(--mantine-color-text);
+  font-weight: 500;
+}
+
 .list {
   display: grid;
   gap: 8px;
@@ -137,7 +177,41 @@
   place-items: center;
   width: 44px;
   height: 44px;
+}
+
+label.pick {
   cursor: pointer;
+}
+
+/* The check box sits over the initials and shows on hover, on focus and once anyone is picked. Hidden, it still
+   takes a tap: on the phone, tapping the initials picks the person */
+.pick > * {
+  grid-area: 1 / 1;
+}
+
+.pickBox {
+  opacity: 0;
+}
+
+.table[data-picking] .pickBox,
+.pick:focus-within .pickBox {
+  opacity: 1;
+}
+
+.table[data-picking] label.pick .initials,
+.pick:focus-within .initials {
+  visibility: hidden;
+}
+
+@media (hover: hover) {
+  .row:hover .pickBox,
+  .table:hover .listHead .pickBox {
+    opacity: 1;
+  }
+
+  .row:hover label.pick .initials {
+    visibility: hidden;
+  }
 }
 
 .who {
@@ -195,7 +269,6 @@
 .meta {
   grid-column: 2;
   margin: 0;
-  padding-left: 52px;
   color: var(--mantine-color-dimmed);
   font-size: 14px;
 }
@@ -526,7 +599,8 @@
     gap: 16px;
   }
 
-  .meta {
+  .meta,
+  .sortRow {
     display: none;
   }
 

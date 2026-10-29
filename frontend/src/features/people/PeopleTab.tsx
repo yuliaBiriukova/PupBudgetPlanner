@@ -6,9 +6,21 @@ import {
   Menu,
   Skeleton,
   TextInput,
+  VisuallyHidden,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconBan, IconDots, IconLockOpen, IconSearch, IconTrash, IconX } from '@tabler/icons-react';
+import {
+  IconArrowDown,
+  IconArrowsSort,
+  IconArrowUp,
+  IconBan,
+  IconCheck,
+  IconDots,
+  IconLockOpen,
+  IconSearch,
+  IconTrash,
+  IconX,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +28,16 @@ import { cx } from '../../shared/ui/cx';
 import { formatDate } from '../../shared/format/date';
 import classes from './People.module.css';
 import { BlockDialog, DeleteDialog } from './PeopleDialogs';
-import { matchesSearch, peopleQuery, usePeopleAction, type Person } from './peopleApi';
+import {
+  FIRST_DIRECTION,
+  matchesSearch,
+  peopleQuery,
+  sortPeople,
+  usePeopleAction,
+  type PeopleSort,
+  type Person,
+  type SortKey,
+} from './peopleApi';
 
 function initials(name: string) {
   return name
@@ -29,7 +50,14 @@ function initials(name: string) {
 
 type Pending = { kind: 'block' | 'delete'; ids: string[] } | null;
 
-/** Everyone with an account: search, a check box per row for bulk actions and a ⋯ menu for one person. */
+const SORT_KEYS: SortKey[] = ['person', 'joined', 'invited'];
+const COLUMN_LABEL = { person: 'person', joined: 'joined', invited: 'invitedWith' } as const;
+const orderKey = (sort: PeopleSort) => `${sort.key}${sort.desc ? 'Desc' : 'Asc'}` as const;
+
+/**
+ * Everyone with an account: search, sorting by a column, a check box per row for bulk actions (over the
+ * initials, shown on hover or once anyone is picked) and a ⋯ menu for one person.
+ */
 export function PeopleTab() {
   const { t } = useTranslation();
   const searchId = useId();
@@ -39,9 +67,13 @@ export function PeopleTab() {
   const [query, setQuery] = useState('');
   const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
   const [pending, setPending] = useState<Pending>(null);
+  const [sort, setSort] = useState<PeopleSort>({ key: 'person', desc: false });
 
   const all = useMemo(() => people.data ?? [], [people.data]);
-  const shown = all.filter((p) => matchesSearch(p, query));
+  const shown = sortPeople(
+    all.filter((p) => matchesSearch(p, query)),
+    sort,
+  );
   const pickable = shown.filter((p) => !p.isYou);
   // Searching keeps only the picks that are still shown
   const shownPicks = new Set([...picked].filter((id) => pickable.some((p) => p.id === id)));
@@ -53,6 +85,13 @@ export function PeopleTab() {
     if (on) next.add(id);
     else next.delete(id);
     setPicked(next);
+  };
+
+  // A new column starts in its usual direction; the same column again turns it around
+  const sortBy = (key: SortKey) => {
+    setSort((now) =>
+      now.key === key ? { key, desc: !now.desc } : { key, desc: FIRST_DIRECTION[key] },
+    );
   };
 
   const doUnblock = (targets: Person[]) => {
@@ -160,10 +199,12 @@ export function PeopleTab() {
       )}
 
       {people.isSuccess && shown.length > 0 && (
-        <>
+        <div className={classes.table} data-picking={shownPicks.size > 0 || undefined}>
+          <SortMenu sort={sort} onSort={setSort} />
           <div className={classes.listHead}>
             <label className={classes.pick}>
               <Checkbox
+                className={classes.pickBox}
                 checked={allPicked}
                 indeterminate={!allPicked && shownPicks.size > 0}
                 disabled={pickable.length === 0}
@@ -175,9 +216,31 @@ export function PeopleTab() {
                 }}
               />
             </label>
-            <span aria-hidden="true">{t('people.columns.person')}</span>
-            <span aria-hidden="true">{t('people.columns.joined')}</span>
-            <span aria-hidden="true">{t('people.columns.invitedWith')}</span>
+            {SORT_KEYS.map((key) => (
+              <button
+                key={key}
+                type="button"
+                className={classes.sortButton}
+                data-active={sort.key === key || undefined}
+                onClick={() => {
+                  sortBy(key);
+                }}
+              >
+                {t(`people.columns.${COLUMN_LABEL[key]}`)}
+                {sort.key === key && (
+                  <>
+                    {sort.desc ? (
+                      <IconArrowDown size={16} stroke={1.7} aria-hidden="true" />
+                    ) : (
+                      <IconArrowUp size={16} stroke={1.7} aria-hidden="true" />
+                    )}
+                    <VisuallyHidden>
+                      {t('people.sort.state', { order: t(`people.sort.${orderKey(sort)}`) })}
+                    </VisuallyHidden>
+                  </>
+                )}
+              </button>
+            ))}
             <span />
           </div>
           <ul className={classes.list}>
@@ -202,7 +265,7 @@ export function PeopleTab() {
             ))}
           </ul>
           <p className={classes.legend}>{t('people.beforeInvitesLegend')}</p>
-        </>
+        </div>
       )}
 
       {pickedPeople.length > 0 && (
@@ -278,21 +341,28 @@ function PersonRow({ person, picked, onPick, onBlock, onUnblock, onDelete }: Per
       data-blocked={person.blockedAt ? true : undefined}
       data-picked={picked || undefined}
     >
-      <label className={classes.pick}>
-        {!person.isYou && (
+      {person.isYou ? (
+        <span className={classes.pick}>
+          <span className={classes.initials} aria-hidden="true">
+            {initials(person.displayName)}
+          </span>
+        </span>
+      ) : (
+        <label className={classes.pick}>
+          <span className={classes.initials} aria-hidden="true">
+            {initials(person.displayName)}
+          </span>
           <Checkbox
+            className={classes.pickBox}
             checked={picked}
             aria-label={t('people.pick', { name: person.displayName })}
             onChange={(event) => {
               onPick(event.currentTarget.checked);
             }}
           />
-        )}
-      </label>
+        </label>
+      )}
       <div className={classes.who}>
-        <span className={classes.initials} aria-hidden="true">
-          {initials(person.displayName)}
-        </span>
         <div>
           <p className={classes.name}>
             <span>{person.displayName}</span>
@@ -361,6 +431,56 @@ function PersonRow({ person, picked, onPick, onBlock, onUnblock, onDelete }: Per
         )}
       </div>
     </li>
+  );
+}
+
+interface SortMenuProps {
+  sort: PeopleSort;
+  onSort: (sort: PeopleSort) => void;
+}
+
+/** The phone has no column headers: the order is picked from a menu. */
+function SortMenu({ sort, onSort }: SortMenuProps) {
+  const { t } = useTranslation();
+  const orders = SORT_KEYS.flatMap((key) => [
+    { key, desc: FIRST_DIRECTION[key] },
+    { key, desc: !FIRST_DIRECTION[key] },
+  ]);
+
+  return (
+    <div className={classes.sortRow}>
+      <Menu position="bottom-end" radius="md" shadow="md" width={240}>
+        <Menu.Target>
+          <Button
+            variant="subtle"
+            color="gray"
+            radius="xl"
+            className={classes.sortMenuButton}
+            leftSection={<IconArrowsSort size={20} stroke={1.7} />}
+          >
+            {t('people.sort.button', { order: t(`people.sort.${orderKey(sort)}`) })}
+          </Button>
+        </Menu.Target>
+        <Menu.Dropdown>
+          {orders.map((order) => {
+            const current = order.key === sort.key && order.desc === sort.desc;
+            return (
+              <Menu.Item
+                key={orderKey(order)}
+                mih={44}
+                aria-current={current || undefined}
+                rightSection={current ? <IconCheck size={20} stroke={1.7} /> : null}
+                onClick={() => {
+                  onSort(order);
+                }}
+              >
+                {t(`people.sort.${orderKey(order)}`)}
+              </Menu.Item>
+            );
+          })}
+        </Menu.Dropdown>
+      </Menu>
+    </div>
   );
 }
 

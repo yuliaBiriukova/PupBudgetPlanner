@@ -213,7 +213,7 @@ export const DeleteOne: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByRole('button', { name: 'Actions for Andrii Bondar' }));
     const body = within(canvasElement.ownerDocument.body);
-    await userEvent.click(await body.findByRole('menuitem', { name: 'Delete account…' }));
+    await userEvent.click(await body.findByRole('menuitem', { name: 'Delete account' }));
     await expect(await body.findByRole('button', { name: 'Delete account' })).toBeDisabled();
   },
 };
