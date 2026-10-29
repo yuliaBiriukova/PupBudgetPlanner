@@ -20,14 +20,17 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Design check on the app (it now opens pages of the running app too, with `--storage` for signed-in pages):
   - Check boxes are themed once (`theme.ts`): a rounded square in the accent; the md radius had made them circles
     and the primary color made them charcoal, unlike the prototype;
-  - fields show the buttons' focus ring (Mantine only changed the border color);
+  - every field in focus has the sign-in fields' 2 px accent border, set once in the theme (Mantine alone only
+    changed the border color); a first try with the buttons' offset ring made a double ring and was dropped;
   - Cancel link is 44 px tall on the phone;
   - the sidebar's resize line no longer fades in when reduced motion is on;
   - the check itself: a check box inside its label counts the label as the target, and screen-reader-only text
     is skipped.
-- Used, expired and cancelled links are cards with icons, like Waiting (owner's request).
-- Variant 7 matched to the app: Mantine's check and dash icons centered in the box, the primary-color focus ring,
-  the link cards with icons, "Cancel link" without a gap.
+- Used, expired and cancelled links are cards with icons, like Waiting, and the lines between the link groups are
+  gone (owner's requests).
+- Variant 7 matched to the app: Mantine's check and dash icons centered in the box, the primary-color focus ring on
+  buttons, the accent border on fields (drawn by the search box, no ring on the input inside), the link cards with
+  icons, no lines between groups, "Cancel link" without a gap.
 - Q-012 answered: accounts made before invites keep access; the admin reviews them on the People page after the
   release.
 - Checked: unit tests (2 new for sorting), E2E (35 passed, 2 skipped), the design check on variant 7 and on the
