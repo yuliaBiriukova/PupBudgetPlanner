@@ -6,12 +6,15 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Done**
 - F-028 review of the People tab (owner's comments on PR #23):
-  - check boxes show only on hover: they sit over the initials, show on hover or keyboard focus and on every
-    row once anyone is picked; on the phone tapping the initials picks;
+  - check boxes show only on hover: in their own column left of the initials, shown on hover or keyboard focus
+    and on every row once anyone is picked; always shown on the phone (no hover there). The owner turned down a
+    first try that put the box in place of the initials;
+  - card side paddings: the check box and the ⋯ now sit 16–20 px from the card's edges (the initials were 6 px
+    from the left edge); empty check boxes have the fields' border, so they show in dark mode;
   - sorting: Person, Joined and Invited with headers on the desktop (a second click turns the order around),
     a Sort menu on the phone;
   - "Block…" and "Delete account…" lost the "…" (a new custom rule in DESIGN_RULES).
-- Prototype variant 7 updated to match: check boxes over the initials, sort headers and the phone's Sort menu
+- Prototype variant 7 updated to match: check boxes on the left, shown on hover, sort headers and the phone's Sort menu
   (a new screen "Sorted: newest first"), menu items without "…".
 - Q-012 answered: accounts made before invites keep access; the admin reviews them on the People page after the
   release.

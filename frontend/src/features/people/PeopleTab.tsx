@@ -55,8 +55,8 @@ const COLUMN_LABEL = { person: 'person', joined: 'joined', invited: 'invitedWith
 const orderKey = (sort: PeopleSort) => `${sort.key}${sort.desc ? 'Desc' : 'Asc'}` as const;
 
 /**
- * Everyone with an account: search, sorting by a column, a check box per row for bulk actions (over the
- * initials, shown on hover or once anyone is picked) and a ⋯ menu for one person.
+ * Everyone with an account: search, sorting by a column, a check box per row for bulk actions (on the left,
+ * shown on hover or once anyone is picked) and a ⋯ menu for one person.
  */
 export function PeopleTab() {
   const { t } = useTranslation();
@@ -342,16 +342,9 @@ function PersonRow({ person, picked, onPick, onBlock, onUnblock, onDelete }: Per
       data-picked={picked || undefined}
     >
       {person.isYou ? (
-        <span className={classes.pick}>
-          <span className={classes.initials} aria-hidden="true">
-            {initials(person.displayName)}
-          </span>
-        </span>
+        <span className={classes.pick} />
       ) : (
         <label className={classes.pick}>
-          <span className={classes.initials} aria-hidden="true">
-            {initials(person.displayName)}
-          </span>
           <Checkbox
             className={classes.pickBox}
             checked={picked}
@@ -363,6 +356,9 @@ function PersonRow({ person, picked, onPick, onBlock, onUnblock, onDelete }: Per
         </label>
       )}
       <div className={classes.who}>
+        <span className={classes.initials} aria-hidden="true">
+          {initials(person.displayName)}
+        </span>
         <div>
           <p className={classes.name}>
             <span>{person.displayName}</span>

@@ -161,6 +161,7 @@
   gap: 2px 12px;
   align-items: center;
   min-height: 68px;
+  /* The 20 px check box is drawn in the middle of its 44 px column: 16 px from the edge, like the ⋯ on the right */
   padding: 12px 8px 12px 4px;
   border: 1px solid var(--pup-color-rule);
   border-radius: var(--mantine-radius-md);
@@ -183,34 +184,24 @@ label.pick {
   cursor: pointer;
 }
 
-/* The check box sits over the initials and shows on hover, on focus and once anyone is picked. Hidden, it still
-   takes a tap: on the phone, tapping the initials picks the person */
-.pick > * {
-  grid-area: 1 / 1;
+/* An empty box has the fields' border, so it is seen in the dark too */
+.pickBox input:not(:checked, :indeterminate) {
+  border-color: var(--pup-color-field-border);
+  background: var(--pup-color-surface);
 }
 
-.pickBox {
-  opacity: 0;
-}
-
-.table[data-picking] .pickBox,
-.pick:focus-within .pickBox {
-  opacity: 1;
-}
-
-.table[data-picking] label.pick .initials,
-.pick:focus-within .initials {
-  visibility: hidden;
-}
-
+/* With a mouse the check box shows on hover, on focus and once anyone is picked; its column stays, so nothing moves.
+   A phone has no hover: there it is always shown */
 @media (hover: hover) {
-  .row:hover .pickBox,
-  .table:hover .listHead .pickBox {
-    opacity: 1;
+  .pickBox {
+    opacity: 0;
   }
 
-  .row:hover label.pick .initials {
-    visibility: hidden;
+  .row:hover .pickBox,
+  .table:hover .listHead .pickBox,
+  .table[data-picking] .pickBox,
+  .pick:focus-within .pickBox {
+    opacity: 1;
   }
 }
 
@@ -269,6 +260,7 @@ label.pick {
 .meta {
   grid-column: 2;
   margin: 0;
+  padding-left: 52px;
   color: var(--mantine-color-dimmed);
   font-size: 14px;
 }

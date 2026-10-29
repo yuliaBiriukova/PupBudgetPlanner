@@ -466,18 +466,13 @@ mark { background: var(--tint); color: inherit; border-radius: 3px; padding: 0 1
 }
 
 /* ---------- Variant 7 · after the review of the app: check boxes on hover, sorting ---------- */
-/* The check box sits over the initials; it shows on hover, on focus and once anyone is picked. Hidden, it still takes a
-   tap: on the phone, tapping the initials picks the person */
-.pick > * { grid-area: 1 / 1; }
+/* The check box has its own column left of the initials. With a mouse it shows on hover, on focus and once anyone is
+   picked; the column stays, so nothing moves. A phone has no hover: there it is always shown */
 span.pick { cursor: default; }
-.pick input { opacity: 0; }
-.p-table[data-picking] .pick input, .pick:focus-within input { opacity: 1; }
-.p-table[data-picking] label.pick .initials, .pick:focus-within .initials { visibility: hidden; }
 @media (hover: hover) {
-  .p-row:hover .pick input, .p-table:hover .p-head .pick input { opacity: 1; }
-  .p-row:hover label.pick .initials { visibility: hidden; }
+  .pick input { opacity: 0; }
+  .p-row:hover .pick input, .p-table:hover .p-head .pick input, .p-table[data-picking] .pick input, .pick:focus-within input { opacity: 1; }
 }
-.people-view[data-actions='select'] .p-main .meta { padding-left: 0; }
 /* Sorting: headers on the desktop, a menu on the phone */
 .sort-row { display: flex; justify-content: flex-end; margin: -6px 0 6px; }
 .sort-menu-btn { min-height: 44px; padding: 0 12px; color: var(--muted); font-weight: 400; }
@@ -505,7 +500,7 @@ const DIRECTION = {
   notes: [
     'One person: the ⋯ button on the row opens Block / Unblock and Delete account (no “…”, though they open a dialog).',
     'Sorting: the Person, Joined and Invited with headers sort the list, a second click turns it around; the phone has a Sort menu above the list.',
-    'Check boxes sit over the initials: they show on hover and focus, and on every row once anyone is picked. On the phone, tapping the initials picks.',
+    'Check boxes have their own column left of the initials: with a mouse they show on hover and focus, and on every row once anyone is picked; the column stays, so nothing moves. On the phone they are always shown.',
     'Several people: tick the check boxes (or Pick all shown in the header); a bar shows Block, Unblock (when only blocked people are picked) and Delete for all of them. Searching keeps only the picks still shown.',
     'Bulk dialogs list the picked people; bulk delete needs the word delete typed in, one delete needs the email.',
     'Invite links: Waiting cards with the days left and Cancel link; Used and Expired and cancelled open with a click and stay as left.',
@@ -787,8 +782,8 @@ function personRow(p) {
   const open = picks.actions === 'expand' && state.open === p.id;
   return `<li class="p-row"${p.blocked ? ' data-blocked' : ''}${picked ? ' data-picked' : ''}${picks.actions === 'expand' && !p.you ? ` data-clickable data-id="${p.id}"` : ''}>
     <div class="p-main"${picks.actions === 'expand' && !p.you ? ` data-row-toggle="${p.id}"` : ''}>
-      ${p.you ? `<span class="pick"><span class="initials" aria-hidden="true">${initials(p.name)}</span></span>` : `<label class="pick"><span class="initials" aria-hidden="true">${initials(p.name)}</span><input type="checkbox" data-pick="${p.id}"${picked ? ' checked' : ''} aria-label="Pick ${p.name}"></label>`}
-      <div class="who"><div><p class="name"><span>${hl(p.name)}</span>${tags(p)}</p><p class="email">${hl(p.email)}</p></div></div>
+      ${p.you ? '<span class="pick"></span>' : `<label class="pick"><input type="checkbox" data-pick="${p.id}"${picked ? ' checked' : ''} aria-label="Pick ${p.name}"></label>`}
+      <div class="who"><span class="initials" aria-hidden="true">${initials(p.name)}</span><div><p class="name"><span>${hl(p.name)}</span>${tags(p)}</p><p class="email">${hl(p.email)}</p></div></div>
       <p class="meta">${p.blocked ? `Blocked on ${p.blocked}` : `Joined ${p.joined}`}, ${p.you ? 'admin' : p.invite ? `with “${p.invite}”` : 'before invites'}</p>
       <p class="cell num">${p.blocked ? `<span class="blocked-text">Blocked ${p.blocked}</span>` : p.joined}</p>
       <p class="cell${p.invite ? '' : ' muted'}">${invitedWith(p)}</p>
