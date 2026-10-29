@@ -9,7 +9,14 @@ import classes from './AuthLayout.module.css';
  * The frame of the sign-in and sign-up pages (F-011 variant 4): on the desktop the name on a charcoal half beside
  * the form; on the phone a charcoal band with the form card overlapping it.
  */
-export function AuthLayout({ children }: { children?: ReactNode }) {
+export function AuthLayout({
+  children,
+  withSwitch = true,
+}: {
+  children?: ReactNode;
+  /** The invite page has no Sign in / Create account switch (F-028). */
+  withSwitch?: boolean;
+}) {
   const { t } = useTranslation();
 
   return (
@@ -23,7 +30,7 @@ export function AuthLayout({ children }: { children?: ReactNode }) {
       </header>
       <main className={classes.formSide}>
         <div className={classes.formWrap}>
-          <AuthSwitch />
+          {withSwitch && <AuthSwitch />}
           {children ?? <Outlet />}
         </div>
       </main>

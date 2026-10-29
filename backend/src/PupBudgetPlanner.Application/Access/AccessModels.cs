@@ -2,6 +2,9 @@ using PupBudgetPlanner.Domain.Invitations;
 
 namespace PupBudgetPlanner.Application.Access;
 
+/// <summary>Whether creating an account needs an invite link (F-028).</summary>
+public sealed record SignUpInfo(SignUpMode Mode);
+
 /// <summary>A new invite link; <paramref name="Note"/> says who it is for and only the admin sees it.</summary>
 public sealed record CreateInvitationRequest(string? Note);
 

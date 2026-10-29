@@ -2,6 +2,31 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29 (3)
+
+**Done**
+- F-028 built (same branch and PR as the plan); M1 is done again.
+  - **Backend:** `Invitation` (hashed token, 7 days, once, cancel), invite-only `register` and first Google
+    sign-in, the admin from `Access:AdminEmails`, `/api/admin/people` (list, block, unblock, delete, in bulk) and
+    `/api/admin/invitations`, `/api/invitations/{token}` for the invite page, `/api/auth/sign-up`. Blocking ends
+    cookies within a minute; deletion removes the account's data. Migration `AddInvitations` (join dates of
+    existing accounts from their UUIDv7 ids).
+  - **Frontend:** `/invite/:token`, the invite-only Create account, Google and blocked messages, the People page
+    (underline tabs, search, card rows with check boxes and a ⋯ menu, a bar for bulk Block / Delete, folded link
+    groups, the New invite link dialog with Copy / Share), People in the sidebar and under More for the admin.
+  - **Tests:** backend 161 (65 new), frontend unit 60 (17 new), E2E 35 passed, 2 skipped (an E2E admin and invite
+    links for every new account); Storybook stories for both screens.
+- Checked: screenshots of every screen at 375 and 1440 px, light and dark, looked at; the People page in the
+  browser pane with the local test admin. Five visual fixes on the way (see the description).
+
+**Decisions**
+- ADR 0016: hashed invite links, the admin from configuration (password sign-up of an admin email only in
+  Development), blocking via the security stamp checked every minute, no sign-in method shown.
+
+**Next**
+- Owner: review PR #23; after the release set `Access__AdminEmails__0` on Render; confirm Q-012.
+- I-002 (corners across the app) is proposed as its own change. Then M2: F-014.
+
 ## 2026-10-29 (2)
 
 **Done**

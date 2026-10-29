@@ -12,7 +12,7 @@ import { BottomSheet } from '../../shared/ui/BottomSheet';
 import { ColorSchemeToggle } from '../../shared/ui/ColorSchemeToggle';
 import { Brand } from './Logo';
 import classes from './PhoneBars.module.css';
-import { MORE_SECTIONS, TAB_SECTIONS, type ShellUser } from './sections';
+import { moreSectionsFor, TAB_SECTIONS, type ShellUser } from './sections';
 
 /** Phone top bar: logo and name, the theme switch and the avatar (a link to Settings). */
 export function TopBar({ user }: { user?: ShellUser }) {
@@ -45,13 +45,15 @@ export function TopBar({ user }: { user?: ShellUser }) {
 interface TabBarProps {
   onAdd: () => void;
   onMore: () => void;
+  /** The admin's People counts as one of More's sections. */
+  user?: ShellUser;
 }
 
 /** Phone tab bar: Transactions, Accounts, Reports and More as icons, the open one named; Add at the end. */
-export function TabBar({ onAdd, onMore }: TabBarProps) {
+export function TabBar({ onAdd, onMore, user }: TabBarProps) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const inMore = MORE_SECTIONS.some((s) => pathname.startsWith(s.path));
+  const inMore = moreSectionsFor(user).some((s) => pathname.startsWith(s.path));
 
   return (
     <nav className={classes.tabs} aria-label={t('nav.main')}>
@@ -96,7 +98,7 @@ export function MoreSheet({ opened, onClose, user, onSignOut }: MoreSheetProps) 
 
   return (
     <BottomSheet opened={opened} onClose={onClose} title={t('nav.more')} hideTitle>
-      {MORE_SECTIONS.map(({ id, path, icon: Icon }) => (
+      {moreSectionsFor(user).map(({ id, path, icon: Icon }) => (
         <NavLink key={id} to={path} className={classes.menuItem} onClick={onClose}>
           <Icon size={20} stroke={1.6} />
           {t(`nav.${id}`)}

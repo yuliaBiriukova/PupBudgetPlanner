@@ -9,7 +9,7 @@ Feature details are in [BACKLOG.md](BACKLOG.md) and [changes/](changes/).
 | # | Milestone | Features | Outcome | Status |
 |---|-----------|----------|---------|--------|
 | M0 | Foundation | F-001 – F-009 | Repo, docs, scaffolded backend + frontend, Storybook, Playwright, CI, hello world deployed to Render + Neon | Done |
-| M1 | Authentication & app shell | F-010 – F-013, F-028 | Sign up / sign in (email + password, Google), app layout & navigation, default categories; invite-only sign-up while the app is for family and friends | In progress |
+| M1 | Authentication & app shell | F-010 – F-013, F-028 | Sign up / sign in (email + password, Google), app layout & navigation, default categories; invite-only sign-up while the app is for family and friends | Done |
 | M2 | Accounts & categories | F-014 – F-016 | Accounts with opening balances and balances overview, categories view, settings | Todo |
 | M3 | Transactions | F-017 – F-020 | Quick add expense / income / transfer (incl. currency exchange), list, edit, delete; NBU rates | Todo |
 | M4 | Reports | F-021 – F-022 | Monthly and yearly reports like the spreadsheet, in the report currency | Todo |

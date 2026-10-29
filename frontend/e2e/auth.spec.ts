@@ -1,9 +1,14 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import en from '../src/shared/i18n/locales/en.json' with { type: 'json' };
-import { newPerson, signUpThroughApi, type Person } from './auth.ts';
+import { newInviteToken, newPerson, signUpThroughApi, type Person } from './auth.ts';
 
 // These tests start signed out
 test.use({ storageState: { cookies: [], origins: [] } });
+
+async function xsrf(request: APIRequestContext) {
+  await request.get('/api/auth/me');
+  return (await request.storageState()).cookies.find((c) => c.name === 'XSRF-TOKEN')?.value ?? '';
+}
 
 async function signIn(page: Page, person: Pick<Person, 'email' | 'password'>) {
   await page.getByLabel(en.auth.fields.email).fill(person.email);
@@ -26,9 +31,13 @@ async function signOut(page: Page, isMobile: boolean) {
   }
 }
 
-test('creates an account, signs out and signs in again', async ({ page, isMobile }) => {
+test('creates an account with an invite link, signs out and signs in again', async ({
+  page,
+  isMobile,
+}) => {
   const person = newPerson('signup');
-  await page.goto('/sign-up');
+  await page.goto(`/invite/${await newInviteToken()}`);
+  await expect(page.getByText(/invited you to Pup Budget/)).toBeVisible();
 
   await page.getByLabel(en.auth.fields.name).fill(person.displayName);
   await page.getByLabel(en.auth.fields.email).fill(person.email);
@@ -83,7 +92,7 @@ test('a wrong password or an unknown email get the same message', async ({ page,
 test('a taken email gets a neutral message with a way to sign in', async ({ page, request }) => {
   const person = newPerson('taken');
   expect((await signUpThroughApi(request, person)).ok()).toBe(true);
-  await page.goto('/sign-up');
+  await page.goto(`/invite/${await newInviteToken()}`);
 
   await page.getByLabel(en.auth.fields.name).fill('Someone else');
   await page.getByLabel(en.auth.fields.email).fill(person.email);
@@ -95,6 +104,31 @@ test('a taken email gets a neutral message with a way to sign in', async ({ page
   await expect(banner).toContainText(en.auth.errors.emailUnavailable);
   await banner.getByRole('link', { name: en.auth.errors.signInWithEmail }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
+});
+
+test('Create account without a link says sign-up is invite-only', async ({ page }) => {
+  await page.goto('/sign-up');
+
+  await expect(page.getByRole('heading', { name: en.auth.inviteOnly.title })).toBeVisible();
+  await expect(page.getByLabel(en.auth.fields.name)).toHaveCount(0);
+  await page.getByRole('link', { name: en.auth.inviteOnly.goToSignIn }).click();
+  await expect(page).toHaveURL(/\/sign-in$/);
+});
+
+test('an invite link works once; the second time it gets the neutral page', async ({
+  page,
+  request,
+}) => {
+  const token = await newInviteToken();
+  const first = await request.post('/api/auth/register', {
+    headers: { 'X-XSRF-TOKEN': await xsrf(request) },
+    data: { ...newPerson('once'), inviteToken: token },
+  });
+  expect(first.ok()).toBe(true);
+
+  await page.goto(`/invite/${token}`);
+  await expect(page.getByRole('heading', { name: en.auth.invite.goneTitle })).toBeVisible();
+  await expect(page.getByLabel(en.auth.fields.name)).toHaveCount(0);
 });
 
 // Google blocks automated sign-ins, so the test stops at Google's door; the whole flow is checked by hand (F-012)

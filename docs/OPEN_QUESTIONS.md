@@ -7,7 +7,7 @@ When a question is answered, move it to "Answered" with the answer and date, and
 | ID | Question | Proposal | Blocks |
 |----|----------|----------|--------|
 | Q-010 | Deleting an account: right away or after a grace period; how to confirm; a family owner with other members; export first? | Right away; password or Google again plus a typed word; hand the family over first; export once M11 has it. Details in [F-027](changes/features/F-027-delete-account/F-027-delete-account.md#open-points) | F-027 |
-| Q-012 | Accounts already created on production before invite-only sign-up | They keep access; the admin looks through the People page after the release and blocks or deletes anyone unknown. See [F-028](changes/features/F-028-invite-only-access/F-028-invite-only-access.md#open-points) | F-028 release |
+| Q-012 | Accounts already created on production before invite-only sign-up | Built this way in F-028, waiting for the owner's confirmation: they keep access; the admin looks through the People page after the release and blocks or deletes anyone unknown. See [F-028](changes/features/F-028-invite-only-access/F-028-invite-only-access.md#open-points) | F-028 release |
 | Q-011 | Default categories for people outside the family: the current set is the owner's own (Bank commission, English / Piano lessons, Driving, Spotify, Emergency) | A generic set: drop or rename the personal ones (Spotify → Music & streaming, Salon/Barber → Personal care, Medicine/Drugs/Skincare → Medicine); consider Car, Pets, Kids, Taxi. Decide together with adding own categories (M9) | Opening sign-up beyond the family |
 
 ## Answered

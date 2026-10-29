@@ -131,6 +131,10 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--mantine-color-error': '#b3261e',
     '--pup-color-error-bg': '#fbeceb',
     '--pup-color-error-text': '#8c1d18',
+    // Delete buttons (F-028)
+    '--pup-color-danger': '#b3261e',
+    '--pup-color-danger-hover': '#9c211a',
+    '--pup-color-on-danger': '#fcfcfd',
   },
   dark: {
     '--mantine-color-body': '#121315',
@@ -159,5 +163,8 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--mantine-color-error': '#f2958c',
     '--pup-color-error-bg': '#3a1d1b',
     '--pup-color-error-text': '#f6b8b2',
+    '--pup-color-danger': '#f2958c',
+    '--pup-color-danger-hover': '#f6b8b2',
+    '--pup-color-on-danger': '#121315',
   },
 });

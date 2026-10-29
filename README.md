@@ -62,6 +62,18 @@ dotnet user-secrets set "Authentication:Google:ClientId" "<client id>" --project
 dotnet user-secrets set "Authentication:Google:ClientSecret" "<client secret>" --project src/PupBudgetPlanner.Api
 ```
 
+Sign-up is invite-only (F-028, [ADR 0016](docs/decisions/0016-invite-only-sign-up.md)). The admin, who sees the
+People page and makes invite links, is named by email; the E2E tests add their own admin as the second entry:
+
+```bash
+cd backend
+dotnet user-secrets set "Access:AdminEmails:0" "<your email>" --project src/PupBudgetPlanner.Api
+dotnet user-secrets set "Access:AdminEmails:1" "e2e-admin@example.com" --project src/PupBudgetPlanner.Api
+```
+
+Locally (Development) an admin email can also create its account with a password and no link. To open sign-up to
+everyone, set `Access:SignUp` to `Open`.
+
 Migrations are applied when the API starts. `GET /api/health` returns 200 without touching the database.
 In Development the OpenAPI document is at `http://localhost:5297/openapi/v1.json`.
 

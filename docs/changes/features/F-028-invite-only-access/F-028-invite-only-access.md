@@ -5,9 +5,9 @@
 | Type | Feature |
 | Milestone | M1 — Authentication & app shell |
 | Priority | High |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-028-invite-only-access` |
-| Design | 3 HTML prototypes required |
+| Design | 7 HTML prototypes over 4 rounds; chosen: variant 7 |
 
 ## Goal
 
@@ -20,37 +20,37 @@ password, or the first "Continue with Google").
 
 ## Acceptance criteria
 
-- [ ] **Invite-only by default.** Without an invitation nobody can create an account: not on the Create account
+- [x] **Invite-only by default.** Without an invitation nobody can create an account: not on the Create account
       form, not through the API (`POST /api/auth/register`), not with the first "Continue with Google". The page
       says Pup is invite-only for now and what to do (ask the person who told you about it for a link).
-- [ ] **Existing accounts keep working.** People who already have an account sign in as before, with a password
+- [x] **Existing accounts keep working.** People who already have an account sign in as before, with a password
       or Google (incl. linking Google to an account with the same email, ADR 0014).
-- [ ] **The admin.** The owner is the admin; who the admin is comes from configuration, not from the UI.
+- [x] **The admin.** The owner is the admin; who the admin is comes from configuration, not from the UI.
       Only the admin sees the People page and its API.
-- [ ] **Invite link.** The admin creates a link in a dialog (with an optional note for whom it is), copies or
+- [x] **Invite link.** The admin creates a link in a dialog (with an optional note for whom it is), copies or
       shares it from the same dialog and sends it in any messenger (no email until M8). A link works once and for
       7 days; the admin can cancel a waiting link. The link is shown only when it is made (only its hash is
       stored); a lost link is cancelled and made again.
-- [ ] **Signing up with a link.** The link opens a "You're invited" page with Create account and Continue with
+- [x] **Signing up with a link.** The link opens a "You're invited" page with Create account and Continue with
       Google. Either way the account is created and the invitation is used up in the same transaction as the
       account (two people can't use one link). A used, expired, cancelled or made-up link gets one neutral message.
-- [ ] **People page.** One admin page, People, with two tabs: **People** (everyone with access: name, email,
+- [x] **People page.** One admin page, People, with two tabs: **People** (everyone with access: name, email,
       joined, invited with which link, blocked; not how they sign in, see decision 7) and **Invite links** (waiting, used by whom,
       expired, cancelled). The tabs are in the URL, so a reload or the Back button keeps the open tab.
-- [ ] **Search people.** A search field on the People tab filters the list by name or email as you type (not
+- [x] **Search people.** A search field on the People tab filters the list by name or email as you type (not
       case-sensitive, Cyrillic too), shows how many match, and says so when nobody matches, with a way to clear
       the search.
-- [ ] **Only waiting links by default.** The Invite links tab shows the waiting links; used links and expired or
+- [x] **Only waiting links by default.** The Invite links tab shows the waiting links; used links and expired or
       cancelled ones are hidden until the admin shows them (each kind on its own). The choice is remembered in the
       browser.
-- [ ] **Taking access away.** The admin can block a person: they are signed out on every device and can't sign
+- [x] **Taking access away.** The admin can block a person: they are signed out on every device and can't sign
       in, with a password or Google; their data stays. The admin can unblock them. The admin can't block
       themselves.
-- [ ] **Deleting a person.** The admin can also delete a person's account with all their data, after a
+- [x] **Deleting a person.** The admin can also delete a person's account with all their data, after a
       confirmation that can't be done by accident (type the person's email or a shown word). They are signed out
       everywhere; their email or Google account could sign up again only with a new invitation. The admin can't
       delete themselves.
-- [ ] **Opening up later.** A setting (`Access:SignUp` = `InviteOnly` | `Open`) switches back to open sign-up
+- [x] **Opening up later.** A setting (`Access:SignUp` = `InviteOnly` | `Open`) switches back to open sign-up
       without code changes; invitations keep working in both modes.
 
 ## Screens and behavior
@@ -95,21 +95,21 @@ What is decided so far (rounds 1–3 of the design, see "Design"):
 - [x] References (see "Design")
 - [x] 3 HTML prototypes: the "You're invited" page, the invite-only message on Create account and after Google,
       the People page with an invitation created and copied (phone and desktop, light and dark)
-- [ ] Domain: `Invitation` (hashed token, note, created by, expires, used by / at, cancelled at) and its rules
-- [ ] Database: `invitations` table, migration; an admin role; a blocked flag (or a permanent lockout) on the
+- [x] Domain: `Invitation` (hashed token, note, created by, expires, used by / at, cancelled at) and its rules
+- [x] Database: `invitations` table, migration; an admin role; a blocked flag (or a permanent lockout) on the
       account
-- [ ] API: register and the Google flow accept an invitation token; `/api/admin/invitations` (create, list,
+- [x] API: register and the Google flow accept an invitation token; `/api/admin/invitations` (create, list,
       cancel) and `/api/admin/people` (list, block, unblock, delete), admin only; `me` says whether the person is the
   admin
-- [ ] Deleting an account removes all of its data in one transaction (today: categories by cascade; the same
+- [x] Deleting an account removes all of its data in one transaction (today: categories by cascade; the same
       code is reused by F-027 "Delete my account")
-- [ ] Google: the invitation token travels through the Google round trip in the authentication properties; an
+- [x] Google: the invitation token travels through the Google round trip in the authentication properties; an
       unknown Google account without one is not created and comes back with the invite-only message
-- [ ] Frontend: `/invite/:token` page, the invite-only state of Create account, the People page with its tabs
+- [x] Frontend: `/invite/:token` page, the invite-only state of Create account, the People page with its tabs
       (`/people`, `/people/links`), search, showing and hiding used and old links, its nav item (admin only), i18n texts
-- [ ] Storybook stories (loading, empty, error; link created; blocked person)
-- [ ] ADR: invite-only sign-up (token format and storage, admin from configuration, blocking, the open switch)
-- [ ] Render: the new environment variables; README
+- [x] Storybook stories (loading, empty, error; link created; blocked person)
+- [x] ADR: invite-only sign-up (token format and storage, admin from configuration, blocking, the open switch)
+- [x] Render: the new environment variables; README
 
 ## Design
 
@@ -241,7 +241,16 @@ for one person; **Folded groups** for used and old links; underline tabs; varian
   Create account without a link shows the invite-only message; the admin blocks the person, who is signed out and
   can't sign in, then unblocks them; the admin deletes a person, who can't sign in and whose email can't sign up
   without a new link.
-- Screens checked in Playwright screenshots (phone / desktop, light / dark):
+- Screens checked in Playwright screenshots (phone / desktop, light / dark): the invite page, a link that doesn't
+  work, Create account without a link, sign in after Google without an account and when blocked, People (list, two
+  picked, the row menu, no match, delete), Invite links (folded and open), New invite link and the link created.
+  Fixed on the way: the link card's buttons were 36 px, the disabled Delete button was unreadable in dark mode,
+  long notes wrapped, an open empty group said nothing, a blocked person's phone line read "Joined Blocked …".
+
+Results: backend 161 tests (65 new); frontend unit 60 (17 new); E2E 35 passed, 2 skipped (5 new or changed:
+signing up with a link, a link used twice, Create account without a link, the admin invites → blocks → unblocks,
+no People page for others); Storybook stories for the People page (loading, error, no match, picked, menu,
+delete, links, none waiting, all open, new link) and the invite screens.
 
 ## Decisions (owner, 2026-10-29)
 
@@ -271,10 +280,16 @@ for one person; **Folded groups** for used and old links; underline tabs; varian
 
 ## Open points
 
-1. **Accounts that already exist on production.** Proposal: they keep access; the admin looks through the People
-   page after the release and blocks or deletes anyone unknown.
+1. **Accounts that already exist on production** (Q-012). Built as proposed: they keep access and show "Before
+   invites"; after the release the admin looks through the People page and blocks or deletes anyone unknown.
+   Waiting for the owner's confirmation.
 
 ## Notes
+
+- After the release: set `Access__AdminEmails__0` on Render to the owner's email (the dashboard), otherwise nobody
+  is the admin and nobody can be invited.
+- One run of the frontend unit tests failed once and passed the next 8 times; which test it was isn't known. Watch
+  for it in CI.
 
 - The token is long and random (32 bytes, URL-safe), only its hash is stored, like a password reset token; the
   invitation endpoints are rate-limited like sign-in.

@@ -378,6 +378,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/sign-up": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Whether Create account needs an invite link, so the page can say so before anyone types (F-028). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SignUpInfo"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/register": {
         parameters: {
             query?: never;
@@ -848,6 +884,15 @@ export interface components {
             email: string;
             password: string;
         };
+        /** @description Whether creating an account needs an invite link (F-028). */
+        SignUpInfo: {
+            mode: components["schemas"]["SignUpMode"];
+        };
+        /**
+         * @description Who may create an account (F-028).
+         * @enum {unknown}
+         */
+        SignUpMode: "InviteOnly" | "Open";
         ValidationProblemDetails: {
             type?: null | string;
             title?: null | string;

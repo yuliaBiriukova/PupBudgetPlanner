@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using PupBudgetPlanner.Api.Auth;
+using PupBudgetPlanner.Application.Access;
 using PupBudgetPlanner.Application.Auth;
 using PupBudgetPlanner.Infrastructure.Identity;
 
@@ -27,6 +29,12 @@ public sealed partial class AuthController(IAuthService auth, IAntiforgery antif
 
         return user is null ? NoContent() : Ok(user);
     }
+
+    /// <summary>Whether Create account needs an invite link, so the page can say so before anyone types (F-028).</summary>
+    [HttpGet("sign-up")]
+    [ProducesResponseType<SignUpInfo>(StatusCodes.Status200OK)]
+    public ActionResult<SignUpInfo> SignUp([FromServices] IOptions<AccessOptions> access) =>
+        Ok(new SignUpInfo(access.Value.SignUp));
 
     [HttpPost("register")]
     [EnableRateLimiting(AuthRateLimiting.PolicyName)]

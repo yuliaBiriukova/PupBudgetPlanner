@@ -1,7 +1,9 @@
 import { Navigate, type RouteObject } from 'react-router';
 import { AccountsPage } from '../features/accounts/AccountsPage';
 import { GuestOnly, SignInPage, SignUpPage } from '../features/auth/AuthPages';
+import { InvitePage } from '../features/auth/InvitePage';
 import { FamilyPage } from '../features/family/FamilyPage';
+import { PeoplePage } from '../features/people/PeoplePage';
 import { ReportsPage } from '../features/reports/ReportsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { TransactionsPage } from '../features/transactions/TransactionsPage';
@@ -16,6 +18,9 @@ export const sectionRoutes: RouteObject[] = [
   { path: 'reports', element: <ReportsPage /> },
   { path: 'family', element: <FamilyPage /> },
   { path: 'settings', element: <SettingsPage /> },
+  // The admin's page (F-028); anyone else gets Page not found
+  { path: 'people', element: <PeoplePage tab="people" /> },
+  { path: 'people/links', element: <PeoplePage tab="links" /> },
   { path: '*', element: <NotFoundPage /> },
 ];
 
@@ -26,6 +31,11 @@ export const routes: RouteObject[] = [
       { path: 'sign-in', element: <SignInPage /> },
       { path: 'sign-up', element: <SignUpPage /> },
     ],
+  },
+  // The invite link (F-028): the same frame without the Sign in / Create account switch
+  {
+    element: <GuestOnly withSwitch={false} />,
+    children: [{ path: 'invite/:token', element: <InvitePage /> }],
   },
   // Everything else needs a signed-in person
   { element: <SignedInLayout />, children: sectionRoutes },

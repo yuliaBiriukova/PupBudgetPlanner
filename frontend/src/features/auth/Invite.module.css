@@ -1,0 +1,90 @@
+/* The invite page and the invite-only notice (F-028, variant 1 of the design) */
+
+.invited {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-active-bg);
+}
+
+.invitedIcon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--pup-color-accent);
+}
+
+.invitedTitle {
+  margin: 0;
+  font-weight: 500;
+}
+
+.invitedText {
+  margin: 2px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.foot {
+  margin: 12px 0 0;
+  color: var(--mantine-color-dimmed);
+  text-align: center;
+}
+
+.footLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--pup-color-accent);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.notice {
+  margin-top: 28px;
+}
+
+.noticeIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+}
+
+.title {
+  margin: 16px 0 0;
+  font-family: var(--pup-font-display);
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1.3;
+}
+
+.goneTitle {
+  margin: 0;
+  font-family: var(--pup-font-display);
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1.25;
+}
+
+.text {
+  margin: 10px 0 0;
+  color: var(--mantine-color-dimmed);
+}
+
+.action {
+  margin-top: 24px;
+}
+
+.checking {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--mantine-color-dimmed);
+}

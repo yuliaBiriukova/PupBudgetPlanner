@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using PupBudgetPlanner.Api.Auth;
 using PupBudgetPlanner.Api.Controllers;
+using Microsoft.Extensions.Options;
+using PupBudgetPlanner.Application.Access;
 using PupBudgetPlanner.Application.Auth;
 using PupBudgetPlanner.Infrastructure.Identity;
 
@@ -70,6 +72,16 @@ public sealed class AuthControllerTests
 
         result.Result.Should().BeOfType<NoContentResult>();
         controller.Response.Headers.SetCookie.ToString().Should().Contain(AntiforgeryToken.CookieName);
+    }
+
+    [Theory]
+    [InlineData(SignUpMode.InviteOnly)]
+    [InlineData(SignUpMode.Open)]
+    public void Sign_up_info_says_whether_an_invite_link_is_needed(SignUpMode mode)
+    {
+        var result = controller.SignUp(Options.Create(new AccessOptions { SignUp = mode }));
+
+        result.Result.Should().BeOfType<OkObjectResult>().Which.Value.Should().Be(new SignUpInfo(mode));
     }
 
     [Fact]

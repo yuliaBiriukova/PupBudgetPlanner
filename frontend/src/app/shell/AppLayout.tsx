@@ -39,7 +39,7 @@ export function AppLayout({ user, onSignOut }: AppLayoutProps) {
             <Outlet />
           </div>
         </main>
-        {!isDesktop && <TabBar onAdd={add.open} onMore={more.open} />}
+        {!isDesktop && <TabBar onAdd={add.open} onMore={more.open} user={user} />}
       </div>
       {!isDesktop && (
         <MoreSheet opened={moreOpened} onClose={more.close} user={user} onSignOut={onSignOut} />

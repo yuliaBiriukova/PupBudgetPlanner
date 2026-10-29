@@ -1,0 +1,587 @@
+/* The admin's People page (F-028, variant 7 of the design): underline tabs, card rows, folded link groups */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  padding: 8px 0 18px;
+}
+
+.title {
+  margin: 0 auto 0 0;
+}
+
+.newButton {
+  order: 3;
+  width: 100%;
+  min-height: 52px;
+}
+
+.tabs {
+  display: flex;
+  gap: 24px;
+  margin-top: 4px;
+  border-bottom: 1px solid var(--pup-color-rule);
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 48px;
+  color: var(--mantine-color-dimmed);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.tab:hover,
+.tab[aria-current='page'] {
+  color: var(--mantine-color-text);
+}
+
+.tab[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--pup-color-accent);
+}
+
+.count {
+  color: var(--mantine-color-dimmed);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.lead {
+  max-width: 560px;
+  margin: 16px 0 14px;
+  color: var(--mantine-color-dimmed);
+}
+
+/* Search: a visible label with the count on the same line */
+.search {
+  max-width: 420px;
+  margin: 16px 0 14px;
+}
+
+.searchTop {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.searchCount {
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.searchLabel {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.searchInput {
+  height: 52px;
+  border-color: var(--pup-color-field-border);
+  font-size: 16px;
+}
+
+.legend {
+  margin: 12px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+/* People: card rows with a check box and a ⋯ menu */
+.listHead {
+  display: none;
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  gap: 2px 12px;
+  align-items: center;
+  min-height: 68px;
+  padding: 12px 8px 12px 4px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-surface);
+}
+
+.row[data-picked] {
+  border-color: var(--pup-color-accent);
+  box-shadow: 0 0 0 1px var(--pup-color-accent);
+}
+
+.pick {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+}
+
+.who {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.who > div {
+  min-width: 0;
+}
+
+.initials {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+[data-blocked] .initials {
+  background: var(--pup-color-error-bg);
+  color: var(--pup-color-error-text);
+}
+
+.name {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+  margin: 0;
+  font-weight: 500;
+}
+
+.field {
+  height: 52px;
+  font-size: 16px;
+}
+
+.email {
+  margin: 0;
+  overflow: hidden;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  grid-column: 2;
+  margin: 0;
+  padding-left: 52px;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.cell {
+  display: none;
+  margin: 0;
+  overflow: hidden;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dim {
+  color: var(--mantine-color-dimmed);
+}
+
+.blockedText {
+  color: var(--mantine-color-error);
+}
+
+.acts {
+  grid-row: 1 / span 2;
+  grid-column: 3;
+  justify-self: end;
+}
+
+.tag {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.tagBlocked {
+  background: var(--pup-color-error-bg);
+  color: var(--pup-color-error-text);
+}
+
+.danger {
+  color: var(--mantine-color-error);
+}
+
+/* The bar for picked people: a 24 px panel on the phone, a pill on the desktop */
+.bulk {
+  position: sticky;
+  bottom: 12px;
+  z-index: 4;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 16px;
+  padding: 8px 8px 8px 16px;
+  border-radius: var(--mantine-radius-xl);
+  background: var(--pup-color-tooltip);
+  box-shadow: var(--pup-shadow-float);
+  color: var(--pup-color-on-tooltip);
+}
+
+.bulkWhat {
+  margin-right: auto;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.bulkButton {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+}
+
+.bulkButton svg {
+  display: none;
+}
+
+.bulkClear {
+  color: var(--pup-color-on-tooltip);
+}
+
+/* Nobody matches the search */
+.nobody {
+  padding: 28px 0 8px;
+}
+
+.nobodyTitle {
+  margin: 0;
+  font-family: var(--pup-font-display);
+  font-size: 19px;
+  font-weight: 300;
+  line-height: 1.3;
+}
+
+.nobodyText {
+  margin: 6px 0 14px;
+  color: var(--mantine-color-dimmed);
+}
+
+/* Invite links: Waiting as card rows, Used and Expired and cancelled folded */
+.group + .group {
+  margin-top: 26px;
+}
+
+.groupHead {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.groupTitle {
+  margin: 0;
+  font-family: var(--pup-font-display);
+  font-size: 17px;
+  font-weight: 300;
+}
+
+.waiting {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: 4px 14px;
+  align-items: center;
+  padding: 14px 8px 14px 16px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-surface);
+}
+
+.waiting + .waiting {
+  margin-top: 8px;
+}
+
+.clock {
+  display: grid;
+  grid-row: 1 / span 2;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+}
+
+.left {
+  grid-column: 2;
+  margin: 0;
+  color: var(--pup-color-accent);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cancel {
+  grid-row: 1 / span 2;
+  grid-column: 3;
+}
+
+.wideOnly {
+  display: none;
+}
+
+.disclosure {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 4px;
+  border-top: 1px solid var(--pup-color-rule);
+  border-radius: 0;
+  color: var(--mantine-color-text);
+}
+
+.disclosure:hover {
+  background: var(--pup-color-hover);
+}
+
+.disclosureHint {
+  margin-left: auto;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.chev {
+  transition: transform 160ms;
+}
+
+[aria-expanded='true'] .chev {
+  transform: rotate(180deg);
+}
+
+.history {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--pup-color-rule);
+  list-style: none;
+}
+
+.historyRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 16px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--pup-color-rule);
+}
+
+.historyRow p {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty {
+  margin: 10px 4px 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.when {
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The new link in the dialog */
+.linkCard {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: var(--mantine-radius-xl);
+  background: var(--pup-color-active-bg);
+}
+
+.linkFor {
+  margin: 0;
+  font-family: var(--pup-font-display);
+  font-size: 17px;
+  font-weight: 300;
+}
+
+.linkInput {
+  height: 48px;
+  margin-top: 10px;
+  font-size: 14px;
+  text-overflow: ellipsis;
+}
+
+.linkButtons > *,
+.dialogButton {
+  min-height: 48px;
+}
+
+.linkButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.dialogText {
+  margin: 10px 0 0;
+}
+
+.dialogActions {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.dialogActions > * {
+  min-height: 48px;
+}
+
+.names {
+  margin: 12px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--pup-color-rule);
+  list-style: none;
+}
+
+.names li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--pup-color-rule);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.dangerButton {
+  --button-bg: var(--pup-color-danger);
+  --button-hover: var(--pup-color-danger-hover);
+  --button-color: var(--pup-color-on-danger);
+}
+
+/* Until the confirmation is typed: the same red, faded, so it still reads as the delete button */
+.dangerButton:disabled,
+.dangerButton[data-disabled] {
+  background: var(--pup-color-danger);
+  color: var(--pup-color-on-danger);
+  opacity: 0.45;
+}
+
+@media (min-width: $mantine-breakpoint-sm) {
+  .newButton {
+    order: 0;
+    width: auto;
+    min-height: 48px;
+  }
+
+  .listHead {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px;
+    gap: 16px;
+    align-items: center;
+    padding: 0 9px 8px 5px;
+    color: var(--mantine-color-dimmed);
+    font-size: 13px;
+  }
+
+  .row {
+    grid-template-columns: 44px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px;
+    gap: 16px;
+  }
+
+  .meta {
+    display: none;
+  }
+
+  .cell {
+    display: block;
+  }
+
+  .acts {
+    grid-row: auto;
+    grid-column: auto;
+  }
+
+  .bulk {
+    gap: 12px;
+    padding: 10px 10px 10px 18px;
+    border-radius: 999px;
+  }
+
+  .bulkButton svg {
+    display: block;
+  }
+
+  .waiting {
+    grid-template-columns: 40px minmax(0, 1fr) auto auto;
+  }
+
+  .clock,
+  .cancel {
+    grid-row: auto;
+    grid-column: auto;
+  }
+
+  .left {
+    grid-column: auto;
+    text-align: right;
+  }
+
+  .wideOnly {
+    display: inline;
+  }
+
+  .historyRow {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) 120px;
+  }
+
+  .when {
+    text-align: right;
+  }
+
+  .dialogActions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .dialogActions > * {
+    min-height: 44px;
+  }
+}
