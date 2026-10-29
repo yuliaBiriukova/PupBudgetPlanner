@@ -23,8 +23,13 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   table). The F-028 description now has a "Screens and behavior" section and acceptance criteria for search and
   hiding links.
 
+- Round 4: card rows and grouped links chosen. The People page no longer shows how someone signs in (privacy);
+  used links are hidden by default too; one corner system (pills for buttons, tabs and nav items, circles for
+  icon buttons, 12 px fields and rows, 24 px dialogs), to be applied to the app in I-002. Variant 6 offers three
+  ways to reach a person's actions instead of a ⋯ menu and two ways to show old links.
+
 **Next**
-- Owner picks the people view and the links view; then the backend.
+- Owner picks the actions option and the old-links option; then the backend.
 
 ## 2026-10-29
 

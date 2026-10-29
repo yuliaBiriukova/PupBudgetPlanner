@@ -35,13 +35,14 @@ password, or the first "Continue with Google").
       Google. Either way the account is created and the invitation is used up in the same transaction as the
       account (two people can't use one link). A used, expired, cancelled or made-up link gets one neutral message.
 - [ ] **People page.** One admin page, People, with two tabs: **People** (everyone with access: name, email,
-      sign-in methods, joined, invited with which link, blocked) and **Invite links** (waiting, used by whom,
+      joined, invited with which link, blocked; not how they sign in, see decision 7) and **Invite links** (waiting, used by whom,
       expired, cancelled). The tabs are in the URL, so a reload or the Back button keeps the open tab.
 - [ ] **Search people.** A search field on the People tab filters the list by name or email as you type (not
       case-sensitive, Cyrillic too), shows how many match, and says so when nobody matches, with a way to clear
       the search.
-- [ ] **Hide expired links.** A switch on the Invite links tab hides expired and cancelled links (waiting and
-      used links stay). The choice is remembered in the browser.
+- [ ] **Only waiting links by default.** The Invite links tab shows the waiting links; used links and expired or
+      cancelled ones are hidden until the admin shows them (each kind on its own). The choice is remembered in the
+      browser.
 - [ ] **Taking access away.** The admin can block a person: they are signed out on every device and can't sign
       in, with a password or Google; their data stays. The admin can unblock them. The admin can't block
       themselves.
@@ -69,12 +70,12 @@ What is decided so far (rounds 1–3 of the design, see "Design"):
 - **People page** (admin only): under a line at the bottom of the sidebar's sections; under More on the phone.
   Title "People" with **New invite link** on the right (full width on the phone), then **underline tabs**
   (text tabs with the accent bar, like the sidebar marker) with counts: People · Invite links (waiting).
-  - **People tab:** a short line on who can sign up, the search field, the list (layout: see round 3), each
-    person's actions behind ⋯: Block… / Unblock, Delete account…. The admin's own row has no actions. Blocked
+  - **People tab:** a short line on who can sign up, the search field, the list as card rows (round 4), the
+    person's actions Block / Unblock and Delete account (how they are reached: see round 4). The admin's own row has no actions. Blocked
     people stay in the list with a Blocked tag. "Before invites" marks accounts made while sign-up was open.
   - **Invite links tab:** the note (or "No note"), the status (waiting until a date / used by whom and when /
-    expired / cancelled) and when it was made; Cancel link on waiting ones; the "Hide expired and cancelled"
-    switch.
+    expired / cancelled) and when it was made, grouped: Waiting (cards with the days left and a visible Cancel link), then Used and
+    Expired and cancelled, hidden by default (how they are shown: see round 4).
 - **New invite link dialog** (a sheet on the phone): "Who is it for? (optional, only you see it)", Create link;
   then the same dialog shows the link with Copy link and Share (the phone's share sheet), until when it works,
   and that it can't be shown again; Done opens the Invite links tab.
@@ -98,7 +99,7 @@ What is decided so far (rounds 1–3 of the design, see "Design"):
 - [ ] Google: the invitation token travels through the Google round trip in the authentication properties; an
       unknown Google account without one is not created and comes back with the invite-only message
 - [ ] Frontend: `/invite/:token` page, the invite-only state of Create account, the People page with its tabs
-      (`/people`, `/people/links`), search and the hide-expired switch, its nav item (admin only), i18n texts
+      (`/people`, `/people/links`), search, showing and hiding used and old links, its nav item (admin only), i18n texts
 - [ ] Storybook stories (loading, empty, error; link created; blocked person)
 - [ ] ADR: invite-only sign-up (token format and storage, admin from configuration, blocking, the open switch)
 - [ ] Render: the new environment variables; README
@@ -195,7 +196,26 @@ line about links; when it hides links, a line says how many are hidden.
 
 Design check 0 issues, every option at 360–1440 px in light and dark; screenshots looked at.
 
-Chosen variant: — (waiting for the owner: the people view and the links view)
+### Round 4: corners, privacy, no ⋯ menus (2026-10-29)
+
+Owner's feedback on round 3: card rows for people and grouped links; corners alike across the whole app (the
+"New invite link" pill is the model, "Add transaction" must match it); seeing how someone signs in is more than
+the admin needs; used links can be hidden too; the ⋯ menu on every row is not liked.
+
+[Variant 6 · Round 4](prototypes/variant-6.html): card rows and grouped links, the corner system of decision 8, no
+sign-in method, a visible "Cancel link" on waiting links. The preview bar switches:
+
+- **Actions** (how a person's Block / Unblock and Delete are reached): *Open the row* (a click on the row opens it
+  with labelled Block and Delete account buttons and one line on what each does), *Buttons* (Block and Delete
+  always on the row: quiet text buttons on the desktop, icon circles on the phone), *Select* (a check box per
+  row; a bar with Block and Delete for everyone picked).
+- **Old links** (used, expired and cancelled, hidden by default): *Folded groups* (Used and Expired and cancelled
+  open with a click), *Filter chips* (Waiting · Used · Expired and cancelled; each chip shows its kind).
+
+Design check 0 issues, every option at 360–1440 px in light and dark; screenshots looked at, phone lists scrolled
+too.
+
+Chosen variant: — (waiting for the owner: the actions option and the old-links option)
 
 ## Tests
 
@@ -203,8 +223,8 @@ Chosen variant: — (waiting for the owner: the people view and the links view)
   invite-only mode and accept in open mode; two sign-ups racing for one link create one account; a blocked person
   can't sign in and their cookie stops working; only the admin reaches the admin endpoints; the admin can't block
   themselves.
-- Frontend unit: search filters by name and email (case, Cyrillic) and shows the empty state; the switch hides
-  expired and cancelled links and is remembered; the Delete button works only with the typed email.
+- Frontend unit: search filters by name and email (case, Cyrillic) and shows the empty state; used and expired
+  links are hidden by default, can be shown one kind at a time, and the choice is remembered; the Delete button works only with the typed email.
 - E2E (Playwright): the admin creates a link, a new person signs up with it, the same link fails the second time;
   Create account without a link shows the invite-only message; the admin blocks the person, who is signed out and
   can't sign in, then unblocks them; the admin deletes a person, who can't sign in and whose email can't sign up
@@ -229,6 +249,13 @@ Chosen variant: — (waiting for the owner: the people view and the links view)
 6. **Design (rounds 1–3):** variant 1's sign-in screens, variant 2's dialog for a new link, variant 3's two tabs
    as underline tabs; search for people (there will be many); a switch to hide expired links. No grid of person
    cards.
+7. **Privacy (round 4):** the admin doesn't see how a person signs in (password or Google): it isn't needed to
+   manage access, so the People page and the admin API leave it out. Used links are hidden by default as well:
+   who joined with which link is already on the People tab ("Invited with").
+8. **Corners (round 4):** one radius system for the whole app (I-002): buttons with text, tabs, chips and nav
+   items are pills; icon-only buttons are circles; fields, rows, cards in lists, menus and banners 12 px;
+   dialogs, sheets and big panels 24 px; an element inside a padded box gets the box radius minus the padding.
+   "Add transaction" in the sidebar becomes a pill like "New invite link".
 
 ## Open points
 
