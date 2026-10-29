@@ -6,7 +6,7 @@
 | Milestone | M2 — Accounts & categories |
 | Priority | Medium |
 | Status | Todo |
-| Branch | `improvement/I-004-I-008-people-page-follow-ups` (shared with I-004 – I-008, as the owner asked) |
+| Branch | `improvement/I-005-people-pagination` (planned on `plan/f028-follow-ups`) |
 | Design | 3 HTML prototypes required (page controls on the People tab) |
 | Approved | — |
 

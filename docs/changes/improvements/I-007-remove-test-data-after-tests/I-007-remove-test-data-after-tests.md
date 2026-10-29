@@ -6,7 +6,7 @@
 | Milestone | M2 — Accounts & categories |
 | Priority | High |
 | Status | Todo |
-| Branch | `improvement/I-004-I-008-people-page-follow-ups` (shared with I-004 – I-008, as the owner asked) |
+| Branch | `improvement/I-007-remove-test-data-after-tests` (planned on `plan/f028-follow-ups`) |
 | Design | not needed |
 | Approved | 2026-10-29, the owner asked for it in so many words (docs only) |
 

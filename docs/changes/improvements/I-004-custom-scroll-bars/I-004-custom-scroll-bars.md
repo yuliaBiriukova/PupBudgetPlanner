@@ -6,7 +6,7 @@
 | Milestone | M2 — Accounts & categories |
 | Priority | Medium |
 | Status | Todo |
-| Branch | `improvement/I-004-I-008-people-page-follow-ups` (shared with I-005 – I-008, as the owner asked) |
+| Branch | `improvement/I-004-custom-scroll-bars` (planned on `plan/f028-follow-ups`) |
 | Design | 3 HTML prototypes required (scroll bar style) |
 | Approved | — |
 
@@ -39,5 +39,5 @@ Prototypes: `prototypes/`. Chosen variant: —
 - Screens checked in Playwright screenshots (phone / desktop, light / dark):
 
 ## Notes
-- The dialogs are Mantine `Modal` (desktop) and `Drawer` (phone sheet) with Pup styles on top; see I-008's notes
-  and the owner's question 3 in PROGRESS 2026-10-29 (8).
+- The dialogs are Mantine `Modal` (desktop) and `Drawer` (phone sheet) with Pup styles on top; see the owner's
+  question 3 in PROGRESS 2026-10-29 (8).

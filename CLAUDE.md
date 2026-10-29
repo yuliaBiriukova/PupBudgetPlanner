@@ -36,6 +36,11 @@ This file tells Claude (and any human contributor) how we work on this project.
     behavior, a different data model), stop and get it approved again. The owner's review comments are approval
     of what they ask for.
   - Why: in F-028 the screens were built from a prototype the owner had never seen (see I-003).
+- **Planning-only lists.** When the owner hands over a list of bugs, improvements or features to add to the
+  backlog (or says "only plan these"), plan them all on one `plan/<short-name>` branch (see "Git workflow"):
+  folders, description files with priorities, backlog rows, a PROGRESS entry. Implement none of them there,
+  not even a small one; each is built later on its own branch, after the owner's approval. Being in the
+  backlog is not approval to build.
 - **Log progress.** After finishing work, add a dated entry to `docs/PROGRESS.md`.
 - **Record decisions.** Any significant technical decision gets a short ADR in `docs/decisions/`.
 - **MVP first.** Don't build post-MVP items early; note ideas in the backlog instead.
@@ -68,19 +73,28 @@ This file tells Claude (and any human contributor) how we work on this project.
   - `develop` — integration branch; all development branches start from it and return to it.
   - `feature/…`, `improvement/…`, `bugfix/…` — **always branched from `develop`**, merged back into
     `develop` through a pull request so the user can review the code.
+  - `plan/<short-name>` (e.g. `plan/f028-follow-ups`) — **planning only**, for a list of changes the owner
+    wants in the backlog without building them. Branched from `develop`, merged back through a pull request
+    like the others. It carries only docs: change folders and description files, `BACKLOG.md` /
+    `ROADMAP.md` rows, a `PROGRESS.md` entry, `OPEN_QUESTIONS.md`. No code, tests or prototypes; a
+    working-agreement change the owner asks for together with the plan may go on it too. The planned changes
+    stay `Todo`, and their description files name the branch each will be built on
+    (`improvement/I-004-custom-scroll-bars`).
 - **Merging**
   - Pull requests into `develop` are merged with **squash merge**: one commit per change on `develop`,
     titled like the PR (`F-012: Add expense form`). The branch is deleted after the merge.
   - Release pull requests `develop` → `main` use a **merge commit** (not squash), so `main` and `develop`
     share history and the next release has no false conflicts.
 - **Pull requests**
-  - Title: `<ID>: <short description>` (e.g. `F-012: Add expense form`).
+  - Title: `<ID>: <short description>` (e.g. `F-012: Add expense form`). A planning PR:
+    `Plan: <short description> (<IDs>)` (e.g. `Plan: F-028 follow-ups (I-004 – I-009)`).
   - Description (from `.github/pull_request_template.md`): a short summary, the list of changes made,
     a link to the change's description file, and how it was tested.
   - No "Generated with Claude Code" (or similar tool attribution) line in PR descriptions.
   - When squash-merging, remove any `Co-authored-by: Claude …` line GitHub suggests in the commit message.
 - **Commit messages** start with the change ID and say briefly what was done:
-  `F-012: Add expense form validation`, `B-007: Fix balance after transfer edit`.
+  `F-012: Add expense form validation`, `B-007: Fix balance after transfer edit`. On a planning branch they
+  start with `Plan:` and name the IDs: `Plan: Add I-004 – I-008 to the backlog`.
   No `Co-authored-by: Claude Opus 5.5 <noreply@anthropic.com>` line (in any letter case) or other
   tool attribution in commit messages.
 - **Before every push:**
@@ -104,6 +118,8 @@ This file tells Claude (and any human contributor) how we work on this project.
   - `docs/ROADMAP.md` when the change finishes (or starts) a milestone;
   - a dated entry in `docs/PROGRESS.md`;
   - `docs/DESIGN_RULES.md`, ADRs, `OPEN_QUESTIONS.md` and any other doc the change affects.
+- A **planning PR** (`plan/…`) is the hand-off of the plan, not of the changes: they stay `Todo` in their
+  description files and the backlog. A working-agreement change carried on it is `Done`.
 - After creating the PR, give the owner its link and what to check. Change it again only when the owner asks
   (review comments) or its CI fails.
 

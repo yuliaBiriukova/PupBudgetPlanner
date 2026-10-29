@@ -6,7 +6,7 @@
 | Milestone | M2 — Accounts & categories |
 | Priority | High |
 | Status | Todo |
-| Branch | `improvement/I-004-I-008-people-page-follow-ups` (shared with I-004 – I-007, as the owner asked) |
+| Branch | `improvement/I-008-instant-click-feedback` (planned on `plan/f028-follow-ups`) |
 | Design | not needed (same look, faster) |
 | Approved | — |
 
