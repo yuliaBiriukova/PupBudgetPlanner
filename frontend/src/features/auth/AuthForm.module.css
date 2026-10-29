@@ -50,12 +50,6 @@
   font-size: 16px;
 }
 
-.input:focus,
-.input:focus-within {
-  border-color: var(--pup-color-accent);
-  outline: 1px solid var(--pup-color-accent);
-}
-
 /* The border and the message carry the error; what the person typed keeps the normal text color */
 .input[data-error] {
   border-color: var(--mantine-color-error);

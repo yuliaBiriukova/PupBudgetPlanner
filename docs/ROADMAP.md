@@ -9,7 +9,7 @@ Feature details are in [BACKLOG.md](BACKLOG.md) and [changes/](changes/).
 | # | Milestone | Features | Outcome | Status |
 |---|-----------|----------|---------|--------|
 | M0 | Foundation | F-001 – F-009 | Repo, docs, scaffolded backend + frontend, Storybook, Playwright, CI, hello world deployed to Render + Neon | Done |
-| M1 | Authentication & app shell | F-010 – F-013 | Sign up / sign in (email + password, Google), app layout & navigation, default categories | In progress |
+| M1 | Authentication & app shell | F-010 – F-013, F-028 | Sign up / sign in (email + password, Google), app layout & navigation, default categories; invite-only sign-up while the app is for family and friends | Done |
 | M2 | Accounts & categories | F-014 – F-016 | Accounts with opening balances and balances overview, categories view, settings | Todo |
 | M3 | Transactions | F-017 – F-020 | Quick add expense / income / transfer (incl. currency exchange), list, edit, delete; NBU rates | Todo |
 | M4 | Reports | F-021 – F-022 | Monthly and yearly reports like the spreadsheet, in the report currency | Todo |
@@ -22,7 +22,7 @@ Feature details are in [BACKLOG.md](BACKLOG.md) and [changes/](changes/).
 |---|-----------|---------|
 | M7 | Quality | Integration tests with Testcontainers in CI |
 | M8 | Email | Resend: email confirmation, password reset, invitations by email |
-| M9 | Privacy & categories | Private accounts / transactions; delete my account (F-027); add / rename / reorder / remove categories |
+| M9 | Privacy & categories | Private accounts / transactions; delete my account (F-027); add / rename / reorder / remove categories; a generic default set for new people (Q-011) |
 | M10 | Data import | Spreadsheet history 2024–2026, Monefy CSV |
 | M11 | Insights | Dashboard with charts, budgets per category, Excel export |
 | M12 | Localization | Ukrainian UI |

@@ -21,6 +21,9 @@ COPY backend/src/PupBudgetPlanner.Infrastructure/PupBudgetPlanner.Infrastructure
 COPY backend/src/PupBudgetPlanner.Api/PupBudgetPlanner.Api.csproj src/PupBudgetPlanner.Api/
 # ReadyToRun: precompiled code makes the start after a sleep faster. Restore needs the flag too (crossgen package).
 RUN dotnet restore src/PupBudgetPlanner.Api --runtime linux-x64 -p:PublishReadyToRun=true
+# The analyzer settings CI and local builds use, at the same place relative to backend/ (it marks EF migrations as
+# generated code, so analyzers skip them). Without it the publish checks migrations with every rule (CA1861, F-013).
+COPY .editorconfig /src/
 COPY backend/src/ src/
 RUN dotnet publish src/PupBudgetPlanner.Api --no-restore --configuration Release --runtime linux-x64 \
     --self-contained false -p:PublishReadyToRun=true --output /app

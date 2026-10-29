@@ -4,6 +4,337 @@
  */
 
 export interface paths {
+    "/api/admin/people": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PersonItem"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/people/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Signs the people out everywhere and stops them signing in; their data stays. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PeopleRequest"];
+                    "text/json": components["schemas"]["PeopleRequest"];
+                    "application/*+json": components["schemas"]["PeopleRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/people/unblock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PeopleRequest"];
+                    "text/json": components["schemas"]["PeopleRequest"];
+                    "application/*+json": components["schemas"]["PeopleRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/people/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deletes the accounts and everything in them. The confirmation is the page's job. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PeopleRequest"];
+                    "text/json": components["schemas"]["PeopleRequest"];
+                    "application/*+json": components["schemas"]["PeopleRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationItem"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** A new link. Its token is in this answer only: the page shows it once. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateInvitationRequest"];
+                    "text/json": components["schemas"]["CreateInvitationRequest"];
+                    "application/*+json": components["schemas"]["CreateInvitationRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CreatedInvitation"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/invitations/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/me": {
         parameters: {
             query?: never;
@@ -36,6 +367,42 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/sign-up": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Whether Create account needs an invite link, so the page can say so before anyone types (F-028). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SignUpInfo"];
+                    };
                 };
             };
         };
@@ -89,8 +456,26 @@ export interface paths {
                         "application/json": components["schemas"]["ValidationProblemDetails"];
                     };
                 };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
                 /** @description Conflict */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Gone */
+                410: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -166,6 +551,15 @@ export interface paths {
                         "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
                 /** @description Too Many Requests */
                 429: {
                     headers: {
@@ -225,12 +619,14 @@ export interface paths {
         };
         /**
          * "Continue with Google": sends the person to Google (a page navigation, not a fetch). Afterwards they land on
-         *     returnUrl, a path in the app.
+         *     returnUrl, a path in the app. From the invite page, invite carries the
+         *     link's token through Google, so a new account can be created with it (F-028).
          */
         get: {
             parameters: {
                 query?: {
                     returnUrl?: string;
+                    invite?: string;
                 };
                 header?: never;
                 path?: never;
@@ -326,19 +722,145 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/invitations/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Who invited and until when. A used, expired, cancelled or made-up link gets the same 404, and the limit per
+         *     address keeps anyone from guessing tokens.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationPreview"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description The signed-in person, as the app shows them. */
+        /**
+         * @description The link just made. Token goes into `/invite/{token}`; it is never shown again, because
+         *     only its hash is stored.
+         */
+        CreatedInvitation: {
+            /** Format: uuid */
+            id: string;
+            token: string;
+            note: null | string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        /** @description A new invite link; Note says who it is for and only the admin sees it. */
+        CreateInvitationRequest: {
+            note: null | string;
+        };
+        /** @description The signed-in person, as the app shows them. The admin also sees the People page (F-028). */
         CurrentUser: {
             /** Format: uuid */
             id: string;
             displayName: string;
             email: string;
+            /** @default false */
+            isAdmin: boolean;
         };
         HealthResponse: {
             status: string;
+        };
+        /** @description One invite link on the admin's list. */
+        InvitationItem: {
+            /** Format: uuid */
+            id: string;
+            note: null | string;
+            status: components["schemas"]["InvitationStatus"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** Format: date-time */
+            usedAt: null | string;
+            usedByName: null | string;
+            /** Format: date-time */
+            cancelledAt: null | string;
+        };
+        /** @description What the invite page shows about a link that works: who invited and until when. */
+        InvitationPreview: {
+            inviterName: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        /**
+         * @description Where an invitation is in its life. Worked out from its dates, never stored (F-028).
+         * @enum {unknown}
+         */
+        InvitationStatus: "Waiting" | "Used" | "Expired" | "Cancelled";
+        /** @description The people an admin action is for: one from a row's menu, or everyone picked. */
+        PeopleRequest: {
+            userIds: string[];
+        };
+        /**
+         * @description One person on the People page. How they sign in is left out on purpose: the admin doesn't need it (F-028,
+         *     decision 7).
+         */
+        PersonItem: {
+            /** Format: uuid */
+            id: string;
+            displayName: string;
+            email: string;
+            /** Format: date-time */
+            joinedAt: string;
+            isAdmin: boolean;
+            isYou: boolean;
+            invited: boolean;
+            invitationNote: null | string;
+            /** Format: date-time */
+            blockedAt: null | string;
         };
         ProblemDetails: {
             type?: null | string;
@@ -348,16 +870,29 @@ export interface components {
             detail?: null | string;
             instance?: null | string;
         };
-        /** @description Creating an account with email and password. The display name is what the family sees. */
+        /**
+         * @description Creating an account with email and password. The display name is what the family sees. While sign-up is
+         *     invite-only, InviteToken is the token from the invite link (F-028).
+         */
         RegisterRequest: {
             displayName: string;
             email: string;
             password: string;
+            inviteToken?: null | string;
         };
         SignInRequest: {
             email: string;
             password: string;
         };
+        /** @description Whether creating an account needs an invite link (F-028). */
+        SignUpInfo: {
+            mode: components["schemas"]["SignUpMode"];
+        };
+        /**
+         * @description Who may create an account (F-028).
+         * @enum {unknown}
+         */
+        SignUpMode: "InviteOnly" | "Open";
         ValidationProblemDetails: {
             type?: null | string;
             title?: null | string;

@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using PupBudgetPlanner.Application.Access;
 using PupBudgetPlanner.Application.Auth;
+using PupBudgetPlanner.Infrastructure.Access;
 using PupBudgetPlanner.Infrastructure.Identity;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
@@ -32,6 +35,7 @@ public static class DependencyInjection
             .PersistKeysToDbContext<AppDbContext>();
 
         services.AddIdentityStores();
+        services.AddAccess(configuration);
 
         return services;
     }
@@ -61,7 +65,17 @@ public static class DependencyInjection
             .AddSignInManager()
             .AddEntityFrameworkStores<AppDbContext>();
 
+        services.AddScoped<IAccountCreator, AccountCreator>();
         services.AddScoped<IAuthService, AuthService>();
+    }
+
+    /// <summary>Invite-only sign-up, invite links and the admin's People page (F-028).</summary>
+    private static void AddAccess(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<AccessOptions>(configuration.GetSection(AccessOptions.SectionName));
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddScoped<IInvitationService, InvitationService>();
+        services.AddScoped<IPeopleService, PeopleService>();
     }
 
     /// <summary>Applies pending EF Core migrations (one API instance, so start-up is a safe place).</summary>

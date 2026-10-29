@@ -11,6 +11,8 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
     {
         builder.ToTable("users");
         builder.Property(user => user.DisplayName).HasMaxLength(AuthLimits.DisplayNameMaxLength);
+        // Accounts made before F-028 get their date from the id (UUIDv7) in the migration
+        builder.Property(user => user.CreatedAt).HasDefaultValueSql("now()");
         builder.HasIndex(user => user.NormalizedEmail).HasDatabaseName("ix_users_normalized_email");
         builder.HasIndex(user => user.NormalizedUserName).HasDatabaseName("ix_users_normalized_user_name");
     }

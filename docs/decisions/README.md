@@ -19,6 +19,8 @@ decision — write a new ADR that supersedes it.
 | [0012](0012-account-enumeration.md) | Not revealing which emails have an account | Accepted |
 | [0013](0013-auth-api.md) | Auth API: endpoints, antiforgery, password rules and limits | Accepted |
 | [0014](0014-google-sign-in.md) | Google sign-in: endpoints and linking to existing accounts | Accepted |
+| [0015](0015-default-categories-seeding.md) | Default categories: created with the account, backfilled by the migration | Accepted |
+| [0016](0016-invite-only-sign-up.md) | Invite-only sign-up: hashed invite links, the admin from configuration, blocking | Accepted |
 
 Template for new ADRs:
 

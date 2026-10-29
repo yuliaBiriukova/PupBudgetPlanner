@@ -1,44 +1,46 @@
+import { Loader } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useSearchParams } from 'react-router';
-import { useServerWake } from '../../app/shell/useServerWake';
 import {
   AuthError,
   currentUserQuery,
+  googleFailureOf,
+  signUpInfoQuery,
   useRegister,
   useSignIn,
   type AuthFailure,
   type AuthLocationState,
 } from './authApi';
-import { WakeNote } from './AuthFormParts';
 import { AuthLayout } from './AuthLayout';
+import { InviteOnlyNotice } from './InvitePage';
 import { SignInForm } from './SignInForm';
 import { SignUpForm } from './SignUpForm';
+import { useWakeNote } from './useWakeNote';
 
 function failureOf(error: Error | null): AuthFailure | null {
   if (!error) return null;
   return error instanceof AuthError ? error.failure : 'unknown';
 }
 
-function useWakeNote() {
-  const wake = useServerWake();
-  return wake.waking ? <WakeNote seconds={wake.seconds} /> : null;
-}
-
-/** Sign-in and sign-up are for people who aren't signed in; anyone else goes on into the app. */
-export function GuestOnly() {
+/**
+ * Sign-in, sign-up and the invite page are for people who aren't signed in; anyone else goes on into the app.
+ * The invite page has no Sign in / Create account switch.
+ */
+export function GuestOnly({ withSwitch = true }: { withSwitch?: boolean }) {
   const { data: user } = useQuery(currentUserQuery);
   const state = useLocation().state as AuthLocationState | null;
 
   if (user) return <Navigate to={state?.from ?? '/transactions'} replace />;
-  return <AuthLayout />;
+  return <AuthLayout withSwitch={withSwitch} />;
 }
 
 export function SignInPage() {
   const signIn = useSignIn();
   const notice = useWakeNote();
-  // A Google sign-in that didn't work comes back here with ?error=google, until the next attempt
+  // A Google sign-in that didn't work comes back here with ?error=…, until the next attempt
   const [params] = useSearchParams();
-  const googleFailed = signIn.isIdle && params.get('error') === 'google';
+  const googleFailure = signIn.isIdle ? googleFailureOf(params.get('error')) : null;
 
   return (
     <SignInForm
@@ -46,15 +48,22 @@ export function SignInPage() {
         signIn.mutate(values);
       }}
       pending={signIn.isPending}
-      failure={googleFailed ? 'google' : failureOf(signIn.error)}
+      failure={googleFailure ?? failureOf(signIn.error)}
       notice={notice}
     />
   );
 }
 
+/** Create account: the form while sign-up is open; while it is invite-only, how to get a link (F-028). */
 export function SignUpPage() {
+  const { t } = useTranslation();
+  const signUp = useQuery(signUpInfoQuery);
   const register = useRegister();
   const notice = useWakeNote();
+
+  if (signUp.isPending)
+    return <Loader size={20} color="gray" aria-label={t('auth.loading')} mt={28} />;
+  if (signUp.data?.mode !== 'Open') return <InviteOnlyNotice />;
 
   return (
     <SignUpForm

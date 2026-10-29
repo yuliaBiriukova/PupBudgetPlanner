@@ -31,7 +31,7 @@ export function SignedInLayout() {
 
   return (
     <AppLayout
-      user={{ name: user.displayName, email: user.email }}
+      user={{ name: user.displayName, email: user.email, isAdmin: user.isAdmin }}
       onSignOut={() => {
         signOut.mutate();
       }}

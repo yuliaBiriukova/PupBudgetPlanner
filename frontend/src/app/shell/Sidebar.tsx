@@ -18,7 +18,7 @@ import { NavLink } from 'react-router';
 import { ColorSchemeToggle } from '../../shared/ui/ColorSchemeToggle';
 import { cx } from '../../shared/ui/cx';
 import { BrandName, Logo } from './Logo';
-import { SECTIONS, type ShellUser } from './sections';
+import { ADMIN_SECTIONS, SECTIONS, type ShellUser } from './sections';
 import classes from './Sidebar.module.css';
 import { SIDEBAR, type SidebarState } from './useSidebar';
 
@@ -181,6 +181,19 @@ export function Sidebar({ state, user, onAdd, onSignOut }: SidebarProps) {
             </UnstyledButton>
           </RailTip>
         ))}
+        {user?.isAdmin && (
+          <>
+            <div className={classes.navRule} role="presentation" />
+            {ADMIN_SECTIONS.map(({ id, path, icon: Icon }) => (
+              <RailTip key={id} label={t(`nav.${id}`)} collapsed={collapsed}>
+                <UnstyledButton component={NavLink} to={path} className={classes.link}>
+                  <Icon size={20} stroke={1.6} />
+                  <span className={classes.label}>{t(`nav.${id}`)}</span>
+                </UnstyledButton>
+              </RailTip>
+            ))}
+          </>
+        )}
       </nav>
 
       <div className={classes.foot}>

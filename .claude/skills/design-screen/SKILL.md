@@ -72,6 +72,7 @@ waking-up state, `setNavCollapsed(bool | null)`, and `setLogo(name)` with a `LOG
 
 - Run the Playwright + axe design check on every variant, in `frontend/`:
   `npm run design:check -- ../docs/changes/<type>/<ID-name>/prototypes/variant-1.html …`
+  (pages of the running app too: `http://localhost:5173/<page>`, with `--storage <state.json>` when signed in)
   It covers 360/375/768/1024/1440 px, light and dark, every page and state: overflow, touch targets ≥ 44 px on
   the phone, icon scale 16/20/24, clipped text, overlapping floating elements, WCAG AA contrast and other axe
   rules, visible focus, console errors. It exits with 1 when anything is found; the report with screenshots is
@@ -89,8 +90,13 @@ waking-up state, `setNavCollapsed(bool | null)`, and `setLogo(name)` with a `LOG
 
 ## 6. Present and record
 
-Show the user the screenshots, each variant's thesis and trade-offs, and your recommendation. Record the
-choice in the change file and in DESIGN_RULES "Screen decisions"; add any new lasting rule to "Custom rules".
+Show the user the screenshots, each variant's thesis and trade-offs, and your recommendation.
+
+When the user picks a variant with changes, or a mix, build it as one **final prototype**, verify it as in
+step 5, show it and ask: "Approve this for implementation?" Repeat until they approve it in so many words.
+Picking options or commenting on a round is **not** approval: never start the implementation, backend or
+frontend, on it. Then record the approved prototype and the date in the change file (`Approved` row) and in
+DESIGN_RULES "Screen decisions"; add any new lasting rule to "Custom rules".
 
 ## Slop check
 

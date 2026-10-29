@@ -10,7 +10,7 @@ import { GoogleLogo } from './GoogleLogo';
  * "or", then "Continue with Google" (F-012). The button is a link: the API sends the person to Google and, once
  * they are signed in, back to the page they were going to.
  */
-export function ContinueWithGoogle() {
+export function ContinueWithGoogle({ invite }: { invite?: string } = {}) {
   const { t } = useTranslation();
   const state = useLocation().state as AuthLocationState | null;
   const [leaving, setLeaving] = useState(false);
@@ -35,7 +35,7 @@ export function ContinueWithGoogle() {
       />
       <Button
         component="a"
-        href={googleSignInUrl(state?.from)}
+        href={googleSignInUrl(state?.from, invite)}
         variant="default"
         fullWidth
         className={[classes.button, classes.google].join(' ')}

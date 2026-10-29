@@ -30,11 +30,20 @@ docs/changes/
 - Create the folder and the description file as soon as the change is added to the plan
   ([BACKLOG.md](../BACKLOG.md)), not when work starts. When the owner reports a bug or proposes a feature or
   improvement, this is the very first step — before looking into the code.
+- **Planning-only lists.** When the owner hands over a list of changes only to add them to the backlog, they are
+  planned together on one `plan/<short-name>` branch: folders, description files, backlog rows, a progress entry
+  — nothing is built there. Each description file's `Branch` row names the branch it will be built on later
+  (`improvement/I-004-custom-scroll-bars`), and the status stays `Todo`. Details in
+  [CLAUDE.md](../../CLAUDE.md#git-workflow).
 - Every improvement, bugfix and feature added after the initial plan has a [priority](#priority).
 - Keep the status in the description file in sync with the backlog. The pull request already sets the status
   to `Done` (description file, backlog, roadmap, progress); merging it is the owner's job.
 - Screens: references first (well-made apps, the internet, Mobbin), then 3 HTML prototypes in `prototypes/`;
   the references used and the chosen variant are recorded in the description file.
+- **Approval before implementation.** No backend or frontend code until the owner has explicitly approved the
+  description file and, for screens, the final prototype (for a bugfix: the root cause and the planned fix).
+  Picking options in a design round is not approval. The date goes into the `Approved` row; until then it says
+  `—`. Details in [CLAUDE.md](../../CLAUDE.md#how-we-work).
 
 ## Priority
 
@@ -59,6 +68,7 @@ Claude proposes the priority from this table; the owner has the last word.
 | Status | Todo / In progress / Review / Done / Blocked |
 | Branch | `feature/F-000-short-name` |
 | Design | 3 HTML prototypes required / not needed |
+| Approved | — (date the owner approved the description and the final prototype) |
 
 ## Goal
 Why we do this, in one or two sentences.
@@ -71,7 +81,7 @@ Why we do this, in one or two sentences.
 
 ## Design
 References (Mobbin, other apps, the internet): link — what we take from it.
-Prototypes: `prototypes/`. Chosen variant: —
+Prototypes: `prototypes/`. Chosen variant: — · Final prototype approved: —
 
 ## Tests
 - Unit:
@@ -94,6 +104,7 @@ Decisions, links, open points.
 | Status | Todo / In progress / Review / Done |
 | Branch | `bugfix/B-000-short-name` |
 | Found in | version / date / environment |
+| Approved | — (date the owner approved the root cause and the planned fix) |
 
 ## Steps to reproduce
 1.

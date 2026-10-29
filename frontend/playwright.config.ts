@@ -1,12 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
-import { AUTH_FILE } from './e2e/auth.ts';
+import { AUTH_FILE, BASE_URL, E2E_ADMIN } from './e2e/auth.ts';
 
 const isCI = !!process.env.CI;
 
-// Locally the Vite dev server; in CI the production build served by `vite preview` (see vite.config.ts).
-// Both proxy /api to the API. Set E2E_BASE_URL to test an app that is already running elsewhere.
-const baseURL =
-  process.env.E2E_BASE_URL ?? (isCI ? 'http://localhost:4173' : 'http://localhost:5173');
+// The dev server locally, `vite preview` in CI (see e2e/auth.ts); both proxy /api to the API
+const baseURL = BASE_URL;
 
 // The real API (`http` launch profile) with its database: locally the connection string from user-secrets,
 // in CI the `ConnectionStrings__Database` environment variable. CI builds the API in Release beforehand.
@@ -61,6 +59,9 @@ export default defineConfig({
               process.env.Authentication__Google__ClientId ?? 'e2e-google-client',
             Authentication__Google__ClientSecret:
               process.env.Authentication__Google__ClientSecret ?? 'e2e-google-secret',
+            // Invite-only sign-up with the tests' admin (F-028); locally a reused API reads it from user-secrets
+            Access__SignUp: 'InviteOnly',
+            Access__AdminEmails__1: E2E_ADMIN.email,
           },
           reuseExistingServer: !isCI,
           timeout: 180_000,
