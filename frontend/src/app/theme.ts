@@ -1,9 +1,12 @@
 import {
   Button,
+  Checkbox,
   createTheme,
+  Input,
   type CSSVariablesResolver,
   type MantineColorsTuple,
 } from '@mantine/core';
+import themeClasses from './theme.module.css';
 
 // The single place for theme settings (docs/DESIGN_RULES.md). Colors: "charcoal and sky", chosen in F-010 from the
 // prototypes in docs/changes/features/F-010-app-shell/prototypes/blocks.html.
@@ -92,6 +95,20 @@ export const theme = createTheme({
         (props.variant ?? 'filled') === 'filled' && props.color === undefined
           ? { root: { '--button-color': 'var(--pup-color-on-primary)' } }
           : { root: {} },
+    }),
+    // Fields show the buttons' focus ring: Mantine only changes the border color, which is easy to miss
+    Input: Input.extend({ classNames: { input: themeClasses.input } }),
+    // A rounded square (the md default made the 20 px box a circle, like a radio) in the accent, the color of
+    // picked rows and the active section
+    Checkbox: Checkbox.extend({
+      defaultProps: { radius: 'xs' },
+      classNames: { input: themeClasses.checkboxInput },
+      vars: () => ({
+        root: {
+          '--checkbox-color': 'var(--pup-color-accent)',
+          '--checkbox-icon-color': 'var(--pup-color-surface)',
+        },
+      }),
     }),
   },
 });

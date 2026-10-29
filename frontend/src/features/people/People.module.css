@@ -184,12 +184,6 @@ label.pick {
   cursor: pointer;
 }
 
-/* An empty box has the fields' border, so it is seen in the dark too */
-.pickBox input:not(:checked, :indeterminate) {
-  border-color: var(--pup-color-field-border);
-  background: var(--pup-color-surface);
-}
-
 /* The check box column is narrower than its 44 px label: the label runs on into the gap, so the box is as far
    from the initials as the initials are from the name (12 px) */
 .pick {
@@ -426,6 +420,7 @@ label.pick {
 .cancel {
   grid-row: 1 / span 2;
   grid-column: 3;
+  min-height: 44px;
 }
 
 .wideOnly {
@@ -463,19 +458,55 @@ label.pick {
 }
 
 .history {
-  margin: 0;
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 0;
   padding: 0;
-  border-top: 1px solid var(--pup-color-rule);
   list-style: none;
 }
 
+/* Cards like the Waiting ones: an icon in a circle, grey for links that can't be used any more */
 .historyRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 2px 16px;
-  align-items: baseline;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--pup-color-rule);
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: 4px 14px;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-surface);
+}
+
+.historyIcon {
+  display: grid;
+  grid-row: 1 / span 2;
+  grid-column: 1;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+}
+
+.historyIcon[data-done] {
+  background: var(--pup-color-hover);
+  color: var(--mantine-color-dimmed);
+}
+
+.historyNote {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.historyWhat {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+.historyRow .when {
+  grid-row: 1;
+  grid-column: 3;
 }
 
 .historyRow p {
@@ -641,7 +672,15 @@ label.pick {
   }
 
   .historyRow {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) 120px;
+    grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1.4fr) 120px;
+  }
+
+  .historyIcon,
+  .historyNote,
+  .historyWhat,
+  .historyRow .when {
+    grid-row: auto;
+    grid-column: auto;
   }
 
   .when {

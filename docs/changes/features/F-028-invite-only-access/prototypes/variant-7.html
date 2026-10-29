@@ -42,7 +42,7 @@ body { display: flex; flex-direction: column; height: 100dvh; background: #d7dad
   --hero: #26292e; --on-hero: #f5f6f7; --hero-muted: #b4b9bf; --hero-rule: #474c54;
   --error: #b3261e; --error-bg: #fbeceb; --error-text: #8c1d18;
   --danger: #b3261e; --danger-hover: #9c211a; --on-danger: #fcfcfd;
-  --pill: #1c1e21; --on-pill: #f5f6f7; --focus: #2a62a3; --scrim: rgba(18, 19, 21, .45);
+  --pill: #1c1e21; --on-pill: #f5f6f7; --focus: #26292e; --scrim: rgba(18, 19, 21, .45);
   --shadow-float: 0 8px 24px rgba(15, 17, 20, .1);
   --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
   --r-sm: 12px; --r-lg: 24px;
@@ -55,7 +55,7 @@ body { display: flex; flex-direction: column; height: 100dvh; background: #d7dad
   --hero: #0b0c0d; --on-hero: #e9eaec; --hero-muted: #a4a5a7; --hero-rule: #2e3035;
   --error: #f2958c; --error-bg: #3a1d1b; --error-text: #f6b8b2;
   --danger: #f2958c; --danger-hover: #f6b8b2; --on-danger: #121315;
-  --pill: #e9eaec; --on-pill: #121315; --focus: #8ec1ec; --scrim: rgba(0, 0, 0, .6);
+  --pill: #e9eaec; --on-pill: #121315; --focus: #e9eaec; --scrim: rgba(0, 0, 0, .6);
   --shadow-float: 0 10px 28px rgba(0, 0, 0, .45);
 }
 
@@ -486,6 +486,31 @@ span.pick { cursor: default; }
 .sort-btn:hover { background: var(--hover); color: var(--text); }
 .sort-btn[data-active] { color: var(--text); font-weight: 500; }
 @container app (min-width: 768px) { .sort-row { display: none; } }
+
+/* ---------- Variant 7 · matched to the app's components ---------- */
+/* Check box: Mantine's, as themed in the app — a 20 px square with 6 px corners, a 1 px border, the accent when on,
+   and Mantine's check and dash icons centered in it */
+.pick input::before { border-width: 1px; }
+.pick input:checked::after, .pick input:indeterminate::after { content: ''; position: absolute; inset: 12px; width: auto; height: auto; border: 0; transform: none; background: var(--surface);
+  -webkit-mask: var(--check-icon) center / 12px auto no-repeat; mask: var(--check-icon) center / 12px auto no-repeat; }
+.pick input:indeterminate::before { background: var(--accent); border-color: var(--accent); }
+.pick input:indeterminate::after { --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 6'%3E%3Crect width='32' height='6' rx='3'/%3E%3C/svg%3E"); }
+.pick input { --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 7'%3E%3Cpath d='M4 4.586L1.707 2.293A1 1 0 1 0 .293 3.707l3 3a.997.997 0 0 0 1.414 0l5-5A1 1 0 1 0 8.293.293L4 4.586z'/%3E%3C/svg%3E"); }
+/* Fields: the buttons' focus ring, as in the app */
+.search-box:focus-within, .control input:focus { border-color: var(--focus); outline: 2px solid var(--focus); outline-offset: 2px; }
+/* Used, expired and cancelled links: cards like Waiting, with an icon; grey for links that can't be used any more */
+.h-list { display: grid; gap: 8px; margin-top: 4px; border-top: 0; }
+.h-row { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 14px 16px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); }
+.h-row .lic { grid-row: 1 / span 2; grid-column: 1; border-color: transparent; background: var(--hover); color: var(--muted); }
+.h-row[data-used] .lic { background: var(--active-bg); color: var(--accent); }
+.h-row .name { font-weight: 400; }
+.h-row .name { grid-row: 1; grid-column: 2; }
+.h-row .what { grid-row: 2; grid-column: 2; }
+.h-row .when { grid-row: 1; grid-column: 3; }
+@container app (min-width: 768px) {
+  .h-row { grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1.4fr) 120px; }
+  .h-row .lic, .h-row .name, .h-row .what, .h-row .when { grid-row: auto; grid-column: auto; }
+}
 </style>
 </head>
 <body>
@@ -506,6 +531,8 @@ const DIRECTION = {
     'Several people: tick the check boxes (or Pick all shown in the header); a bar shows Block, Unblock (when only blocked people are picked) and Delete for all of them. Searching keeps only the picks still shown.',
     'Bulk dialogs list the picked people; bulk delete needs the word delete typed in, one delete needs the email.',
     'Invite links: Waiting cards with the days left and Cancel link; Used and Expired and cancelled open with a click and stay as left.',
+    'Used, expired and cancelled links are cards like Waiting, each with an icon: a person with a check (used, accent), a clock with a cross (expired) and a broken link (cancelled), both grey.',
+    'Components as the app themes them: Mantine’s check box (a rounded square in the accent) and the primary-color focus ring on buttons and fields.',
     'Corners: pills for buttons, tabs and nav items, circles for icon buttons, 12 px fields and rows, 24 px dialogs. No sign-in method is shown.',
   ],
 };
@@ -746,6 +773,9 @@ const initials = (name) => name.split(' ').map((w) => w[0]).join('').slice(0, 2)
 ICONS.clock = ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 7v5l3 3'];
 ICONS.search = ['M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0', 'M21 21l-6 -6'];
 ICONS.chevDown = ['M6 9l6 6l6 -6'];
+ICONS.userCheck = ['M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0', 'M6 21v-2a4 4 0 0 1 4 -4h4', 'M15 19l2 2l4 -4'];
+ICONS.clockX = ['M20.926 13.15a9 9 0 1 0 -7.835 7.784', 'M12 7v5l2 2', 'M22 22l-5 -5', 'M17 22l5 -5'];
+ICONS.linkOff = ['M9 15l3 -3m2 -2l1 -1', 'M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464', 'M3 3l18 18', 'M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463'];
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 function hl(text) {
   const q = state.query.trim();
@@ -858,10 +888,10 @@ const countText = () => { const n = PEOPLE5.filter(matches).length; return state
 function waitingRow(l) {
   return `<div class="w-row" data-waiting><span class="lic" aria-hidden="true">${icon('clock')}</span>
     <div style="min-width:0"><p class="name">${l.note}</p><p class="email">Works until ${l.until}, made ${l.created}</p></div>
-    <p class="left">${l.left}</p><button class="btn btn-quiet" type="button" data-action="cancel-link" aria-label="Cancel link: ${l.note}">Cancel<span class="wide-only">&nbsp;link</span></button></div>`;
+    <p class="left">${l.left}</p><button class="btn btn-quiet" type="button" data-action="cancel-link" aria-label="Cancel link: ${l.note}"><span>Cancel<span class="wide-only">&nbsp;link</span></span></button></div>`;
 }
-const usedRows = (list) => `<ul class="list h-list">${list.map((l) => `<li class="h-row"><p class="name">${l.note}</p><p class="what">${l.by}</p><p class="when">${l.on}</p></li>`).join('')}</ul>`;
-const oldRows = (list) => `<ul class="list h-list">${list.map((l) => `<li class="h-row"><p class="name">${l.note}</p><p class="what">${l.status === 'expired' ? 'Expired, not used' : 'Cancelled'}</p><p class="when">${l.on}</p></li>`).join('')}</ul>`;
+const usedRows = (list) => `<ul class="list h-list">${list.map((l) => `<li class="h-row" data-used><span class="lic" aria-hidden="true">${icon('userCheck')}</span><p class="name">${l.note}</p><p class="what">${l.by}</p><p class="when">${l.on}</p></li>`).join('')}</ul>`;
+const oldRows = (list) => `<ul class="list h-list">${list.map((l) => `<li class="h-row"><span class="lic" aria-hidden="true">${icon(l.status === 'expired' ? 'clockX' : 'linkOff')}</span><p class="name">${l.note}</p><p class="what">${l.status === 'expired' ? 'Expired, not used' : 'Cancelled'}</p><p class="when">${l.on}</p></li>`).join('')}</ul>`;
 function linksBody(all) {
   const waiting = all.filter((l) => l.status === 'waiting');
   const used = all.filter((l) => l.status === 'used');
@@ -906,7 +936,14 @@ function peoplePage() {
   return shell(`<header class="page-head"><h1>People</h1><button class="btn btn-primary new-btn" type="button" data-nav="people-new">${icon('plus')}New invite link</button></header>
     ${tabs}${body}${dialog()}`);
 }
-const refreshPeople = () => { document.getElementById('people-list').innerHTML = peopleList(); };
+function syncPickAll() {
+  const all = document.querySelector('[data-pick-all]');
+  if (!all) return;
+  const pickable = PEOPLE5.filter((p) => !p.you && matches(p));
+  const n = pickable.filter((p) => state.picked.has(p.id)).length;
+  all.indeterminate = n > 0 && n < pickable.length;
+}
+const refreshPeople = () => { document.getElementById('people-list').innerHTML = peopleList(); syncPickAll(); };
 const refreshLinks = () => { document.getElementById('links-list').innerHTML = linksBody(LINKS5); };
 
 document.addEventListener('input', (e) => {
@@ -1018,6 +1055,7 @@ const VARIANT_ACTIONS = {
 const RENDER = { invite: invitePage, 'invite-bad': inviteBadPage, closed: closedPage, 'google-closed': googleClosedPage };
 function render() {
   app.innerHTML = (RENDER[state.page] ?? peoplePage)();
+  syncPickAll();
   document.querySelectorAll('[data-page-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pageSet === state.page)));
   // Like the app's menu, the sort menu opens upwards when the phone's tab bar leaves no room below
   const sortList = document.querySelector('.sort-row .menu');

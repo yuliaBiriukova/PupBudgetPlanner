@@ -17,9 +17,21 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   - "Block…" and "Delete account…" lost the "…" (a new custom rule in DESIGN_RULES).
 - Prototype variant 7 updated to match: check boxes on the left, shown on hover, sort headers and the phone's Sort menu
   (a new screen "Sorted: newest first"), menu items without "…".
+- Design check on the app (it now opens pages of the running app too, with `--storage` for signed-in pages):
+  - Check boxes are themed once (`theme.ts`): a rounded square in the accent; the md radius had made them circles
+    and the primary color made them charcoal, unlike the prototype;
+  - fields show the buttons' focus ring (Mantine only changed the border color);
+  - Cancel link is 44 px tall on the phone;
+  - the sidebar's resize line no longer fades in when reduced motion is on;
+  - the check itself: a check box inside its label counts the label as the target, and screen-reader-only text
+    is skipped.
+- Used, expired and cancelled links are cards with icons, like Waiting (owner's request).
+- Variant 7 matched to the app: Mantine's check and dash icons centered in the box, the primary-color focus ring,
+  the link cards with icons, "Cancel link" without a gap.
 - Q-012 answered: accounts made before invites keep access; the admin reviews them on the People page after the
   release.
-- Checked: unit tests (2 new for sorting), E2E, the design check on variant 7, screenshots at 375 and 1440 px,
+- Checked: unit tests (2 new for sorting), E2E (35 passed, 2 skipped), the design check on variant 7 and on the
+  app's People pages (0 issues), screenshots at 375 and 1440 px,
   light and dark, of the hover, picked, sorted and menu states.
 
 **Next**

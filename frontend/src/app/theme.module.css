@@ -1,0 +1,13 @@
+/* Component styles the theme can't set with variables (theme.ts) */
+
+/* An empty check box has the fields' border, so it is seen in dark mode too */
+.checkboxInput:not(:checked, [data-indeterminate]) {
+  border-color: var(--pup-color-field-border);
+  background-color: var(--pup-color-surface);
+}
+
+/* Fields: the same focus ring as buttons (Mantine's focus-auto) */
+.input:focus-within {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}

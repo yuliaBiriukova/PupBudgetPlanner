@@ -1,10 +1,17 @@
 import { Button, Skeleton, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconChevronDown, IconClock } from '@tabler/icons-react';
+import {
+  IconChevronDown,
+  IconClock,
+  IconClockX,
+  IconLinkOff,
+  IconUserCheck,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { daysUntil, formatDate } from '../../shared/format/date';
+import { cx } from '../../shared/ui/cx';
 import classes from './People.module.css';
 import { invitationsQuery, useCancelInvitation, type Invitation } from './peopleApi';
 
@@ -102,8 +109,13 @@ export function LinksTab() {
             <ul className={classes.history}>
               {used.map((i) => (
                 <li key={i.id} className={classes.historyRow}>
-                  <p>{i.note ?? t('people.links.noNote')}</p>
-                  <p className={classes.dim}>{i.usedByName ?? t('people.links.deletedAccount')}</p>
+                  <span className={classes.historyIcon} aria-hidden="true">
+                    <IconUserCheck size={20} stroke={1.7} />
+                  </span>
+                  <p className={classes.historyNote}>{i.note ?? t('people.links.noNote')}</p>
+                  <p className={cx(classes.historyWhat, classes.dim)}>
+                    {i.usedByName ?? t('people.links.deletedAccount')}
+                  </p>
                   <p className={classes.when}>{i.usedAt ? formatDate(i.usedAt) : ''}</p>
                 </li>
               ))}
@@ -119,8 +131,16 @@ export function LinksTab() {
             <ul className={classes.history}>
               {old.map((i) => (
                 <li key={i.id} className={classes.historyRow}>
-                  <p>{i.note ?? t('people.links.noNote')}</p>
-                  <p className={classes.dim}>
+                  {/* Links that can't be used any more: a grey circle */}
+                  <span className={classes.historyIcon} data-done aria-hidden="true">
+                    {i.status === 'Expired' ? (
+                      <IconClockX size={20} stroke={1.7} />
+                    ) : (
+                      <IconLinkOff size={20} stroke={1.7} />
+                    )}
+                  </span>
+                  <p className={classes.historyNote}>{i.note ?? t('people.links.noNote')}</p>
+                  <p className={cx(classes.historyWhat, classes.dim)}>
                     {i.status === 'Expired'
                       ? t('people.links.expired')
                       : t('people.links.cancelledStatus')}

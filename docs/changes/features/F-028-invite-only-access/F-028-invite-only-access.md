@@ -89,7 +89,8 @@ What is decided so far (rounds 1–3 of the design, see "Design"):
   - **Invite links tab:** a line on how links work, then **Waiting** links as card rows (note, until when, when
     made, the days left and a visible Cancel link), then **Used** (note, who used it, when) and **Expired and
     cancelled** (note, which, when) as folded groups, closed by default; each opens with a click and stays as
-    left (remembered in the browser).
+    left (remembered in the browser). Every link is a card with an icon in a circle: a clock (waiting) and a
+    person with a check (used) in the accent, a clock with a cross (expired) and a broken link (cancelled) in grey.
 - **New invite link dialog** (a sheet on the phone): "Who is it for? (optional, only you see it)", Create link;
   then the same dialog shows the link with Copy link and Share (the phone's share sheet), until when it works,
   and that it can't be shown again; Done opens the Invite links tab.

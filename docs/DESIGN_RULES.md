@@ -21,6 +21,8 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 - Text on a filled button takes its color from the current scheme (`--pup-color-on-primary` in the theme), never
   from Mantine's autoContrast: it reads the light-mode shade only, which made white text on the light dark-mode
   button. (2026-10-28)
+- Check boxes are Mantine's, themed once in `theme.ts`: a rounded square (6 px), the accent when on, an empty box
+  with the fields' border. Fields show the same focus ring as buttons, not only a border color. (2026-10-29)
 - Menu items and buttons don't end in "…", even when they open a dialog: few people know the convention and it
   reads like a typo. (2026-10-29)
 
@@ -35,6 +37,8 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
    `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.
    Design work follows the **`design-screen`** skill (`.claude/skills/design-screen/`), and every variant passes
    the Playwright + axe design check before it is shown: `npm run design:check -- <file.html>` in `frontend/`.
+   The same check runs on pages of the running app: pass their addresses (`http://localhost:5173/people`) and,
+   for signed-in pages, `--storage <file>` with a Playwright storage state.
    Its screenshots are also looked at, not just its exit code.
 3. The user picks one (or a mix). The choice is recorded in the change's description file and in
    [Screen decisions](#9-screen-decisions) below.

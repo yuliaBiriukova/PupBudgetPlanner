@@ -212,7 +212,12 @@
   left: 3px;
   width: 2px;
   background: transparent;
-  transition: background 150ms;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .resize::after {
+    transition: background 150ms;
+  }
 }
 
 .resize:hover::after,
