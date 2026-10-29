@@ -27,13 +27,21 @@ password, or the first "Continue with Google").
       or Google (incl. linking Google to an account with the same email, ADR 0014).
 - [ ] **The admin.** The owner is the admin; who the admin is comes from configuration, not from the UI.
       Only the admin sees the People page and its API.
-- [ ] **Invite link.** The admin creates a link (with an optional note for whom it is), copies it and sends it in
-      any messenger (no email until M8). A link works once and for 7 days; the admin can cancel it earlier.
+- [ ] **Invite link.** The admin creates a link in a dialog (with an optional note for whom it is), copies or
+      shares it from the same dialog and sends it in any messenger (no email until M8). A link works once and for
+      7 days; the admin can cancel a waiting link. The link is shown only when it is made (only its hash is
+      stored); a lost link is cancelled and made again.
 - [ ] **Signing up with a link.** The link opens a "You're invited" page with Create account and Continue with
       Google. Either way the account is created and the invitation is used up in the same transaction as the
       account (two people can't use one link). A used, expired, cancelled or made-up link gets one neutral message.
-- [ ] **People page.** The admin sees everyone with access (name, email, sign-in methods, joined, invited by
-      which link) and the invitations (waiting, used by whom, expired, cancelled).
+- [ ] **People page.** One admin page, People, with two tabs: **People** (everyone with access: name, email,
+      sign-in methods, joined, invited with which link, blocked) and **Invite links** (waiting, used by whom,
+      expired, cancelled). The tabs are in the URL, so a reload or the Back button keeps the open tab.
+- [ ] **Search people.** A search field on the People tab filters the list by name or email as you type (not
+      case-sensitive, Cyrillic too), shows how many match, and says so when nobody matches, with a way to clear
+      the search.
+- [ ] **Hide expired links.** A switch on the Invite links tab hides expired and cancelled links (waiting and
+      used links stay). The choice is remembered in the browser.
 - [ ] **Taking access away.** The admin can block a person: they are signed out on every device and can't sign
       in, with a password or Google; their data stays. The admin can unblock them. The admin can't block
       themselves.
@@ -43,6 +51,35 @@ password, or the first "Continue with Google").
       delete themselves.
 - [ ] **Opening up later.** A setting (`Access:SignUp` = `InviteOnly` | `Open`) switches back to open sign-up
       without code changes; invitations keep working in both modes.
+
+## Screens and behavior
+
+What is decided so far (rounds 1–3 of the design, see "Design"):
+
+- **Invite page** `/invite/:token` (variant 1): the sign-in layout (F-011) with "Yulia invited you to Pup Budget"
+  and the date the link works until above the form, the Create account form (name, email, password, confirm),
+  "or", Continue with Google, and "Already have an account? Sign in". The inviter's display name comes from the
+  invitation.
+- **A link that doesn't work** (used, expired, cancelled or made up): "This invite link doesn't work any more",
+  ask the person who sent it for a new one, and Sign in. It never says who made the link or when.
+- **Create account without a link:** the Create account tab shows "Pup Budget is invite-only for now", how to get
+  a link, and Go to sign in.
+- **Google without an account:** back on Sign in with a banner: no account for this Google account, new accounts
+  need an invite link.
+- **People page** (admin only): under a line at the bottom of the sidebar's sections; under More on the phone.
+  Title "People" with **New invite link** on the right (full width on the phone), then **underline tabs**
+  (text tabs with the accent bar, like the sidebar marker) with counts: People · Invite links (waiting).
+  - **People tab:** a short line on who can sign up, the search field, the list (layout: see round 3), each
+    person's actions behind ⋯: Block… / Unblock, Delete account…. The admin's own row has no actions. Blocked
+    people stay in the list with a Blocked tag. "Before invites" marks accounts made while sign-up was open.
+  - **Invite links tab:** the note (or "No note"), the status (waiting until a date / used by whom and when /
+    expired / cancelled) and when it was made; Cancel link on waiting ones; the "Hide expired and cancelled"
+    switch.
+- **New invite link dialog** (a sheet on the phone): "Who is it for? (optional, only you see it)", Create link;
+  then the same dialog shows the link with Copy link and Share (the phone's share sheet), until when it works,
+  and that it can't be shown again; Done opens the Invite links tab.
+- **Block** asks first and says what happens (signed out everywhere, data stays, can be unblocked). **Delete**
+  asks first, lists what is deleted and needs the person's email typed in before the button works.
 
 ## Tasks
 
@@ -60,8 +97,8 @@ password, or the first "Continue with Google").
       code is reused by F-027 "Delete my account")
 - [ ] Google: the invitation token travels through the Google round trip in the authentication properties; an
       unknown Google account without one is not created and comes back with the invite-only message
-- [ ] Frontend: `/invite/:token` page, the invite-only state of Create account, the People page and its nav item
-      (admin only), i18n texts
+- [ ] Frontend: `/invite/:token` page, the invite-only state of Create account, the People page with its tabs
+      (`/people`, `/people/links`), search and the hide-expired switch, its nav item (admin only), i18n texts
 - [ ] Storybook stories (loading, empty, error; link created; blocked person)
 - [ ] ADR: invite-only sign-up (token format and storage, admin from configuration, blocking, the open switch)
 - [ ] Render: the new environment variables; README
@@ -101,6 +138,9 @@ radius 12 / 24 and pill buttons, one float shadow. New tokens: a danger button (
 `#fcfcfd` text, dark `#f2958c` with `#121315` text), and the sky tint `#e7ecf1` / `#262f37` for the new-link
 slip. No green for statuses: green means income. Motion: only the new link appearing. All of it fits the
 Mantine theme (`theme.ts` tokens plus `--pup-color-danger`).
+
+### Round 1: three directions (2026-10-29)
+
 Prototypes in `prototypes/` (2026-10-29). Each one has the same screens: the invite page, a link that doesn't
 work, Create account without a link, Google without an account, the People page, a new link, the link
 created, block and delete. A preview bar switches screen, phone / tablet / desktop and light / dark.
@@ -134,7 +174,28 @@ person, so the mix lets you compare the two.
 
 Design check 0 issues, every option at 360–1440 px in light and dark; screenshots looked at.
 
-Chosen variant: — (waiting for the owner)
+### Round 3: views, search and hiding old links (2026-10-29)
+
+Owner's feedback on round 2: underline tabs; no grid of person cards; search for people, as there will be many;
+a way to hide expired links; the description should hold the feature's specifics (now in "Screens and
+behavior").
+
+[Variant 5 · Round 3](prototypes/variant-5.html), with nine people and eight links so search and the lists can be
+judged. The preview bar switches:
+
+- **People:** *Card rows* (each person a light card with the table's columns), *Table* (variant 1's ruled
+  table), *Compact* (one line per person, 48 px, light stripes like a spreadsheet: the most people per screen;
+  on the phone two lines).
+- **Links:** *Grouped* (waiting links as cards with the days left and ⋯ Cancel link, then Used and Expired and
+  cancelled as plain lists), *Card rows* and *Table* (one list, like people).
+
+Search: a "Search people" label with the count ("9 people", "2 of 9"), the field with a clear button, the match
+highlighted, and "No one matches “…”" with Clear search. The "Hide expired and cancelled" switch sits next to the
+line about links; when it hides links, a line says how many are hidden.
+
+Design check 0 issues, every option at 360–1440 px in light and dark; screenshots looked at.
+
+Chosen variant: — (waiting for the owner: the people view and the links view)
 
 ## Tests
 
@@ -142,6 +203,8 @@ Chosen variant: — (waiting for the owner)
   invite-only mode and accept in open mode; two sign-ups racing for one link create one account; a blocked person
   can't sign in and their cookie stops working; only the admin reaches the admin endpoints; the admin can't block
   themselves.
+- Frontend unit: search filters by name and email (case, Cyrillic) and shows the empty state; the switch hides
+  expired and cancelled links and is remembered; the Delete button works only with the typed email.
 - E2E (Playwright): the admin creates a link, a new person signs up with it, the same link fails the second time;
   Create account without a link shows the invite-only message; the admin blocks the person, who is signed out and
   can't sign in, then unblocks them; the admin deletes a person, who can't sign in and whose email can't sign up
@@ -163,6 +226,9 @@ Chosen variant: — (waiting for the owner)
    The email itself lives only in Render and local user-secrets, not in the repository. Signing in with that
    email makes the person the admin; creating an account with it needs no invitation, so the admin can't be
    locked out. Nothing in the UI makes someone an admin.
+6. **Design (rounds 1–3):** variant 1's sign-in screens, variant 2's dialog for a new link, variant 3's two tabs
+   as underline tabs; search for people (there will be many); a switch to hide expired links. No grid of person
+   cards.
 
 ## Open points
 

@@ -18,8 +18,13 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   link and variant 3's two tabs, with three tab styles and three ways to show people (card rows, table, cards)
   to pick from.
 
+- Round 3: underline tabs chosen; variant 5 adds search for people and a switch that hides expired and cancelled
+  links, and offers three people views (card rows, table, compact) and three links views (grouped, card rows,
+  table). The F-028 description now has a "Screens and behavior" section and acceptance criteria for search and
+  hiding links.
+
 **Next**
-- Owner picks the tab style and the people view; then the backend.
+- Owner picks the people view and the links view; then the backend.
 
 ## 2026-10-29
 
