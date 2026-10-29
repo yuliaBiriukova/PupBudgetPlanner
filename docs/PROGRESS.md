@@ -14,8 +14,12 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Decisions**
 - The invite link is shown only once (only its hash is stored); a broken link never says who made it.
 
+- Round 2 on the owner's feedback: variant 4 mixes variant 1's sign-in screens, variant 2's pop-up for a new
+  link and variant 3's two tabs, with three tab styles and three ways to show people (card rows, table, cards)
+  to pick from.
+
 **Next**
-- Owner picks a variant (or a mix); then the backend.
+- Owner picks the tab style and the people view; then the backend.
 
 ## 2026-10-29
 

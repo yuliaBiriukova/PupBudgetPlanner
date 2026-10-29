@@ -116,6 +116,24 @@ it; block and delete ask first, delete needs the person's email typed in; People
 sidebar and under More on the phone. Design check (Playwright + axe, 360–1440 px, light and dark, every screen):
 0 issues; screenshots at 375 and 1440 px looked at.
 
+### Round 2: a mix (2026-10-29)
+
+Owner's feedback on round 1: from variant 1, the sign-in and create-account screens and the people table; from
+variant 2, the new invite link as a pop-up rather than an inline block; from variant 3, separate tabs for people
+and invite links, and cards for people. Cards look better, but a table is easier to scan without a click per
+person, so the mix lets you compare the two.
+
+[Variant 4 · Mix](prototypes/variant-4.html): variant 1's sign-in screens, variant 2's dialog for a new link
+(the link with Copy link and Share in the same dialog), variant 3's two tabs. The preview bar switches:
+
+- **Tabs:** *Pill* (the Sign in / Create account switch), *Underline* (text tabs with the sidebar's accent bar),
+  *Title* (the two tab names are the page heading).
+- **People** (and invite links, which follow the same choice): *Card rows* (each person a light card in a list,
+  with the table's columns inside: a card's looks, a table's scanning), *Table* (variant 1), *Cards* (a grid,
+  everything on the card: how they sign in, joined, invited with, no click needed).
+
+Design check 0 issues, every option at 360–1440 px in light and dark; screenshots looked at.
+
 Chosen variant: — (waiting for the owner)
 
 ## Tests
