@@ -12,11 +12,21 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   what was removed. Also a definition-of-done item and a PR template checklist item.
 - I-008 closed without changes: the owner tested on production and clicks respond fine there; the delay was seen
   on localhost (development build).
-- No accounts or data were created for testing in this change.
+- I-007, E2E clean-up (added and approved by the owner the same day): a `cleanup` teardown project runs after every
+  E2E run, passed or failed. Signed in as the tests' admin, it deletes the accounts whose emails match `newPerson`'s
+  `e2e-…@example.com` pattern and cancels the tests' waiting invite links. The tests' admin stays (an admin can't
+  delete themselves; every run reuses it). The People test's link note is now `E2E for Olena`, so the clean-up
+  recognises it.
+- Checked against the `dev` database: two full runs (36 passed, 2 skipped) and one run with the People test made to
+  fail on purpose. After each, only the owner's account and the tests' admin were left, and no test link was
+  waiting. Lint, typecheck, unit tests (64) pass. The unit tests need Node 24 (the shell's Node 20 can't start
+  Vitest's workers).
+- Test data from this change: E2E accounts and links, all removed by the clean-up itself. Left on purpose: the tests'
+  admin `e2e-admin@example.com` (created by the first run) and 18 waiting links made before this change (12 "For
+  Petro", 3 "For Olena", 3 without a note) that the clean-up doesn't recognise. The owner decides about those.
 
 **Next**
-- The owner added the E2E clean-up to I-007: E2E tests delete the accounts they create and cancel their waiting
-  invite links (a teardown project). It's planned in the description file and waits for the owner's approval.
+- Owner: review and merge PR #27; decide whether to cancel the 18 old waiting links.
 - Then I-004, I-005, I-006 prototypes, or F-014 (accounts and balances).
 
 ## 2026-10-29 (8)
