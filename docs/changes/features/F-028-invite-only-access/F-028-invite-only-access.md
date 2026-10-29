@@ -81,7 +81,8 @@ What is decided so far (rounds 1–3 of the design, see "Design"):
   - **Several people:** a check box on each row (and "Pick all shown" in the header) picks people. The check box
     has its own column left of the initials. With a mouse it shows on hover (and on keyboard focus), and on
     every row once anyone is picked; the column stays, so nothing moves. The phone has no hover, so there the
-    check boxes are always shown. The box sits 16 px from the card's edge, like the ⋯ on the right. A bar then
+    check boxes are always shown. The box sits 16 px from the card's edge, like the ⋯ on the right, and 12 px from the initials, like the
+    initials from the name. A bar then
     shows how many are picked with Block, Unblock (when a picked person is blocked) and Delete, and a button to
     clear the picks. Searching keeps only the picks that are still shown. The admin's own row has no check box
     and no menu.

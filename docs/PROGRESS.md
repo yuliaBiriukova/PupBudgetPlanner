@@ -11,6 +11,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
     first try that put the box in place of the initials;
   - card side paddings: the check box and the ⋯ now sit 16–20 px from the card's edges (the initials were 6 px
     from the left edge); empty check boxes have the fields' border, so they show in dark mode;
+  - the check box is 12 px from the initials, the same as the initials from the name;
   - sorting: Person, Joined and Invited with headers on the desktop (a second click turns the order around),
     a Sort menu on the phone;
   - "Block…" and "Delete account…" lost the "…" (a new custom rule in DESIGN_RULES).

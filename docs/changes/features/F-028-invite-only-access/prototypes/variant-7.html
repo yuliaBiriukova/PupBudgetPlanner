@@ -450,7 +450,7 @@ mark { background: var(--tint); color: inherit; border-radius: 3px; padding: 0 1
 @container app (min-width: 768px) { .wide-only { display: inline; } }
 
 /* ---------- Variant 7 · chosen: check boxes and a ⋯ menu on each row ---------- */
-.people-view[data-actions='select'] .p-main { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+.people-view[data-actions='select'] .p-main { grid-template-columns: 32px minmax(0, 1fr) 44px; }
 .people-view[data-actions='select'] .p-main .meta { grid-column: 2; }
 .people-view[data-actions='select'] .p-main .acts { display: flex; grid-column: 3; grid-row: 1 / span 2; }
 .p-head .pick { display: none; }
@@ -459,7 +459,7 @@ mark { background: var(--tint); color: inherit; border-radius: 3px; padding: 0 1
 .names b { font-weight: 500; }
 @container app (min-width: 768px) {
   .people-view[data-actions='select'] .p-head,
-  .people-view[data-actions='select'] .p-main { grid-template-columns: 44px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px; }
+  .people-view[data-actions='select'] .p-main { grid-template-columns: 28px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px; }
   .people-view[data-actions='select'] .p-head { align-items: center; padding-top: 0; padding-bottom: 0; }
   .people-view[data-actions='select'] .p-main .acts { grid-column: auto; grid-row: auto; }
   .p-head .pick { display: grid; }
@@ -469,6 +469,8 @@ mark { background: var(--tint); color: inherit; border-radius: 3px; padding: 0 1
 /* The check box has its own column left of the initials. With a mouse it shows on hover, on focus and once anyone is
    picked; the column stays, so nothing moves. A phone has no hover: there it is always shown */
 span.pick { cursor: default; }
+/* The column is narrower than the 44 px check box: it runs on into the gap, so the box is 12 px from the initials, like the name */
+.p-main .pick, .p-head .pick { justify-self: start; }
 @media (hover: hover) {
   .pick input { opacity: 0; }
   .p-row:hover .pick input, .p-table:hover .p-head .pick input, .p-table[data-picking] .pick input, .pick:focus-within input { opacity: 1; }

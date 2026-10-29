@@ -157,7 +157,7 @@
 
 .row {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  grid-template-columns: 32px minmax(0, 1fr) 44px;
   gap: 2px 12px;
   align-items: center;
   min-height: 68px;
@@ -188,6 +188,12 @@ label.pick {
 .pickBox input:not(:checked, :indeterminate) {
   border-color: var(--pup-color-field-border);
   background: var(--pup-color-surface);
+}
+
+/* The check box column is narrower than its 44 px label: the label runs on into the gap, so the box is as far
+   from the initials as the initials are from the name (12 px) */
+.pick {
+  justify-self: start;
 }
 
 /* With a mouse the check box shows on hover, on focus and once anyone is picked; its column stays, so nothing moves.
@@ -578,7 +584,7 @@ label.pick {
 
   .listHead {
     display: grid;
-    grid-template-columns: 44px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px;
+    grid-template-columns: 28px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px;
     gap: 16px;
     align-items: center;
     padding: 0 9px 8px 5px;
@@ -587,7 +593,7 @@ label.pick {
   }
 
   .row {
-    grid-template-columns: 44px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px;
+    grid-template-columns: 28px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px;
     gap: 16px;
   }
 
