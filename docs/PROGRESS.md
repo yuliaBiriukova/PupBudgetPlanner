@@ -2,6 +2,21 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29 (2)
+
+**Done**
+- F-028 started on its planning branch and PR (owner's request): five references and three HTML prototypes
+  (Guest list, Receipt, Pocket) covering the invite page, a broken link, Create account without a link, Google
+  without an account, and the People page with a new link, block and delete. Design check 0 issues; screenshots
+  at 375 and 1440 px, light and dark, looked at.
+- Product: sign-up is described as invite-only while the app is for family and friends.
+
+**Decisions**
+- The invite link is shown only once (only its hash is stored); a broken link never says who made it.
+
+**Next**
+- Owner picks a variant (or a mix); then the backend.
+
 ## 2026-10-29
 
 **Done**

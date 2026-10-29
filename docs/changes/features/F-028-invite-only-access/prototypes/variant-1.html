@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>F-028 · Variant 1 · Guest list</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(480px, calc(100vw - 32px)); background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.pv-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.pv-notes li + li { margin-top: 4px; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='tablet'] .frame { width: 834px; height: min(1050px, 100%); border: 12px solid #16181d; border-radius: 28px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+@media (max-width: 600px) {
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+}
+
+/* ---------- Tokens: the app's theme (F-010, F-011) plus a danger button and the sky tint for the new link ---------- */
+.app {
+  --bg: #f5f6f7; --surface: #fcfcfd; --sidebar: #ebedf0; --seg-bg: #ebedf0; --text: #1c1e21; --muted: #57585b;
+  --rule: #d7d8d9; --hover: #e8e9ea; --field-border: #7c828a;
+  --primary: #26292e; --primary-hover: #363a40; --on-primary: #f5f6f7;
+  --accent: #2a62a3; --active-bg: #e7ecf1; --tint: #e7ecf1; --logo: #8ec1ec; --logo-mark: #1c1e21;
+  --hero: #26292e; --on-hero: #f5f6f7; --hero-muted: #b4b9bf; --hero-rule: #474c54;
+  --error: #b3261e; --error-bg: #fbeceb; --error-text: #8c1d18;
+  --danger: #b3261e; --danger-hover: #9c211a; --on-danger: #fcfcfd;
+  --pill: #1c1e21; --on-pill: #f5f6f7; --focus: #2a62a3; --scrim: rgba(18, 19, 21, .45);
+  --shadow-float: 0 8px 24px rgba(15, 17, 20, .1);
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+  --r-sm: 12px; --r-lg: 24px;
+}
+.app[data-scheme='dark'] {
+  --bg: #121315; --surface: #1b1c1e; --sidebar: #18191b; --seg-bg: #121315; --text: #e9eaec; --muted: #a4a5a7;
+  --rule: #37383a; --hover: #26272a; --field-border: #71747b;
+  --primary: #e9eaec; --primary-hover: #d3d6da; --on-primary: #121315;
+  --accent: #8ec1ec; --active-bg: #262f37; --tint: #262f37; --logo: #8ec1ec; --logo-mark: #121315;
+  --hero: #0b0c0d; --on-hero: #e9eaec; --hero-muted: #a4a5a7; --hero-rule: #2e3035;
+  --error: #f2958c; --error-bg: #3a1d1b; --error-text: #f6b8b2;
+  --danger: #f2958c; --danger-hover: #f6b8b2; --on-danger: #121315;
+  --pill: #e9eaec; --on-pill: #121315; --focus: #8ec1ec; --scrim: rgba(0, 0, 0, .6);
+  --shadow-float: 0 10px 28px rgba(0, 0, 0, .45);
+}
+
+/* ---------- Base ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; color-scheme: light; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+:where(.app) :where(button, input) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, h3, p, ul) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted { color: var(--muted); }
+
+/* Buttons and fields (the F-011 set) */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; font-weight: 500; font-size: 15px; text-decoration: none; white-space: nowrap; background: none; }
+.btn-lg { min-height: 52px; font-size: 16px; width: 100%; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-outline { background: var(--surface); color: var(--text); border-color: var(--field-border); }
+.btn-outline:hover { background: var(--hover); }
+.btn-danger { background: var(--danger); color: var(--on-danger); }
+.btn-danger:hover { background: var(--danger-hover); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-quiet { color: var(--text); }
+.btn-quiet:hover { background: var(--hover); }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: var(--r-sm); background: none; color: var(--muted); cursor: pointer; }
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+.field label { display: block; font-weight: 500; font-size: 14px; margin-bottom: 6px; }
+.field .hint { margin-top: 6px; font-size: 13px; color: var(--muted); }
+.control { position: relative; display: flex; }
+.control input { width: 100%; height: 52px; padding: 0 16px; border: 1px solid var(--field-border); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font-size: 16px; min-width: 0; }
+.control input:focus { outline: 1px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.control.has-toggle input { padding-right: 56px; }
+.toggle { position: absolute; right: 4px; top: 4px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: none; border-radius: 10px; color: var(--muted); cursor: pointer; }
+.text-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; background: none; border: 0; padding: 0; cursor: pointer; }
+.banner { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-sm); background: var(--error-bg); color: var(--error-text); }
+.banner .ic { margin-top: 2px; }
+.or { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+.or::before, .or::after { content: ''; flex: 1; border-top: 1px solid var(--rule); }
+.toast { position: absolute; bottom: 88px; left: 50%; transform: translateX(-50%); padding: 10px 16px; border-radius: 999px; background: var(--pill); color: var(--on-pill); font-size: 14px; z-index: 30; white-space: nowrap; }
+
+/* ---------- Sign-in layout (F-011, variant 4) ---------- */
+.auth { height: 100%; overflow: hidden auto; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; background: var(--surface); }
+.hero { display: flex; flex-direction: column; padding: 24px 20px 48px; background: var(--hero); color: var(--on-hero); }
+.hero-body { display: flex; flex-direction: column; }
+.logo { width: 44px; height: 44px; display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--logo); color: var(--logo-mark); }
+.wordmark { font-family: var(--font-display); font-weight: 300; font-size: 30px; line-height: 1.1; letter-spacing: -.01em; margin-top: 16px; white-space: nowrap; }
+.about { display: none; }
+.form-side { position: relative; margin-top: -24px; background: var(--surface); border-radius: var(--r-lg) var(--r-lg) 0 0; padding: 20px 16px 32px; }
+.form-wrap { width: 100%; max-width: 400px; margin: 0 auto; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 999px; background: var(--seg-bg); }
+.seg a { display: grid; place-items: center; min-height: 44px; border-radius: 999px; color: var(--muted); text-decoration: none; font-weight: 500; }
+.seg a[aria-current='page'] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(15, 17, 20, .14); }
+.app[data-scheme='dark'] .seg a[aria-current='page'] { background: #2e3035; box-shadow: none; }
+.auth form { margin-top: 20px; display: grid; gap: 20px; }
+.auth-foot { margin-top: 12px; text-align: center; color: var(--muted); }
+@container app (min-width: 900px) {
+  .auth { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-content: stretch; min-height: 100%; }
+  .hero { padding: 40px 56px; min-height: 100%; }
+  .hero-body { margin: auto 0; max-width: 480px; }
+  .logo { width: 56px; height: 56px; }
+  .wordmark { font-size: 48px; margin-top: 24px; }
+  .about { display: block; color: var(--hero-muted); margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--hero-rule); max-width: 420px; }
+  .form-side { margin-top: 0; border-radius: 0; min-height: 100%; display: flex; flex-direction: column; justify-content: safe center; padding: 40px 48px; }
+}
+
+/* ---------- App shell (F-010): top bar and tab bar on the phone, sidebar from 768 px ---------- */
+.shell { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); }
+.side { display: none; }
+.column { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+.top { display: flex; flex: none; align-items: center; gap: 10px; height: 56px; padding: 0 8px 0 16px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; margin-right: auto; }
+.brand .logo { width: 32px; height: 32px; }
+.brand-name { font-family: var(--font-display); font-size: 15px; font-weight: 300; letter-spacing: .02em; white-space: nowrap; }
+.main { flex: 1; min-height: 0; overflow: hidden auto; }
+.content { max-width: 960px; margin: 0 auto; padding: 8px 16px 32px; }
+.tabs { display: flex; flex: none; align-items: center; gap: 2px; padding: 8px 8px 10px; border-top: 1px solid var(--rule); background: var(--bg); }
+.tab { display: flex; flex: none; align-items: center; justify-content: center; gap: 8px; width: 44px; min-height: 48px; border-radius: 999px; color: var(--muted); font-size: 13px; text-decoration: none; background: none; border: 0; cursor: pointer; }
+.tab[data-active] { width: auto; padding: 0 14px 0 12px; background: var(--active-bg); color: var(--accent); font-weight: 500; }
+.tab:not([data-active]) .tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.tab-add { display: grid; place-items: center; width: 52px; height: 52px; margin-left: auto; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); cursor: pointer; }
+.avatar { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 50%; background: var(--active-bg); color: var(--accent); font-size: 13px; font-weight: 500; }
+@container app (min-width: 768px) {
+  .shell { grid-template-columns: 248px minmax(0, 1fr); }
+  .side { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-right: 1px solid var(--rule); background: var(--sidebar); min-width: 0; }
+  .side-head { display: flex; align-items: center; gap: 10px; height: 44px; margin-bottom: 12px; padding: 0 2px; }
+  .side-head .logo { width: 32px; height: 32px; margin: 0 6px; }
+  .side-add { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; margin-bottom: 14px; border: 0; border-radius: var(--r-sm); background: var(--primary); color: var(--on-primary); font-weight: 500; cursor: pointer; }
+  .nav-link { position: relative; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-radius: var(--r-sm); color: var(--text); font-size: 14px; line-height: 1; text-decoration: none; white-space: nowrap; }
+  .nav-link:hover { background: var(--hover); }
+  .nav-link[aria-current='page'] { font-weight: 500; }
+  .nav-link[aria-current='page'] > svg { color: var(--accent); }
+  .nav-link[aria-current='page']::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: -12px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+  .nav-sep { height: 1px; margin: 10px 14px; background: var(--rule); }
+  .side-foot { display: flex; align-items: center; gap: 12px; min-height: 40px; margin-top: auto; padding: 0 8px; font-size: 14px; }
+  .top, .tabs { display: none; }
+  .content { padding: 32px 40px 48px; }
+  .toast { bottom: 24px; }
+}
+
+/* ---------- Dialogs: a sheet on the phone, centered from 768 px ---------- */
+.scrim { position: absolute; inset: 0; z-index: 20; display: flex; align-items: flex-end; background: var(--scrim); }
+.dialog { width: 100%; max-height: 92%; overflow: auto; padding: 20px 20px 24px; border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--surface); box-shadow: var(--shadow-float); }
+.dialog h2 { font-family: var(--font-display); font-weight: 300; font-size: 20px; line-height: 1.3; }
+.dialog p { margin-top: 10px; }
+.dialog .field { margin-top: 18px; }
+.dialog-actions { display: flex; flex-direction: column-reverse; gap: 8px; margin-top: 22px; }
+.dialog-actions .btn { width: 100%; min-height: 48px; }
+@container app (min-width: 768px) {
+  .scrim { align-items: center; justify-content: center; }
+  .dialog { width: 440px; border-radius: var(--r-lg); padding: 24px 28px 28px; }
+  .dialog-actions { flex-direction: row; justify-content: flex-end; }
+  .dialog-actions .btn { width: auto; min-height: 44px; }
+}
+
+/* ====================================================================================================== */
+/* ---------- Variant 1 · Guest list: one page, two ruled lists like a ledger, the new link as a slip ---------- */
+.page-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 24px; padding: 8px 0 24px; }
+.page-head h1 { font-family: var(--font-display); font-weight: 300; font-size: 28px; line-height: 1.15; letter-spacing: -.01em; }
+.page-head p { margin-top: 8px; color: var(--muted); max-width: 520px; }
+.page-head .grow { flex: 1 1 280px; }
+.page-head .btn { flex: 1 1 100%; }
+.section + .section { margin-top: 36px; }
+.section-head { display: flex; align-items: baseline; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--text); }
+.section-head h2 { font-family: var(--font-display); font-weight: 300; font-size: 17px; }
+.section-head .count { color: var(--muted); }
+.ledger { list-style: none; padding: 0; }
+.row { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 2px 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.row .who { min-width: 0; }
+.row .name { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-weight: 500; }
+.row .email { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.row .meta { grid-column: 1; color: var(--muted); font-size: 14px; }
+.row .act { grid-column: 2; grid-row: 1 / span 2; justify-self: end; }
+.row .cell { display: none; }
+.tag { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 500; line-height: 20px; background: var(--seg-bg); color: var(--muted); }
+.app[data-scheme='dark'] .tag { background: #2e3035; }
+.tag-accent { background: var(--active-bg) !important; color: var(--accent); }
+.tag-blocked { background: var(--error-bg) !important; color: var(--error-text); }
+.row[data-blocked] .name > span:first-child, .row[data-dim] .name > span:first-child { color: var(--muted); }
+.status-waiting { color: var(--accent); font-weight: 500; }
+.menu { position: absolute; right: 0; top: calc(100% - 8px); z-index: 5; min-width: 220px; padding: 6px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); box-shadow: var(--shadow-float); }
+.menu button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: var(--text); cursor: pointer; text-align: left; }
+.menu button:hover { background: var(--hover); }
+.menu .danger { color: var(--error); }
+.legend { margin-top: 12px; color: var(--muted); font-size: 14px; }
+
+/* The new link: a slip in the sky tint, the only bold thing on the page */
+.slip { margin-bottom: 28px; padding: 18px; border-radius: var(--r-lg); background: var(--tint); animation: slip-in 320ms cubic-bezier(.2, 0, 0, 1); }
+.slip h2 { font-family: var(--font-display); font-weight: 300; font-size: 17px; }
+.slip form { display: grid; gap: 14px; margin-top: 14px; }
+.slip .control input { background: var(--surface); }
+.slip .link-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 14px; }
+.slip .link-row input { font-size: 15px; text-overflow: ellipsis; }
+.slip p { margin-top: 12px; }
+.slip .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+@keyframes slip-in { from { opacity: 0; transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .slip { animation: none; } }
+
+@container app (min-width: 768px) {
+  .page-head .btn { flex: none; }
+  .row { grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1.3fr) 44px; gap: 16px; padding: 10px 0; min-height: 60px; }
+  .row .meta { display: none; }
+  .row .cell { display: block; font-size: 14px; }
+  .row .act { grid-column: auto; grid-row: auto; }
+  .row-head { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1.3fr) 44px; gap: 16px; padding: 10px 0 8px; color: var(--muted); font-size: 13px; border-bottom: 1px solid var(--rule); }
+  .invites .row, .invites .row-head { grid-template-columns: minmax(0, 1.6fr) minmax(0, 2.2fr) minmax(0, 1fr) 44px; }
+  .slip { padding: 22px 24px; }
+  .slip form { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+  .slip .link-row { grid-template-columns: minmax(0, 1fr) auto; }
+}
+.row-head { display: none; }
+@container app (min-width: 768px) { .row-head { display: grid; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="frame">
+    <div class="app" id="app" data-scheme="light"></div>
+  </div>
+</div>
+
+<script>
+const DIRECTION = {
+  name: 'Variant 1 · Guest list',
+  thesis: 'One quiet page with two ruled lists, like the spreadsheet: who has access, and the invite links. The new link appears as a sky slip at the top, the only bold thing on the page.',
+  notes: [
+    'Invite page: the sign-in layout (F-011) with a line on top: "Yulia invited you", until when the link works, then the Create account form and Continue with Google. No Sign in / Create account switch: a link at the bottom covers people who already have an account.',
+    'Without a link, Create account turns into a short explanation; after Google without an account, the Sign in tab shows a banner.',
+    'People page (admin only, in the sidebar under a line; on the phone under More): "New invite link" opens a slip with an optional note; after Create link the slip shows the link with Copy and Share.',
+    'The link is shown only once: Pup keeps only a fingerprint of it (safer if the database leaks). Lost it? Cancel it and make a new one.',
+    'Desktop: columns like a table. Phone: two lines per row, actions behind the ⋯ button.',
+    'Block and Delete ask first; Delete needs the person’s email typed in.',
+  ],
+};
+
+const ICONS = {
+  stack: ['M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z', 'M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4', 'M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z', 'M3 6v10c0 .888 .772 1.45 2 2', 'M3 11c0 .888 .772 1.45 2 2'],
+  receipt: ['M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2', 'M9 7h6', 'M9 11h6', 'M13 15h2'],
+  wallet: ['M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12', 'M20 12v4h-4a2 2 0 0 1 0 -4h4'],
+  chart: ['M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M4 20h14'],
+  users: ['M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2', 'M16 3.13a4 4 0 0 1 0 7.75', 'M21 21v-2a4 4 0 0 0 -3 -3.85'],
+  settings: ['M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z', 'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0'],
+  people: ['M6 21v-2a4 4 0 0 1 4 -4h2', 'M22 16c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5z', 'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0'],
+  plus: ['M12 5l0 14', 'M5 12l14 0'],
+  link: ['M9 15l6 -6', 'M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464', 'M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463'],
+  copy: ['M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z', 'M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1'],
+  check: ['M5 12l5 5l10 -10'],
+  share: ['M3 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0', 'M15 6a3 3 0 1 0 6 0a3 3 0 1 0 -6 0', 'M15 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0', 'M8.7 10.7l6.6 -3.4', 'M8.7 13.3l6.6 3.4'],
+  dots: ['M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  ban: ['M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0', 'M5.7 5.7l12.6 12.6'],
+  unlock: ['M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z', 'M11 16a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M8 11v-5a4 4 0 0 1 8 0'],
+  lock: ['M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z', 'M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0', 'M8 11v-4a4 4 0 1 1 8 0v4'],
+  trash: ['M4 7l16 0', 'M10 11l0 6', 'M14 11l0 6', 'M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12', 'M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3'],
+  x: ['M18 6l-12 12', 'M6 6l12 12'],
+  alert: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 8v4', 'M12 16h.01'],
+  ticket: ['M15 5l0 2', 'M15 11l0 2', 'M15 17l0 2', 'M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2'],
+  eye: ['M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0', 'M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6'],
+  eyeOff: ['M10.585 10.587a2 2 0 0 0 2.829 2.828', 'M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87', 'M3 3l18 18'],
+};
+const icon = (n, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n].map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+const GOOGLE = `<svg class="ic" width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`;
+
+// ---------- Data: "today" is 12 Nov 2026 ----------
+const LINK = 'https://pup-budget-planner.onrender.com/invite/q7Rk2mVx9pLw4TfZ8nHc';
+const PEOPLE = [
+  { id: 'yulia', name: 'Yulia Biriukova', email: 'yulia@example.com', via: 'Google', joined: '27 Oct 2026', invite: null, you: true },
+  { id: 'vlad', name: 'Vlad', email: 'vlad@example.com', via: 'Password, Google', joined: '28 Oct 2026', invite: null },
+  { id: 'iryna', name: 'Iryna Melnyk', email: 'iryna.melnyk@example.com', via: 'Google', joined: '6 Nov 2026', invite: 'For Ira' },
+  { id: 'max', name: 'Max', email: 'max.trial@example.com', via: 'Password', joined: '30 Oct 2026', invite: null, blocked: '10 Nov 2026' },
+];
+const INVITES = [
+  { id: 'mom', note: 'For Mom', status: 'waiting', text: 'Waiting, works until 17 Nov 2026', created: '10 Nov 2026' },
+  { id: 'ira', note: 'For Ira', status: 'used', text: 'Used by Iryna Melnyk on 6 Nov 2026', created: '5 Nov 2026' },
+  { id: 'taras', note: 'For Taras', status: 'expired', text: 'Expired on 9 Nov 2026, not used', created: '2 Nov 2026' },
+  { id: 'test', note: 'No note', status: 'cancelled', text: 'Cancelled on 4 Nov 2026', created: '4 Nov 2026' },
+];
+
+const PAGES = [
+  { id: 'invite', label: 'Invite: create account' },
+  { id: 'invite-bad', label: 'Invite: link doesn’t work' },
+  { id: 'closed', label: 'Create account without a link' },
+  { id: 'google-closed', label: 'Google without an account' },
+  { id: 'people', label: 'People' },
+  { id: 'people-new', label: 'People: new link' },
+  { id: 'people-link', label: 'People: link created' },
+  { id: 'people-block', label: 'People: block' },
+  { id: 'people-delete', label: 'People: delete' },
+];
+
+const app = document.getElementById('app');
+const stage = document.getElementById('stage');
+const mq = matchMedia('(prefers-color-scheme: dark)');
+const state = { page: 'people', schemePref: 'light', menu: null, copied: false, more: false, confirmText: '' };
+
+function applyScheme() {
+  const scheme = state.schemePref === 'system' ? (mq.matches ? 'dark' : 'light') : state.schemePref;
+  app.dataset.scheme = scheme;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+}
+mq.addEventListener('change', applyScheme);
+
+// ---------- Shared pieces ----------
+function field({ id, label, type = 'text', autocomplete = 'off', inputmode, value = '', hint, extra = '' }) {
+  const pw = type === 'password';
+  return `<div class="field">
+    <label for="${id}">${label}</label>
+    <div class="control${pw ? ' has-toggle' : ''}">
+      <input id="${id}" name="${id}" type="${type}" autocomplete="${autocomplete}"${inputmode ? ` inputmode="${inputmode}"` : ''} value="${value}"${hint ? ` aria-describedby="${id}-hint"` : ''} ${extra}>
+      ${pw ? `<button type="button" class="toggle" data-action="toggle-pw" aria-label="Show password" aria-pressed="false" aria-controls="${id}">${icon('eye')}</button>` : ''}
+    </div>
+    ${hint ? `<p class="hint" id="${id}-hint">${hint}</p>` : ''}
+  </div>`;
+}
+const signupFields = () => field({ id: 'name', label: 'Your name', autocomplete: 'name', hint: 'Your family sees this name.' })
+  + field({ id: 'email', label: 'Email', type: 'email', autocomplete: 'email', inputmode: 'email' })
+  + field({ id: 'password', label: 'Password', type: 'password', autocomplete: 'new-password', hint: 'At least 8 characters.' })
+  + field({ id: 'confirm', label: 'Confirm password', type: 'password', autocomplete: 'new-password' });
+const googleBtn = (label = 'Continue with Google') => `<button class="btn btn-outline btn-lg" type="button" data-action="google">${GOOGLE}${label}</button>`;
+const seg = (current) => `<nav class="seg" aria-label="Sign in or create an account">
+  <a href="#signin" data-nav="google-closed"${current === 'signin' ? ' aria-current="page"' : ''}>Sign in</a>
+  <a href="#signup" data-nav="closed"${current === 'signup' ? ' aria-current="page"' : ''}>Create account</a></nav>`;
+
+function authLayout(inner, about = 'Income, expenses and transfers across all your accounts and currencies. Monthly and yearly reports build themselves, for you and your family.') {
+  return `<div class="auth">
+    <header class="hero"><div class="hero-body">
+      <span class="logo" aria-hidden="true">${icon('stack', 24)}</span>
+      <p class="wordmark">Pup Budget</p>
+      <p class="about">${about}</p>
+    </div></header>
+    <main class="form-side"><div class="form-wrap">${inner}</div></main>
+  </div>`;
+}
+
+const NAV = [['receipt', 'Transactions'], ['wallet', 'Accounts'], ['chart', 'Reports'], ['users', 'Family'], ['settings', 'Settings']];
+function shell(inner) {
+  return `<div class="shell">
+    <aside class="side" aria-label="Sections">
+      <div class="side-head"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div>
+      <button class="side-add" type="button" data-action="add-tx">${icon('plus')}Add transaction</button>
+      <nav class="nav" aria-label="Main">
+        ${NAV.map(([i, l]) => `<a class="nav-link" href="#${l.toLowerCase()}">${icon(i)}${l}</a>`).join('')}
+        <div class="nav-sep" role="presentation"></div>
+        <a class="nav-link" href="#people" aria-current="page">${icon('people')}People</a>
+      </nav>
+      <div class="side-foot"><span class="avatar" aria-hidden="true">YB</span><span>Yulia Biriukova</span></div>
+    </aside>
+    <div class="column">
+      <header class="top"><div class="brand"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div><span class="avatar" aria-hidden="true">YB</span></header>
+      <main class="main"><div class="content">${inner}</div></main>
+      <nav class="tabs" aria-label="Main">
+        ${NAV.slice(0, 3).map(([i, l]) => `<a class="tab" href="#${l.toLowerCase()}">${icon(i)}<span class="tab-label">${l}</span></a>`).join('')}
+        <button class="tab" type="button" data-action="more" data-active aria-expanded="${state.more}">${icon('dots')}<span class="tab-label">More</span></button>
+        <button class="tab-add" type="button" data-action="add-tx" aria-label="Add transaction">${icon('plus', 24)}</button>
+      </nav>
+    </div>
+  </div>
+  ${state.more ? moreSheet() : ''}`;
+}
+function moreSheet() {
+  return `<div class="scrim" data-action="close-more"><div class="dialog" role="dialog" aria-modal="true" aria-label="More sections" data-stop>
+    <ul class="ledger">${[['users', 'Family'], ['settings', 'Settings'], ['people', 'People']].map(([i, l]) => `<li><a class="nav-more" href="#${l.toLowerCase()}" data-action="close-more" style="display:flex;align-items:center;gap:14px;min-height:52px;padding:0 12px;border-radius:12px;color:${l === 'People' ? 'var(--accent)' : 'var(--text)'};background:${l === 'People' ? 'var(--active-bg)' : 'none'};text-decoration:none"${l === 'People' ? ' aria-current="page"' : ''}>${icon(i)}${l}</a></li>`).join('')}</ul>
+  </div></div>`;
+}
+
+// ---------- Variant 1: sign-in screens ----------
+function invitePage() {
+  return authLayout(`<h1 class="sr">Create your Pup Budget account</h1>
+    <div style="display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:var(--r-sm);background:var(--tint)">
+      <span style="color:var(--accent);margin-top:2px">${icon('ticket')}</span>
+      <div><p style="font-weight:500">Yulia invited you to Pup Budget</p>
+      <p class="muted" style="font-size:14px;margin-top:2px">Create your account to join. This link works once, until <span class="num">17 Nov 2026</span>.</p></div>
+    </div>
+    <form novalidate data-form="signup">${signupFields()}
+      <button class="btn btn-primary btn-lg" type="submit">Create account</button>
+      <div class="or">or</div>${googleBtn()}
+    </form>
+    <p class="auth-foot">Already have an account? <a class="text-link" href="#signin" data-nav="google-closed">Sign in</a></p>`,
+  'Yulia keeps the family budget here and invited you. Income, expenses and transfers across all your accounts and currencies, with reports that build themselves.');
+}
+function inviteBadPage() {
+  return authLayout(`<h1 style="font-family:var(--font-display);font-weight:300;font-size:24px;line-height:1.25">This invite link doesn’t work any more</h1>
+    <p class="muted" style="margin-top:12px">It may have been used already, cancelled or expired. Ask the person who sent it for a new one.</p>
+    <div style="display:grid;gap:12px;margin-top:24px"><a class="btn btn-primary btn-lg" href="#signin" data-nav="google-closed">Sign in</a></div>
+    <p class="auth-foot">Already have an account? Sign in with it as usual.</p>`);
+}
+function closedPage() {
+  return authLayout(`<h1 class="sr">Create a Pup Budget account</h1>${seg('signup')}
+    <div style="margin-top:28px">
+      <span style="display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--tint);color:var(--accent)">${icon('lock')}</span>
+      <h2 style="font-family:var(--font-display);font-weight:300;font-size:22px;line-height:1.3;margin-top:16px">Pup Budget is invite-only for now</h2>
+      <p class="muted" style="margin-top:10px">To create an account, you need an invite link. Ask the person who told you about Pup Budget to send you one.</p>
+      <p class="muted" style="margin-top:10px">Already have an account? Sign in with your email or Google.</p>
+      <a class="btn btn-outline btn-lg" style="margin-top:24px" href="#signin" data-nav="google-closed">Go to sign in</a>
+    </div>`);
+}
+function googleClosedPage() {
+  return authLayout(`<h1 class="sr">Sign in to Pup Budget</h1>${seg('signin')}
+    <form novalidate data-form="signin">
+      <div class="banner" role="alert">${icon('alert')}<span>There’s no Pup Budget account for this Google account. New accounts need an invite link: ask the person who told you about Pup Budget.</span></div>
+      ${field({ id: 'email', label: 'Email', type: 'email', autocomplete: 'email', inputmode: 'email' })}
+      ${field({ id: 'password', label: 'Password', type: 'password', autocomplete: 'current-password' })}
+      <button class="btn btn-primary btn-lg" type="submit">Sign in</button>
+      <div class="or">or</div>${googleBtn()}
+    </form>`);
+}
+
+// ---------- Variant 1: People page ----------
+function personRow(p) {
+  const tags = (p.you ? '<span class="tag tag-accent">You, admin</span>' : '') + (p.blocked ? `<span class="tag tag-blocked">${icon('ban', 16)}Blocked</span>` : '');
+  const invite = p.you ? 'Admin' : p.invite ? p.invite : 'Before invites';
+  const metaLine = p.blocked ? `Blocked on ${p.blocked}` : `${p.via}, joined ${p.joined}`;
+  const menuItems = p.blocked
+    ? `<button type="button" data-action="unblock">${icon('unlock')}Unblock</button><button type="button" class="danger" data-action="ask-delete">${icon('trash')}Delete account…</button>`
+    : `<button type="button" data-action="ask-block">${icon('ban')}Block…</button><button type="button" class="danger" data-action="ask-delete">${icon('trash')}Delete account…</button>`;
+  return `<li class="row"${p.blocked ? ' data-blocked' : ''}>
+    <div class="who"><p class="name"><span>${p.name}</span>${tags}</p><p class="email">${p.email}</p></div>
+    <p class="meta">${metaLine}</p>
+    <p class="cell">${p.via}</p>
+    <p class="cell num">${p.blocked ? `<span style="color:var(--error)">Blocked ${p.blocked.replace(' 2026', '')}</span>` : p.joined}</p>
+    <p class="cell ${p.invite ? '' : 'muted'}">${invite}</p>
+    <div class="act">${p.you ? '' : `<button class="icon-btn" type="button" data-action="menu" data-id="${p.id}" aria-label="Actions for ${p.name}" aria-haspopup="menu" aria-expanded="${state.menu === p.id}">${icon('dots')}</button>`}
+      ${state.menu === p.id ? `<div class="menu" role="menu">${menuItems}</div>` : ''}</div>
+  </li>`;
+}
+function inviteRow(i) {
+  const waiting = i.status === 'waiting';
+  return `<li class="row"${waiting ? '' : ' data-dim'}>
+    <div class="who"><p class="name"><span>${i.note}</span></p></div>
+    <p class="meta ${waiting ? 'status-waiting' : ''}">${i.text}</p>
+    <p class="cell ${waiting ? 'status-waiting' : 'muted'}">${i.text}</p>
+    <p class="cell num muted">${i.created}</p>
+    <div class="act">${waiting ? `<button class="icon-btn" type="button" data-action="menu" data-id="inv-${i.id}" aria-label="Actions for the link ${i.note}" aria-haspopup="menu" aria-expanded="${state.menu === `inv-${i.id}`}">${icon('dots')}</button>` : ''}
+      ${state.menu === `inv-${i.id}` ? `<div class="menu" role="menu"><button type="button" class="danger" data-action="cancel-link">${icon('x')}Cancel link</button></div>` : ''}</div>
+  </li>`;
+}
+function slip() {
+  if (state.page === 'people-new') {
+    return `<section class="slip" aria-labelledby="slip-title">
+      <h2 id="slip-title">New invite link</h2>
+      <form novalidate data-form="new-link">
+        ${field({ id: 'note', label: 'Who is it for? (optional, only you see it)', value: 'For Olena', extra: 'maxlength="60"' })}
+        <div class="btns"><button class="btn btn-primary" type="submit" style="min-height:52px">${icon('link')}Create link</button><button class="btn btn-quiet" type="button" data-nav="people" style="min-height:52px">Cancel</button></div>
+      </form>
+    </section>`;
+  }
+  if (state.page === 'people-link') {
+    return `<section class="slip" aria-labelledby="slip-title">
+      <h2 id="slip-title">Link for Olena is ready</h2>
+      <div class="link-row">
+        <div class="control"><label class="sr" for="new-link">Invite link</label><input id="new-link" type="text" readonly value="${LINK}"></div>
+        <div class="btns"><button class="btn btn-primary" type="button" data-action="copy" style="min-height:52px">${icon(state.copied ? 'check' : 'copy')}${state.copied ? 'Copied' : 'Copy link'}</button><button class="btn btn-outline" type="button" data-action="share" style="min-height:52px">${icon('share')}Share</button></div>
+      </div>
+      <p>Send it to Olena in any messenger. It works once, until <span class="num">19 Nov 2026</span>.</p>
+      <p class="muted" style="margin-top:4px;font-size:14px">Copy it now: Pup Budget can’t show this link again. Lost it? Cancel it and make a new one.</p>
+      <button class="btn btn-quiet" type="button" data-nav="people" style="margin-top:8px;margin-left:-20px">Done</button>
+    </section>`;
+  }
+  return '';
+}
+function peoplePage() {
+  const invites = state.page === 'people-link'
+    ? [{ id: 'olena', note: 'For Olena', status: 'waiting', text: 'Waiting, works until 19 Nov 2026', created: '12 Nov 2026' }, ...INVITES]
+    : INVITES;
+  return shell(`<header class="page-head">
+      <div class="grow"><h1>People</h1><p>Only people you invite can create an account. Everyone here can sign in.</p></div>
+      ${state.page === 'people' || state.page === 'people-block' || state.page === 'people-delete' ? `<button class="btn btn-primary" type="button" data-nav="people-new" style="min-height:48px">${icon('plus')}New invite link</button>` : ''}
+    </header>
+    ${slip()}
+    <section class="section" aria-labelledby="have-access">
+      <div class="section-head"><h2 id="have-access">Have access</h2><span class="count num">4 people, 1 blocked</span></div>
+      <div class="row-head" aria-hidden="true"><span>Person</span><span>Signs in with</span><span>Joined</span><span>Invited with</span><span></span></div>
+      <ul class="ledger">${PEOPLE.map(personRow).join('')}</ul>
+      <p class="legend">“Before invites” means the account was made while sign-up was open.</p>
+    </section>
+    <section class="section invites" aria-labelledby="links">
+      <div class="section-head"><h2 id="links">Invite links</h2><span class="count num">${state.page === 'people-link' ? 2 : 1} waiting</span></div>
+      <div class="row-head" aria-hidden="true"><span>Note</span><span>Status</span><span>Created</span><span></span></div>
+      <ul class="ledger">${invites.map(inviteRow).join('')}</ul>
+    </section>
+    ${dialog()}`);
+}
+function dialog() {
+  if (state.page === 'people-block') {
+    return `<div class="scrim"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+      <h2 id="dlg-title">Block Iryna Melnyk?</h2>
+      <p>Iryna is signed out on every device and can’t sign in. Their data stays, and you can unblock them any time.</p>
+      <div class="dialog-actions"><button class="btn btn-quiet" type="button" data-nav="people">Cancel</button><button class="btn btn-primary" type="button" data-action="do-block">${icon('ban')}Block</button></div>
+    </div></div>`;
+  }
+  if (state.page === 'people-delete') {
+    const ok = state.confirmText.trim().toLowerCase() === 'max.trial@example.com';
+    return `<div class="scrim"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+      <h2 id="dlg-title">Delete Max’s account?</h2>
+      <p>This deletes the account and everything in it: accounts, transactions, categories and settings. It can’t be undone.</p>
+      <p class="muted">To join again, Max would need a new invite link.</p>
+      ${field({ id: 'confirm-email', label: 'Type max.trial@example.com to confirm', type: 'email', inputmode: 'email', value: state.confirmText, extra: 'data-confirm' })}
+      <div class="dialog-actions"><button class="btn btn-quiet" type="button" data-nav="people">Cancel</button><button class="btn btn-danger" type="button" data-action="do-delete" data-delete="max.trial@example.com"${ok ? '' : ' disabled'}>${icon('trash')}Delete account</button></div>
+    </div></div>`;
+  }
+  return '';
+}
+
+const VARIANT_ACTIONS = {};
+
+// ---------- Render ----------
+const RENDER = { invite: invitePage, 'invite-bad': inviteBadPage, closed: closedPage, 'google-closed': googleClosedPage };
+function render() {
+  app.innerHTML = (RENDER[state.page] ?? peoplePage)();
+  document.querySelectorAll('[data-page-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pageSet === state.page)));
+}
+function go(id) { state.page = id; state.menu = null; state.copied = false; state.more = false; state.confirmText = ''; render(); }
+function toast(text) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = text;
+  app.appendChild(t); setTimeout(() => t.remove(), 2200);
+}
+
+// Preview bar (review aid)
+document.body.insertAdjacentHTML('afterbegin', `<div class="pv-bar"><b>F-028 · ${DIRECTION.name}</b>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="tablet">Tablet</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>Screen</span>${PAGES.map((p) => `<button data-page-set="${p.id}">${p.label}</button>`).join('')}</div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <button data-action="notes" aria-expanded="false">About this direction</button>
+  <div class="pv-notes" id="notes" hidden><b>${DIRECTION.name}</b><p style="margin:4px 0 0">${DIRECTION.thesis}</p><ul>${DIRECTION.notes.map((n) => `<li>${n}</li>`).join('')}</ul></div></div>`);
+function setView(v) { stage.dataset.view = v; document.querySelectorAll('button[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); }
+setView(innerWidth >= 1200 ? 'desktop' : 'phone');
+
+document.addEventListener('click', (e) => {
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { e.preventDefault(); go(nav.dataset.nav); return; }
+  const p = e.target.closest('[data-page-set]');
+  if (p) { go(p.dataset.pageSet); return; }
+  const s = e.target.closest('[data-scheme-set]');
+  if (s) { state.schemePref = s.dataset.schemeSet; applyScheme(); return; }
+  const v = e.target.closest('button[data-view]');
+  if (v) { setView(v.dataset.view); return; }
+  const a = e.target.closest('[data-action]');
+  if (!a) { if (state.menu) { state.menu = null; render(); } return; }
+  if (a.classList.contains('scrim') && e.target.closest('[data-stop]')) return;
+  ({
+    'toggle-pw': () => {
+      const input = document.getElementById(a.getAttribute('aria-controls'));
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      a.setAttribute('aria-pressed', String(show));
+      a.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      a.innerHTML = icon(show ? 'eyeOff' : 'eye');
+    },
+    menu: () => { state.menu = state.menu === a.dataset.id ? null : a.dataset.id; render(); },
+    'ask-block': () => go('people-block'),
+    'ask-delete': () => go('people-delete'),
+    unblock: () => { go('people'); toast('Max can sign in again'); },
+    'cancel-link': () => { go('people'); toast('Link cancelled'); },
+    'do-block': () => { go('people'); toast('Iryna is blocked'); },
+    'do-delete': () => { go('people'); toast('Max’s account is deleted'); },
+    copy: () => { state.copied = true; render(); toast('Link copied'); },
+    share: () => toast('Opens the phone’s share sheet (Telegram, Viber…)'),
+    google: () => toast('Opens Google'),
+    'add-tx': () => toast('Add transaction (F-018)'),
+    more: () => { state.more = !state.more; render(); },
+    'close-more': () => { state.more = false; render(); },
+    ...VARIANT_ACTIONS,
+    notes: () => { const n = document.getElementById('notes'); n.hidden = !n.hidden; a.setAttribute('aria-expanded', String(!n.hidden)); },
+  })[a.dataset.action]?.(a);
+});
+document.addEventListener('input', (e) => {
+  if (!e.target.matches('[data-confirm]')) return;
+  state.confirmText = e.target.value;
+  const btn = document.querySelector('[data-delete]');
+  btn.disabled = state.confirmText.trim().toLowerCase() !== btn.dataset.delete;
+});
+document.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const kind = e.target.dataset.form;
+  if (kind === 'new-link') { go('people-link'); return; }
+  toast(kind === 'signup' ? 'Account created' : 'Signed in');
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  document.getElementById('notes').hidden = true;
+  if (state.menu || state.more) { state.menu = null; state.more = false; render(); }
+  else if (state.page === 'people-block' || state.page === 'people-delete') go('people');
+});
+applyScheme();
+render();
+</script>
+</body>
+</html>

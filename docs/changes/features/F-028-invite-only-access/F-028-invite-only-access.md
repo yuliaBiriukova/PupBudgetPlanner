@@ -5,7 +5,7 @@
 | Type | Feature |
 | Milestone | M1 — Authentication & app shell |
 | Priority | High |
-| Status | Todo |
+| Status | In progress |
 | Branch | `feature/F-028-invite-only-access` |
 | Design | 3 HTML prototypes required |
 
@@ -47,8 +47,8 @@ password, or the first "Continue with Google").
 ## Tasks
 
 - [x] Agree the open points below with the owner (2026-10-29)
-- [ ] References (Mobbin: "invite", "team members", "invite link"; Notion, Linear, Slack, Discord invite pages)
-- [ ] 3 HTML prototypes: the "You're invited" page, the invite-only message on Create account and after Google,
+- [x] References (see "Design")
+- [x] 3 HTML prototypes: the "You're invited" page, the invite-only message on Create account and after Google,
       the People page with an invitation created and copied (phone and desktop, light and dark)
 - [ ] Domain: `Invitation` (hashed token, note, created by, expires, used by / at, cancelled at) and its rules
 - [ ] Database: `invitations` table, migration; an admin role; a blocked flag (or a permanent lockout) on the
@@ -68,8 +68,55 @@ password, or the first "Continue with Google").
 
 ## Design
 
-References (Mobbin, other apps, the internet): — (when the work starts)
-Prototypes: `prototypes/` (not created yet). Chosen variant: —
+References (open pages only, no sign-in):
+
+- [Root — invite members](https://support.rootapp.com/docs/leader/members-and-invites/invite-members): the link
+  shown at the top with one Copy / Share action, a share sheet on the phone, and a list of links with who made
+  each, when it expires and how often it was used. We take the copy-first slip and the link list.
+- [Linear — invite members](https://linear.app/docs/invite-members): only admins invite by default, pending
+  invitations sit on the members page, and people are *suspended* rather than removed. We take one People page
+  for both lists and "block" as the gentle default.
+- [Growth Dives — how Notion nails invites](https://growth-dives.kit.com/posts/how-notion-nails-invites): a
+  simple decision with the consequence stated up front. We take this for the block and delete confirmations
+  (say exactly what happens, in one sentence).
+- [Notion activation wireframe](https://notion-wireframe.netlify.app/): a joining person who lands "cold" needs
+  a welcome that says who invited them and what to do next. We take "Yulia invited you" as the first line of
+  the invite page.
+- Discord and Slack invite pages (public `discord.gg` / `join.slack.com` links): who invited you plus one clear
+  action, and a plain message when a link has expired. We take the single neutral "this link doesn't work"
+  state.
+
+Brief:
+
+- **Who and when:** the owner, on a desktop or phone, a few times a year: makes a link for a relative or friend
+  and sends it in Telegram or Viber. The invitee opens it once, usually on the phone.
+- **The one job:** for the owner, *make a link and copy it* (first thing on the People page); for the invitee,
+  *see who invited them and create the account*.
+- **The subject's world:** a guest list and a receipt or a pass: something handed to one person, valid once and
+  until a date.
+- **Feeling:** "private and in control": calm, no alarm, even when blocking someone.
+
+Token plan: the F-010 / F-011 theme as built (charcoal and sky, Unbounded 300 for headings, Manrope 400/500),
+radius 12 / 24 and pill buttons, one float shadow. New tokens: a danger button (light `#b3261e` with
+`#fcfcfd` text, dark `#f2958c` with `#121315` text), and the sky tint `#e7ecf1` / `#262f37` for the new-link
+slip. No green for statuses: green means income. Motion: only the new link appearing. All of it fits the
+Mantine theme (`theme.ts` tokens plus `--pup-color-danger`).
+Prototypes in `prototypes/` (2026-10-29). Each one has the same screens: the invite page, a link that doesn't
+work, Create account without a link, Google without an account, the People page, a new link, the link
+created, block and delete. A preview bar switches screen, phone / tablet / desktop and light / dark.
+
+| Variant | Thesis |
+|---------|--------|
+| [1 · Guest list](prototypes/variant-1.html) | One quiet page with two ruled lists like the spreadsheet (people, invite links), table columns on the desktop. The new link appears as a sky slip at the top with Copy and Share. Invite page: a "Yulia invited you" line above the form. |
+| [2 · Receipt](prototypes/variant-2.html) | An invitation drawn as a paper receipt with a torn edge: on the charcoal half of the invite page, as a row of receipts on the People page, "printed" out of a slot when created. A broken link shows the receipt with a "Not valid" stamp and no details. The risky one. |
+| [3 · Pocket](prototypes/variant-3.html) | Phone-first: "Yulia invited you" big in the charcoal band, Continue with Google first. People page with a People / Invite links pill switch, big rows, one person in a sheet (phone) or a side panel (desktop) with Block and Delete as full buttons; Share link first for a new link. |
+
+Common to all three: the link is shown only once (only its hash is stored); a broken link never says who made
+it; block and delete ask first, delete needs the person's email typed in; People sits under a line in the
+sidebar and under More on the phone. Design check (Playwright + axe, 360–1440 px, light and dark, every screen):
+0 issues; screenshots at 375 and 1440 px looked at.
+
+Chosen variant: — (waiting for the owner)
 
 ## Tests
 
