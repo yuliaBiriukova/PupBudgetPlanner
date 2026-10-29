@@ -45,3 +45,7 @@ Every new person starts with the familiar categories from the spreadsheet.
   Driving, Spotify, Emergency). They stay the default while only the family uses the app; a generic set for
   other people is planned with adding own categories after the MVP (Q-011).
 - Decisions: [ADR 0015](../../../decisions/0015-default-categories-seeding.md).
+- Fixed on the way: the Docker image build didn't copy `.editorconfig`, so it ran the analyzers on EF migrations
+  with every rule. This is the first migration with composite indexes, and their column arrays failed CA1861 in
+  the image only. The Dockerfile now copies `.editorconfig`, so the image builds with the same rules as CI and
+  local builds.

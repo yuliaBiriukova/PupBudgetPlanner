@@ -12,6 +12,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
     person / group). The `AddCategories` migration also gives every existing account the set.
   - **Sign-up:** email sign-up and the first Google sign-in create the account and its categories in one
     transaction (`AccountCreator`).
+- Fixed on the way: the Docker build failed with CA1861 in the new migration. The image never got `.editorconfig`,
+  which tells the analyzers to skip generated migrations. The Dockerfile now copies it.
 - Tests:
   - backend 96 (8 new);
   - E2E 27 passed, 2 skipped against this build. Once, "creates an account, signs out and signs in again"
