@@ -267,10 +267,10 @@ I-003 (owner approval before any implementation).
   Fixed on the way: the link card's buttons were 36 px, the disabled Delete button was unreadable in dark mode,
   long notes wrapped, an open empty group said nothing, a blocked person's phone line read "Joined Blocked …".
 
-Results: backend 161 tests (65 new); frontend unit 60 (17 new); E2E 35 passed, 2 skipped (5 new or changed:
+Results: backend 161 tests (65 new); frontend unit 64 (21 new); E2E 35 passed, 2 skipped (5 new or changed:
 signing up with a link, a link used twice, Create account without a link, the admin invites → blocks → unblocks,
-no People page for others); Storybook stories for the People page (loading, error, no match, picked, menu,
-delete, links, none waiting, all open, new link) and the invite screens.
+no People page for others); Storybook stories for the People page (loading, error, no match, picked, at max,
+menu, delete, links, none waiting, all open, new link) and the invite screens.
 
 ## Decisions (owner, 2026-10-29)
 
@@ -303,13 +303,41 @@ delete, links, none waiting, all open, new link) and the invite screens.
 1. **Accounts that already exist on production** (Q-012). Confirmed by the owner (2026-10-29): they keep access
    and show "Before invites"; after the release the admin looks through the People page and blocks or deletes
    anyone unknown.
+2. **Bulk delete of more than 200 people fails** (found by the owner testing on localhost, 2026-10-29; priority
+   High, it blocks the release). On the dev database (202 accounts, 201 from tests) Pick all shown → Delete
+   sends 201 ids; the API answers 400 "Pick at most 200 people at a time" (`PeopleRequestValidator.MaxPeople`),
+   and the dialog only says "That didn't go through. Try again in a moment", which is wrong: trying again
+   can't help.
+   - **Root cause:** the page doesn't know the API's limit. Pick all shown picks everyone shown, and the
+     dialog shows the same message for every error.
+   - **Fix (approved by the owner 2026-10-29):** picking stops at 200. Pick all shown picks the
+     first 200 in the current order, and the bar says "200 picked, the most at a time". The dialog shows the
+     API's own message for a 400. The API keeps its limit and its all-or-nothing transaction. Tests: a unit
+     test for the 200 cap and the message, plus a Storybook state.
+   - **Fixed (2026-10-29):**
+     - Pick all shown picks the first 200 in the current order (`MAX_PICKS`, the API's `MaxPeople`), and the
+       header box shows as ticked. The rest of the check boxes are disabled.
+     - The bar says "200 picked" with "That's the most at once" under it. On the phone the note wraps, so Block
+       and Delete keep their labels.
+     - A 400 in the Block or Delete dialog says "Pick at most 200 people at a time." (from i18n, the API's
+       wording); other errors still say to try again.
+     - Found on the way: a disabled check box looked exactly like an empty one, because the theme's rule for
+       empty boxes covered it too. It now keeps Mantine's grey look.
+     - Tests: two unit tests (the cap and its delete, the message) and the stories "People at max" (desktop and
+       phone). Screenshots at 375 and 1440 px, light and dark, looked at.
+   - **Flaky unit tests (approved by the owner 2026-10-29):** the tests that open a row's ⋯ menu sometimes found
+     it still hidden (`display: none`): Mantine's opening transition doesn't always finish in jsdom. The new
+     200-row test made it happen almost every run; alone, the unblock test failed 1 run in 4. The unit-test
+     render now passes `env="test"` to Mantine (`AppProviders` has an optional `env` prop; the app doesn't set
+     it), which turns off transitions and portals. All 64 unit tests then passed in 10 runs out of 10. This is
+     the flake noted under "Notes".
 
 ## Notes
 
 - After the release: set `Access__AdminEmails__0` on Render to the owner's email (the dashboard), otherwise nobody
   is the admin and nobody can be invited.
-- One run of the frontend unit tests failed once and passed the next 8 times; which test it was isn't known. Watch
-  for it in CI.
+- One run of the frontend unit tests failed once and passed the next 8 times. It was a menu test: fixed with
+  `env="test"` (open point 2).
 
 - The token is long and random (32 bytes, URL-safe), only its hash is stored, like a password reset token; the
   invitation endpoints are rate-limited like sign-in.

@@ -10,9 +10,11 @@ interface AppProvidersProps {
   children: ReactNode;
   /** Tests pass their own client (no retries, fresh cache per test). */
   queryClient?: QueryClient;
+  /** `test` turns off transitions and portals (Mantine's advice for jsdom). */
+  env?: 'default' | 'test';
 }
 
-export function AppProviders({ children, queryClient }: AppProvidersProps) {
+export function AppProviders({ children, queryClient, env }: AppProvidersProps) {
   const [client] = useState(() => queryClient ?? createQueryClient());
 
   return (
@@ -20,6 +22,7 @@ export function AppProviders({ children, queryClient }: AppProvidersProps) {
       theme={theme}
       cssVariablesResolver={cssVariablesResolver}
       defaultColorScheme="auto"
+      env={env}
     >
       <DatesProvider settings={{ locale: 'en', firstDayOfWeek: 1 }}>
         <Notifications />

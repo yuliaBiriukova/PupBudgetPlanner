@@ -34,6 +34,20 @@ export function inviteUrl(token: string): string {
 
 export type PeopleAction = 'block' | 'unblock' | 'delete';
 
+/** The most people one Block, Unblock or Delete may touch: the API's `PeopleRequestValidator.MaxPeople`. */
+export const MAX_PICKS = 200;
+
+/** A Block, Unblock or Delete the API turned down; 400 means the request itself was refused (too many people). */
+export class PeopleActionError extends Error {
+  readonly status: number;
+
+  constructor(action: PeopleAction, status: number) {
+    super(`Couldn't ${action}: ${String(status)}`);
+    this.name = 'PeopleActionError';
+    this.status = status;
+  }
+}
+
 /** Block, unblock or delete one person or everyone picked; the lists are fetched again afterwards. */
 export function usePeopleAction() {
   const queryClient = useQueryClient();
@@ -47,7 +61,7 @@ export function usePeopleAction() {
           : action === 'unblock'
             ? await apiClient.POST('/api/admin/people/unblock', { body })
             : await apiClient.POST('/api/admin/people/delete', { body });
-      if (!response.ok) throw new Error(`Couldn't ${action}: ${String(response.status)}`);
+      if (!response.ok) throw new PeopleActionError(action, response.status);
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['admin'] }),
   });

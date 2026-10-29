@@ -2,6 +2,25 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29 (7)
+
+**Done**
+- F-028, found by the owner testing on localhost: bulk delete of 201 people failed with a 400 (the API takes at
+  most 200) and a misleading "Try again in a moment". Fixed as approved:
+  - Pick all shown stops at 200, the rest of the check boxes are disabled, and the bar says "That's the most at
+    once";
+  - a refused request says "Pick at most 200 people at a time.";
+  - disabled check boxes now look grey.
+- Flaky menu unit tests fixed (approved): Mantine's transitions are off in unit tests (`env="test"`). The flake
+  noted in F-028 is gone: 64 tests passed in 10 runs out of 10.
+- The dev database was cleaned by the owner through the People page: only the owner's account is left.
+- `develop` (with I-003) merged into the branch.
+- Checked: lint, typecheck, build, unit tests 64 (2 new), the "People at max" stories at 375 and 1440 px, light and
+  dark. E2E ran in CI, not locally (it would add test accounts to the cleaned dev database).
+
+**Next**
+- Owner: merge PR #23; set `Access__AdminEmails__0` on Render before the release; release `develop` → `main`.
+
 ## 2026-10-29 (5)
 
 **Done**

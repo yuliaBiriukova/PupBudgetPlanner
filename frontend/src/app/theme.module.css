@@ -1,7 +1,8 @@
 /* Component styles the theme can't set with variables (theme.ts) */
 
-/* An empty check box has the fields' border, so it is seen in dark mode too */
-.checkboxInput:not(:checked, [data-indeterminate]) {
+/* An empty check box has the fields' border, so it is seen in dark mode too; a disabled one keeps Mantine's grey
+   look, so it doesn't pass for one that can be ticked */
+.checkboxInput:not(:checked, [data-indeterminate], :disabled) {
   border-color: var(--pup-color-field-border);
   background-color: var(--pup-color-surface);
 }

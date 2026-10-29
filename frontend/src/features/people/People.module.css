@@ -335,7 +335,17 @@ label.pick {
   white-space: nowrap;
 }
 
+/* Under the count when the most people one action takes are picked; wraps on the phone so the buttons keep
+   their labels */
+.bulkMax {
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+  white-space: normal;
+}
+
 .bulkButton {
+  flex-shrink: 0;
   min-height: 44px;
   padding: 0 14px;
   border: 0;

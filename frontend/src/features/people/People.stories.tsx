@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { MockFetch, type MockRoutes } from '../../test/mockFetch';
 import type { Invitation, Person } from './peopleApi';
 import { PeoplePage } from './PeoplePage';
@@ -89,9 +89,18 @@ const LINKS: Invitation[] = [
   link('l-test', null, 'Cancelled', { cancelledAt: '2026-11-04T10:00:00Z' }),
 ];
 
+/** More people than one action takes (the dev database after many test runs). */
+const MANY: Person[] = [
+  ...PEOPLE,
+  ...Array.from({ length: 205 }, (_, i) => {
+    const n = String(i + 1).padStart(3, '0');
+    return person(`p-test-${n}`, `Test ${n}`, `test-${n}@example.com`);
+  }),
+];
+
 interface ScreenProps {
   tab: 'people' | 'links';
-  people?: 'data' | 'loading' | 'error';
+  people?: 'data' | 'loading' | 'error' | 'many';
   links?: 'data' | 'noneWaiting';
 }
 
@@ -101,7 +110,11 @@ function PeopleScreen({ tab, people = 'data', links = 'data' }: ScreenProps) {
     '/api/auth/me': { json: admin },
     '/api/health': { json: { status: 'Healthy' } },
     '/api/admin/people':
-      people === 'loading' ? 'pending' : people === 'error' ? { status: 500 } : { json: PEOPLE },
+      people === 'loading'
+        ? 'pending'
+        : people === 'error'
+          ? { status: 500 }
+          : { json: people === 'many' ? MANY : PEOPLE },
     '/api/admin/invitations': {
       json: links === 'noneWaiting' ? LINKS.filter((l) => l.status !== 'Waiting') : LINKS,
     },
@@ -192,6 +205,43 @@ export const PeoplePicked: Story = {
     await userEvent.click(canvas.getByRole('checkbox', { name: 'Pick Andrii Bondar' }));
     await expect(canvas.getByRole('region', { name: 'Picked people' })).toHaveTextContent(
       '2 picked',
+    );
+  },
+};
+
+/** Pick all shown with more than 200 people: picking stops at the most one action takes. */
+export const PeopleAtMax: Story = {
+  args: { people: 'many' },
+  globals: desktop,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('checkbox', { name: 'Pick all shown' }));
+    await expect(canvas.getByRole('region', { name: 'Picked people' })).toHaveTextContent(
+      'That’s the most at once',
+    );
+  },
+};
+
+/**
+ * The same on the phone. Its list has no header, so no Pick all shown to tap: the story clicks the hidden one
+ * (picking 200 rows one by one would redraw the list 200 times).
+ */
+export const PeopleAtMaxPhone: Story = {
+  args: { people: 'many' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(
+      () => {
+        canvasElement
+          .querySelector<HTMLInputElement>('input[aria-label="Pick all shown"]')
+          ?.click();
+        // Throws until the bar is there, so waitFor tries again
+        canvas.getByRole('region', { name: 'Picked people' });
+      },
+      { timeout: 10000 },
+    );
+    await expect(canvas.getByRole('region', { name: 'Picked people' })).toHaveTextContent(
+      'That’s the most at once',
     );
   },
 };

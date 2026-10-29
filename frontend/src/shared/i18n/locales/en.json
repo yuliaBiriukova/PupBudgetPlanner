@@ -168,7 +168,8 @@
     "errors": {
       "load": "Couldn’t load the people.",
       "loadLinks": "Couldn’t load the invite links.",
-      "action": "That didn’t go through. Try again in a moment."
+      "action": "That didn’t go through. Try again in a moment.",
+      "tooMany": "Pick at most {{max}} people at a time."
     },
     "bulk": {
       "label": "Picked people",
@@ -177,7 +178,8 @@
       "block": "Block",
       "unblock": "Unblock",
       "delete": "Delete",
-      "clear": "Clear the picks"
+      "clear": "Clear the picks",
+      "max": "That’s the most at once"
     },
     "block": {
       "action": "Block",

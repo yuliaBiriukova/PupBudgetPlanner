@@ -30,6 +30,7 @@ import classes from './People.module.css';
 import { BlockDialog, DeleteDialog } from './PeopleDialogs';
 import {
   FIRST_DIRECTION,
+  MAX_PICKS,
   matchesSearch,
   peopleQuery,
   sortPeople,
@@ -77,7 +78,9 @@ export function PeopleTab() {
   // Searching keeps only the picks that are still shown
   const shownPicks = new Set([...picked].filter((id) => pickable.some((p) => p.id === id)));
   const pickedPeople = all.filter((p) => shownPicks.has(p.id));
-  const allPicked = pickable.length > 0 && pickable.every((p) => shownPicks.has(p.id));
+  // One action takes at most MAX_PICKS people (the API's limit): picking stops there
+  const atMax = shownPicks.size >= MAX_PICKS;
+  const allPicked = pickable.length > 0 && (atMax || pickable.every((p) => shownPicks.has(p.id)));
 
   const setPick = (id: string, on: boolean) => {
     const next = new Set(shownPicks);
@@ -206,8 +209,11 @@ export function PeopleTab() {
                 disabled={pickable.length === 0}
                 aria-label={t('people.pickAll')}
                 onChange={(event) => {
+                  // The first MAX_PICKS in the order shown
                   setPicked(
-                    event.currentTarget.checked ? new Set(pickable.map((p) => p.id)) : new Set(),
+                    event.currentTarget.checked
+                      ? new Set(pickable.slice(0, MAX_PICKS).map((p) => p.id))
+                      : new Set(),
                   );
                 }}
               />
@@ -245,6 +251,7 @@ export function PeopleTab() {
                 key={person.id}
                 person={person}
                 picked={shownPicks.has(person.id)}
+                canPick={!atMax || shownPicks.has(person.id)}
                 onPick={(on) => {
                   setPick(person.id, on);
                 }}
@@ -267,6 +274,7 @@ export function PeopleTab() {
       {pickedPeople.length > 0 && (
         <BulkBar
           picked={pickedPeople}
+          atMax={atMax}
           onBlock={() => {
             setPending({
               kind: 'block',
@@ -312,13 +320,23 @@ export function PeopleTab() {
 interface PersonRowProps {
   person: Person;
   picked: boolean;
+  /** False once the most people are picked: the row can't be added. */
+  canPick: boolean;
   onPick: (on: boolean) => void;
   onBlock: () => void;
   onUnblock: () => void;
   onDelete: () => void;
 }
 
-function PersonRow({ person, picked, onPick, onBlock, onUnblock, onDelete }: PersonRowProps) {
+function PersonRow({
+  person,
+  picked,
+  canPick,
+  onPick,
+  onBlock,
+  onUnblock,
+  onDelete,
+}: PersonRowProps) {
   const { t } = useTranslation();
   const invitedWith = person.isAdmin
     ? t('people.admin')
@@ -344,6 +362,7 @@ function PersonRow({ person, picked, onPick, onBlock, onUnblock, onDelete }: Per
           <Checkbox
             className={classes.pickBox}
             checked={picked}
+            disabled={!canPick}
             aria-label={t('people.pick', { name: person.displayName })}
             onChange={(event) => {
               onPick(event.currentTarget.checked);
@@ -478,6 +497,8 @@ function SortMenu({ sort, onSort }: SortMenuProps) {
 
 interface BulkBarProps {
   picked: Person[];
+  /** The most people one action takes are picked. */
+  atMax: boolean;
   onBlock: () => void;
   onUnblock: () => void;
   onDelete: () => void;
@@ -485,13 +506,16 @@ interface BulkBarProps {
 }
 
 /** What to do with everyone picked: Block (if any can be), Unblock (if only blocked are picked), Delete. */
-function BulkBar({ picked, onBlock, onUnblock, onDelete, onClear }: BulkBarProps) {
+function BulkBar({ picked, atMax, onBlock, onUnblock, onDelete, onClear }: BulkBarProps) {
   const { t } = useTranslation();
   const anyActive = picked.some((p) => !p.blockedAt);
 
   return (
     <div className={classes.bulk} role="region" aria-label={t('people.bulk.label')}>
-      <span className={classes.bulkWhat}>{t('people.bulk.picked', { count: picked.length })}</span>
+      <span className={classes.bulkWhat}>
+        {t('people.bulk.picked', { count: picked.length })}
+        {atMax && <span className={classes.bulkMax}>{t('people.bulk.max')}</span>}
+      </span>
       {anyActive ? (
         <Button
           radius="xl"

@@ -77,11 +77,11 @@ const LINKS: Invitation[] = [
   link('l-taras', 'For Taras', 'Expired'),
 ];
 
-function adminServer() {
+function adminServer(people: Person[] = PEOPLE) {
   const actions: { url: string; body: unknown }[] = [];
   server.use(
     http.get('/api/auth/me', () => HttpResponse.json(admin)),
-    http.get('/api/admin/people', () => HttpResponse.json(PEOPLE)),
+    http.get('/api/admin/people', () => HttpResponse.json(people)),
     http.get('/api/admin/invitations', () => HttpResponse.json(LINKS)),
     http.post('/api/admin/people/:action', async ({ request }) => {
       actions.push({ url: new URL(request.url).pathname, body: await request.json() });
@@ -215,6 +215,63 @@ describe('the People page', () => {
     expect(actions).toEqual([
       { url: '/api/admin/people/block', body: { userIds: ['p-iryna', 'p-oksana'] } },
     ]);
+  });
+
+  it('picks at most 200 people at a time, the most one action takes', async () => {
+    const many = Array.from({ length: 205 }, (_, i) => {
+      const n = String(i + 1).padStart(3, '0');
+      return person(`p-${n}`, `Test ${n}`, `test-${n}@example.com`);
+    });
+    const actions = adminServer([...PEOPLE, ...many]);
+    const user = userEvent.setup();
+    renderApp('/people');
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Pick all shown' }));
+    const bar = screen.getByRole('region', { name: 'Picked people' });
+    expect(bar).toHaveTextContent('200 picked');
+    expect(bar).toHaveTextContent('That’s the most at once');
+    // The list goes by name: the last tests are past the 200 and can't be added
+    expect(screen.getByRole('checkbox', { name: 'Pick Test 197' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Pick Test 198' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'Pick all shown' })).toBeChecked();
+
+    await user.click(within(bar).getByRole('button', { name: 'Delete' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Delete 200 accounts?' });
+    await user.type(within(dialog).getByLabelText('Type delete to confirm'), 'delete');
+    await user.click(within(dialog).getByRole('button', { name: 'Delete 200 accounts' }));
+
+    expect(await screen.findByText('200 accounts are deleted')).toBeInTheDocument();
+    const [deleted] = actions;
+    expect(deleted?.url).toBe('/api/admin/people/delete');
+    expect((deleted?.body as { userIds: string[] }).userIds).toHaveLength(200);
+  });
+
+  it('says why when the API refuses the request itself', async () => {
+    adminServer();
+    server.use(
+      http.post('/api/admin/people/block', () =>
+        HttpResponse.json(
+          { status: 400, errors: { userIds: ['Pick at most 200 people at a time.'] } },
+          { status: 400 },
+        ),
+      ),
+    );
+    const user = userEvent.setup();
+    renderApp('/people');
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Pick Iryna Melnyk' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Pick Oksana Melnychuk' }));
+    await user.click(
+      within(screen.getByRole('region', { name: 'Picked people' })).getByRole('button', {
+        name: 'Block',
+      }),
+    );
+    const dialog = await screen.findByRole('dialog', { name: 'Block 2 people?' });
+    await user.click(within(dialog).getByRole('button', { name: 'Block 2' }));
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'Pick at most 200 people at a time.',
+    );
   });
 
   it('has no check box or menu for the admin’s own row', async () => {

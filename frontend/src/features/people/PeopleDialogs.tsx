@@ -9,6 +9,8 @@ import { ResponsiveDialog } from '../../shared/ui/ResponsiveDialog';
 import classes from './People.module.css';
 import {
   inviteUrl,
+  MAX_PICKS,
+  PeopleActionError,
   useCreateInvitation,
   usePeopleAction,
   type CreatedInvitation,
@@ -183,6 +185,19 @@ function Names({ people }: { people: Person[] }) {
   );
 }
 
+/** Why Block or Delete didn't go through: "try again" helps, unless the API refused the request itself (400). */
+function ActionError({ error }: { error: Error | null }) {
+  const { t } = useTranslation();
+  if (!error) return null;
+  return (
+    <p className={cx(classes.dialogText, classes.danger)} role="alert">
+      {error instanceof PeopleActionError && error.status === 400
+        ? t('people.errors.tooMany', { max: MAX_PICKS })
+        : t('people.errors.action')}
+    </p>
+  );
+}
+
 /** Block asks first and says what happens: signed out everywhere, data kept, can be undone. */
 export function BlockDialog({ people, onClose, onDone }: ConfirmProps) {
   const { t } = useTranslation();
@@ -203,11 +218,7 @@ export function BlockDialog({ people, onClose, onDone }: ConfirmProps) {
       <p className={classes.dialogText}>
         {one ? t('people.block.textOne', { name: firstName(one) }) : t('people.block.textMany')}
       </p>
-      {action.isError && (
-        <p className={cx(classes.dialogText, classes.danger)} role="alert">
-          {t('people.errors.action')}
-        </p>
-      )}
+      <ActionError error={action.error} />
       <div className={classes.dialogActions}>
         <Button radius="xl" variant="subtle" color="gray" onClick={onClose}>
           {t('people.cancel')}
@@ -289,11 +300,7 @@ export function DeleteDialog({ people, onClose, onDone }: ConfirmProps) {
           setTyped(event.currentTarget.value);
         }}
       />
-      {action.isError && (
-        <p className={cx(classes.dialogText, classes.danger)} role="alert">
-          {t('people.errors.action')}
-        </p>
-      )}
+      <ActionError error={action.error} />
       <div className={classes.dialogActions}>
         <Button radius="xl" variant="subtle" color="gray" onClick={close}>
           {t('people.cancel')}
