@@ -15,8 +15,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - No accounts or data were created for testing in this change.
 
 **Next**
-- Owner: review and merge the I-007 PR.
-- Optional follow-up (needs its own approval): E2E tests delete the accounts and invite links they create.
+- The owner added the E2E clean-up to I-007: E2E tests delete the accounts they create and cancel their waiting
+  invite links (a teardown project). It's planned in the description file and waits for the owner's approval.
 - Then I-004, I-005, I-006 prototypes, or F-014 (accounts and balances).
 
 ## 2026-10-29 (8)
