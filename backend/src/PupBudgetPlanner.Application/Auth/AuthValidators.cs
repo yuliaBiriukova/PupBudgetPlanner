@@ -15,6 +15,9 @@ public static class AuthLimits
 
     /// <summary>Keeps hashing cheap for absurdly long inputs.</summary>
     public const int PasswordMaxLength = 128;
+
+    /// <summary>A token is 43 characters (32 bytes, base64url); anything much longer is not one.</summary>
+    public const int InviteTokenMaxLength = 100;
 }
 
 public sealed class RegisterRequestValidator : AbstractValidator<RegisterRequest>
@@ -31,6 +34,8 @@ public sealed class RegisterRequestValidator : AbstractValidator<RegisterRequest
             .MinimumLength(AuthLimits.PasswordMinLength)
             .WithMessage($"Use at least {AuthLimits.PasswordMinLength} characters.")
             .MaximumLength(AuthLimits.PasswordMaxLength);
+
+        RuleFor(r => r.InviteToken).MaximumLength(AuthLimits.InviteTokenMaxLength);
     }
 }
 

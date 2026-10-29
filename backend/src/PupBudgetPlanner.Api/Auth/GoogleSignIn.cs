@@ -21,6 +21,15 @@ public static partial class GoogleSignIn
     /// <summary>Where a failed Google sign-in lands: the sign-in page says it didn't work.</summary>
     public const string FailedPath = "/sign-in?error=google";
 
+    /// <summary>A Google account with no account here while sign-up is invite-only (F-028).</summary>
+    public const string InviteOnlyPath = "/sign-in?error=invite-only";
+
+    /// <summary>A new Google account came with a link that doesn't work (any more).</summary>
+    public const string InvitationGonePath = "/sign-in?error=invite";
+
+    /// <summary>The admin took the person's access away.</summary>
+    public const string BlockedPath = "/sign-in?error=blocked";
+
     /// <summary>Where a cancelled Google sign-in lands: back to sign in, without an error.</summary>
     public const string CancelledPath = "/sign-in";
 

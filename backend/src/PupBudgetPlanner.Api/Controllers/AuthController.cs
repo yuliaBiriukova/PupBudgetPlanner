@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PupBudgetPlanner.Api.Auth;
 using PupBudgetPlanner.Application.Auth;
+using PupBudgetPlanner.Infrastructure.Identity;
 
 namespace PupBudgetPlanner.Api.Controllers;
 
@@ -31,23 +32,38 @@ public sealed partial class AuthController(IAuthService auth, IAntiforgery antif
     [EnableRateLimiting(AuthRateLimiting.PolicyName)]
     [ProducesResponseType<CurrentUser>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status410Gone)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests)]
     public async Task<ActionResult<CurrentUser>> Register(RegisterRequest request, CancellationToken cancellationToken)
     {
         var result = await auth.RegisterAsync(request, cancellationToken);
 
-        return result.Outcome == RegisterOutcome.Registered && result.User is not null
-            ? Ok(result.User)
+        return result.Outcome switch
+        {
+            RegisterOutcome.Registered when result.User is not null => Ok(result.User),
+            RegisterOutcome.InvitationRequired => Problem(
+                statusCode: StatusCodes.Status403Forbidden, title: InviteOnlyTitle),
+            RegisterOutcome.InvitationInvalid => Problem(
+                statusCode: StatusCodes.Status410Gone, title: InvitationGoneTitle),
             // Neutral on purpose: it must not confirm that an account with this email exists (ADR 0012)
-            : Problem(statusCode: StatusCodes.Status409Conflict, title: "We couldn't create an account with this email.");
+            _ => Problem(statusCode: StatusCodes.Status409Conflict, title: "We couldn't create an account with this email."),
+        };
     }
+
+    /// <summary>Said when sign-up needs an invite link and the request has none (F-028).</summary>
+    public const string InviteOnlyTitle = "Pup Budget is invite-only for now. You need an invite link to create an account.";
+
+    /// <summary>One message for a used, expired, cancelled or made-up link (F-028).</summary>
+    public const string InvitationGoneTitle = "This invite link doesn't work any more.";
 
     [HttpPost("login")]
     [EnableRateLimiting(AuthRateLimiting.PolicyName)]
     [ProducesResponseType<CurrentUser>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests)]
     public async Task<ActionResult<CurrentUser>> Login(SignInRequest request, CancellationToken cancellationToken)
     {
@@ -59,11 +75,15 @@ public sealed partial class AuthController(IAuthService auth, IAntiforgery antif
             SignInOutcome.LockedOut => Problem(
                 statusCode: StatusCodes.Status429TooManyRequests,
                 title: "Too many attempts. Wait a few minutes and try again."),
+            SignInOutcome.Blocked => Problem(statusCode: StatusCodes.Status403Forbidden, title: BlockedTitle),
             _ => Problem(
                 statusCode: StatusCodes.Status401Unauthorized,
                 title: "That email and password don't match."),
         };
     }
+
+    /// <summary>Said to a blocked person after the right password or Google (F-028).</summary>
+    public const string BlockedTitle = "Your access to Pup Budget is turned off. Ask the person who invited you.";
 
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -75,13 +95,17 @@ public sealed partial class AuthController(IAuthService auth, IAntiforgery antif
 
     /// <summary>
     /// "Continue with Google": sends the person to Google (a page navigation, not a fetch). Afterwards they land on
-    /// <paramref name="returnUrl"/>, a path in the app.
+    /// <paramref name="returnUrl"/>, a path in the app. From the invite page, <paramref name="invite"/> carries the
+    /// link's token through Google, so a new account can be created with it (F-028).
     /// </summary>
     [HttpGet("google")]
     [EnableRateLimiting(AuthRateLimiting.PolicyName)]
     [ProducesResponseType(StatusCodes.Status302Found)]
     public async Task<IActionResult> Google(
-        string? returnUrl, [FromServices] IAuthenticationSchemeProvider schemes, CancellationToken cancellationToken)
+        string? returnUrl,
+        string? invite,
+        [FromServices] IAuthenticationSchemeProvider schemes,
+        CancellationToken cancellationToken)
     {
         if (await schemes.GetSchemeAsync(GoogleSignIn.Scheme) is null)
         {
@@ -95,6 +119,10 @@ public sealed partial class AuthController(IAuthService auth, IAntiforgery antif
         };
         // SignInManager.GetExternalLoginInfoAsync looks for the provider under this key
         properties.Items["LoginProvider"] = GoogleSignIn.Scheme;
+        if (!string.IsNullOrWhiteSpace(invite) && invite.Length <= AuthLimits.InviteTokenMaxLength)
+        {
+            properties.Items[ExternalClaims.InviteTokenItem] = invite;
+        }
 
         return Challenge(properties, GoogleSignIn.Scheme);
     }
@@ -108,7 +136,13 @@ public sealed partial class AuthController(IAuthService auth, IAntiforgery antif
         if (outcome != ExternalSignInOutcome.SignedIn)
         {
             LogGoogleSignInFailed(logger, outcome);
-            return Redirect(GoogleSignIn.FailedPath);
+            return Redirect(outcome switch
+            {
+                ExternalSignInOutcome.InvitationRequired => GoogleSignIn.InviteOnlyPath,
+                ExternalSignInOutcome.InvitationInvalid => GoogleSignIn.InvitationGonePath,
+                ExternalSignInOutcome.Blocked => GoogleSignIn.BlockedPath,
+                _ => GoogleSignIn.FailedPath,
+            });
         }
 
         return Redirect(LocalPathOrHome(returnUrl));

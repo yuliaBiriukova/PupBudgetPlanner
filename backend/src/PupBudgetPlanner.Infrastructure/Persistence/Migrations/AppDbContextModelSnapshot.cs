@@ -279,6 +279,65 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.ToTable("category_groups", (string)null);
                 });
 
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Invitations.Invitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_id");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("note");
+
+                    b.Property<byte[]>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("bytea")
+                        .HasColumnName("token_hash");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("used_at");
+
+                    b.Property<Guid?>("UsedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("used_by_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invitations");
+
+                    b.HasIndex("CreatedById")
+                        .HasDatabaseName("ix_invitations_created_by_id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invitations_token_hash");
+
+                    b.HasIndex("UsedById")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invitations_used_by_id");
+
+                    b.ToTable("invitations", (string)null);
+                });
+
             modelBuilder.Entity("PupBudgetPlanner.Infrastructure.Identity.AppUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -290,10 +349,20 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("access_failed_count");
 
+                    b.Property<DateTimeOffset?>("BlockedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("blocked_at");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text")
                         .HasColumnName("concurrency_stamp");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
@@ -441,6 +510,21 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_category_groups_users_user_id");
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Invitations.Invitation", b =>
+                {
+                    b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_invitations_users_created_by_id");
+
+                    b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsedById")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_invitations_users_used_by_id");
                 });
 
             modelBuilder.Entity("PupBudgetPlanner.Domain.Categories.CategoryGroup", b =>

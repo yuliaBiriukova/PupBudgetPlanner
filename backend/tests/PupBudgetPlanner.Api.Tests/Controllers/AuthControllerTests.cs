@@ -12,6 +12,7 @@ using NSubstitute;
 using PupBudgetPlanner.Api.Auth;
 using PupBudgetPlanner.Api.Controllers;
 using PupBudgetPlanner.Application.Auth;
+using PupBudgetPlanner.Infrastructure.Identity;
 
 namespace PupBudgetPlanner.Api.Tests.Controllers;
 
@@ -97,8 +98,23 @@ public sealed class AuthControllerTests
     }
 
     [Theory]
+    [InlineData(RegisterOutcome.InvitationRequired, StatusCodes.Status403Forbidden, AuthController.InviteOnlyTitle)]
+    [InlineData(RegisterOutcome.InvitationInvalid, StatusCodes.Status410Gone, AuthController.InvitationGoneTitle)]
+    public async Task Register_without_a_working_invite_link_says_why(RegisterOutcome outcome, int status, string title)
+    {
+        auth.RegisterAsync(Arg.Any<RegisterRequest>(), Arg.Any<CancellationToken>()).Returns(new RegisterResult(outcome));
+
+        var result = await controller.Register(new RegisterRequest("Olena", "olena@example.com", "kyiv-budget-26"), CancellationToken.None);
+
+        StatusOf(result).Should().Be(status);
+        result.Result.Should().BeOfType<ObjectResult>().Which.Value.Should().BeOfType<ProblemDetails>()
+            .Which.Title.Should().Be(title);
+    }
+
+    [Theory]
     [InlineData(SignInOutcome.InvalidCredentials, StatusCodes.Status401Unauthorized)]
     [InlineData(SignInOutcome.LockedOut, StatusCodes.Status429TooManyRequests)]
+    [InlineData(SignInOutcome.Blocked, StatusCodes.Status403Forbidden)]
     public async Task Login_failures_map_to_status_codes(SignInOutcome outcome, int status)
     {
         auth.SignInAsync(Arg.Any<SignInRequest>(), Arg.Any<CancellationToken>()).Returns(new SignInAttempt(outcome));
@@ -140,7 +156,7 @@ public sealed class AuthControllerTests
     [Fact]
     public async Task Continue_with_google_sends_the_person_to_google_and_back_to_the_page_they_wanted()
     {
-        var result = await controller.Google("/reports?year=2026", Schemes(googleConfigured: true), CancellationToken.None);
+        var result = await controller.Google("/reports?year=2026", null, Schemes(googleConfigured: true), CancellationToken.None);
 
         var challenge = result.Should().BeOfType<ChallengeResult>().Subject;
         challenge.AuthenticationSchemes.Should().Equal(GoogleSignIn.Scheme);
@@ -157,16 +173,34 @@ public sealed class AuthControllerTests
     [InlineData("/\\evil.example/")]
     public async Task Continue_with_google_only_returns_to_a_path_in_the_app(string? returnUrl)
     {
-        var result = await controller.Google(returnUrl, Schemes(googleConfigured: true), CancellationToken.None);
+        var result = await controller.Google(returnUrl, null, Schemes(googleConfigured: true), CancellationToken.None);
 
         result.Should().BeOfType<ChallengeResult>()
             .Which.Properties!.RedirectUri.Should().Be("/api/auth/google/complete?returnUrl=%2F");
     }
 
     [Fact]
+    public async Task Continue_with_google_from_the_invite_page_carries_the_token_through_google()
+    {
+        var result = await controller.Google("/", "the-token", Schemes(googleConfigured: true), CancellationToken.None);
+
+        result.Should().BeOfType<ChallengeResult>()
+            .Which.Properties!.Items.Should().Contain(ExternalClaims.InviteTokenItem, "the-token");
+    }
+
+    [Fact]
+    public async Task Continue_with_google_ignores_a_token_that_is_far_too_long()
+    {
+        var result = await controller.Google("/", new string('a', 500), Schemes(googleConfigured: true), CancellationToken.None);
+
+        result.Should().BeOfType<ChallengeResult>()
+            .Which.Properties!.Items.Should().NotContainKey(ExternalClaims.InviteTokenItem);
+    }
+
+    [Fact]
     public async Task Continue_with_google_without_a_google_client_comes_back_with_the_error()
     {
-        var result = await controller.Google("/reports", Schemes(googleConfigured: false), CancellationToken.None);
+        var result = await controller.Google("/reports", null, Schemes(googleConfigured: false), CancellationToken.None);
 
         result.Should().BeOfType<RedirectResult>().Which.Url.Should().Be("/sign-in?error=google");
     }
@@ -195,6 +229,19 @@ public sealed class AuthControllerTests
         var result = await controller.GoogleComplete("/reports", CancellationToken.None);
 
         result.Should().BeOfType<RedirectResult>().Which.Url.Should().Be("/sign-in?error=google");
+    }
+
+    [Theory]
+    [InlineData(ExternalSignInOutcome.InvitationRequired, "/sign-in?error=invite-only")]
+    [InlineData(ExternalSignInOutcome.InvitationInvalid, "/sign-in?error=invite")]
+    [InlineData(ExternalSignInOutcome.Blocked, "/sign-in?error=blocked")]
+    public async Task Google_complete_without_access_comes_back_to_sign_in_saying_why(ExternalSignInOutcome outcome, string expected)
+    {
+        auth.SignInWithExternalLoginAsync(Arg.Any<CancellationToken>()).Returns(outcome);
+
+        var result = await controller.GoogleComplete("/", CancellationToken.None);
+
+        result.Should().BeOfType<RedirectResult>().Which.Url.Should().Be(expected);
     }
 
     [Fact]

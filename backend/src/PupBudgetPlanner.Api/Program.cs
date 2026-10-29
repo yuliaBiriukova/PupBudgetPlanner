@@ -19,6 +19,8 @@ builder.Services
         options.Filters.Add<ValidationFilter>();
     })
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+// The OpenAPI document reads these options, not MVC's: without them enums would be listed as numbers
+builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddApplication();

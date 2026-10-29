@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using PupBudgetPlanner.Application.Access;
 using PupBudgetPlanner.Application.Auth;
 using PupBudgetPlanner.Infrastructure.Identity;
 
@@ -19,6 +20,7 @@ public sealed class ExternalSignInTests
     private readonly SignInManager<AppUser> signInManager;
     private readonly IAuthenticationService authentication = Substitute.For<IAuthenticationService>();
     private readonly IAccountCreator accountCreator = Substitute.For<IAccountCreator>();
+    private readonly AccessOptions access = new() { SignUp = SignUpMode.Open };
     private readonly AuthService service;
 
     public ExternalSignInTests()
@@ -36,7 +38,7 @@ public sealed class ExternalSignInTests
         {
             RequestServices = new ServiceCollection().AddSingleton(authentication).BuildServiceProvider(),
         };
-        service = new AuthService(userManager, signInManager, Substitute.For<IPasswordHasher<AppUser>>(), accountCreator);
+        service = new AuthService(userManager, signInManager, Substitute.For<IPasswordHasher<AppUser>>(), accountCreator, Options.Create(access));
     }
 
     private static AppUser Olena(bool emailConfirmed) => new()
@@ -49,7 +51,10 @@ public sealed class ExternalSignInTests
     };
 
     private void GoogleGives(
-        string? email = "olena@example.com", string? verified = "True", string? name = "Olena Koval")
+        string? email = "olena@example.com",
+        string? verified = "True",
+        string? name = "Olena Koval",
+        string? inviteToken = null)
     {
         var claims = new List<Claim> { new(ClaimTypes.NameIdentifier, "google-123") };
         if (email is not null)
@@ -68,13 +73,19 @@ public sealed class ExternalSignInTests
         }
 
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, "Google"));
+        var properties = new AuthenticationProperties();
+        if (inviteToken is not null)
+        {
+            properties.Items[ExternalClaims.InviteTokenItem] = inviteToken;
+        }
+
         signInManager.GetExternalLoginInfoAsync()
-            .Returns(new ExternalLoginInfo(principal, "Google", "google-123", "Google"));
+            .Returns(new ExternalLoginInfo(principal, "Google", "google-123", "Google") { AuthenticationProperties = properties });
     }
 
     private void CreatingAccountsWorks()
     {
-        accountCreator.CreateAsync(Arg.Any<AppUser>(), null, Arg.Any<CancellationToken>()).Returns(IdentityResult.Success);
+        accountCreator.CreateAsync(Arg.Any<AppUser>(), null, Arg.Any<InvitationUse?>(), Arg.Any<CancellationToken>()).Returns(AccountCreation.Created);
         userManager.AddLoginAsync(Arg.Any<AppUser>(), Arg.Any<UserLoginInfo>()).Returns(IdentityResult.Success);
     }
 
@@ -102,7 +113,7 @@ public sealed class ExternalSignInTests
         await signInManager.Received(1).SignInAsync(olena, true, "Google");
         await authentication.Received(1).SignOutAsync(
             Arg.Any<HttpContext>(), IdentityConstants.ExternalScheme, Arg.Any<AuthenticationProperties?>());
-        await accountCreator.DidNotReceive().CreateAsync(Arg.Any<AppUser>(), Arg.Any<string?>(), Arg.Any<CancellationToken>());
+        await accountCreator.DidNotReceive().CreateAsync(Arg.Any<AppUser>(), Arg.Any<string?>(), Arg.Any<InvitationUse?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -119,7 +130,7 @@ public sealed class ExternalSignInTests
                 u.Email == "olena@example.com" && u.UserName == "olena@example.com" && u.EmailConfirmed
                 && u.DisplayName == "Olena Koval" && u.PasswordHash == null),
             null,
-            Arg.Any<CancellationToken>());
+            Arg.Any<InvitationUse?>(), Arg.Any<CancellationToken>());
         await userManager.Received(1).AddLoginAsync(
             Arg.Is<AppUser>(u => u.Email == "olena@example.com"),
             Arg.Is<UserLoginInfo>(l => l.LoginProvider == "Google" && l.ProviderKey == "google-123"));
@@ -141,7 +152,7 @@ public sealed class ExternalSignInTests
         await service.SignInWithExternalLoginAsync(CancellationToken.None);
 
         expected.Length.Should().BeLessThanOrEqualTo(AuthLimits.DisplayNameMaxLength);
-        await accountCreator.Received(1).CreateAsync(Arg.Is<AppUser>(u => u.DisplayName == expected), null, Arg.Any<CancellationToken>());
+        await accountCreator.Received(1).CreateAsync(Arg.Is<AppUser>(u => u.DisplayName == expected), null, Arg.Any<InvitationUse?>(), Arg.Any<CancellationToken>());
     }
 
     [Theory]
@@ -181,7 +192,7 @@ public sealed class ExternalSignInTests
         olena.LockoutEnd.Should().BeNull();
         await userManager.Received(1).AddLoginAsync(olena, Arg.Is<UserLoginInfo>(l => l.ProviderKey == "google-123"));
         await signInManager.Received(1).SignInAsync(olena, true, "Google");
-        await accountCreator.DidNotReceive().CreateAsync(Arg.Any<AppUser>(), Arg.Any<string?>(), Arg.Any<CancellationToken>());
+        await accountCreator.DidNotReceive().CreateAsync(Arg.Any<AppUser>(), Arg.Any<string?>(), Arg.Any<InvitationUse?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -250,12 +261,96 @@ public sealed class ExternalSignInTests
     public async Task It_fails_when_the_account_cannot_be_created()
     {
         GoogleGives();
-        accountCreator.CreateAsync(Arg.Any<AppUser>(), null, Arg.Any<CancellationToken>())
-            .Returns(IdentityResult.Failed(new IdentityErrorDescriber().DuplicateEmail("olena@example.com")));
+        accountCreator.CreateAsync(Arg.Any<AppUser>(), null, Arg.Any<InvitationUse?>(), Arg.Any<CancellationToken>())
+            .Returns(AccountCreation.Refused);
 
         var outcome = await service.SignInWithExternalLoginAsync(CancellationToken.None);
 
         outcome.Should().Be(ExternalSignInOutcome.AccountNotLinked);
         await userManager.DidNotReceive().AddLoginAsync(Arg.Any<AppUser>(), Arg.Any<UserLoginInfo>());
+    }
+
+    [Fact]
+    public async Task While_invite_only_a_new_Google_account_without_a_link_is_not_created()
+    {
+        access.SignUp = SignUpMode.InviteOnly;
+        GoogleGives();
+
+        var outcome = await service.SignInWithExternalLoginAsync(CancellationToken.None);
+
+        outcome.Should().Be(ExternalSignInOutcome.InvitationRequired);
+        await accountCreator.DidNotReceive().CreateAsync(Arg.Any<AppUser>(), Arg.Any<string?>(), Arg.Any<InvitationUse?>(), Arg.Any<CancellationToken>());
+        await signInManager.DidNotReceive().SignInAsync(Arg.Any<AppUser>(), Arg.Any<bool>(), Arg.Any<string?>());
+    }
+
+    [Fact]
+    public async Task While_invite_only_the_link_from_the_invite_page_creates_the_account()
+    {
+        access.SignUp = SignUpMode.InviteOnly;
+        GoogleGives(inviteToken: "the-token");
+        CreatingAccountsWorks();
+
+        var outcome = await service.SignInWithExternalLoginAsync(CancellationToken.None);
+
+        outcome.Should().Be(ExternalSignInOutcome.SignedIn);
+        await accountCreator.Received(1).CreateAsync(
+            Arg.Any<AppUser>(), null, Arg.Is<InvitationUse?>(i => i != null && i.Required), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task While_invite_only_a_link_that_does_not_work_says_so_and_signs_nobody_in()
+    {
+        access.SignUp = SignUpMode.InviteOnly;
+        GoogleGives(inviteToken: "used-token");
+        accountCreator.CreateAsync(Arg.Any<AppUser>(), null, Arg.Any<InvitationUse?>(), Arg.Any<CancellationToken>())
+            .Returns(AccountCreation.InvitationInvalid);
+
+        var outcome = await service.SignInWithExternalLoginAsync(CancellationToken.None);
+
+        outcome.Should().Be(ExternalSignInOutcome.InvitationInvalid);
+        await signInManager.DidNotReceive().SignInAsync(Arg.Any<AppUser>(), Arg.Any<bool>(), Arg.Any<string?>());
+    }
+
+    [Fact]
+    public async Task While_invite_only_the_admin_s_first_Google_sign_in_needs_no_link()
+    {
+        access.SignUp = SignUpMode.InviteOnly;
+        access.AdminEmails.Add("olena@example.com");
+        GoogleGives();
+        CreatingAccountsWorks();
+
+        var outcome = await service.SignInWithExternalLoginAsync(CancellationToken.None);
+
+        outcome.Should().Be(ExternalSignInOutcome.SignedIn);
+        await accountCreator.Received(1).CreateAsync(Arg.Any<AppUser>(), null, null, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task While_invite_only_an_existing_account_signs_in_without_a_link()
+    {
+        access.SignUp = SignUpMode.InviteOnly;
+        var olena = Olena(emailConfirmed: true);
+        GoogleGives();
+        userManager.FindByLoginAsync("Google", "google-123").Returns(olena);
+
+        var outcome = await service.SignInWithExternalLoginAsync(CancellationToken.None);
+
+        outcome.Should().Be(ExternalSignInOutcome.SignedIn);
+    }
+
+    [Fact]
+    public async Task A_blocked_person_is_not_signed_in_and_the_external_cookie_is_dropped()
+    {
+        var olena = Olena(emailConfirmed: true);
+        olena.BlockedAt = DateTimeOffset.UtcNow;
+        GoogleGives();
+        userManager.FindByLoginAsync("Google", "google-123").Returns(olena);
+
+        var outcome = await service.SignInWithExternalLoginAsync(CancellationToken.None);
+
+        outcome.Should().Be(ExternalSignInOutcome.Blocked);
+        await signInManager.DidNotReceive().SignInAsync(Arg.Any<AppUser>(), Arg.Any<bool>(), Arg.Any<string?>());
+        await authentication.Received(1).SignOutAsync(
+            Arg.Any<HttpContext>(), IdentityConstants.ExternalScheme, Arg.Any<AuthenticationProperties?>());
     }
 }
