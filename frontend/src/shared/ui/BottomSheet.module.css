@@ -1,13 +1,18 @@
-/* A phone sheet: as tall as its content, rounded on top only, with a grab handle */
+/* A phone sheet: as tall as its content up to 90 % of the screen, rounded on top only, with a grab handle. The
+   handle, title and buttons stay put; only the content between them scrolls (I-004) */
 .content {
+  display: flex;
+  flex-direction: column;
   height: auto;
   max-height: 90dvh;
+  overflow: hidden;
   padding-bottom: env(safe-area-inset-bottom);
   border-radius: var(--mantine-radius-xl) var(--mantine-radius-xl) 0 0;
   background: var(--pup-color-surface);
 }
 
 .grab {
+  flex: none;
   width: 36px;
   height: 4px;
   margin: 10px auto 2px;
@@ -17,6 +22,7 @@
 
 .header {
   position: static;
+  flex: none;
   padding: 6px 12px 4px 20px;
   background: transparent;
 }
@@ -27,6 +33,29 @@
   font-weight: 300;
 }
 
+.scroll {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
 .body {
   padding: 4px 16px 20px;
+}
+
+.body[data-with-footer] {
+  padding-bottom: 8px;
+}
+
+/* Buttons under the content: full width, the main one on top (it comes last in the markup) */
+.footer {
+  display: flex;
+  flex: none;
+  flex-direction: column-reverse;
+  gap: 8px;
+  padding: 12px 16px 16px;
+}
+
+.footer > * {
+  width: 100%;
+  min-height: 48px;
 }

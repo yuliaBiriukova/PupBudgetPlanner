@@ -1,0 +1,39 @@
+/* The desktop dialog: its title and buttons stay put, only the content between them scrolls (I-004) */
+.content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  position: static;
+  flex: none;
+}
+
+.title {
+  font-family: var(--pup-font-display);
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.3;
+}
+
+.scroll {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
+.body[data-with-footer] {
+  padding-bottom: 8px;
+}
+
+.footer {
+  display: flex;
+  flex: none;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px var(--mb-padding) var(--mb-padding);
+}
+
+.footer > * {
+  min-height: 44px;
+}

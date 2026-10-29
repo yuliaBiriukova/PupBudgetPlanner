@@ -2,6 +2,7 @@ import { Text } from '@mantine/core';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { BottomSheet } from './BottomSheet';
+import { LongCategoryList, SaveButtons } from './storyContent';
 
 const meta = {
   title: 'Shared/BottomSheet',
@@ -37,4 +38,18 @@ export const HiddenTitle: Story = {
       </>
     ),
   },
+};
+
+/** Longer than the screen: only the content scrolls, between the title and the pinned buttons (I-004). */
+export const LongWithButtons: Story = {
+  args: {
+    title: 'Categories to show',
+    children: <LongCategoryList />,
+    footer: <SaveButtons />,
+  },
+};
+
+export const LongWithButtonsDark: Story = {
+  ...LongWithButtons,
+  globals: { colorScheme: 'dark' },
 };

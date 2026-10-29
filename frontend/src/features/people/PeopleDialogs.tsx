@@ -1,7 +1,7 @@
 import { Button, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconBan, IconCheck, IconCopy, IconLink, IconShare, IconTrash } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cx } from '../../shared/ui/cx';
 import { formatDate } from '../../shared/format/date';
@@ -33,6 +33,7 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
   const [note, setNote] = useState('');
   const [created, setCreated] = useState<CreatedInvitation | null>(null);
   const [copied, setCopied] = useState(false);
+  const formId = useId();
 
   const close = () => {
     onClose();
@@ -47,7 +48,24 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
     const who = created.note ?? t('people.links.noNote');
     const canShare = typeof navigator.share === 'function';
     return (
-      <ResponsiveDialog opened={opened} onClose={close} title={t('people.newLink.readyTitle')}>
+      <ResponsiveDialog
+        opened={opened}
+        onClose={close}
+        title={t('people.newLink.readyTitle')}
+        footer={
+          <Button
+            radius="xl"
+            variant="subtle"
+            color="gray"
+            onClick={() => {
+              close();
+              onDone();
+            }}
+          >
+            {t('people.newLink.done')}
+          </Button>
+        }
+      >
         <div className={classes.linkCard}>
           <p className={classes.linkFor}>{who}</p>
           <TextInput
@@ -97,29 +115,38 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
         <p className={cx(classes.dialogText, classes.dim)} style={{ fontSize: 14 }}>
           {t('people.newLink.once')}
         </p>
-        <div className={classes.dialogActions}>
-          <Button
-            radius="xl"
-            variant="subtle"
-            color="gray"
-            onClick={() => {
-              close();
-              onDone();
-            }}
-          >
-            {t('people.newLink.done')}
-          </Button>
-        </div>
       </ResponsiveDialog>
     );
   }
 
+  // The pinned buttons sit outside the form, so Create link names it with `form`
   return (
-    <ResponsiveDialog opened={opened} onClose={close} title={t('people.newLink.title')}>
+    <ResponsiveDialog
+      opened={opened}
+      onClose={close}
+      title={t('people.newLink.title')}
+      footer={
+        <>
+          <Button radius="xl" variant="subtle" color="gray" onClick={close}>
+            {t('people.cancel')}
+          </Button>
+          <Button
+            radius="xl"
+            type="submit"
+            form={formId}
+            loading={create.isPending}
+            leftSection={<IconLink size={20} stroke={1.7} />}
+          >
+            {t('people.newLink.create')}
+          </Button>
+        </>
+      }
+    >
       <p className={cx(classes.dialogText, classes.dim)} style={{ marginTop: 0 }}>
         {t('people.newLink.intro')}
       </p>
       <form
+        id={formId}
         noValidate
         onSubmit={(event) => {
           event.preventDefault();
@@ -143,19 +170,6 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
             {t('people.errors.action')}
           </p>
         )}
-        <div className={classes.dialogActions}>
-          <Button radius="xl" variant="subtle" color="gray" onClick={close}>
-            {t('people.cancel')}
-          </Button>
-          <Button
-            radius="xl"
-            type="submit"
-            loading={create.isPending}
-            leftSection={<IconLink size={20} stroke={1.7} />}
-          >
-            {t('people.newLink.create')}
-          </Button>
-        </div>
       </form>
     </ResponsiveDialog>
   );
@@ -213,41 +227,43 @@ export function BlockDialog({ people, onClose, onDone }: ConfirmProps) {
           ? t('people.block.titleOne', { name: one.displayName })
           : t('people.block.titleMany', { count: people.length })
       }
+      footer={
+        <>
+          <Button radius="xl" variant="subtle" color="gray" onClick={onClose}>
+            {t('people.cancel')}
+          </Button>
+          <Button
+            radius="xl"
+            loading={action.isPending}
+            leftSection={<IconBan size={20} stroke={1.7} />}
+            onClick={() => {
+              action.mutate(
+                { action: 'block', userIds: people.map((p) => p.id) },
+                {
+                  onSuccess: () => {
+                    notifications.show({
+                      message: one
+                        ? t('people.block.doneOne', { name: firstName(one) })
+                        : t('people.block.doneMany', { count: people.length }),
+                    });
+                    onDone();
+                  },
+                },
+              );
+            }}
+          >
+            {one
+              ? t('people.block.confirm')
+              : t('people.block.confirmMany', { count: people.length })}
+          </Button>
+        </>
+      }
     >
       {!one && <Names people={people} />}
       <p className={classes.dialogText}>
         {one ? t('people.block.textOne', { name: firstName(one) }) : t('people.block.textMany')}
       </p>
       <ActionError error={action.error} />
-      <div className={classes.dialogActions}>
-        <Button radius="xl" variant="subtle" color="gray" onClick={onClose}>
-          {t('people.cancel')}
-        </Button>
-        <Button
-          radius="xl"
-          loading={action.isPending}
-          leftSection={<IconBan size={20} stroke={1.7} />}
-          onClick={() => {
-            action.mutate(
-              { action: 'block', userIds: people.map((p) => p.id) },
-              {
-                onSuccess: () => {
-                  notifications.show({
-                    message: one
-                      ? t('people.block.doneOne', { name: firstName(one) })
-                      : t('people.block.doneMany', { count: people.length }),
-                  });
-                  onDone();
-                },
-              },
-            );
-          }}
-        >
-          {one
-            ? t('people.block.confirm')
-            : t('people.block.confirmMany', { count: people.length })}
-        </Button>
-      </div>
     </ResponsiveDialog>
   );
 }
@@ -277,6 +293,40 @@ export function DeleteDialog({ people, onClose, onDone }: ConfirmProps) {
           ? t('people.delete.titleOne', { name: firstName(one) })
           : t('people.delete.titleMany', { count: people.length })
       }
+      footer={
+        <>
+          <Button radius="xl" variant="subtle" color="gray" onClick={close}>
+            {t('people.cancel')}
+          </Button>
+          <Button
+            radius="xl"
+            className={classes.dangerButton}
+            disabled={!ready}
+            loading={action.isPending}
+            leftSection={<IconTrash size={20} stroke={1.7} />}
+            onClick={() => {
+              action.mutate(
+                { action: 'delete', userIds: people.map((p) => p.id) },
+                {
+                  onSuccess: () => {
+                    notifications.show({
+                      message: one
+                        ? t('people.delete.doneOne', { name: firstName(one) })
+                        : t('people.delete.doneMany', { count: people.length }),
+                    });
+                    setTyped('');
+                    onDone();
+                  },
+                },
+              );
+            }}
+          >
+            {one
+              ? t('people.delete.confirm')
+              : t('people.delete.confirmMany', { count: people.length })}
+          </Button>
+        </>
+      }
     >
       {!one && <Names people={people} />}
       <p className={classes.dialogText}>
@@ -301,38 +351,6 @@ export function DeleteDialog({ people, onClose, onDone }: ConfirmProps) {
         }}
       />
       <ActionError error={action.error} />
-      <div className={classes.dialogActions}>
-        <Button radius="xl" variant="subtle" color="gray" onClick={close}>
-          {t('people.cancel')}
-        </Button>
-        <Button
-          radius="xl"
-          className={classes.dangerButton}
-          disabled={!ready}
-          loading={action.isPending}
-          leftSection={<IconTrash size={20} stroke={1.7} />}
-          onClick={() => {
-            action.mutate(
-              { action: 'delete', userIds: people.map((p) => p.id) },
-              {
-                onSuccess: () => {
-                  notifications.show({
-                    message: one
-                      ? t('people.delete.doneOne', { name: firstName(one) })
-                      : t('people.delete.doneMany', { count: people.length }),
-                  });
-                  setTyped('');
-                  onDone();
-                },
-              },
-            );
-          }}
-        >
-          {one
-            ? t('people.delete.confirm')
-            : t('people.delete.confirmMany', { count: people.length })}
-        </Button>
-      </div>
     </ResponsiveDialog>
   );
 }
