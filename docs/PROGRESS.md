@@ -22,11 +22,12 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   waiting. Lint, typecheck, unit tests (64) pass. The unit tests need Node 24 (the shell's Node 20 can't start
   Vitest's workers).
 - Test data from this change: E2E accounts and links, all removed by the clean-up itself. Left on purpose: the tests'
-  admin `e2e-admin@example.com` (created by the first run) and 18 waiting links made before this change (12 "For
-  Petro", 3 "For Olena", 3 without a note) that the clean-up doesn't recognise. The owner decides about those.
+  admin `e2e-admin@example.com` (created by the first run). 18 waiting links made before this change (12 "For
+  Petro", 3 "For Olena", 3 without a note), which the clean-up doesn't recognise, were cancelled at the owner's
+  request; `dev` has no waiting links left. They can be deleted once I-006 is built.
 
 **Next**
-- Owner: review and merge PR #27; decide whether to cancel the 18 old waiting links.
+- Owner: review and merge PR #27.
 - Then I-004, I-005, I-006 prototypes, or F-014 (accounts and balances).
 
 ## 2026-10-29 (8)

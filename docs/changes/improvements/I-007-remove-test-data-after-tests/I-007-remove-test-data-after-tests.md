@@ -69,9 +69,9 @@ clean the dev database by hand through the People page.
   can only be cancelled until I-006 adds deleting them.
 - How to find it: test accounts have `@example.com` emails (`e2e-…` from E2E tests, `e2e-admin@example.com` for
   the tests' admin); E2E invite links have a note starting with `E2E`, or `For e2e-…@example.com`.
-- Left in `dev`, not touched: 18 waiting links from 2026-10-29 made before this change (12 "For Petro", 3 "For
-  Olena", 3 without a note), probably from checks by hand and from People test runs before its note was renamed.
-  The clean-up doesn't recognise them, so they are left for the owner to decide.
+- 18 waiting links in `dev` from 2026-10-29, made before this change (12 "For Petro", 3 "For Olena", 3 without a
+  note), probably from checks by hand and from People test runs before its note was renamed. The clean-up doesn't
+  recognise them, so they were cancelled once, by hand, at the owner's request (2026-10-29).
 - What the E2E clean-up can't do yet: used, cancelled and expired invite links can't be deleted until I-006. After
   I-006, its 30-day job removes them, or the clean-up can delete them right away.
 - Local runs share the `dev` database. If two E2E runs ran at the same time, one run's clean-up would delete the
