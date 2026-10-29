@@ -579,17 +579,6 @@ label.pick {
   margin: 10px 0 0;
 }
 
-.dialogActions {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 8px;
-  margin-top: 22px;
-}
-
-.dialogActions > * {
-  min-height: 48px;
-}
-
 .names {
   margin: 12px 0 0;
   padding: 0;
@@ -668,15 +657,6 @@ label.pick {
 
   .when {
     text-align: right;
-  }
-
-  .dialogActions {
-    flex-direction: row;
-    justify-content: flex-end;
-  }
-
-  .dialogActions > * {
-    min-height: 44px;
   }
 }
 

@@ -5,30 +5,31 @@
 | Type | Improvement |
 | Milestone | M2 — Accounts & categories |
 | Priority | Medium |
-| Status | In progress (final prototype, waiting for the owner's approval) |
+| Status | Done |
 | Branch | `improvement/I-004-custom-scroll-bars` (planned on `plan/f028-follow-ups`) |
-| Design | 3 HTML prototypes required (scroll bar style) |
-| Approved | — |
+| Design | 3 HTML prototypes, then the final one (`prototypes/variant-4.html`) |
+| Approved | 2026-10-29 by the owner in chat ("Approved, build it"): the description and the final prototype `prototypes/variant-4.html` |
 
 ## Goal
 Scroll bars inside the app look like Pup, not like the browser's default grey bar, and a dialog scrolls inside
 itself. Found by the owner after F-028, 2026-10-29.
 
 ## Acceptance criteria
-- [ ] Every scrolling area except the page itself (`body`) has the app's own thin scroll bar, themed for light
+- [x] Every scrolling area except the page itself (`body`) has the app's own thin scroll bar, themed for light
       and dark: dialogs, phone sheets, the sidebar, lists and menus.
-- [ ] The page's own scroll bar stays the browser's default.
-- [ ] A dialog taller than the screen scrolls inside the dialog: its title and the close button stay in place, the
+- [x] The page's own scroll bar stays the browser's default (the page scrolls in its main column).
+- [x] A dialog taller than the screen scrolls inside the dialog: its title and the close button stay in place, the
       scroll bar sits inside the rounded card, and the page behind does not move.
-- [ ] Same on the phone sheet.
+- [x] Same on the phone sheet.
+- [x] Buttons of a long dialog or sheet stay pinned under the content (owner's answer, round 2).
 
 ## Tasks
 - [x] References: how well-made apps style scroll bars in dialogs and side panels.
-- [ ] 3 prototypes of the scroll bar and a long dialog; owner picks and approves one. (Round 1 built
-      2026-10-29; the owner picked variant 2; final prototype `variant-4.html` waiting for approval.)
-- [ ] One shared style (theme tokens, no hard-coded colors) applied to `ResponsiveDialog`, `BottomSheet` and the
+- [x] 3 prototypes of the scroll bar and a long dialog; owner picks and approves one (variant 2, built as the
+      final `variant-4.html`, approved 2026-10-29).
+- [x] One shared style (theme tokens, no hard-coded colors) applied to `ResponsiveDialog`, `BottomSheet` and the
       other scrolling areas.
-- [ ] Stories: a long dialog and a long sheet.
+- [x] Stories: a long dialog and a long sheet.
 
 ## Design
 ### References
@@ -77,12 +78,34 @@ The owner picked variant 2 (the bar shows while scrolling, the edges fade) and a
 design check 0 issues; screenshots at 375 and 1440 px, light and dark, of the dialog scrolled, the dialog with
 buttons and the page.
 
-Prototypes: `prototypes/`. Chosen variant: 2, built as the final prototype `variant-4.html` (not approved yet).
+Prototypes: `prototypes/`. Chosen variant: 2, built as the final prototype `variant-4.html`, approved 2026-10-29.
+
+## Built (2026-10-29)
+- `shared/ui/FadingScrollArea`: Mantine's `ScrollArea` (or `ScrollArea.Autosize` for dialogs and sheets) with the
+  approved behavior: the bar shows while scrolling (and fades 900 ms after) or under the mouse; the content fades
+  out at an edge with more behind it (40 px at the top, 56 px at the bottom); `overscroll-behavior: contain`.
+- The bar's look once in the theme (`theme.ts`, `theme.module.css`) for every Mantine scroll area, its own
+  dropdowns too: no track, a 6 px pill in `--pup-color-field-border`, 10 px and `--mantine-color-dimmed` under the
+  mouse, 12 px clear of the ends; the pointer stays an arrow.
+- `ResponsiveDialog` (desktop: `Modal.Root` parts now) and `BottomSheet`: the title, the close button and a new
+  `footer` slot stay put, only the content between them scrolls. The People dialogs (new link, block, delete) put
+  their buttons in `footer`; New link's Create button submits its form through the `form` attribute.
+- The sidebar's sections scroll between the Add button and the account row in a low window. The app shell's grid
+  row is now as tall as the window (it grew with the sidebar before, and the bottom of the sidebar was cut off).
+- The page's main column keeps the browser's own scroll bar.
 
 ## Tests
-- Unit: —
-- E2E (Playwright): a long dialog scrolls inside itself; the page behind keeps its scroll position.
-- Screens checked in Playwright screenshots (phone / desktop, light / dark):
+- Unit: `FadingScrollArea.test.tsx`: the fades follow the scroll position; the bar's "scrolling" state ends after
+  the delay; the buttons of the phone sheet and of the desktop dialog are outside the part that scrolls, the title
+  too.
+- E2E (Playwright, `people.spec.ts`): in a window 320 px high the new-link dialog is taller than the screen; wheeling
+  over it (past its end too) scrolls only its content: the title stays where it is, Create link stays on screen and
+  the page behind keeps its scroll position. Desktop and phone.
+- Stories: `Shared/ResponsiveDialog` (long on the phone and on the desktop, light and dark, and short) and
+  `Shared/BottomSheet` long with buttons (light and dark).
+- Screens checked in Playwright screenshots, 375 and 1440 px, light and dark: the long dialog and sheet, the People
+  dialogs (new link, delete), the More sheet and the sidebar in a low window (1440 × 340). Measured in the browser:
+  6 px thumb, 10 px under the mouse, arrow pointer, hidden again after the delay.
 
 ## Notes
 - The dialogs are Mantine `Modal` (desktop) and `Drawer` (phone sheet) with Pup styles on top; see the owner's

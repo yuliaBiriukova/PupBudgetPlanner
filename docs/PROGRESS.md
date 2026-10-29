@@ -2,21 +2,27 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
-## 2026-10-29 (9)
+## 2026-10-29 (10)
 
 **Done**
-- I-004 started on `improvement/I-004-custom-scroll-bars`, design round 1 (not approved yet, so no app code):
-  references (Mantine ScrollArea and Modal, Material 3 dialogs and sheets, Apple HIG scroll views, Radix) and
-  3 prototypes in the change folder: 1 · Quiet pill (CSS only, always visible grey pill), 2 · Shows while you scroll
-  (overlay bar that fades, edge fades), 3 · Sky rail (hairline rail with an accent thumb). All pass the design
-  check; screenshots at 375 and 1440 px, light and dark, looked at.
-
-- I-004 round 2: the owner picked variant 2. Built as the final prototype `variant-4.html` with the owner's
-  answers: the page keeps the browser's own bar; a long form dialog keeps Cancel / Save pinned at the bottom, with
-  no line over them (the bottom fade is enough); the pointer stays an arrow on the bar (as everywhere). Design check 0 issues; screenshots looked at.
+- I-004 custom scroll bars, on `improvement/I-004-custom-scroll-bars`:
+  - design round 1: references (Mantine ScrollArea and Modal, Material 3 dialogs and sheets, Apple HIG scroll
+    views, Radix) and 3 prototypes: 1 · Quiet pill, 2 · Shows while you scroll, 3 · Sky rail;
+  - round 2: the owner picked variant 2, built as the final prototype `variant-4.html` with the owner's answers:
+    the page keeps the browser's own bar; a long dialog keeps its buttons pinned at the bottom, with no line over
+    them (the bottom fade is enough); the pointer stays an arrow on the bar, as on every scroll bar;
+  - approved by the owner ("Approved, build it") and built: a shared `FadingScrollArea` (Mantine ScrollArea that
+    shows its bar while scrolling or under the mouse and fades the edges with more behind them), the bar's look once
+    in the theme, a pinned `footer` slot in `ResponsiveDialog` and `BottomSheet` (the People dialogs use it), and
+    the sidebar's sections scroll in a low window. The app shell's grid row now follows the window's height (a low
+    window cut off the bottom of the sidebar before).
+- Checked: lint, typecheck, build, unit tests 68 (4 new), E2E 38 passed locally (1 new, desktop and phone; the
+  clean-up removed the test data), screenshots at 375 and 1440 px, light and dark, looked at.
+- Noted, not changed: in Storybook the People stories show the phone sheet 16 px to the right (the same on
+  `develop`; the app is fine). One E2E sign-in test failed once locally and passed when run again.
 
 **Next**
-- Owner: approve the final prototype for implementation (or comment). Then the build.
+- Owner: review the I-004 PR.
 
 ## 2026-10-29 (9)
 

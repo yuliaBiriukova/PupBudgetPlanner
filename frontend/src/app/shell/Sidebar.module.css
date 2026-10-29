@@ -118,10 +118,18 @@
   gap: 0;
 }
 
+/* Reaches the sidebar's edges, so the open section's edge bar (12 px out) isn't clipped by the scrolling box */
+.navScroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 -12px;
+}
+
 .nav {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 0 12px;
 }
 
 .link {

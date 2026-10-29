@@ -2,6 +2,7 @@ import { Drawer, VisuallyHidden } from '@mantine/core';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import classes from './BottomSheet.module.css';
+import { FadingScrollArea } from './FadingScrollArea';
 
 interface BottomSheetProps {
   opened: boolean;
@@ -10,10 +11,19 @@ interface BottomSheetProps {
   title: string;
   hideTitle?: boolean;
   children: ReactNode;
+  /** Buttons pinned under the content; a long content scrolls between the title and them (I-004). */
+  footer?: ReactNode;
 }
 
 /** A sheet that slides up from the bottom of the phone screen; closes on the overlay, Escape or the button. */
-export function BottomSheet({ opened, onClose, title, hideTitle, children }: BottomSheetProps) {
+export function BottomSheet({
+  opened,
+  onClose,
+  title,
+  hideTitle,
+  children,
+  footer,
+}: BottomSheetProps) {
   const { t } = useTranslation();
 
   // classNames, not className: Drawer.Content passes className to the full-screen inner box too
@@ -37,7 +47,12 @@ export function BottomSheet({ opened, onClose, title, hideTitle, children }: Bot
             <Drawer.CloseButton size="xl" aria-label={t('common.close')} />
           </Drawer.Header>
         )}
-        <Drawer.Body className={classes.body}>{children}</Drawer.Body>
+        <FadingScrollArea autosize className={classes.scroll}>
+          <Drawer.Body className={classes.body} data-with-footer={footer ? true : undefined}>
+            {children}
+          </Drawer.Body>
+        </FadingScrollArea>
+        {footer && <div className={classes.footer}>{footer}</div>}
       </Drawer.Content>
     </Drawer.Root>
   );

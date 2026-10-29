@@ -3,9 +3,11 @@ import {
   Checkbox,
   createTheme,
   Input,
+  ScrollArea,
   type CSSVariablesResolver,
   type MantineColorsTuple,
 } from '@mantine/core';
+import { SCROLL_BAR_HIDE_DELAY } from '../shared/ui/FadingScrollArea';
 import themeClasses from './theme.module.css';
 
 // The single place for theme settings (docs/DESIGN_RULES.md). Colors: "charcoal and sky", chosen in F-010 from the
@@ -98,6 +100,16 @@ export const theme = createTheme({
     }),
     // Fields in focus get a 2 px accent border (theme.module.css): Mantine only changes the border color
     Input: Input.extend({ classNames: { input: themeClasses.input } }),
+    // Pup's scroll bar for every scroll area, Mantine's own too (dropdowns): the look is in theme.module.css; it
+    // shows while scrolling. Shared areas add the fades with FadingScrollArea (I-004). Autosize takes its own
+    // defaults and passes them on, so it needs them too.
+    ScrollArea: ScrollArea.extend({
+      defaultProps: { type: 'scroll', scrollbarSize: 12, scrollHideDelay: SCROLL_BAR_HIDE_DELAY },
+      classNames: { scrollbar: themeClasses.scrollbar, thumb: themeClasses.thumb },
+    }),
+    ScrollAreaAutosize: ScrollArea.Autosize.extend({
+      defaultProps: { type: 'scroll', scrollbarSize: 12, scrollHideDelay: SCROLL_BAR_HIDE_DELAY },
+    }),
     // A rounded square (the md default made the 20 px box a circle, like a radio) in the accent, the color of
     // picked rows and the active section
     Checkbox: Checkbox.extend({

@@ -1,6 +1,8 @@
 .root {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  /* One row as tall as the window, not as its content: a low window scrolls the sidebar's sections (I-004) */
+  grid-template-rows: minmax(0, 1fr);
   height: 100dvh;
   overflow: hidden;
 }
