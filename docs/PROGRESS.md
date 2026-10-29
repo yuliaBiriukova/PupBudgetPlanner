@@ -30,6 +30,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   ran into each other, so there the list keeps the phone's card rows; Joined is a little wider for "Blocked <date>".
 - The search field has no visible label (owner's request); screen readers still hear "Search people". The count
   moved into the field and shows only while searching ("2 of 9"): the tab already has the total.
+- Variant 7: Copy on a new link no longer makes the card jump (it redrew the dialog and replayed the card's
+  entrance; now only the button changes). The app was not affected.
 - Used, expired and cancelled links are cards with icons, like Waiting, and the lines between the link groups are
   gone (owner's requests).
 - Variant 7 matched to the app: Mantine's check and dash icons centered in the box, the primary-color focus ring on

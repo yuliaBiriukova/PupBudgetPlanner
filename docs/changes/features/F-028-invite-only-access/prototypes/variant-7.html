@@ -1128,7 +1128,8 @@ document.addEventListener('click', (e) => {
     'cancel-link': () => { go('people'); toast('Link cancelled'); },
     'do-block': () => { go('people'); toast('Iryna is blocked'); },
     'do-delete': () => { go('people'); toast('Max’s account is deleted'); },
-    copy: () => { state.copied = true; render(); toast('Link copied'); },
+    // Only the button changes: drawing the dialog again replayed the card's entrance, and it jumped
+    copy: () => { state.copied = true; a.innerHTML = `${icon('check')}Copied`; toast('Link copied'); },
     share: () => toast('Opens the phone’s share sheet (Telegram, Viber…)'),
     google: () => toast('Opens Google'),
     'add-tx': () => toast('Add transaction (F-018)'),
