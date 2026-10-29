@@ -91,7 +91,7 @@ owner asks for one.
 | [I-003](changes/improvements/I-003-owner-approval-before-implementation/I-003-owner-approval-before-implementation.md) | Owner approval before implementation (backend or frontend) | High | Done |
 | [I-004](changes/improvements/I-004-custom-scroll-bars/I-004-custom-scroll-bars.md) | 🎨 Custom scroll bars; a dialog scrolls inside itself | Medium | Todo |
 | [I-005](changes/improvements/I-005-people-pagination/I-005-people-pagination.md) | 🎨 Pages on the People list; "Select all" picks the current page | Medium | Todo |
-| [I-006](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md) | 🎨 Delete used, expired and cancelled invite links (one or many); auto-delete after 30 days | Medium | Todo |
+| [I-006](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md) | 🎨 Delete used, expired and cancelled invite links (one or many); morning cron job deletes them after 30 days | Medium | Todo |
 | [I-007](changes/improvements/I-007-remove-test-data-after-tests/I-007-remove-test-data-after-tests.md) | Remove test accounts and data after tests | High | Todo |
 | [I-008](changes/improvements/I-008-instant-click-feedback/I-008-instant-click-feedback.md) | Instant response to clicks on check boxes and dialog buttons | High | Todo |
 | [I-009](changes/improvements/I-009-planning-only-branches/I-009-planning-only-branches.md) | Planning-only branches (`plan/…`) for lists the owner only wants in the backlog | High | Done |

@@ -10,7 +10,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   - I-004 custom scroll bars, a dialog scrolls inside itself (🎨, Medium);
   - I-005 pages on the People list, "Select all" picks the current page (🎨, Medium);
   - I-006 delete used, expired and cancelled invite links, one or many, and auto-delete them 30 days after they
-    stop being usable, showing the date (🎨, Medium; the 30 days are the owner's answer);
+    stop being usable, showing the date, by a cron job every morning (🎨, Medium; the 30 days and the morning
+    cron job are the owner's answers);
   - I-007 remove test accounts and data after tests (docs, High; approved by the request);
   - I-008 instant response to clicks on check boxes and dialog buttons (High).
 - I-009, owner's request, done: planning-only branches. A list of changes the owner only wants in the backlog is
