@@ -496,8 +496,11 @@ span.pick { cursor: default; }
 .pick input:indeterminate::before { background: var(--accent); border-color: var(--accent); }
 .pick input:indeterminate::after { --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 6'%3E%3Crect width='32' height='6' rx='3'/%3E%3C/svg%3E"); }
 .pick input { --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 7'%3E%3Cpath d='M4 4.586L1.707 2.293A1 1 0 1 0 .293 3.707l3 3a.997.997 0 0 0 1.414 0l5-5A1 1 0 1 0 8.293.293L4 4.586z'/%3E%3C/svg%3E"); }
-/* Fields: the buttons' focus ring, as in the app */
-.search-box:focus-within, .control input:focus { border-color: var(--focus); outline: 2px solid var(--focus); outline-offset: 2px; }
+/* Fields in focus: a 2 px accent border, as in the app; the search box draws it, not the input inside */
+.search-box:focus-within, .control input:focus { border-color: var(--accent); outline: 1px solid var(--accent); outline-offset: 0; }
+.search-box input:focus-visible { outline: none; }
+/* No lines between the link groups; the hover background has the rows' corners */
+.disc { border-top: 0; border-radius: var(--r-sm); }
 /* Used, expired and cancelled links: cards like Waiting, with an icon; grey for links that can't be used any more */
 .h-list { display: grid; gap: 8px; margin-top: 4px; border-top: 0; }
 .h-row { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 14px 16px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); }
@@ -532,7 +535,7 @@ const DIRECTION = {
     'Bulk dialogs list the picked people; bulk delete needs the word delete typed in, one delete needs the email.',
     'Invite links: Waiting cards with the days left and Cancel link; Used and Expired and cancelled open with a click and stay as left.',
     'Used, expired and cancelled links are cards like Waiting, each with an icon: a person with a check (used, accent), a clock with a cross (expired) and a broken link (cancelled), both grey.',
-    'Components as the app themes them: Mantine’s check box (a rounded square in the accent) and the primary-color focus ring on buttons and fields.',
+    'Components as the app themes them: Mantine’s check box (a rounded square in the accent), the primary-color focus ring on buttons, a 2 px accent border on a field in focus.',
     'Corners: pills for buttons, tabs and nav items, circles for icon buttons, 12 px fields and rows, 24 px dialogs. No sign-in method is shown.',
   ],
 };

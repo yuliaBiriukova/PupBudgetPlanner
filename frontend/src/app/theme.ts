@@ -96,7 +96,7 @@ export const theme = createTheme({
           ? { root: { '--button-color': 'var(--pup-color-on-primary)' } }
           : { root: {} },
     }),
-    // Fields show the buttons' focus ring: Mantine only changes the border color, which is easy to miss
+    // Fields in focus get a 2 px accent border (theme.module.css): Mantine only changes the border color
     Input: Input.extend({ classNames: { input: themeClasses.input } }),
     // A rounded square (the md default made the 20 px box a circle, like a radio) in the accent, the color of
     // picked rows and the active section

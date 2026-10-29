@@ -22,7 +22,8 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
   from Mantine's autoContrast: it reads the light-mode shade only, which made white text on the light dark-mode
   button. (2026-10-28)
 - Check boxes are Mantine's, themed once in `theme.ts`: a rounded square (6 px), the accent when on, an empty box
-  with the fields' border. Fields show the same focus ring as buttons, not only a border color. (2026-10-29)
+  with the fields' border. A field in focus has a 2 px accent border (F-011's sign-in style), set once in the theme for
+  every field; no second ring around it. (2026-10-29)
 - Menu items and buttons don't end in "…", even when they open a dialog: few people know the convention and it
   reads like a typo. (2026-10-29)
 

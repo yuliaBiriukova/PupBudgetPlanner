@@ -435,9 +435,16 @@ for (const file of FILES) {
           const line =
             after.content !== 'none' &&
             !['transparent', 'rgba(0, 0, 0, 0)'].includes(after.backgroundColor);
+          // A field's wrapper (a search box with its icon) may draw the ring with :focus-within
+          const ring = (x) => {
+            const c = getComputedStyle(x);
+            return c.outlineStyle !== 'none' && parseFloat(c.outlineWidth) > 0;
+          };
+          const wrapped =
+            el.matches('input, textarea') && el.parentElement && ring(el.parentElement);
           return {
             el: `${el.tagName.toLowerCase()} "${label}"`,
-            ok: (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || line,
+            ok: (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || line || wrapped,
           };
         });
         if (f && !f.ok)

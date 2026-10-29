@@ -6,8 +6,11 @@
   background-color: var(--pup-color-surface);
 }
 
-/* Fields: the same focus ring as buttons (Mantine's focus-auto) */
+/* A field in focus gets a 2 px accent border (the border and a 1 px outline on it), the sign-in fields' style from
+   F-011, everywhere. Mantine alone only changes the border color, which is easy to miss */
+.input:focus,
 .input:focus-within {
-  outline: 2px solid var(--mantine-primary-color-filled);
-  outline-offset: 2px;
+  border-color: var(--pup-color-accent);
+  outline: 1px solid var(--pup-color-accent);
+  outline-offset: 0;
 }

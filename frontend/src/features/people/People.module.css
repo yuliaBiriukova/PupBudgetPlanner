@@ -434,8 +434,7 @@ label.pick {
   width: 100%;
   min-height: 48px;
   padding: 0 4px;
-  border-top: 1px solid var(--pup-color-rule);
-  border-radius: 0;
+  border-radius: var(--mantine-radius-md);
   color: var(--mantine-color-text);
 }
 
