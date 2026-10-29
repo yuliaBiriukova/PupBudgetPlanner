@@ -35,6 +35,10 @@ docs/changes/
   to `Done` (description file, backlog, roadmap, progress); merging it is the owner's job.
 - Screens: references first (well-made apps, the internet, Mobbin), then 3 HTML prototypes in `prototypes/`;
   the references used and the chosen variant are recorded in the description file.
+- **Approval before implementation.** No backend or frontend code until the owner has explicitly approved the
+  description file and, for screens, the final prototype (for a bugfix: the root cause and the planned fix).
+  Picking options in a design round is not approval. The date goes into the `Approved` row; until then it says
+  `—`. Details in [CLAUDE.md](../../CLAUDE.md#how-we-work).
 
 ## Priority
 
@@ -59,6 +63,7 @@ Claude proposes the priority from this table; the owner has the last word.
 | Status | Todo / In progress / Review / Done / Blocked |
 | Branch | `feature/F-000-short-name` |
 | Design | 3 HTML prototypes required / not needed |
+| Approved | — (date the owner approved the description and the final prototype) |
 
 ## Goal
 Why we do this, in one or two sentences.
@@ -71,7 +76,7 @@ Why we do this, in one or two sentences.
 
 ## Design
 References (Mobbin, other apps, the internet): link — what we take from it.
-Prototypes: `prototypes/`. Chosen variant: —
+Prototypes: `prototypes/`. Chosen variant: — · Final prototype approved: —
 
 ## Tests
 - Unit:
@@ -94,6 +99,7 @@ Decisions, links, open points.
 | Status | Todo / In progress / Review / Done |
 | Branch | `bugfix/B-000-short-name` |
 | Found in | version / date / environment |
+| Approved | — (date the owner approved the root cause and the planned fix) |
 
 ## Steps to reproduce
 1.

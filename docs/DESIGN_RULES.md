@@ -34,10 +34,14 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
    Design work follows the **`design-screen`** skill (`.claude/skills/design-screen/`), and every variant passes
    the Playwright + axe design check before it is shown: `npm run design:check -- <file.html>` in `frontend/`.
    Its screenshots are also looked at, not just its exit code.
-3. The user picks one (or a mix). The choice is recorded in the change's description file and in
-   [Screen decisions](#9-screen-decisions) below.
-4. Components are built in **Storybook** first (all states, mobile and desktop), then wired to the API.
-5. **Before every commit that changes UI**, the changed screens are checked in Playwright: E2E tests pass and
+3. The user picks one (or a mix). A mix or a choice with changes is built as one **final prototype**, checked
+   like the variants and shown again.
+4. **The owner approves the final prototype in so many words** ("approved, build it") before any code for the
+   change is written, backend included. Picking options in a round is not approval. The approval and its date
+   are recorded in the change's description file and in [Screen decisions](#9-screen-decisions) below
+   (I-003).
+5. Components are built in **Storybook** first (all states, mobile and desktop), then wired to the API.
+6. **Before every commit that changes UI**, the changed screens are checked in Playwright: E2E tests pass and
    screenshots at 375 and 1440 px, light and dark, have been looked at. The owner should never be the first to
    find an invisible label or a cut-off name (both happened in the first F-010 build).
 

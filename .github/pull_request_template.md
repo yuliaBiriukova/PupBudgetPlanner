@@ -20,6 +20,7 @@
 
 ## Checklist
 
+- [ ] Owner approved the change (and its final prototype) before implementation; date in its description file
 - [ ] Latest `develop` pulled into the branch
 - [ ] Build and all tests pass
 - [ ] Changed screens checked in Playwright screenshots (phone and desktop, light and dark), or no UI changes

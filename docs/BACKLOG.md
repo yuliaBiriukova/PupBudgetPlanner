@@ -87,6 +87,7 @@ owner asks for one.
 | ID | Improvement | Priority | Status |
 |----|-------------|----------|--------|
 | [I-001](changes/improvements/I-001-working-agreement-rules/I-001-working-agreement-rules.md) | Working agreement: PR hand-off, Playwright checks, change docs first, design references | High | Done |
+| [I-003](changes/improvements/I-003-owner-approval-before-implementation/I-003-owner-approval-before-implementation.md) | Owner approval before implementation (backend or frontend) | High | Done |
 
 ## Bugfixes
 
