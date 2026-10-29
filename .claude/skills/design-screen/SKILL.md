@@ -89,8 +89,13 @@ waking-up state, `setNavCollapsed(bool | null)`, and `setLogo(name)` with a `LOG
 
 ## 6. Present and record
 
-Show the user the screenshots, each variant's thesis and trade-offs, and your recommendation. Record the
-choice in the change file and in DESIGN_RULES "Screen decisions"; add any new lasting rule to "Custom rules".
+Show the user the screenshots, each variant's thesis and trade-offs, and your recommendation.
+
+When the user picks a variant with changes, or a mix, build it as one **final prototype**, verify it as in
+step 5, show it and ask: "Approve this for implementation?" Repeat until they approve it in so many words.
+Picking options or commenting on a round is **not** approval: never start the implementation, backend or
+frontend, on it. Then record the approved prototype and the date in the change file (`Approved` row) and in
+DESIGN_RULES "Screen decisions"; add any new lasting rule to "Custom rules".
 
 ## Slop check
 

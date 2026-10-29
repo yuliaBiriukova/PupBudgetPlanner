@@ -8,6 +8,8 @@ This file tells Claude (and any human contributor) how we work on this project.
 2. Read [docs/BACKLOG.md](docs/BACKLOG.md) — pick the next `Todo` item of the current milestone
    (or the one the user asks for) and open its folder in `docs/changes/`.
 3. Check [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md) for anything still blocking.
+4. Before writing any code for the change, check its description file has the owner's approval (the `Approved`
+   row, see "Owner approves before implementation"). No approval → finish the plan or prototype and ask for it.
 
 ## How we work
 
@@ -18,6 +20,22 @@ This file tells Claude (and any human contributor) how we work on this project.
 - **Document owner requests first.** When the owner reports a bug or proposes a feature or improvement,
   the first step is its folder, description file and backlog row with a **priority** (see "Changes" below) —
   before any investigation in code or any fix. Then confirm the priority with the owner if it isn't obvious.
+- **Owner approves before implementation.** Claude writes no implementation, backend or frontend, until the
+  owner has explicitly approved the change:
+  - **What is approved:** the description file (goal, acceptance criteria, tasks); for a 🎨 change also the
+    **final prototype**; for a bugfix the root cause and the planned fix.
+  - **What is implementation:** code, tests, migrations and configuration in `backend/`, `frontend/` and the
+    deployment files. Planning docs, references, prototypes and reproducing a bug are not, and go ahead freely.
+  - **What is approval:** the owner's explicit words in chat or on the PR, e.g. "approved, build it". Picking
+    options in a design round, comments on a prototype or "looks good" are **not** approval to build: build the
+    final prototype from them, show it and ask "Approve for implementation?". A change the owner asks for in so
+    many words (e.g. a docs update) counts as approved by the request.
+  - **Record it:** the date in the description file's `Approved` row (and, for screens, in DESIGN_RULES
+    "Screen decisions") before the first line of code.
+  - **Scope changes:** if building shows the change must differ from what was approved (a new screen, other
+    behavior, a different data model), stop and get it approved again. The owner's review comments are approval
+    of what they ask for.
+  - Why: in F-028 the screens were built from a prototype the owner had never seen (see I-003).
 - **Log progress.** After finishing work, add a dated entry to `docs/PROGRESS.md`.
 - **Record decisions.** Any significant technical decision gets a short ADR in `docs/decisions/`.
 - **MVP first.** Don't build post-MVP items early; note ideas in the backlog instead.
@@ -106,14 +124,18 @@ This file tells Claude (and any human contributor) how we work on this project.
   (375 px) and desktop (1440 px) width, light and dark, and **look at them** (zoom into buttons, nav and rows).
   Typical misses this catches (both from the first F-010 build): text on the primary button not visible
   (same color as the button), and the app name cut off in the sidebar at its default width.
-- Wait for the user's choice; record it in the change's description file and in the
-  "Screen decisions" table of `docs/DESIGN_RULES.md`.
+- Wait for the user's choice. When the choice is a mix or comes with changes, build it as one **final
+  prototype**, check it like the variants, show it and ask for approval; repeat until the owner approves it in
+  so many words. Only then record it (with the date) in the change's description file and in the
+  "Screen decisions" table of `docs/DESIGN_RULES.md`, and start the implementation — backend included.
 - Follow `docs/DESIGN_RULES.md` (its "Custom rules" section wins over everything else).
 - Every reusable component and screen gets **Storybook** stories (mobile viewport, loading /
   empty / error states).
 
 ## Definition of done (per change)
 
+- [ ] The owner approved the change (and its final prototype) before implementation; the date is in its
+      description file.
 - [ ] Acceptance criteria in the change's description file are met.
 - [ ] Code follows the conventions below and builds without warnings.
 - [ ] Unit tests cover the new logic (backend: xUnit; frontend: Vitest + React Testing Library).

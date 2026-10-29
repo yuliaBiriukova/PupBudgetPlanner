@@ -2,6 +2,20 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29 (5)
+
+**Done**
+- Owner's request: I-003 "Owner approval before implementation" (priority High). Claude writes no backend or
+  frontend code for a change until the owner has explicitly approved it: the description file and, for screens,
+  the final prototype (for a bugfix: the root cause and the planned fix). Picking options in a design round is not
+  approval. The approval date goes into a new `Approved` row of the description file. The rule is in
+  `CLAUDE.md`, `docs/changes/README.md`, `DESIGN_RULES.md`, the `design-screen` skill and the PR template.
+- Why: F-028's screens and backend were built from variant 7 before the owner had seen it. The owner has since
+  approved variant 7 (2026-10-29); F-028's description records that on its branch.
+
+**Next**
+- Owner: review the I-003 PR and PR #23 (F-028).
+
 ## 2026-10-28 (7)
 
 **Done**
