@@ -2,6 +2,32 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29 (8)
+
+**Done**
+- Owner's findings after F-028, planned (not built) on the planning branch `plan/f028-follow-ups`; each will be
+  built on its own branch after approval:
+  - I-004 custom scroll bars, a dialog scrolls inside itself (🎨, Medium);
+  - I-005 pages on the People list, "Select all" picks the current page (🎨, Medium);
+  - I-006 delete used, expired and cancelled invite links, one or many, and auto-delete them 30 days after they
+    stop being usable, showing the date, by a cron job every morning (🎨, Medium; the 30 days and the morning
+    cron job are the owner's answers);
+  - I-007 remove test accounts and data after tests (docs, High; approved by the request);
+  - I-008 instant response to clicks on check boxes and dialog buttons (High).
+- I-009, owner's request, done: planning-only branches. A list of changes the owner only wants in the backlog is
+  planned on one `plan/<short-name>` branch that carries only docs; the PR is titled `Plan: …`, the changes stay
+  `Todo`. In `CLAUDE.md` (how we work, git workflow, PR hand-off), `docs/changes/README.md` and the PR template.
+- Owner's question: are the F-028 dialogs the design library's own? They are Mantine components with Pup styles on
+  top, through the shared `ResponsiveDialog`: on desktop a Mantine `Modal` (radius `xl` = 24 px, width 480, padding
+  `lg`, the title in the display font, weight 300, 20 px); on the phone the shared `BottomSheet`, built from
+  Mantine's `Drawer` parts with its own CSS (height of its content up to 90 % of the screen, rounded top, grab
+  handle, own header and body padding, surface color). Mantine's open/close transitions are left at their
+  defaults.
+
+**Next**
+- Owner: confirm the priorities and review the planning PR. Then, each on its own branch: I-007 (docs), I-008
+  (measure, then root cause for approval), and the prototypes for I-004, I-005 and I-006.
+
 ## 2026-10-29 (7)
 
 **Done**

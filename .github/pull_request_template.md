@@ -1,4 +1,6 @@
-<!-- Title: <ID>: <short description>, e.g. "F-012: Add expense form" -->
+<!-- Title: <ID>: <short description>, e.g. "F-012: Add expense form".
+     Planning PR (plan/… branch): "Plan: <short description> (<IDs>)"; it carries only docs, the planned changes
+     stay Todo, and the build-related checklist items below don't apply. -->
 
 ## Summary
 

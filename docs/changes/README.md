@@ -30,6 +30,11 @@ docs/changes/
 - Create the folder and the description file as soon as the change is added to the plan
   ([BACKLOG.md](../BACKLOG.md)), not when work starts. When the owner reports a bug or proposes a feature or
   improvement, this is the very first step — before looking into the code.
+- **Planning-only lists.** When the owner hands over a list of changes only to add them to the backlog, they are
+  planned together on one `plan/<short-name>` branch: folders, description files, backlog rows, a progress entry
+  — nothing is built there. Each description file's `Branch` row names the branch it will be built on later
+  (`improvement/I-004-custom-scroll-bars`), and the status stays `Todo`. Details in
+  [CLAUDE.md](../../CLAUDE.md#git-workflow).
 - Every improvement, bugfix and feature added after the initial plan has a [priority](#priority).
 - Keep the status in the description file in sync with the backlog. The pull request already sets the status
   to `Done` (description file, backlog, roadmap, progress); merging it is the owner's job.
