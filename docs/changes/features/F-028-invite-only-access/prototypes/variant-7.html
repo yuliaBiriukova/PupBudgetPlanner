@@ -464,6 +464,31 @@ mark { background: var(--tint); color: inherit; border-radius: 3px; padding: 0 1
   .people-view[data-actions='select'] .p-main .acts { grid-column: auto; grid-row: auto; }
   .p-head .pick { display: grid; }
 }
+
+/* ---------- Variant 7 · after the review of the app: check boxes on hover, sorting ---------- */
+/* The check box sits over the initials; it shows on hover, on focus and once anyone is picked. Hidden, it still takes a
+   tap: on the phone, tapping the initials picks the person */
+.pick > * { grid-area: 1 / 1; }
+span.pick { cursor: default; }
+.pick input { opacity: 0; }
+.p-table[data-picking] .pick input, .pick:focus-within input { opacity: 1; }
+.p-table[data-picking] label.pick .initials, .pick:focus-within .initials { visibility: hidden; }
+@media (hover: hover) {
+  .p-row:hover .pick input, .p-table:hover .p-head .pick input { opacity: 1; }
+  .p-row:hover label.pick .initials { visibility: hidden; }
+}
+.people-view[data-actions='select'] .p-main .meta { padding-left: 0; }
+/* Sorting: headers on the desktop, a menu on the phone */
+.sort-row { display: flex; justify-content: flex-end; margin: -6px 0 6px; }
+.sort-menu-btn { min-height: 44px; padding: 0 12px; color: var(--muted); font-weight: 400; }
+.sort-row .menu { min-width: 240px; }
+.sort-row .menu.up { top: auto; bottom: calc(100% - 4px); }
+.sort-row .menu button { justify-content: space-between; }
+.sort-check { color: var(--accent); }
+.sort-btn { display: inline-flex; align-items: center; gap: 4px; justify-self: start; min-height: 32px; margin-left: -8px; padding: 0 8px; border: 0; border-radius: 999px; background: none; color: inherit; font: inherit; cursor: pointer; }
+.sort-btn:hover { background: var(--hover); color: var(--text); }
+.sort-btn[data-active] { color: var(--text); font-weight: 500; }
+@container app (min-width: 768px) { .sort-row { display: none; } }
 </style>
 </head>
 <body>
@@ -478,7 +503,9 @@ const DIRECTION = {
   name: 'Variant 7 · Chosen',
   thesis: 'The owner’s choice after four rounds: card rows with check boxes for bulk Block / Delete and a ⋯ menu per row; invite links with Waiting first and Used / Expired and cancelled folded.',
   notes: [
-    'One person: the ⋯ button on the row opens Block… / Unblock and Delete account….',
+    'One person: the ⋯ button on the row opens Block / Unblock and Delete account (no “…”, though they open a dialog).',
+    'Sorting: the Person, Joined and Invited with headers sort the list, a second click turns it around; the phone has a Sort menu above the list.',
+    'Check boxes sit over the initials: they show on hover and focus, and on every row once anyone is picked. On the phone, tapping the initials picks.',
     'Several people: tick the check boxes (or Pick all shown in the header); a bar shows Block, Unblock (when only blocked people are picked) and Delete for all of them. Searching keeps only the picks still shown.',
     'Bulk dialogs list the picked people; bulk delete needs the word delete typed in, one delete needs the email.',
     'Invite links: Waiting cards with the days left and Cancel link; Used and Expired and cancelled open with a click and stay as left.',
@@ -532,6 +559,7 @@ const PAGES = [
   { id: 'people', label: 'People' },
   { id: 'people-menu', label: 'Row menu' },
   { id: 'people-picked', label: 'Two picked' },
+  { id: 'people-sorted', label: 'Sorted: newest first' },
   { id: 'people-search', label: 'Search' },
   { id: 'people-none', label: 'No match' },
   { id: 'people-links', label: 'Invite links' },
@@ -698,6 +726,7 @@ const PRESET = {
   'people-none': { query: 'zoryana' },
   'people-picked': { picked: ['iryna', 'max'] },
   'people-menu': { menu: 'iryna' },
+  'people-sorted': { sort: { key: 'joined', desc: true } },
   'people-bulk-block': { picked: ['iryna', 'max'] },
   'people-bulk-delete': { picked: ['iryna', 'max'] },
   'people-links-all': { showUsed: true, showOld: true },
@@ -711,6 +740,7 @@ function syncPreset() {
   state.picked = new Set(p.picked ?? []);
   state.showUsed = p.showUsed ?? false;
   state.showOld = p.showOld ?? false;
+  state.sort = p.sort ?? { key: 'person', desc: false };
   if (p.menu) state.menu = p.menu;
 }
 
@@ -746,8 +776,8 @@ function rowActions(p) {
 }
 function personMenu(p) {
   const items = p.blocked
-    ? `<button type="button" role="menuitem" data-action="unblock">${icon('unlock')}Unblock</button><button type="button" role="menuitem" class="danger" data-action="ask-delete">${icon('trash')}Delete account…</button>`
-    : `<button type="button" role="menuitem" data-action="ask-block">${icon('ban')}Block…</button><button type="button" role="menuitem" class="danger" data-action="ask-delete">${icon('trash')}Delete account…</button>`;
+    ? `<button type="button" role="menuitem" data-action="unblock">${icon('unlock')}Unblock</button><button type="button" role="menuitem" class="danger" data-action="ask-delete">${icon('trash')}Delete account</button>`
+    : `<button type="button" role="menuitem" data-action="ask-block">${icon('ban')}Block</button><button type="button" role="menuitem" class="danger" data-action="ask-delete">${icon('trash')}Delete account</button>`;
   return `<div class="menu-wrap"><button class="icon-btn" type="button" data-action="menu" data-id="${p.id}" aria-label="Actions for ${p.name}" aria-haspopup="menu" aria-expanded="${state.menu === p.id}">${icon('dots')}</button>
     ${state.menu === p.id ? `<div class="menu" role="menu">${items}</div>` : ''}</div>`;
 }
@@ -757,8 +787,8 @@ function personRow(p) {
   const open = picks.actions === 'expand' && state.open === p.id;
   return `<li class="p-row"${p.blocked ? ' data-blocked' : ''}${picked ? ' data-picked' : ''}${picks.actions === 'expand' && !p.you ? ` data-clickable data-id="${p.id}"` : ''}>
     <div class="p-main"${picks.actions === 'expand' && !p.you ? ` data-row-toggle="${p.id}"` : ''}>
-      ${select ? `<label class="pick">${p.you ? '' : `<input type="checkbox" data-pick="${p.id}"${picked ? ' checked' : ''} aria-label="Pick ${p.name}">`}</label>` : ''}
-      <div class="who"><span class="initials" aria-hidden="true">${initials(p.name)}</span><div><p class="name"><span>${hl(p.name)}</span>${tags(p)}</p><p class="email">${hl(p.email)}</p></div></div>
+      ${p.you ? `<span class="pick"><span class="initials" aria-hidden="true">${initials(p.name)}</span></span>` : `<label class="pick"><span class="initials" aria-hidden="true">${initials(p.name)}</span><input type="checkbox" data-pick="${p.id}"${picked ? ' checked' : ''} aria-label="Pick ${p.name}"></label>`}
+      <div class="who"><div><p class="name"><span>${hl(p.name)}</span>${tags(p)}</p><p class="email">${hl(p.email)}</p></div></div>
       <p class="meta">${p.blocked ? `Blocked on ${p.blocked}` : `Joined ${p.joined}`}, ${p.you ? 'admin' : p.invite ? `with “${p.invite}”` : 'before invites'}</p>
       <p class="cell num">${p.blocked ? `<span class="blocked-text">Blocked ${p.blocked}</span>` : p.joined}</p>
       <p class="cell${p.invite ? '' : ' muted'}">${invitedWith(p)}</p>
@@ -780,9 +810,40 @@ function peopleList() {
   }
   const pickable = found.filter((p) => !p.you);
   const all = pickable.length > 0 && pickable.every((p) => state.picked.has(p.id));
-  const head = `<div class="p-head"><label class="pick"><input type="checkbox" data-pick-all${all ? ' checked' : ''} aria-label="Pick all shown"></label><span aria-hidden="true">Person</span><span aria-hidden="true">Joined</span><span aria-hidden="true">Invited with</span><span></span></div>`;
-  return `${head}<ul class="p-list">${found.map(personRow).join('')}</ul>${bulkBar()}`;
+  const head = `<div class="p-head"><label class="pick"><input type="checkbox" data-pick-all${all ? ' checked' : ''} aria-label="Pick all shown"></label>${SORT_KEYS.map(sortHeader).join('')}<span></span></div>`;
+  const rows = sortPeople(found).map(personRow).join('');
+  return `<div class="p-table"${state.picked.size ? ' data-picking' : ''}>${sortMenu()}${head}<ul class="p-list">${rows}</ul></div>${bulkBar()}`;
 }
+// Sorting: a new column starts in its usual direction (names and links A to Z, the newest first); again turns it around
+ICONS.arrowUp = ['M12 5l0 14', 'M18 11l-6 -6', 'M6 11l6 -6'];
+ICONS.arrowDown = ['M12 5l0 14', 'M18 13l-6 6', 'M6 13l6 6'];
+ICONS.sort = ['M3 9l4 -4l4 4m-4 -4v14', 'M21 15l-4 4l-4 -4m4 4v-14'];
+const SORT_KEYS = ['person', 'joined', 'invited'];
+const SORT_LABEL = { person: 'Person', joined: 'Joined', invited: 'Invited with' };
+const FIRST_DESC = { person: false, joined: true, invited: false };
+const ORDER_LABEL = { person: ['Name, A to Z', 'Name, Z to A'], joined: ['Oldest first', 'Newest first'], invited: ['Invited with, A to Z', 'Invited with, Z to A'] };
+const orderLabel = (o) => ORDER_LABEL[o.key][o.desc ? 1 : 0];
+const invitedRank = (p) => (p.you ? 0 : p.invite ? 1 : 2);
+const SORT_BY = {
+  person: (a, b) => a.name.localeCompare(b.name),
+  joined: (a, b) => Date.parse(a.joined) - Date.parse(b.joined),
+  invited: (a, b) => invitedRank(a) - invitedRank(b) || (a.invite ?? '').localeCompare(b.invite ?? ''),
+};
+const sortPeople = (list) => [...list].sort((a, b) => (state.sort.desc ? -1 : 1) * SORT_BY[state.sort.key](a, b) || a.name.localeCompare(b.name));
+function sortHeader(key) {
+  const on = state.sort.key === key;
+  return `<button class="sort-btn" type="button" data-action="sort" data-key="${key}"${on ? ` data-active aria-label="${SORT_LABEL[key]}, sorted: ${orderLabel(state.sort)}"` : ''}>${SORT_LABEL[key]}${on ? icon(state.sort.desc ? 'arrowDown' : 'arrowUp', 16) : ''}</button>`;
+}
+function sortMenu() {
+  const orders = SORT_KEYS.flatMap((key) => [{ key, desc: FIRST_DESC[key] }, { key, desc: !FIRST_DESC[key] }]);
+  const items = orders.map((o) => {
+    const on = o.key === state.sort.key && o.desc === state.sort.desc;
+    return `<button type="button" role="menuitem" data-action="sort-to" data-key="${o.key}" data-desc="${o.desc}"${on ? ' aria-current="true"' : ''}>${orderLabel(o)}${on ? icon('check').replace('class="ic"', 'class="ic sort-check"') : ''}</button>`;
+  }).join('');
+  return `<div class="sort-row"><div class="menu-wrap"><button class="btn btn-quiet sort-menu-btn" type="button" data-action="menu" data-id="sort" aria-haspopup="menu" aria-expanded="${state.menu === 'sort'}">${icon('sort')}Sort: ${orderLabel(state.sort)}</button>
+    ${state.menu === 'sort' ? `<div class="menu" role="menu">${items}</div>` : ''}</div></div>`;
+}
+
 function bulkBar() {
   if (picks.actions !== 'select' || !state.picked.size) return '';
   const n = state.picked.size;
@@ -947,6 +1008,8 @@ function dialog() {
 }
 
 const VARIANT_ACTIONS = {
+  sort: (a) => { const key = a.dataset.key; state.sort = state.sort.key === key ? { key, desc: !state.sort.desc } : { key, desc: FIRST_DESC[key] }; refreshPeople(); document.querySelector(`[data-action="sort"][data-key="${key}"]`)?.focus(); },
+  'sort-to': (a) => { state.sort = { key: a.dataset.key, desc: a.dataset.desc === 'true' }; state.menu = null; render(); },
   'toggle-row': (a) => { const id = a.dataset.id; state.open = state.open === id ? null : id; refreshPeople(); document.querySelector(`[data-action="toggle-row"][data-id="${id}"]`)?.focus(); },
   'clear-picks': () => { state.picked.clear(); refreshPeople(); },
   'toggle-used': (a) => { state.showUsed = !state.showUsed; refreshLinks(); document.querySelector(`[data-action="${a.dataset.action}"]`)?.focus(); },
@@ -959,6 +1022,10 @@ const RENDER = { invite: invitePage, 'invite-bad': inviteBadPage, closed: closed
 function render() {
   app.innerHTML = (RENDER[state.page] ?? peoplePage)();
   document.querySelectorAll('[data-page-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pageSet === state.page)));
+  // Like the app's menu, the sort menu opens upwards when the phone's tab bar leaves no room below
+  const sortList = document.querySelector('.sort-row .menu');
+  const bar = document.querySelector('nav.tabs');
+  if (sortList && bar && getComputedStyle(bar).display !== 'none' && sortList.getBoundingClientRect().bottom > bar.getBoundingClientRect().top) sortList.classList.add('up');
 }
 function go(id) { state.page = id; state.menu = null; state.copied = false; state.more = false; state.confirmText = ''; render(); }
 function toast(text) {

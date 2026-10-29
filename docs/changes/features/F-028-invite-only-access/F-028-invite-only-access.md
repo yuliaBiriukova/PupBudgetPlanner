@@ -286,9 +286,9 @@ delete, links, none waiting, all open, new link) and the invite screens.
 
 ## Open points
 
-1. **Accounts that already exist on production** (Q-012). Built as proposed: they keep access and show "Before
-   invites"; after the release the admin looks through the People page and blocks or deletes anyone unknown.
-   Waiting for the owner's confirmation.
+1. **Accounts that already exist on production** (Q-012). Confirmed by the owner (2026-10-29): they keep access
+   and show "Before invites"; after the release the admin looks through the People page and blocks or deletes
+   anyone unknown.
 
 ## Notes
 

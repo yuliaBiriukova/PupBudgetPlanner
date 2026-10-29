@@ -11,11 +11,16 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   - sorting: Person, Joined and Invited with headers on the desktop (a second click turns the order around),
     a Sort menu on the phone;
   - "Block…" and "Delete account…" lost the "…" (a new custom rule in DESIGN_RULES).
-- Checked: unit tests (2 new for sorting), E2E, screenshots at 375 and 1440 px, light and dark, of the hover,
-  picked, sorted and menu states.
+- Prototype variant 7 updated to match: check boxes over the initials, sort headers and the phone's Sort menu
+  (a new screen "Sorted: newest first"), menu items without "…".
+- Q-012 answered: accounts made before invites keep access; the admin reviews them on the People page after the
+  release.
+- Checked: unit tests (2 new for sorting), E2E, the design check on variant 7, screenshots at 375 and 1440 px,
+  light and dark, of the hover, picked, sorted and menu states.
 
 **Next**
-- Owner: review PR #23 again; after the release set `Access__AdminEmails__0` on Render; confirm Q-012.
+- Owner: review PR #23 again; after the release set `Access__AdminEmails__0` on Render and look through the
+  "Before invites" accounts.
 
 ## 2026-10-29 (3)
 
