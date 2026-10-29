@@ -70,17 +70,24 @@ What is decided so far (rounds 1–3 of the design, see "Design"):
 - **People page** (admin only): under a line at the bottom of the sidebar's sections; under More on the phone.
   Title "People" with **New invite link** on the right (full width on the phone), then **underline tabs**
   (text tabs with the accent bar, like the sidebar marker) with counts: People · Invite links (waiting).
-  - **People tab:** a short line on who can sign up, the search field, the list as card rows (round 4), the
-    person's actions Block / Unblock and Delete account (how they are reached: see round 4). The admin's own row has no actions. Blocked
-    people stay in the list with a Blocked tag. "Before invites" marks accounts made while sign-up was open.
-  - **Invite links tab:** the note (or "No note"), the status (waiting until a date / used by whom and when /
-    expired / cancelled) and when it was made, grouped: Waiting (cards with the days left and a visible Cancel link), then Used and
-    Expired and cancelled, hidden by default (how they are shown: see round 4).
+  - **People tab:** a short line on who can sign up, the search field, then the people as card rows: initials,
+    name and email, joined, invited with which link ("Before invites" for accounts made while sign-up was open,
+    "Admin" for the admin). Blocked people stay in the list with a Blocked tag and the date.
+  - **One person:** a ⋯ button on the row opens a menu: Block… or Unblock, and Delete account….
+  - **Several people:** a check box on each row (and "Pick all shown" in the header) picks people; a bar then
+    shows how many are picked with Block, Unblock (when a picked person is blocked) and Delete, and a button to
+    clear the picks. Searching keeps only the picks that are still shown. The admin's own row has no check box
+    and no menu.
+  - **Invite links tab:** a line on how links work, then **Waiting** links as card rows (note, until when, when
+    made, the days left and a visible Cancel link), then **Used** (note, who used it, when) and **Expired and
+    cancelled** (note, which, when) as folded groups, closed by default; each opens with a click and stays as
+    left (remembered in the browser).
 - **New invite link dialog** (a sheet on the phone): "Who is it for? (optional, only you see it)", Create link;
   then the same dialog shows the link with Copy link and Share (the phone's share sheet), until when it works,
   and that it can't be shown again; Done opens the Invite links tab.
 - **Block** asks first and says what happens (signed out everywhere, data stays, can be unblocked). **Delete**
-  asks first, lists what is deleted and needs the person's email typed in before the button works.
+  asks first, lists what is deleted and needs the person's email typed in before the button works. In bulk the
+  dialogs list the picked people; bulk delete needs the word "delete" typed in.
 
 ## Tasks
 
@@ -215,7 +222,12 @@ sign-in method, a visible "Cancel link" on waiting links. The preview bar switch
 Design check 0 issues, every option at 360–1440 px in light and dark; screenshots looked at, phone lists scrolled
 too.
 
-Chosen variant: — (waiting for the owner: the actions option and the old-links option)
+### Chosen (2026-10-29)
+
+Owner's choice after round 4: card rows with **Select** for bulk Block / Delete plus the **⋯ menu** on each row
+for one person; **Folded groups** for used and old links; underline tabs; variant 1's sign-in screens; variant
+2's dialog for a new link; the corner system of decision 8. The final prototype is
+[variant 7 · Chosen](prototypes/variant-7.html).
 
 ## Tests
 

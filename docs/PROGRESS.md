@@ -28,8 +28,11 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   icon buttons, 12 px fields and rows, 24 px dialogs), to be applied to the app in I-002. Variant 6 offers three
   ways to reach a person's actions instead of a ⋯ menu and two ways to show old links.
 
+- Design chosen: check boxes for bulk Block / Delete plus a ⋯ menu per row, folded Used and Expired and cancelled
+  groups (variant 7, recorded in the description and DESIGN_RULES).
+
 **Next**
-- Owner picks the actions option and the old-links option; then the backend.
+- Build F-028: backend, then the frontend.
 
 ## 2026-10-29
 
