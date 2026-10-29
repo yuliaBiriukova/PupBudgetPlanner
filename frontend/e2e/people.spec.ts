@@ -42,14 +42,14 @@ test('the admin invites a person, then blocks and unblocks them', async ({
   await openPeople(page, isMobile);
   await page.getByRole('button', { name: en.people.newLink.button }).click();
   const form = page.getByRole('dialog', { name: en.people.newLink.title });
-  await form.getByLabel(en.people.newLink.noteLabel).fill('For Olena');
+  await form.getByLabel(en.people.newLink.noteLabel).fill('E2E for Olena');
   await form.getByRole('button', { name: en.people.newLink.create }).click();
   const ready = page.getByRole('dialog', { name: en.people.newLink.readyTitle });
   const link = await ready.getByLabel(en.people.newLink.linkLabel).inputValue();
   expect(link).toMatch(/\/invite\/[A-Za-z0-9_-]{43}$/);
   await ready.getByRole('button', { name: en.people.newLink.done }).click();
   await expect(page).toHaveURL(/\/people\/links$/);
-  await expect(page.getByText('For Olena').first()).toBeVisible();
+  await expect(page.getByText('E2E for Olena').first()).toBeVisible();
 
   // The person opens it in their own browser and creates the account
   const theirs = await browser.newContext({ baseURL: new URL(link).origin });

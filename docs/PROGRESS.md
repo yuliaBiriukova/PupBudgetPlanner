@@ -2,6 +2,34 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29 (9)
+
+**Done**
+- I-007, approved by the owner's request (docs only): a "Clean up test data" rule in `CLAUDE.md`. Accounts and
+  data made for testing (by hand, through the API, or by E2E tests against the shared `dev` database) are removed
+  in the same session through the People page or `POST /api/admin/people/delete`; test invite links are cancelled
+  until I-006 lets us delete them. The owner's own account and data are never touched. The PROGRESS entry says
+  what was removed. Also a definition-of-done item and a PR template checklist item.
+- I-008 closed without changes: the owner tested on production and clicks respond fine there; the delay was seen
+  on localhost (development build).
+- I-007, E2E clean-up (added and approved by the owner the same day): a `cleanup` teardown project runs after every
+  E2E run, passed or failed. Signed in as the tests' admin, it deletes the accounts whose emails match `newPerson`'s
+  `e2e-…@example.com` pattern and cancels the tests' waiting invite links. The tests' admin stays (an admin can't
+  delete themselves; every run reuses it). The People test's link note is now `E2E for Olena`, so the clean-up
+  recognises it.
+- Checked against the `dev` database: two full runs (36 passed, 2 skipped) and one run with the People test made to
+  fail on purpose. After each, only the owner's account and the tests' admin were left, and no test link was
+  waiting. Lint, typecheck, unit tests (64) pass. The unit tests need Node 24 (the shell's Node 20 can't start
+  Vitest's workers).
+- Test data from this change: E2E accounts and links, all removed by the clean-up itself. Left on purpose: the tests'
+  admin `e2e-admin@example.com` (created by the first run). 18 waiting links made before this change (12 "For
+  Petro", 3 "For Olena", 3 without a note), which the clean-up doesn't recognise, were cancelled at the owner's
+  request; `dev` has no waiting links left. They can be deleted once I-006 is built.
+
+**Next**
+- Owner: review and merge PR #27.
+- Then I-004, I-005, I-006 prototypes, or F-014 (accounts and balances).
+
 ## 2026-10-29 (8)
 
 **Done**

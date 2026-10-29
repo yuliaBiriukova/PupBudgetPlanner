@@ -27,7 +27,10 @@ export const E2E_ADMIN: Person = {
   password: 'kyiv-budget-26',
 };
 
-/** A person nobody has used yet: every run creates new accounts (CI starts from an empty database). */
+/**
+ * A person nobody has used yet: every run creates new accounts, and cleanup.teardown.ts deletes them afterwards
+ * (I-007; CI starts from an empty database).
+ */
 export function newPerson(tag: string): Person {
   const id = `${String(Date.now())}-${Math.random().toString(36).slice(2, 8)}`;
   return {
@@ -37,8 +40,11 @@ export function newPerson(tag: string): Person {
   };
 }
 
+/** The emails newPerson makes, and only those: the clean-up deletes these accounts and no others. */
+export const TEST_PERSON_EMAIL = /^e2e-[a-z-]+-\d+-[a-z0-9]{1,6}@example\.com$/;
+
 /** The antiforgery token for whoever the context is signed in as (it changes when they sign in). */
-async function antiforgery(request: APIRequestContext): Promise<Record<string, string>> {
+export async function antiforgery(request: APIRequestContext): Promise<Record<string, string>> {
   await request.get('/api/auth/me');
   const token = (await request.storageState()).cookies.find((c) => c.name === 'XSRF-TOKEN')?.value;
   return { 'X-XSRF-TOKEN': token ?? '' };
