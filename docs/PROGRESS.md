@@ -2,6 +2,17 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29 (5)
+
+**Done**
+- F-028: the owner approved variant 7 and the build. The approval came after the build: variant 7 had been
+  recorded as chosen and built without being shown first. Recorded in the description (`Approved` row) and in
+  DESIGN_RULES "Screen decisions". The rule that prevents this from now on is I-003 (PR #24).
+
+**Next**
+- Owner: review PR #23 again; after the release set `Access__AdminEmails__0` on Render and look through the
+  "Before invites" accounts.
+
 ## 2026-10-29 (4)
 
 **Done**

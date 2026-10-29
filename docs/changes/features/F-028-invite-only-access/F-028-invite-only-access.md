@@ -8,6 +8,7 @@
 | Status | Done |
 | Branch | `feature/F-028-invite-only-access` |
 | Design | 7 HTML prototypes over 4 rounds; chosen: variant 7 |
+| Approved | 2026-10-29, variant 7 and the build, after the build (see [Approval](#chosen-2026-10-29)) |
 
 ## Goal
 
@@ -241,6 +242,12 @@ Owner's choice after round 4: card rows with **Select** for bulk Block / Delete 
 for one person; **Folded groups** for used and old links; underline tabs; variant 1's sign-in screens; variant
 2's dialog for a new link; the corner system of decision 8. The final prototype is
 [variant 7 · Chosen](prototypes/variant-7.html).
+
+**Approval (2026-10-29):** variant 7 and the implementation were *not* approved before the build. Variant 7 was
+made from the round-4 picks and recorded as chosen in the same step, and the backend and screens were built
+right after, without showing it to the owner, who thought the work was still on the prototype. After seeing it,
+the owner approved variant 7 as built, with the People-tab changes from the PR #23 review. That gap led to
+I-003 (owner approval before any implementation).
 
 ## Tests
 
