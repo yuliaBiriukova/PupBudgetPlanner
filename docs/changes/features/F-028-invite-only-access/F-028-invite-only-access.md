@@ -1,0 +1,114 @@
+# F-028 · Invite-only access
+
+| | |
+|---|---|
+| Type | Feature |
+| Milestone | M1 — Authentication & app shell |
+| Priority | High |
+| Status | Todo |
+| Branch | `feature/F-028-invite-only-access` |
+| Design | 3 HTML prototypes required |
+
+## Goal
+
+While Pup is for family and friends, only people the owner lets in can create an account. The owner sees who
+has access and can take it away. Later the app can open to everyone by changing one setting. Added by the owner
+on 2026-10-29.
+
+Why now: F-011 and F-012 are on `main`, so anyone who finds the site can create an account today (email and
+password, or the first "Continue with Google").
+
+## Acceptance criteria
+
+- [ ] **Invite-only by default.** Without an invitation nobody can create an account: not on the Create account
+      form, not through the API (`POST /api/auth/register`), not with the first "Continue with Google". The page
+      says Pup is invite-only for now and what to do (ask the person who told you about it for a link).
+- [ ] **Existing accounts keep working.** People who already have an account sign in as before, with a password
+      or Google (incl. linking Google to an account with the same email, ADR 0014).
+- [ ] **The admin.** The owner is the admin; who the admin is comes from configuration, not from the UI.
+      Only the admin sees the People page and its API.
+- [ ] **Invite link.** The admin creates a link (with an optional note for whom it is), copies it and sends it in
+      any messenger (no email until M8). A link works once and for 7 days; the admin can cancel it earlier.
+- [ ] **Signing up with a link.** The link opens a "You're invited" page with Create account and Continue with
+      Google. Either way the account is created and the invitation is used up in the same transaction as the
+      account (two people can't use one link). A used, expired, cancelled or made-up link gets one neutral message.
+- [ ] **People page.** The admin sees everyone with access (name, email, sign-in methods, joined, invited by
+      which link) and the invitations (waiting, used by whom, expired, cancelled).
+- [ ] **Taking access away.** The admin can block a person: they are signed out on every device and can't sign
+      in, with a password or Google; their data stays. The admin can unblock them. The admin can't block
+      themselves.
+- [ ] **Deleting a person.** The admin can also delete a person's account with all their data, after a
+      confirmation that can't be done by accident (type the person's email or a shown word). They are signed out
+      everywhere; their email or Google account could sign up again only with a new invitation. The admin can't
+      delete themselves.
+- [ ] **Opening up later.** A setting (`Access:SignUp` = `InviteOnly` | `Open`) switches back to open sign-up
+      without code changes; invitations keep working in both modes.
+
+## Tasks
+
+- [x] Agree the open points below with the owner (2026-10-29)
+- [ ] References (Mobbin: "invite", "team members", "invite link"; Notion, Linear, Slack, Discord invite pages)
+- [ ] 3 HTML prototypes: the "You're invited" page, the invite-only message on Create account and after Google,
+      the People page with an invitation created and copied (phone and desktop, light and dark)
+- [ ] Domain: `Invitation` (hashed token, note, created by, expires, used by / at, cancelled at) and its rules
+- [ ] Database: `invitations` table, migration; an admin role; a blocked flag (or a permanent lockout) on the
+      account
+- [ ] API: register and the Google flow accept an invitation token; `/api/admin/invitations` (create, list,
+      cancel) and `/api/admin/people` (list, block, unblock, delete), admin only; `me` says whether the person is the
+  admin
+- [ ] Deleting an account removes all of its data in one transaction (today: categories by cascade; the same
+      code is reused by F-027 "Delete my account")
+- [ ] Google: the invitation token travels through the Google round trip in the authentication properties; an
+      unknown Google account without one is not created and comes back with the invite-only message
+- [ ] Frontend: `/invite/:token` page, the invite-only state of Create account, the People page and its nav item
+      (admin only), i18n texts
+- [ ] Storybook stories (loading, empty, error; link created; blocked person)
+- [ ] ADR: invite-only sign-up (token format and storage, admin from configuration, blocking, the open switch)
+- [ ] Render: the new environment variables; README
+
+## Design
+
+References (Mobbin, other apps, the internet): — (when the work starts)
+Prototypes: `prototypes/` (not created yet). Chosen variant: —
+
+## Tests
+
+- Unit: invitation rules (once, 7 days, cancelled); register and Google refuse without a valid invitation in
+  invite-only mode and accept in open mode; two sign-ups racing for one link create one account; a blocked person
+  can't sign in and their cookie stops working; only the admin reaches the admin endpoints; the admin can't block
+  themselves.
+- E2E (Playwright): the admin creates a link, a new person signs up with it, the same link fails the second time;
+  Create account without a link shows the invite-only message; the admin blocks the person, who is signed out and
+  can't sign in, then unblocks them; the admin deletes a person, who can't sign in and whose email can't sign up
+  without a new link.
+- Screens checked in Playwright screenshots (phone / desktop, light / dark):
+
+## Decisions (owner, 2026-10-29)
+
+1. **Priority and place:** `High`, in M1, done next before F-014 — before real money data goes in and while
+   there are only a few accounts.
+2. **What kind of link:** one link per person, works once, valid 7 days, can be cancelled. Not chosen: one
+   shared link that works many times (easy to leak), a list of allowed emails (needs the exact email in advance).
+3. **Who can invite:** only the admin in F-028. In F-023 a family owner's invitation into the family also lets a
+   new person create an account (one invitation mechanism with an optional family).
+4. **Taking access away:** both — block (data kept, can be undone) and delete (the account and all its data).
+   The deletion code is shared with F-027.
+5. **Who is the admin:** the owner, by the email of their production account (a Google account). It comes from the
+   setting `Access:AdminEmails` (a list, so a second admin can be added later; on Render `Access__AdminEmails__0`).
+   The email itself lives only in Render and local user-secrets, not in the repository. Signing in with that
+   email makes the person the admin; creating an account with it needs no invitation, so the admin can't be
+   locked out. Nothing in the UI makes someone an admin.
+
+## Open points
+
+1. **Accounts that already exist on production.** Proposal: they keep access; the admin looks through the People
+   page after the release and blocks or deletes anyone unknown.
+
+## Notes
+
+- The token is long and random (32 bytes, URL-safe), only its hash is stored, like a password reset token; the
+  invitation endpoints are rate-limited like sign-in.
+- Messages don't tell whether an email has an account (ADR 0012). The invite-only message after Google is safe:
+  it only appears for a Google account that has no account here.
+- Related: F-023 (family invitations reuse the same links), F-027 (deleting your own account shares the
+  deletion code), M8 (invitations by email).

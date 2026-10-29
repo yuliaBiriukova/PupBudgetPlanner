@@ -2,6 +2,21 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29
+
+**Done**
+- Owner's request: planned F-028 "Invite-only access" in M1 (priority High). F-011 and F-012 are on `main`, so
+  anyone can create an account on production today. The description lists the acceptance criteria and tasks.
+
+**Decisions**
+- Owner's choices: one invitation link per person (works once, 7 days, can be cancelled); only the admin invites
+  (F-023 family links will also let new people sign up); the admin can block a person or delete their account;
+  the admin is the owner, by email, from the `Access:AdminEmails` setting (kept out of the repository).
+- Open: Q-012, what happens to accounts that already exist on production (proposal: they keep access).
+
+**Next**
+- F-028 before F-014: references and 3 HTML prototypes first.
+
 ## 2026-10-28 (7)
 
 **Done**

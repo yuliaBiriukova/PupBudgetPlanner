@@ -60,3 +60,5 @@ To agree before the work starts (also [Q-010](../../../OPEN_QUESTIONS.md)):
 - Neon keeps a short history of the database for restores, so deleted data stays there until that window
   passes. The privacy policy, when we write one, should say so.
 - Depends on F-016 (settings) and F-023 (family).
+- F-028 lets the admin delete a person's account; the code that removes an account and its data is built there
+  and reused here.
