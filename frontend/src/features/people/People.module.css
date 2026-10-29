@@ -102,7 +102,12 @@
   font-size: 14px;
 }
 
-/* People: card rows with a check box and a ⋯ menu */
+/* People: card rows with a check box and a ⋯ menu. The columns come by the list's own width, not the window's:
+   on a tablet the sidebar leaves too little room for them */
+.table {
+  container: people-list / inline-size;
+}
+
 .listHead {
   display: none;
 }
@@ -612,35 +617,6 @@ label.pick {
     min-height: 48px;
   }
 
-  .listHead {
-    display: grid;
-    grid-template-columns: 28px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px;
-    gap: 16px;
-    align-items: center;
-    padding: 0 9px 8px 5px;
-    color: var(--mantine-color-dimmed);
-    font-size: 13px;
-  }
-
-  .row {
-    grid-template-columns: 28px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px;
-    gap: 16px;
-  }
-
-  .meta,
-  .sortRow {
-    display: none;
-  }
-
-  .cell {
-    display: block;
-  }
-
-  .acts {
-    grid-row: auto;
-    grid-column: auto;
-  }
-
   .bulk {
     gap: 12px;
     padding: 10px 10px 10px 18px;
@@ -693,5 +669,37 @@ label.pick {
 
   .dialogActions > * {
     min-height: 44px;
+  }
+}
+
+/* Wide enough for the columns: Person, Joined, Invited with */
+@container people-list (min-width: 720px) {
+  .listHead {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1.2fr) 44px;
+    gap: 16px;
+    align-items: center;
+    padding: 0 9px 8px 5px;
+    color: var(--mantine-color-dimmed);
+    font-size: 13px;
+  }
+
+  .row {
+    grid-template-columns: 28px minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1.2fr) 44px;
+    gap: 16px;
+  }
+
+  .meta,
+  .sortRow {
+    display: none;
+  }
+
+  .cell {
+    display: block;
+  }
+
+  .acts {
+    grid-row: auto;
+    grid-column: auto;
   }
 }

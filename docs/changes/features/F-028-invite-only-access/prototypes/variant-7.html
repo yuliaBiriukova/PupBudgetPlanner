@@ -459,7 +459,7 @@ mark { background: var(--tint); color: inherit; border-radius: 3px; padding: 0 1
 .names b { font-weight: 500; }
 @container app (min-width: 768px) {
   .people-view[data-actions='select'] .p-head,
-  .people-view[data-actions='select'] .p-main { grid-template-columns: 28px minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 44px; }
+  .people-view[data-actions='select'] .p-main { grid-template-columns: 28px minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1.2fr) 44px; }
   .people-view[data-actions='select'] .p-head { align-items: center; padding-top: 0; padding-bottom: 0; }
   .people-view[data-actions='select'] .p-main .acts { grid-column: auto; grid-row: auto; }
   .p-head .pick { display: grid; }
@@ -513,6 +513,20 @@ span.pick { cursor: default; }
 @container app (min-width: 768px) {
   .h-row { grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1.4fr) 120px; }
   .h-row .lic, .h-row .name, .h-row .what, .h-row .when { grid-row: auto; grid-column: auto; }
+}
+
+/* The columns come by the list's own width, as in the app: on a tablet the sidebar leaves too little room, so the
+   list keeps the phone's card rows (with the Sort menu) until it is 720 px wide */
+.people-view { container: people-list / inline-size; }
+/* A cell too narrow for its text ends in “…”, as in the app, instead of running into the next column */
+.p-main .cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@container people-list (max-width: 719px) {
+  .people-view[data-actions='select'] .p-head { display: none; }
+  .people-view[data-actions='select'] .p-main { grid-template-columns: 32px minmax(0, 1fr) 44px; gap: 2px 12px; }
+  .people-view[data-actions='select'] .p-main .meta { display: block; grid-column: 2; }
+  .people-view[data-actions='select'] .p-main .cell { display: none; }
+  .people-view[data-actions='select'] .p-main .acts { grid-column: 3; grid-row: 1 / span 2; }
+  .people-view .sort-row { display: flex; }
 }
 </style>
 </head>

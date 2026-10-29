@@ -73,6 +73,9 @@ What is decided so far (rounds 1–3 of the design, see "Design"):
   - **People tab:** a short line on who can sign up, the search field, then the people as card rows: initials,
     name and email, joined, invited with which link ("Before invites" for accounts made while sign-up was open,
     "Admin" for the admin). Blocked people stay in the list with a Blocked tag and the date.
+  - **Columns:** they show once the list is at least 720 px wide (its own width, not the window's); narrower, as on a
+    tablet next to the sidebar, the list keeps the phone's card rows with the meta line and the Sort menu. A cell
+    too narrow for its text ends in "…".
   - **Sorting:** on the desktop the column headers (Person, Joined, Invited with) sort the list; a second click
     turns the order around, and an arrow shows the current one. Names and links start A to Z, Joined starts with
     the newest. The phone has a "Sort: …" menu above the list with the same six orders. The list starts by name.
