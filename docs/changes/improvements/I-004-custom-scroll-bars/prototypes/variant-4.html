@@ -153,11 +153,10 @@ body { display: flex; flex-direction: column; height: 100dvh; background: #d7dad
 .btn-quiet { color: var(--text); }
 .btn-quiet:hover { background: var(--hover); }
 .dlg-form { display: contents; }
-.dlg-foot { display: flex; flex: none; flex-direction: column-reverse; gap: 8px; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid transparent; transition: border-color .15s; }
+/* No line over the buttons: the list's bottom fade says there is more (owner, 2026-10-29) */
+.dlg-foot { display: flex; flex: none; flex-direction: column-reverse; gap: 8px; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); }
 .dlg-foot .btn { width: 100%; min-height: 48px; }
 .dialog:has(.dlg-foot) .dlg-body .sa-vp { padding-bottom: 8px; }
-/* A hairline over the buttons while more of the form is below them */
-.dialog:has(.dlg-body[data-bottom]) .dlg-foot { border-top-color: var(--rule); }
 fieldset.grp { margin: 0; padding: 0; border: 0; min-width: 0; }
 fieldset.grp + fieldset.grp { margin-top: 14px; }
 legend.grp-title { padding: 8px 12px 4px; }
@@ -215,7 +214,7 @@ const DIRECTION = {
     "Dialog and phone sheet: the title and the close button stay put, only the list scrolls; the bar sits inside the rounded card, 12 px from its corners.",
     "The page behind does not move: the list keeps the scroll to itself and Mantine locks the page.",
     "The page itself (its main column) keeps the browser’s own scroll bar (owner’s answer, 2026-10-29).",
-    "A long form (“Dialog with buttons”): Cancel and Save stay pinned at the bottom while the form scrolls between the title and the buttons, as in Material 3; a hairline over the buttons while more of the form is below them. On the phone the buttons are full width, Save on top.",
+    "A long form (“Dialog with buttons”): Cancel and Save stay pinned at the bottom while the form scrolls between the title and the buttons, as in Material 3; no line over them, the list’s bottom fade says there is more. On the phone the buttons are full width, Save on top.",
     "The pointer stays an arrow over the bar and while dragging it, as on Windows, macOS and in the browser: a hand means a link or a button, an open hand dragging the content itself.",
     "Built in the app with Mantine’s ScrollArea (type “scroll”, Modal’s scrollAreaComponent), themed once; the pinned buttons are a footer slot of the shared ResponsiveDialog and BottomSheet. Same look in every browser, Firefox too."
   ],

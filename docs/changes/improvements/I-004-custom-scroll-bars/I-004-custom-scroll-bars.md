@@ -69,7 +69,9 @@ The owner picked variant 2 (the bar shows while scrolling, the edges fade) and a
   for links and buttons, an open hand for dragging the content itself);
 - the page itself (its main column) keeps the browser's own scroll bar;
 - a long form dialog keeps its buttons pinned at the bottom while the form scrolls between the title and the
-  buttons, with a hairline over them while more is below (on the phone full width, Save on top).
+  buttons (on the phone full width, Save on top);
+- no line over the buttons (the owner asked to remove the hairline first shown there): the list's bottom fade
+  already says there is more, and the title has no line either.
 
 [Variant 4 · Final](prototypes/variant-4.html) is variant 2 with a "Dialog with buttons" screen added. Checked:
 design check 0 issues; screenshots at 375 and 1440 px, light and dark, of the dialog scrolled, the dialog with

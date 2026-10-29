@@ -12,8 +12,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   check; screenshots at 375 and 1440 px, light and dark, looked at.
 
 - I-004 round 2: the owner picked variant 2. Built as the final prototype `variant-4.html` with the owner's
-  answers: the page keeps the browser's own bar; a long form dialog keeps Cancel / Save pinned at the bottom; the
-  pointer stays an arrow on the bar (as everywhere). Design check 0 issues; screenshots looked at.
+  answers: the page keeps the browser's own bar; a long form dialog keeps Cancel / Save pinned at the bottom, with
+  no line over them (the bottom fade is enough); the pointer stays an arrow on the bar (as everywhere). Design check 0 issues; screenshots looked at.
 
 **Next**
 - Owner: approve the final prototype for implementation (or comment). Then the build.
