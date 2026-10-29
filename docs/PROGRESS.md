@@ -2,6 +2,27 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29 (8)
+
+**Done**
+- Owner's findings after F-028, planned on one branch `improvement/I-004-I-008-people-page-follow-ups` (the
+  owner's wish; the branch carries five IDs instead of one):
+  - I-004 custom scroll bars, a dialog scrolls inside itself (🎨, Medium);
+  - I-005 pages on the People list, "Select all" picks the current page (🎨, Medium);
+  - I-006 delete used, expired and cancelled invite links, one or many (🎨, Medium);
+  - I-007 remove test accounts and data after tests (docs, High; approved by the request);
+  - I-008 instant response to clicks on check boxes and dialog buttons (High).
+- Owner's question: are the F-028 dialogs the design library's own? They are Mantine components with Pup styles on
+  top, through the shared `ResponsiveDialog`: on desktop a Mantine `Modal` (radius `xl` = 24 px, width 480, padding
+  `lg`, the title in the display font, weight 300, 20 px); on the phone the shared `BottomSheet`, built from
+  Mantine's `Drawer` parts with its own CSS (height of its content up to 90 % of the screen, rounded top, grab
+  handle, own header and body padding, surface color). Mantine's open/close transitions are left at their
+  defaults.
+
+**Next**
+- Owner: confirm the priorities. Then I-007 (docs), I-008 (measure, then root cause for approval), and the
+  prototypes for I-004, I-005 and I-006.
+
 ## 2026-10-29 (7)
 
 **Done**
