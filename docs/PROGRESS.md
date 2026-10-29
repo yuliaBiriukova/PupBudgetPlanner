@@ -11,8 +11,12 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   (overlay bar that fades, edge fades), 3 · Sky rail (hairline rail with an accent thumb). All pass the design
   check; screenshots at 375 and 1440 px, light and dark, looked at.
 
+- I-004 round 2: the owner picked variant 2. Built as the final prototype `variant-4.html` with the owner's
+  answers: the page keeps the browser's own bar; a long form dialog keeps Cancel / Save pinned at the bottom; the
+  pointer stays an arrow on the bar (as everywhere). Design check 0 issues; screenshots looked at.
+
 **Next**
-- Owner: pick a variant (or a mix). Then the final prototype, approval, and the build.
+- Owner: approve the final prototype for implementation (or comment). Then the build.
 
 ## 2026-10-29 (9)
 

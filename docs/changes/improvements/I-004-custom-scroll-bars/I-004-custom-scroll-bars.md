@@ -5,7 +5,7 @@
 | Type | Improvement |
 | Milestone | M2 — Accounts & categories |
 | Priority | Medium |
-| Status | In progress (design round 1, waiting for the owner's choice) |
+| Status | In progress (final prototype, waiting for the owner's approval) |
 | Branch | `improvement/I-004-custom-scroll-bars` (planned on `plan/f028-follow-ups`) |
 | Design | 3 HTML prototypes required (scroll bar style) |
 | Approved | — |
@@ -25,7 +25,7 @@ itself. Found by the owner after F-028, 2026-10-29.
 ## Tasks
 - [x] References: how well-made apps style scroll bars in dialogs and side panels.
 - [ ] 3 prototypes of the scroll bar and a long dialog; owner picks and approves one. (Round 1 built
-      2026-10-29; waiting for the choice.)
+      2026-10-29; the owner picked variant 2; final prototype `variant-4.html` waiting for approval.)
 - [ ] One shared style (theme tokens, no hard-coded colors) applied to `ResponsiveDialog`, `BottomSheet` and the
       other scrolling areas.
 - [ ] Stories: a long dialog and a long sheet.
@@ -63,7 +63,19 @@ Checked: `npm run design:check` on all three (0 issues), and screenshots of the 
 the phone sheet, the dropdown and the short window at 375 and 1440 px, light and dark, with the browser's scroll
 bars on (headless Chromium hides them by default).
 
-Prototypes: `prototypes/`. Chosen variant: —
+### Round 2: final prototype (2026-10-29)
+The owner picked variant 2 (the bar shows while scrolling, the edges fade) and answered:
+- the pointer stays an arrow over the bar and while dragging it, as on Windows, macOS and in the browser (a hand is
+  for links and buttons, an open hand for dragging the content itself);
+- the page itself (its main column) keeps the browser's own scroll bar;
+- a long form dialog keeps its buttons pinned at the bottom while the form scrolls between the title and the
+  buttons, with a hairline over them while more is below (on the phone full width, Save on top).
+
+[Variant 4 · Final](prototypes/variant-4.html) is variant 2 with a "Dialog with buttons" screen added. Checked:
+design check 0 issues; screenshots at 375 and 1440 px, light and dark, of the dialog scrolled, the dialog with
+buttons and the page.
+
+Prototypes: `prototypes/`. Chosen variant: 2, built as the final prototype `variant-4.html` (not approved yet).
 
 ## Tests
 - Unit: —
