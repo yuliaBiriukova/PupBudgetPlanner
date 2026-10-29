@@ -2,6 +2,23 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-29 (9)
+
+**Done**
+- I-007, approved by the owner's request (docs only): a "Clean up test data" rule in `CLAUDE.md`. Accounts and
+  data made for testing (by hand, through the API, or by E2E tests against the shared `dev` database) are removed
+  in the same session through the People page or `POST /api/admin/people/delete`; test invite links are cancelled
+  until I-006 lets us delete them. The owner's own account and data are never touched. The PROGRESS entry says
+  what was removed. Also a definition-of-done item and a PR template checklist item.
+- I-008 closed without changes: the owner tested on production and clicks respond fine there; the delay was seen
+  on localhost (development build).
+- No accounts or data were created for testing in this change.
+
+**Next**
+- Owner: review and merge the I-007 PR.
+- Optional follow-up (needs its own approval): E2E tests delete the accounts and invite links they create.
+- Then I-004, I-005, I-006 prototypes, or F-014 (accounts and balances).
+
 ## 2026-10-29 (8)
 
 **Done**

@@ -41,6 +41,18 @@ This file tells Claude (and any human contributor) how we work on this project.
   folders, description files with priorities, backlog rows, a PROGRESS entry. Implement none of them there,
   not even a small one; each is built later on its own branch, after the owner's approval. Being in the
   backlog is not approval to build.
+- **Clean up test data.** Any account or data Claude creates for testing is removed when the testing is done, in
+  the same session. This covers accounts and data made by hand in the browser, through the API, and by E2E tests
+  run against a shared database: locally that is the `dev` database on Neon (CI's E2E job uses its own throwaway
+  database).
+  - **Recognisable:** test accounts use `@example.com` emails (E2E: `e2e-<tag>-…@example.com` and the tests' admin
+    `e2e-admin@example.com`), and invite links made for tests have a note that says so (E2E: `E2E`).
+  - **How to remove:** delete the accounts on the People page or through the admin API
+    (`POST /api/admin/people/delete`, at most 200 at a time); deleting an account deletes its data. Cancel test
+    invite links on the People page's "Invite links" tab (until I-006 lets us delete them). A test that cleans up after itself is best.
+  - **Never touch** the owner's own account and data, or any account that isn't clearly a test one. Unsure → ask.
+  - **Record it:** the change's PROGRESS entry says what was created for testing and that it was removed.
+  - Why: after F-028 the owner had to clean the `dev` database by hand (I-007).
 - **Log progress.** After finishing work, add a dated entry to `docs/PROGRESS.md`.
 - **Record decisions.** Any significant technical decision gets a short ADR in `docs/decisions/`.
 - **MVP first.** Don't build post-MVP items early; note ideas in the backlog instead.
@@ -159,6 +171,7 @@ This file tells Claude (and any human contributor) how we work on this project.
 - [ ] New UI components have Storybook stories.
 - [ ] Changed screens checked in Playwright screenshots (phone and desktop, light and dark) and look right.
 - [ ] CI is green.
+- [ ] Accounts and data created for testing are removed (owner's own untouched); the PROGRESS entry says so.
 - [ ] Docs show the change as `Done` in the PR itself (see "Finishing a change").
 
 Integration tests (Testcontainers) are planned after the MVP — see ADR 0005.
