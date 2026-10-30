@@ -222,7 +222,8 @@ Chosen variant: 10 (final prototype)
   their styles with a ghost card each, archived accounts folded under the list with Restore; the form with the
   card preview and four styles on top, the searchable currency list, sources and banks as pills, new ones typed in
   with suggested banks. After adding, the card gets its ring and its currency's totals count up. Money is shown as
-  `1 250.00 ₴`, `$1 240.00`, `640.00 PLN` (shared `formatMoney`), amounts are read with `.` or `,`.
+  `1 250 ₴`, `$1 240`, `640 PLN` (shared `formatMoney`), whole amounts (see the owner's review below); amounts are
+  read with `.` or `,`.
 - **Small choices made while building** (within the approved design):
   - Archive in the edit form turns the same dialog into the question, as the prototype does, instead of closing one
     dialog and opening another.
@@ -237,6 +238,11 @@ Chosen variant: 10 (final prototype)
 - **Owner's review, 2026-10-30:** the suggested banks are A-Bank, Monobank, Oschadbank, OTP Bank, PrivatBank, PUMB,
   Raiffeisen Bank, Ukrgasbank and Ukrsibbank (Credit Agricole, Izibank, Sense Bank and ProCredit Bank removed). They
   are a fixed list in the app; I-013 takes the banks from the NBU once its API is in (F-017).
+- **Owner's review, 2026-10-30: no cents.** Amounts are whole units everywhere in the app (the approved prototype
+  showed cents): `48 211 ₴`, `$1 240`, `−4 312 ₴`. The owner's answers: typed cents are rounded when saved (the field
+  shows the whole amount once it loses the focus, and the API rounds too), for the whole app, .50 away from zero.
+  Opening balances saved with cents before are rounded by the `RoundOpeningBalances` migration. Recorded in
+  [ADR 0018](../../../decisions/0018-whole-amounts.md) and DESIGN_RULES.
 
 ## Tests
 
@@ -269,4 +275,4 @@ Chosen variant: 10 (final prototype)
 - The currency list: NBU's list of currencies with official rates (about 40), kept in the app, so F-014 doesn't
   wait for F-017.
 - Amounts in other currencies: `$`, `€`, `£` before the number, `₴` after it, and the code after the number for
-  the rest (`640.00 PLN`).
+  the rest (`640 PLN`). Whole amounts, no cents (owner, 2026-10-30; ADR 0018).

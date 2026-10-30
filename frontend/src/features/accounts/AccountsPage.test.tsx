@@ -47,15 +47,15 @@ describe('the Accounts page', () => {
     renderApp('/accounts');
 
     const totals = await screen.findByRole('group', { name: 'Totals' }, LOADED);
-    expect(totals).toHaveTextContent('310 132.20 ₴');
-    expect(totals).toHaveTextContent('$1 740.00');
+    expect(totals).toHaveTextContent('310 133 ₴');
+    expect(totals).toHaveTextContent('$1 740');
     const dollars = screen.getByRole('region', { name: 'US dollar' });
     expect(within(dollars).getByText('USD, 2 accounts')).toBeInTheDocument();
     expect(within(dollars).getByRole('button', { name: /Dollars at home/ })).toHaveTextContent(
       'Cash',
     );
     expect(within(dollars).getByRole('button', { name: 'Add USD account' })).toBeInTheDocument();
-    expect(screen.getByText('−4 312.40 ₴')).toBeInTheDocument();
+    expect(screen.getByText('−4 312 ₴')).toBeInTheDocument();
   });
 
   it('groups by source when asked, and remembers it', async () => {
@@ -74,13 +74,13 @@ describe('the Accounts page', () => {
       source: 'Bank',
       bankName: 'Monobank',
       cardStyle: 'Solid',
-      balance: 21500.5,
-      openingBalance: 21500.5,
+      balance: 21501,
+      openingBalance: 21501,
     });
     const sent = accountsServer(EMPTY, {
       ...EMPTY,
       accounts: [wallet],
-      totals: [{ currency: 'UAH', accounts: 1, total: 21500.5 }],
+      totals: [{ currency: 'UAH', accounts: 1, total: 21501 }],
       banks: [{ id: 'b-mono', name: 'Monobank' }],
     });
     renderApp('/accounts');
@@ -105,13 +105,14 @@ describe('the Accounts page', () => {
           currency: 'UAH',
           source: 'Bank',
           bankName: 'Monobank',
-          openingBalance: 21500.5,
+          openingBalance: 21501,
           cardStyle: 'Solid',
         }) as unknown,
       },
     ]);
     expect(await screen.findByRole('region', { name: 'Hryvnia' })).toBeInTheDocument();
-  });
+    // The longest test here (about 2 s on its own): a busy machine needs more than the default 5 s
+  }, 10_000);
 
   it('says what is missing under the fields and sends nothing', async () => {
     const sent = accountsServer();
@@ -121,11 +122,11 @@ describe('the Accounts page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Add account' }));
     const form = await screen.findByRole('dialog', { name: 'New account' });
     await userEvent.clear(within(form).getByLabelText('Opening balance'));
-    await userEvent.type(within(form).getByLabelText('Opening balance'), '12.345');
+    await userEvent.type(within(form).getByLabelText('Opening balance'), '1,240.5.0');
     await userEvent.click(within(form).getByRole('button', { name: 'Add account' }));
 
     expect(within(form).getByText('Give the account a name.')).toBeInTheDocument();
-    expect(within(form).getByText('Enter an amount like 1240.50 or −300.')).toBeInTheDocument();
+    expect(within(form).getByText('Enter an amount like 1240 or −300.')).toBeInTheDocument();
     await waitFor(() => {
       expect(within(form).getByLabelText('Name')).toHaveFocus();
     });
@@ -140,17 +141,17 @@ describe('the Accounts page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Add account' }));
     const form = await screen.findByRole('dialog', { name: 'New account' });
     const opening = within(form).getByLabelText('Opening balance');
-    expect(opening).toHaveValue('0.00');
+    expect(opening).toHaveValue('0');
 
     await userEvent.click(opening);
     expect(opening).toHaveValue('');
     await userEvent.type(opening, '450');
     expect(opening).toHaveValue('450');
 
-    // Left empty, it shows 0.00 again
+    // Left empty, it shows 0 again
     await userEvent.clear(opening);
     await userEvent.click(within(form).getByLabelText('Name'));
-    expect(opening).toHaveValue('0.00');
+    expect(opening).toHaveValue('0');
   });
 
   it('opens the form from a group with its currency picked', async () => {
@@ -188,13 +189,13 @@ describe('the Accounts page', () => {
     const form = await screen.findByRole('dialog', { name: 'Edit Mono dollars' });
     await userEvent.click(within(form).getByRole('button', { name: 'Archive' }));
     const ask = await screen.findByRole('dialog', { name: 'Archive Mono dollars?' });
-    expect(ask).toHaveTextContent('It still has $1 240.00.');
+    expect(ask).toHaveTextContent('It still has $1 240.');
     await userEvent.click(within(ask).getByRole('button', { name: 'Archive' }));
     expect(await screen.findByText('Mono dollars archived')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: /Archived/ }));
     expect(screen.getByText('Old Privat dollars').closest('li')).toHaveTextContent(
-      /PrivatBank, archived 20 Sept? 2026, \$12\.40 left/,
+      /PrivatBank, archived 20 Sept? 2026, \$12 left/,
     );
     await userEvent.click(screen.getByRole('button', { name: 'Restore Old Privat dollars' }));
     expect(await screen.findByText('Old Privat dollars is back')).toBeInTheDocument();

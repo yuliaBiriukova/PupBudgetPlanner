@@ -1,12 +1,13 @@
 using FluentValidation;
+using PupBudgetPlanner.Domain;
 using PupBudgetPlanner.Domain.Accounts;
 
 namespace PupBudgetPlanner.Application.Accounts;
 
 public sealed class SaveAccountRequestValidator : AbstractValidator<SaveAccountRequest>
 {
-    /// <summary>Money is <c>numeric(18,2)</c>: 16 digits before the point.</summary>
-    public const decimal MaxAmount = 9_999_999_999_999_999.99m;
+    /// <summary>Money is <c>numeric(18,2)</c>: 16 digits before the point, in whole units (ADR 0018).</summary>
+    public const decimal MaxAmount = 9_999_999_999_999_999m;
 
     public SaveAccountRequestValidator()
     {
@@ -33,8 +34,9 @@ public sealed class SaveAccountRequestValidator : AbstractValidator<SaveAccountR
                 .WithMessage($"Use at most {Bank.NameMaxLength} characters."));
 
         RuleFor(r => r.OpeningBalance)
-            .Must(amount => decimal.Round(amount, 2) == amount && Math.Abs(amount) <= MaxAmount)
-            .WithMessage("Enter an amount like 1240.50 or −300.");
+            // Cents are rounded when the account is saved (Money.Whole), so any amount in range is fine
+            .Must(amount => Math.Abs(Money.Whole(amount)) <= MaxAmount)
+            .WithMessage("Enter an amount like 1240 or −300.");
 
         RuleFor(r => r.CardStyle).IsInEnum();
     }

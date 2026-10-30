@@ -23,13 +23,13 @@ const bank = (name: string) =>
 const money = (balance: number) => ({ balance, openingBalance: balance });
 
 export const ACCOUNTS: Account[] = [
-  account('mono', 'Mono black', { ...bank('Monobank'), ...money(48210.5) }),
-  account('mono-credit', 'Mono credit', { ...bank('Monobank'), ...money(-4312.4) }),
+  account('mono', 'Mono black', { ...bank('Monobank'), ...money(48211) }),
+  account('mono-credit', 'Mono credit', { ...bank('Monobank'), ...money(-4312) }),
   account('mono-usd', 'Mono dollars', { ...bank('Monobank'), currency: 'USD', ...money(1240) }),
   account('privat', 'Privat card', {
     ...bank('PrivatBank'),
     cardStyle: 'Tinted',
-    ...money(12784.1),
+    ...money(12784),
   }),
   account('privat-eur', 'Privat euro', {
     ...bank('PrivatBank'),
@@ -59,7 +59,7 @@ export const ARCHIVED: Account[] = [
     ...bank('PrivatBank'),
     cardStyle: 'Plain',
     currency: 'USD',
-    ...money(12.4),
+    ...money(12),
     archivedAt: '2026-09-20T10:00:00Z',
   }),
 ];
@@ -112,7 +112,7 @@ export const OVERVIEW: AccountsOverview = {
   accounts: ACCOUNTS,
   archived: ARCHIVED,
   totals: [
-    { currency: 'UAH', accounts: 5, total: 310132.2 },
+    { currency: 'UAH', accounts: 5, total: 310133 },
     { currency: 'USD', accounts: 2, total: 1740 },
     { currency: 'EUR', accounts: 1, total: 300 },
     { currency: 'PLN', accounts: 1, total: 640 },

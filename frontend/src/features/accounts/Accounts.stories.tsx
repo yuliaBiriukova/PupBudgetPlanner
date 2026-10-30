@@ -47,7 +47,7 @@ export const ByCurrencyPhone: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(await canvas.findByRole('group', { name: 'Totals' })).toHaveTextContent(
-      '310 132.20 ₴',
+      '310 133 ₴',
     );
   },
 };
@@ -80,7 +80,7 @@ export const ArchivedOpen: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByRole('button', { name: /Archived/ }));
     await expect(canvas.getByText('Old Privat dollars').closest('li')).toHaveTextContent(
-      '$12.40 left',
+      '$12 left',
     );
   },
 };
@@ -156,9 +156,7 @@ export const NewWithMistakes: Story = {
     await userEvent.click(within(form).getByRole('button', { name: 'Add account' }));
     await expect(within(form).getByText('Give the account a name.')).toBeInTheDocument();
     await expect(within(form).getByText('Pick your bank or type its name.')).toBeInTheDocument();
-    await expect(
-      within(form).getByText('Enter an amount like 1240.50 or −300.'),
-    ).toBeInTheDocument();
+    await expect(within(form).getByText('Enter an amount like 1240 or −300.')).toBeInTheDocument();
   },
 };
 
@@ -187,6 +185,6 @@ export const ArchiveWithMoney: Story = {
     await userEvent.click(within(form).getByRole('button', { name: 'Archive' }));
     await expect(
       await body.findByRole('dialog', { name: 'Archive Mono dollars?' }),
-    ).toHaveTextContent('It still has $1 240.00.');
+    ).toHaveTextContent('It still has $1 240.');
   },
 };

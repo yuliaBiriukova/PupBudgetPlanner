@@ -10,7 +10,7 @@ const meta = {
   args: {
     name: 'Mono black',
     meta: 'Monobank',
-    balance: 48210.5,
+    balance: 48211,
     currency: 'UAH',
     cardStyle: 'Solid',
     onClick: fn(),
@@ -24,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 export const Solid: Story = {};
 
 /** A debt: a true minus, in red that reads on the card. */
-export const SolidDebt: Story = { args: { name: 'Mono credit', balance: -4312.4 } };
+export const SolidDebt: Story = { args: { name: 'Mono credit', balance: -4312 } };
 
 export const SolidDark: Story = { globals: { colorScheme: 'dark' } };
 
@@ -37,7 +37,7 @@ function AllStyles() {
           key={style}
           name={`${style} card`}
           meta="PrivatBank"
-          balance={12784.1}
+          balance={12784}
           currency="UAH"
           cardStyle={style}
         />,

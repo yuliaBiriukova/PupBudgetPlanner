@@ -119,7 +119,9 @@ erDiagram
 ```
 
 - `Amount` is always positive; `Type` gives the direction.
-- Money: `numeric(18,2)`; rates: `numeric(18,6)`.
+- Money: `numeric(18,2)`; rates: `numeric(18,6)`. Amounts people enter are whole units, rounded half away from zero
+  (`Money.Whole`); amounts worked out from rates are kept as they are and rounded when shown
+  ([ADR 0018](decisions/0018-whole-amounts.md)).
 - Categories: every account gets its own copy of the default set (`DefaultCategories`) in the transaction that
   creates it; group names are unique per person, category names per group
   ([ADR 0015](decisions/0015-default-categories-seeding.md)).

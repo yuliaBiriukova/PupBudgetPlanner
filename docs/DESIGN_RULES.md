@@ -30,6 +30,8 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
   I-004)
 - Names of things a person picks for looks (card styles) are true in both themes: named by the look, not by a
   color that turns around in dark mode ("Solid", not "Black"). (2026-10-30, F-014)
+- Amounts are whole, no cents, everywhere in the app (`1 250 ₴`, `$1 240`, `−4 312 ₴`): typed cents are rounded when
+  saved, .50 away from zero ([ADR 0018](decisions/0018-whole-amounts.md)). (2026-10-30, owner, F-014)
 - Menu items and buttons don't end in "…", even when they open a dialog: few people know the convention and it
   reads like a typo. (2026-10-29)
 
@@ -79,11 +81,12 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 
 ## 5. Money, numbers and dates
 
-- Always show the currency next to an amount (`1 250.00 ₴`, `$100.00`, `€50.00`).
+- Always show the currency next to an amount (`1 250 ₴`, `$100`, `€50`); amounts are whole (custom rule, ADR 0018).
 - Amounts are right-aligned in lists and tables and use tabular numbers (`font-variant-numeric: tabular-nums`).
 - **Semantic colors:** income — green, expense — red, transfer — neutral/blue. Color is never the only
   signal: also use a sign (+ / −) or an icon.
-- Amount inputs open the numeric keyboard on mobile (`inputMode="decimal"`), accept both `.` and `,`.
+- Amount inputs open the numeric keyboard on mobile (`inputMode="decimal"`), accept both `.` and `,`; cents typed
+  are rounded, and the field shows the whole amount once it loses the focus.
 - Dates: `27 Oct 2026` in lists, `Oct 2026` for months. Week starts on Monday.
 - Default transaction date is today; the last used account is preselected.
 

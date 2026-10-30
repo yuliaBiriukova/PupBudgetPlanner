@@ -63,9 +63,11 @@ public sealed class AccountValidatorTests
     [InlineData("1240.50", true)]
     [InlineData("-300", true)]
     [InlineData("0", true)]
-    [InlineData("1240.505", false)]
+    [InlineData("1240.505", true)]
+    [InlineData("9999999999999999.49", true)]
+    [InlineData("9999999999999999.5", false)]
     [InlineData("10000000000000000", false)]
-    public void The_opening_balance_has_cents_at_most(string amount, bool valid)
+    public void Any_opening_balance_in_range_is_fine_cents_are_rounded_when_saved(string amount, bool valid)
     {
         var request = Valid() with { OpeningBalance = decimal.Parse(amount, System.Globalization.CultureInfo.InvariantCulture) };
 

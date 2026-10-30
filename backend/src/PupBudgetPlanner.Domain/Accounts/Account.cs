@@ -40,7 +40,10 @@ public sealed class Account
     /// <summary>Set for <see cref="SourceKind.Bank"/>, empty otherwise.</summary>
     public Guid? BankId { get; private set; }
 
-    /// <summary>What was on it on <see cref="OpeningDate"/>; below zero for a credit card debt.</summary>
+    /// <summary>
+    /// What was on it on <see cref="OpeningDate"/>, in whole units (<see cref="Money"/>); below zero for a credit
+    /// card debt.
+    /// </summary>
     public decimal OpeningBalance { get; private set; }
 
     public DateOnly OpeningDate { get; private set; }
@@ -61,7 +64,10 @@ public sealed class Account
         return account;
     }
 
-    /// <summary>Takes the form's values. The source's own source or bank must match its kind.</summary>
+    /// <summary>
+    /// Takes the form's values, the opening balance rounded to a whole unit. The source's own source or bank must
+    /// match its kind.
+    /// </summary>
     public void Update(AccountDetails details)
     {
         if ((details.Source == SourceKind.Own) != details.SourceId.HasValue ||
@@ -81,7 +87,7 @@ public sealed class Account
         Source = details.Source;
         SourceId = details.SourceId;
         BankId = details.BankId;
-        OpeningBalance = details.OpeningBalance;
+        OpeningBalance = Money.Whole(details.OpeningBalance);
         OpeningDate = details.OpeningDate;
         CardStyle = details.CardStyle;
     }

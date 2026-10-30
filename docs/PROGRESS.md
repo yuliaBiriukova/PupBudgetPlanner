@@ -2,6 +2,32 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (8)
+
+**Done**
+- F-014, owner's review: **no cents**. Amounts are whole units everywhere in the app (`48 211 ₴`, `$1 240`,
+  `−4 312 ₴`). The owner's answers: typed cents are rounded when saved, for the whole app, .50 away from zero.
+  - API: `Money.Whole` (Domain) rounds the opening balance when an account is saved; the validator takes any amount
+    in range. Migration `RoundOpeningBalances` rounds balances saved with cents before (test databases only).
+  - App: `formatMoney` shows whole amounts; amount fields read cents and show the whole amount once they lose the
+    focus (`1240,50` → `1241`); the field starts at `0`.
+  - Recorded: ADR 0018, a DESIGN_RULES custom rule and §5, ARCHITECTURE, the F-014 description.
+- The longest accounts page test ("adds the first account", about 2 s on its own) gets a 10 s limit; a busy
+  machine had pushed it past 5 s.
+- Checked:
+  - backend build and tests (201, 6 new);
+  - lint, format, typecheck, build, Storybook build;
+  - unit tests (110), with only the older invite page and People "200 people" tests past their 5 s limit, as before;
+  - all 25 stories headless (steps, axe, screenshots);
+  - the field rounding watched in the Browser pane (Storybook: `1240,50` → `1241`);
+  - E2E 40 passed, 2 skipped;
+  - the design check of the real page with amounts sent with cents (stored and shown whole), with screenshots at
+    375 and 1440 px, light and dark, looked at.
+- Noted: with Storybook's dev server running as well, a full unit run had 7 tests past 5 s; with it stopped, only
+  the usual 2.
+- Test data: one `e2e-design-…@example.com` person with sample accounts for the design check, deleted through the
+  admin API afterwards; only the owner's account and the tests' admin are left in `dev`.
+
 ## 2026-10-30 (7)
 
 **Done**

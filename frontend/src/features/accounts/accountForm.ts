@@ -120,15 +120,20 @@ export function openingAmount(text: string): number | null {
 
 /**
  * The opening balance field when it takes the focus: a zero is cleared, so the amount is typed straight in without
- * deleting `0.00` first (owner, 2026-10-30). Anything else stays as it is.
+ * deleting `0` first (owner, 2026-10-30). Anything else stays as it is.
  */
 export function amountOnFocus(text: string): string {
-  return parseAmount(text) === 0 ? '' : text;
+  return /^[-−]?0+([.,]0*)?$/.test(text.trim()) ? '' : text;
 }
 
-/** The field when it loses the focus: left empty, it shows `0.00` again. */
+/**
+ * The field when it loses the focus: left empty, it shows `0` again; an amount with cents shows the whole amount it
+ * is saved as (`1240.50` → `1241`). Something that isn't an amount stays, for its mistake to show.
+ */
 export function amountOnBlur(text: string): string {
-  return text.trim() === '' ? amountText(0) : text;
+  if (text.trim() === '') return amountText(0);
+  const amount = parseAmount(text);
+  return amount === null ? text : amountText(amount);
 }
 
 export type FormErrors = Partial<

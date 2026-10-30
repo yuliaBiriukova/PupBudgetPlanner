@@ -35,6 +35,20 @@ public sealed class AccountTests
         account.IsArchived.Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData("1240.50", "1241")]
+    [InlineData("1240.49", "1240")]
+    [InlineData("-4312.50", "-4313")]
+    [InlineData("-0.40", "0")]
+    public void The_opening_balance_is_kept_in_whole_units_half_away_from_zero(string typed, string kept)
+    {
+        var culture = System.Globalization.CultureInfo.InvariantCulture;
+
+        var account = Account.Create(Guid.CreateVersion7(), Details(opening: decimal.Parse(typed, culture)), Now);
+
+        account.OpeningBalance.Should().Be(decimal.Parse(kept, culture));
+    }
+
     [Fact]
     public void Cash_has_neither_a_source_nor_a_bank()
     {

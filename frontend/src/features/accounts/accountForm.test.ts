@@ -23,7 +23,7 @@ describe('the account form', () => {
       source: 'Bank',
       bank: 'Monobank',
       newBank: null,
-      openingBalance: '0.00',
+      openingBalance: '0',
       openingDate: TODAY,
       cardStyle: 'Solid',
       styleSet: false,
@@ -82,7 +82,7 @@ describe('the account form', () => {
       source: 'Bank',
       sourceName: null,
       bankName: 'Monobank',
-      openingBalance: -1200.5,
+      openingBalance: -1201,
       openingDate: TODAY,
       cardStyle: 'Solid',
     });
@@ -99,10 +99,13 @@ describe('the account form', () => {
 
   it('clears a zero opening balance on focus and puts it back when left empty', () => {
     expect(amountOnFocus('0.00')).toBe('');
+    expect(amountOnFocus('0.4')).toBe('0.4');
     expect(amountOnFocus('0')).toBe('');
     expect(amountOnFocus('1240.50')).toBe('1240.50');
     expect(amountOnFocus('1,2.3')).toBe('1,2.3');
-    expect(amountOnBlur('  ')).toBe('0.00');
+    expect(amountOnBlur('  ')).toBe('0');
+    expect(amountOnBlur('1240.50')).toBe('1241');
+    expect(amountOnBlur('1,2.3')).toBe('1,2.3');
     expect(amountOnBlur('450')).toBe('450');
   });
 
@@ -114,10 +117,10 @@ describe('the account form', () => {
   });
 
   it('shows the balance the card will have', () => {
-    // Opened with 21 500, now 48 210.50: raising the opening balance by 1 000 raises the balance as much
-    const mono = account('mono', 'Mono black', { openingBalance: 21500, balance: 48210.5 });
+    // Opened with 21 500, now 48 211: raising the opening balance by 1 000 raises the balance as much
+    const mono = account('mono', 'Mono black', { openingBalance: 21500, balance: 48211 });
 
-    expect(previewBalance({ ...formFor(mono), openingBalance: '22500' }, mono)).toBe(49210.5);
+    expect(previewBalance({ ...formFor(mono), openingBalance: '22500' }, mono)).toBe(49211);
     expect(previewBalance({ ...blankForm(OVERVIEW, {}, TODAY), openingBalance: '450' })).toBe(450);
   });
 

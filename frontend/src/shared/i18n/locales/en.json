@@ -333,7 +333,7 @@
       "tooLong": "Use at most {{max}} characters.",
       "newSource": "Name the new source.",
       "bank": "Pick your bank or type its name.",
-      "amount": "Enter an amount like 1240.50 or −300.",
+      "amount": "Enter an amount like 1240 or −300.",
       "date": "Pick the opening date."
     },
     "picker": {
