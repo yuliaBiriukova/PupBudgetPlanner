@@ -2,6 +2,39 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (5)
+
+**Done**
+- F-014 Accounts and balances built on `feature/F-014-accounts`, as approved (final prototype `variant-10.html`,
+  without the "In total, in UAH" line, which comes with F-017):
+  - backend: accounts, the person's own sources and banks, any NBU currency, card styles, archive and restore;
+    balances and totals per currency from `BalanceSheet`; `/api/accounts`; migration `AddAccounts`;
+  - frontend: the Accounts page with the Currency / Source switch, "In total" per currency, cards in four styles
+    with a ghost card per group, archived accounts with Restore, and the account form (card preview with the
+    styles, searchable currency list, sources and banks as pills, typed ones with suggestions).
+  - Small choices within the design, listed in the description: Archive turns the edit dialog into the question
+    (no second dialog); with no banks yet the bank's name field shows right away; "Add account" waits for the
+    accounts to load; Escape in the currency list closes only the list.
+- Checked: backend build and tests (195), frontend lint, typecheck, build, Storybook build, unit tests (104: 19
+  for the page and form, 17 for money), E2E 40 passed and 2 skipped (1 new test, desktop and phone), the design
+  check of the real page (no issues of its own; the sidebar's resize handle overlapping the nav by 4 px shows on
+  every page, from the app shell), screenshots at 375 and 1440 px, light and dark, looked at, and the form, currency
+  list, archive and restore tried in the browser.
+- Noted, not changed: on this machine, with the API and Vite running, two existing unit tests (People "picks at most
+  200 people", invite page "creates the account with the link") sometimes pass the 5 s limit in a full run; both
+  pass on their own, and the second also fails without F-014's tests.
+- Test data: two people made for checking by hand (`e2e-manual-…` and `e2e-design-…@example.com`, with their
+  accounts) and their two invite links (used). The E2E clean-up deleted both people with their data; afterwards the
+  `dev` database had only the owner's account and the tests' admin, and no waiting test links.
+
+**Decisions**
+- ADR 0017: Cash and Bank are built in (named by the app), own sources and banks are personal rows found by name,
+  currencies are ISO codes listed once in the Domain, balances are worked out, never stored.
+
+**Next**
+- Owner: review the F-014 PR.
+- Then F-015 (categories view) or F-017 (NBU rates, with the "In total, in UAH" line).
+
 ## 2026-10-30 (4)
 
 **Done**

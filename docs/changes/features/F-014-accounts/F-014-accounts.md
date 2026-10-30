@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M2 — Accounts & categories |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-014-accounts` |
 | Design | 3 HTML prototypes required |
 | Approved | 2026-10-30, the description and the final prototype (variant 10), without the total in the report currency (moved to F-017) |
@@ -15,32 +15,32 @@ See where the money is: every bank account and cash, in its own currency.
 
 ## Acceptance criteria
 
-- [ ] Create, edit and archive accounts: name, source (and the bank, when the source is Bank), currency, opening
+- [x] Create, edit and archive accounts: name, source (and the bank, when the source is Bank), currency, opening
       balance, opening date
-- [ ] **Sources are personal** (owner, 2026-10-29): everyone starts with **Cash** and **Bank** and can add their own
+- [x] **Sources are personal** (owner, 2026-10-29): everyone starts with **Cash** and **Bank** and can add their own
       (e.g. "Deposit", "Crypto wallet") in the account form. Only Bank has sub-sources, the banks.
-- [ ] **Banks are personal:** in the account form you pick one of your banks or type a new name, which is kept for
+- [x] **Banks are personal:** in the account form you pick one of your banks or type a new name, which is kept for
       your next account; common Ukrainian banks are suggested while typing. One person's banks are not another's.
-- [ ] **Any currency NBU publishes a rate for**, plus UAH: a searchable picker with your own currencies first
+- [x] **Any currency NBU publishes a rate for**, plus UAH: a searchable picker with your own currencies first
       (owner, 2026-10-29)
-- [ ] The list groups accounts **by currency or by source**, with a switch; the choice is remembered. Every group
+- [x] The list groups accounts **by currency or by source**, with a switch; the choice is remembered. Every group
       has its own add button that opens the form with that currency or source already picked.
-- [ ] Each account's current balance and a total per currency
-- [ ] "In total" on top of the list shows the total of each currency. The total of all accounts in the report
+- [x] Each account's current balance and a total per currency
+- [x] "In total" on top of the list shows the total of each currency. The total of all accounts in the report
       currency at NBU rates (the "In total, in UAH" line of the final prototype) is built in F-017 (owner, 2026-10-30)
-- [ ] Each account has a **card style**: Solid (charcoal in light mode, light grey in dark mode), Tinted, Envelope or
+- [x] Each account has a **card style**: Solid (charcoal in light mode, light grey in dark mode), Tinted, Envelope or
       Plain, picked in the form under a preview of the card. The names fit both themes. A new account takes its
       source's style (Bank solid, Cash envelope, own sources plain) until one is picked (owner, 2026-10-30)
-- [ ] Archived accounts are hidden from selection and the totals but keep their history, and can be restored. The
+- [x] Archived accounts are hidden from selection and the totals but keep their history, and can be restored. The
       Archived list shows the balance, muted, only when it is not zero (owner, 2026-10-29)
 
 ## Tasks
 
 - [x] 3 HTML prototypes (three rounds; final prototype `variant-10.html`, approved 2026-10-30)
-- [ ] Domain + API
-- [ ] Balance calculation
-- [ ] UI
-- [ ] Storybook stories
+- [x] Domain + API (accounts, own sources, banks; ADR 0017)
+- [x] Balance calculation (`BalanceSheet`: opening balance plus movements, totals per currency)
+- [x] UI (the Accounts page and the account form)
+- [x] Storybook stories
 
 ## Design
 
@@ -209,13 +209,44 @@ build"). F-014 is built first and without the "In total, in UAH" line and its NB
 
 Chosen variant: 10 (final prototype)
 
+## Build (2026-10-30)
+
+- **Backend:** `Account`, `AccountSource` and `Bank` (Domain), the currency list `Currencies.All`, `CardStyle` with
+  each source's default, and `BalanceSheet` (pure: balances and totals per currency). `GET /api/accounts` returns
+  the page (accounts, archived ones, totals, own sources, banks, currencies); `POST` adds, `PUT /{id}` saves,
+  `POST /{id}/archive` and `/{id}/restore`. The form sends the own source and the bank by name; the API finds
+  yours, ignoring case, or adds it. Migration `AddAccounts`. Decisions in
+  [ADR 0017](../../../decisions/0017-accounts-sources-banks.md).
+- **Frontend:** the Accounts page (`features/accounts`) as in the final prototype, without the "In total, in UAH"
+  line (F-017): the Currency / Source switch (remembered in the browser), "In total" per currency, groups of cards in
+  their styles with a ghost card each, archived accounts folded under the list with Restore; the form with the
+  card preview and four styles on top, the searchable currency list, sources and banks as pills, new ones typed in
+  with suggested banks. After adding, the card gets its ring and its currency's totals count up. Money is shown as
+  `1 250.00 ₴`, `$1 240.00`, `640.00 PLN` (shared `formatMoney`), amounts are read with `.` or `,`.
+- **Small choices made while building** (within the approved design):
+  - Archive in the edit form turns the same dialog into the question, as the prototype does, instead of closing one
+    dialog and opening another.
+  - Someone with no banks yet sees the bank's name field (with suggestions) right away, instead of an empty row
+    with only "Another bank".
+  - "Add account" waits until the accounts are loaded: the form needs your banks and sources.
+  - Escape in the currency list closes the list, not the form.
+
 ## Tests
 
-- Unit: Balance calculation, validators.
-- E2E (Playwright): Create accounts and see balances and total.
+- Unit (backend): `Account` rules, `BalanceSheet` (debts, archived accounts left out, currency order), the request
+  validator, the controller, and the model (cascade with the person, unique names, text enums).
+- Unit (frontend): money formatting and reading, the form (defaults, style following the source, mistakes, the
+  request), the groups, and the page with a fake API (totals, grouping, adding, mistakes, the currency search,
+  archive and restore, couldn't load).
+- E2E (Playwright, desktop and phone): a new person adds a bank account and cash in dollars, sees the balances and
+  totals by currency and by source, and archives one.
+- Storybook: the page (both groupings, first visit, loading, couldn't load, archived, the form and its states, edit,
+  archive) and the card styles.
 
 ## Notes
 
+- **Pickers:** there are no account pickers before F-018; the API keeps archived accounts apart (`archived`), so
+  F-018's pickers offer only the accounts in use.
 - **Total:** the total of all accounts in the report currency needs NBU rates. On 2026-10-30 the owner asked for
   it, then chose to build F-014 first and the total with F-017. F-014 shows the totals per currency.
 
