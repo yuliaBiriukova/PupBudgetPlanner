@@ -291,7 +291,9 @@
       "left": "{{amount}} left",
       "restore": "Restore",
       "restoreLabel": "Restore {{name}}",
-      "restored": "{{name}} is back"
+      "restored": "{{name}} is back",
+      "delete": "Delete",
+      "deleteLabel": "Delete {{name}}"
     },
     "form": {
       "newTitle": "New account",
@@ -324,9 +326,16 @@
       "cancel": "Cancel",
       "add": "Add account",
       "save": "Save",
-      "archive": "Archive",
       "added": "{{name}} added",
-      "saved": "Saved"
+      "saved": "Saved",
+      "end": {
+        "title": "Archive or delete",
+        "archive": "Archive",
+        "archiveText": "Hide it from the list and the totals, keep its history. You can restore it.",
+        "delete": "Delete for good",
+        "deleteText": "Remove it for good. This can’t be undone.",
+        "deleteButton": "Delete"
+      }
     },
     "validation": {
       "name": "Give the account a name.",
@@ -351,6 +360,15 @@
       "confirm": "Archive",
       "cancel": "Cancel",
       "done": "{{name}} archived"
+    },
+    "delete": {
+      "title": "Delete {{name}}?",
+      "text": "It’s removed from Pup Budget for good. This can’t be undone.",
+      "stillHas": "It still has {{amount}}. That money leaves the {{currency}} total.",
+      "type": "To confirm, type <b>{{name}}</b>",
+      "keep": "Keep it",
+      "confirm": "Delete for good",
+      "done": "{{name}} deleted"
     }
   },
   "currencies": {

@@ -51,4 +51,13 @@ public sealed class AccountsController(IAccountService accounts) : ControllerBas
         await accounts.RestoreAsync(UserId, id, cancellationToken)
             ? NoContent()
             : Problem(statusCode: StatusCodes.Status404NotFound, title: NoSuchAccount);
+
+    /// <summary>Removes it for good (I-011); the person's own sources and banks stay.</summary>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken) =>
+        await accounts.DeleteAsync(UserId, id, cancellationToken)
+            ? NoContent()
+            : Problem(statusCode: StatusCodes.Status404NotFound, title: NoSuchAccount);
 }

@@ -329,10 +329,10 @@
 
 .archivedRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px 12px;
   align-items: center;
-  padding: 10px 8px 10px 16px;
+  padding: 12px 8px 8px 16px;
   border: 1px dashed var(--pup-color-field-border);
   border-radius: var(--mantine-radius-md);
 }
@@ -342,9 +342,12 @@
   font-size: 14px;
 }
 
-.restoreButton {
-  grid-row: 1 / span 2;
-  grid-column: 2;
+/* Restore and Delete (I-011): on their own row under the name on the phone, beside it from the tablet up */
+.archivedActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 .dialogText {
@@ -652,7 +655,7 @@
   color: var(--mantine-color-dimmed);
 }
 
-/* The form's buttons. On the phone the main one has its own row, Archive and Cancel sit side by side under it */
+/* The form's buttons: Cancel and the main one; on the phone the main one is on top (it comes last) */
 .formFooter {
   display: flex;
   flex-direction: column-reverse;
@@ -663,14 +666,75 @@
   min-height: 48px;
 }
 
-.formFooter[data-with-archive] {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* The end of the edit form (I-011): Archive and Delete, each with a line on what it does, set apart by a rule */
+.formEnd {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--pup-color-rule);
 }
 
-.formFooter[data-with-archive] .saveButton {
-  grid-column: 1 / -1;
-  order: -1;
+.formEndTitle {
+  margin: 0 0 4px;
+  font-family: var(--pup-font-display);
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 24px;
+}
+
+.endRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 16px;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.endRow + .endRow {
+  border-top: 1px solid var(--pup-color-rule);
+}
+
+.endName {
+  font-weight: 500;
+}
+
+.endText {
+  grid-column: 1;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.endButton {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  min-width: 128px;
+  min-height: 44px;
+}
+
+/* Delete for good (I-011): the danger red; until the name is typed the same red, faded (People's delete, F-028) */
+.dangerButton {
+  --button-bg: var(--pup-color-danger);
+  --button-hover: var(--pup-color-danger-hover);
+  --button-color: var(--pup-color-on-danger);
+}
+
+.dangerButton:disabled,
+.dangerButton[data-disabled] {
+  background: var(--pup-color-danger);
+  color: var(--pup-color-on-danger);
+  opacity: 0.45;
+}
+
+.deleteQuestion {
+  display: grid;
+  gap: 16px;
+}
+
+.deleteQuestion .infoBanner {
+  margin-top: 0;
+}
+
+.confirmName {
+  font-weight: 500;
 }
 
 @media (min-width: $mantine-breakpoint-sm) {
@@ -700,8 +764,18 @@
     width: min(100%, 260px);
   }
 
-  .formFooter,
-  .formFooter[data-with-archive] {
+  .archivedRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 10px 8px 10px 16px;
+  }
+
+  .archivedActions {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    margin-top: 0;
+  }
+
+  .formFooter {
     display: flex;
     flex: 1;
     flex-direction: row;
@@ -710,13 +784,5 @@
 
   .formFooter > * {
     min-height: 44px;
-  }
-
-  .formFooter[data-with-archive] .saveButton {
-    order: 0;
-  }
-
-  .archiveButton {
-    margin-right: auto;
   }
 }

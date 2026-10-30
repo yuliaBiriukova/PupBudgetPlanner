@@ -28,6 +28,11 @@ function accountsServer(first: AccountsOverview = OVERVIEW, after: AccountsOverv
       overview = after;
       return new HttpResponse(null, { status: 204 });
     }),
+    http.delete('/api/accounts/:id', ({ request }) => {
+      sent.push({ url: `DELETE ${new URL(request.url).pathname}`, body: null });
+      overview = after;
+      return new HttpResponse(null, { status: 204 });
+    }),
   );
   return sent;
 }
@@ -204,6 +209,70 @@ describe('the Accounts page', () => {
       '/api/accounts/mono-usd/archive',
       '/api/accounts/old-usd/restore',
     ]);
+  });
+
+  it('deletes from the end of the edit form once the name is typed; Keep it goes back to the form', async () => {
+    const without: AccountsOverview = {
+      ...OVERVIEW,
+      accounts: OVERVIEW.accounts.filter((a) => a.id !== 'mono-usd'),
+      totals: OVERVIEW.totals.map((total) =>
+        total.currency === 'USD' ? { ...total, accounts: 1, total: 500 } : total,
+      ),
+    };
+    const sent = accountsServer(OVERVIEW, without);
+    renderApp('/accounts');
+
+    await userEvent.click(await screen.findByRole('button', { name: /Mono dollars/ }, LOADED));
+    let form = await screen.findByRole('dialog', { name: 'Edit Mono dollars' });
+    const end = within(form).getByRole('region', { name: 'Archive or delete' });
+    expect(end).toHaveTextContent('Remove it for good. This can’t be undone.');
+    await userEvent.click(within(end).getByRole('button', { name: 'Delete' }));
+
+    let ask = await screen.findByRole('dialog', { name: 'Delete Mono dollars?' });
+    expect(ask).toHaveTextContent('It’s removed from Pup Budget for good. This can’t be undone.');
+    expect(ask).toHaveTextContent('It still has $1 240. That money leaves the USD total.');
+    await userEvent.click(within(ask).getByRole('button', { name: 'Keep it' }));
+    form = await screen.findByRole('dialog', { name: 'Edit Mono dollars' });
+
+    await userEvent.click(within(form).getByRole('button', { name: 'Delete' }));
+    ask = await screen.findByRole('dialog', { name: 'Delete Mono dollars?' });
+    const confirm = within(ask).getByRole('button', { name: 'Delete for good' });
+    const name = within(ask).getByLabelText('To confirm, type Mono dollars');
+    expect(name).toHaveFocus();
+    await userEvent.type(name, 'Mono dollar');
+    expect(confirm).toBeDisabled();
+    await userEvent.type(name, 'S ');
+    expect(confirm).toBeEnabled();
+    await userEvent.click(confirm);
+
+    expect(await screen.findByText('Mono dollars deleted')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /Mono dollars/ })).not.toBeInTheDocument();
+    });
+    // The dollar total counts down to what is left: jsdom's animation frames never get there, the E2E test checks it
+    expect(sent.map((s) => s.url)).toEqual(['DELETE /api/accounts/mono-usd']);
+  });
+
+  it('deletes an archived account from Archived, next to Restore', async () => {
+    const without: AccountsOverview = {
+      ...OVERVIEW,
+      archived: OVERVIEW.archived.filter((a) => a.id !== 'old-usd'),
+    };
+    const sent = accountsServer(OVERVIEW, without);
+    renderApp('/accounts');
+
+    await userEvent.click(await screen.findByRole('button', { name: /Archived/ }, LOADED));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete Old Privat dollars' }));
+    const ask = await screen.findByRole('dialog', { name: 'Delete Old Privat dollars?' });
+    expect(ask).toHaveTextContent('It still has $12.');
+    await userEvent.type(within(ask).getByRole('textbox'), 'old privat dollars');
+    await userEvent.click(within(ask).getByRole('button', { name: 'Delete for good' }));
+
+    expect(await screen.findByText('Old Privat dollars deleted')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Old Privat dollars')).not.toBeInTheDocument();
+    });
+    expect(sent.map((s) => s.url)).toEqual(['DELETE /api/accounts/old-usd']);
   });
 
   it('offers to try again when the accounts can’t be loaded', async () => {

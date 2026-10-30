@@ -6,6 +6,7 @@ import {
   IconCalendar,
   IconInfoCircle,
   IconPlus,
+  IconTrash,
 } from '@tabler/icons-react';
 import { useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -37,6 +38,7 @@ import {
 } from './accountForm';
 import { yourCurrencies } from './accountGroups';
 import { CurrencyField } from './CurrencyField';
+import { useDeleteQuestion } from './useDeleteQuestion';
 import {
   CARD_STYLES,
   useArchiveAccount,
@@ -55,14 +57,16 @@ interface AccountDialogProps {
   onClose: () => void;
   /** After the API saved it; `added` for a new account. */
   onSaved: (account: Account, added: boolean) => void;
-  /** After the API archived it (Archive in the edit form, then yes). */
+  /** After the API archived it (Archive at the end of the edit form, then yes). */
   onArchived: (account: Account) => void;
+  /** After the API deleted it (Delete at the end of the edit form, then its name typed). */
+  onDeleted: (account: Account) => void;
 }
 
 /**
  * New account and Edit (F-014, final prototype): the card as it will look with its four styles right under it,
- * then the name, currency, source (and bank), opening balance and date. Archive in the edit form turns the dialog
- * into the question. Mount it again (a new `key`) for each account: the form starts from `mode`.
+ * then the name, currency, source (and bank), opening balance and date. The edit form ends with Archive and Delete
+ * (I-011); each turns the dialog into its question. Mount it again (a new `key`) for each account: the form starts from `mode`.
  */
 export function AccountDialog({
   mode,
@@ -71,12 +75,20 @@ export function AccountDialog({
   onClose,
   onSaved,
   onArchived,
+  onDeleted,
 }: AccountDialogProps) {
   const { t } = useTranslation();
   const save = useSaveAccount();
   const archive = useArchiveAccount();
-  const [asking, setAsking] = useState(false);
+  const [asking, setAsking] = useState<'archive' | 'delete' | null>(null);
   const account = mode.kind === 'edit' ? mode.account : undefined;
+  const deleteQuestion = useDeleteQuestion(account, {
+    onKeep: () => {
+      setAsking(null);
+    },
+    onDeleted,
+  });
+  const endId = useId();
   const [values, setValues] = useState<AccountFormValues>(() =>
     account ? formFor(account) : blankForm(overview, mode.kind === 'new' ? mode.preset : {}),
   );
@@ -133,8 +145,21 @@ export function AccountDialog({
     );
   };
 
-  // The same dialog asks, so nothing closes and opens in between
-  if (account && asking) {
+  // The same dialog asks, so nothing closes and opens in between; Keep it (or the X) goes back to the form
+  if (account && asking === 'delete') {
+    return (
+      <ResponsiveDialog
+        opened={opened}
+        onClose={deleteQuestion.keep}
+        title={deleteQuestion.title}
+        footer={deleteQuestion.footer}
+      >
+        {deleteQuestion.children}
+      </ResponsiveDialog>
+    );
+  }
+
+  if (account && asking === 'archive') {
     return (
       <ResponsiveDialog
         opened={opened}
@@ -194,31 +219,11 @@ export function AccountDialog({
         account ? t('accounts.form.editTitle', { name: account.name }) : t('accounts.form.newTitle')
       }
       footer={
-        <div className={classes.formFooter} data-with-archive={account ? true : undefined}>
-          {account && (
-            <Button
-              radius="xl"
-              variant="subtle"
-              color="gray"
-              className={classes.archiveButton}
-              leftSection={<IconArchive size={20} stroke={1.7} />}
-              onClick={() => {
-                setAsking(true);
-              }}
-            >
-              {t('accounts.form.archive')}
-            </Button>
-          )}
+        <div className={classes.formFooter}>
           <Button radius="xl" variant="subtle" color="gray" onClick={onClose}>
             {t('accounts.form.cancel')}
           </Button>
-          <Button
-            radius="xl"
-            type="submit"
-            form={formId}
-            loading={save.isPending}
-            className={classes.saveButton}
-          >
+          <Button radius="xl" type="submit" form={formId} loading={save.isPending}>
             {account ? t('accounts.form.save') : t('accounts.form.add')}
           </Button>
         </div>
@@ -366,6 +371,45 @@ export function AccountDialog({
           </p>
         )}
       </form>
+
+      {account && (
+        <section className={classes.formEnd} aria-labelledby={endId}>
+          <h3 id={endId} className={classes.formEndTitle}>
+            {t('accounts.form.end.title')}
+          </h3>
+          <div className={classes.endRow}>
+            <span className={classes.endName}>{t('accounts.form.end.archive')}</span>
+            <span className={classes.endText}>{t('accounts.form.end.archiveText')}</span>
+            <Button
+              radius="xl"
+              variant="default"
+              className={classes.endButton}
+              leftSection={<IconArchive size={20} stroke={1.7} />}
+              onClick={() => {
+                setAsking('archive');
+              }}
+            >
+              {t('accounts.form.end.archive')}
+            </Button>
+          </div>
+          <div className={classes.endRow}>
+            <span className={classes.endName}>{t('accounts.form.end.delete')}</span>
+            <span className={classes.endText}>{t('accounts.form.end.deleteText')}</span>
+            <Button
+              radius="xl"
+              variant="outline"
+              color="var(--mantine-color-error)"
+              className={classes.endButton}
+              leftSection={<IconTrash size={20} stroke={1.7} />}
+              onClick={() => {
+                setAsking('delete');
+              }}
+            >
+              {t('accounts.form.end.deleteButton')}
+            </Button>
+          </div>
+        </section>
+      )}
     </ResponsiveDialog>
   );
 }

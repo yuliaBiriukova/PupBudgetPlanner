@@ -17,4 +17,9 @@ public interface IAccountService
 
     /// <summary>Brings an archived account back; false when the person has no such account.</summary>
     Task<bool> RestoreAsync(Guid userId, Guid accountId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Removes the account for good (I-011); its own source and bank stay. False when the person has no such account.
+    /// </summary>
+    Task<bool> DeleteAsync(Guid userId, Guid accountId, CancellationToken cancellationToken);
 }

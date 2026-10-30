@@ -160,7 +160,7 @@ export const NewWithMistakes: Story = {
   },
 };
 
-/** Edit: the card shows the balance now; Archive sits with the buttons. */
+/** Edit: the card shows the balance now; Archive and Delete sit at the end of the form (I-011). */
 export const Edit: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -187,4 +187,68 @@ export const ArchiveWithMoney: Story = {
       await body.findByRole('dialog', { name: 'Archive Mono dollars?' }),
     ).toHaveTextContent('It still has $1 240.');
   },
+};
+
+/** The end of the edit form (I-011): Archive and Delete, each with a line on what it does. */
+export const EditEnd: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('button', { name: /Mono dollars/ }));
+    const body = within(canvasElement.ownerDocument.body);
+    const form = await body.findByRole('dialog', { name: 'Edit Mono dollars' });
+    const end = within(form).getByRole('region', { name: 'Archive or delete' });
+    end.scrollIntoView({ block: 'end' });
+    await expect(within(end).getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  },
+};
+
+export const EditEndDark: Story = { ...EditEnd, globals: { colorScheme: 'dark' } };
+
+/** Delete from the edit form, with money still on the account: the button waits for the name. */
+export const DeleteWithMoney: Story = {
+  globals: desktop,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('button', { name: /Mono dollars/ }));
+    const body = within(canvasElement.ownerDocument.body);
+    const form = await body.findByRole('dialog', { name: 'Edit Mono dollars' });
+    await userEvent.click(within(form).getByRole('button', { name: 'Delete' }));
+    const ask = await body.findByRole('dialog', { name: 'Delete Mono dollars?' });
+    await expect(ask).toHaveTextContent('It still has $1 240.');
+    await expect(within(ask).getByRole('button', { name: 'Delete for good' })).toBeDisabled();
+  },
+};
+
+export const DeleteWithMoneyPhoneDark: Story = {
+  ...DeleteWithMoney,
+  globals: { colorScheme: 'dark' },
+};
+
+/** The name typed (any case): Delete for good works. */
+export const DeleteNameTyped: Story = {
+  play: async (context) => {
+    await DeleteWithMoney.play?.(context);
+    const body = within(context.canvasElement.ownerDocument.body);
+    const ask = await body.findByRole('dialog', { name: 'Delete Mono dollars?' });
+    await userEvent.type(within(ask).getByRole('textbox'), 'mono dollars');
+    await expect(within(ask).getByRole('button', { name: 'Delete for good' })).toBeEnabled();
+  },
+};
+
+/** Delete from Archived, nothing left on the account: no money line. */
+export const DeleteFromArchived: Story = {
+  globals: desktop,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('button', { name: /Archived/ }));
+    await userEvent.click(canvas.getByRole('button', { name: 'Delete Oschad salary card' }));
+    const body = within(canvasElement.ownerDocument.body);
+    const ask = await body.findByRole('dialog', { name: 'Delete Oschad salary card?' });
+    await expect(ask).not.toHaveTextContent('It still has');
+  },
+};
+
+export const DeleteFromArchivedPhoneDark: Story = {
+  ...DeleteFromArchived,
+  globals: { colorScheme: 'dark' },
 };
