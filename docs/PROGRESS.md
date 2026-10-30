@@ -2,6 +2,33 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (I-012 built)
+
+**Done**
+- I-012 (less space between a pop-up's title and its content) built on `improvement/I-012-dialog-title-spacing`,
+  as approved (round 3 of the before / after page), in the shared `ResponsiveDialog` and `BottomSheet` styles:
+  - desktop dialog: title → content 20 px (was 49), content → buttons 20 px (was 24); the title's line 28 px, the
+    title row without bottom padding and with 16 px on the right (Mantine's 15), the body 12 px on top, the footer
+    12 px on top;
+  - phone sheet: 16 / 16 px (was 23 / 20); no 60 px minimum for the title row, the body 8 px on top, the footer 8 px
+    on top;
+  - Add transaction on the desktop uses `ResponsiveDialog` instead of its own `Modal` (its stylesheet is gone).
+- Two details the build turned up, inside the approved spacing: the first thing in a pop-up's content has no top
+  margin (New invite link, Block and Delete had 10–16 px of their own, which made 30–36 px under the title), and the
+  More sheet (no title) keeps its 4 px under the grab handle.
+- Checked: every pop-up (shared dialog short and long, scrolled; account form; Archive; New invite link; Block;
+  Delete; Add transaction; More) measured and screenshotted in Storybook at 375 and 1440 px, light and dark, and
+  the screenshots looked at.
+- E2E: "a dialog taller than the window scrolls inside itself" now uses a 280 px tall window (was 320): with the
+  tighter spacing the New invite link dialog fits in 320 px on the desktop. All E2E tests pass (40, 2 skipped).
+- Unit tests: 7 auth, invite and People page tests time out at 5 s on this machine, on `develop` too without this
+  change; they pass alone. Typecheck, lint, Prettier and the build pass.
+- Test data: the E2E runs made `e2e-…` accounts and `E2E` invite links on the `dev` database; their `cleanup`
+  teardown removed them after every run. Nothing was made by hand.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-10-30 (plan: drop I-010)
 
 **Done**

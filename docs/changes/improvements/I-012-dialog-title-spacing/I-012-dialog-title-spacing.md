@@ -5,7 +5,7 @@
 | Type | Improvement |
 | Milestone | M2 — Accounts & categories |
 | Priority | Medium |
-| Status | In progress |
+| Status | Done |
 | Branch | `improvement/I-012-dialog-title-spacing` (planned on `plan/f014-follow-ups`) |
 | Design | Not 3 variants: one [before / after page](prototypes/before-after.html) with the proposed spacing, for the owner's approval |
 | Approved | 2026-10-30, by the owner in chat ("Approved, build it"): round 3 of the before / after page |
@@ -18,25 +18,26 @@ pop-ups.
 
 ## Acceptance criteria
 
-- [ ] In every pop-up the space between the title and the content is the same as between the content and the
+- [x] In every pop-up the space between the title and the content is the same as between the content and the
       buttons, and no bigger than the pop-up's outer padding: 20 px on the desktop dialog, 16 px on the phone sheet
       (owner, 2026-10-30; DESIGN_RULES custom rules).
-- [ ] The outer padding of every pop-up stays as it is: 20 px on the desktop; on the phone 16 px at the sides and under
+- [x] The outer padding of every pop-up stays as it is: 20 px on the desktop; on the phone 16 px at the sides and under
       the buttons, 20 px under a content without buttons.
-- [ ] Every spacing value in the pop-ups is even (divisible by 2 or 4), the gaps built from them too (owner,
+- [x] Every spacing value in the pop-ups is even (divisible by 2 or 4), the gaps built from them too (owner,
       2026-10-30).
-- [ ] The same on the desktop dialog (`ResponsiveDialog`) and the phone sheet (`BottomSheet`), light and dark.
-- [ ] A long content still scrolls between the pinned title and the pinned buttons (I-004) and fades out at the top
+- [x] The same on the desktop dialog (`ResponsiveDialog`) and the phone sheet (`BottomSheet`), light and dark.
+- [x] A long content still scrolls between the pinned title and the pinned buttons (I-004) and fades out at the top
       and the bottom edge whenever there is more behind it.
-- [ ] Checked on every pop-up there is: the account form and the archive question (F-014), New invite link, Block
+- [x] Checked on every pop-up there is: the account form and the archive question (F-014), New invite link, Block
       and Delete (F-028), Add transaction and More (F-010).
 
 ## Tasks
 
 - [x] Before / after page with the proposed spacing (desktop dialog and phone sheet): `prototypes/before-after.html`.
 - [x] The owner approves it (2026-10-30, round 3).
-- [ ] Fix the spacing once, in the shared `ResponsiveDialog` and `BottomSheet` styles.
-- [ ] Storybook: the shared dialog stories show the new spacing; screenshots of every pop-up at 375 and 1440 px,
+- [x] Fix the spacing once, in the shared `ResponsiveDialog` and `BottomSheet` styles.
+- [x] Add transaction on the desktop uses `ResponsiveDialog`; its own `Modal` and stylesheet are gone.
+- [x] Storybook: the shared dialog stories show the new spacing; screenshots of every pop-up at 375 and 1440 px,
       light and dark.
 
 ## Design
@@ -90,11 +91,37 @@ added to DESIGN_RULES. Today's space above the buttons (24 / 20 px) is already b
   the 44 px close button), so the spacing is fixed in one place. It is a placeholder until F-018 anyway.
 - The "More" sheet (no title shown) is unchanged.
 
+### Built (2026-10-30)
+
+As approved, in `ResponsiveDialog.module.css` and `BottomSheet.module.css`, plus two details the build turned up, both
+inside the approved spacing:
+
+- **The content's own top margin.** New invite link, Block and Delete start with a paragraph or card that has its own
+  top margin (10–16 px), which added to the space under the title (36 / 30 px on the desktop, 32 / 26 px on the
+  phone). The first thing in a pop-up's content now has no top margin, in the shared styles.
+- **More keeps its 4 px.** The sheet's new 8 px top padding is for a sheet with a title; without one (More) the
+  content still starts 4 px under the grab handle (`data-without-title`), as before.
+
+Measured in Storybook after the build (title → content / content → buttons), at 375 and 1440 px, light and dark:
+
+| Pop-up | Desktop | Phone |
+|---|---|---|
+| Shared dialog, short (Block-like question) and long (scrolled to the top and to the middle) | 20 / 20 px | 16 / 16 px |
+| Account form, Archive question (F-014) | 20 / 20 px | 16 / 16 px |
+| New invite link, Block, Delete (F-028) | 20 / 20 px | 16 / 16 px |
+| Add transaction (F-010, no buttons; 20 px under the content) | 20 px | 16 px |
+| More (F-010, no title) | — | unchanged: the first item 20 px from the sheet's top |
+
+A long content fades at the bottom edge when scrolled to the top, and at both edges when scrolled to the middle.
+
 ## Tests
 
 - Unit: none needed (styles only); the existing dialog tests keep passing.
-- Storybook stories of every pop-up run (their steps and an axe scan) and their screenshots looked at.
-- Screens checked in Playwright screenshots (phone / desktop, light / dark): every pop-up listed above.
+- Every pop-up measured and screenshotted in Storybook with a Playwright script (above), screenshots looked at;
+  stories are no longer run as tests (I-010 dropped).
+- E2E: `shell.spec.ts` covers Add transaction opening as a dialog and as a phone sheet. In `people.spec.ts` "a dialog
+  taller than the window scrolls inside itself" uses a 280 px tall window (was 320): the New invite link dialog now
+  fits in 320 px on the desktop.
 
 ## Notes
 

@@ -122,7 +122,7 @@ async function settledTop(locator: Locator): Promise<number> {
 test('a dialog taller than the window scrolls inside itself', async ({ page, isMobile }) => {
   await (await signedInAdmin()).dispose();
   const width = page.viewportSize()?.width ?? 375;
-  await page.setViewportSize({ width, height: 320 });
+  await page.setViewportSize({ width, height: 280 });
   await signIn(page, E2E_ADMIN);
   await openPeople(page, isMobile);
 

@@ -44,7 +44,7 @@ export function AppLayout({ user, onSignOut }: AppLayoutProps) {
       {!isDesktop && (
         <MoreSheet opened={moreOpened} onClose={more.close} user={user} onSignOut={onSignOut} />
       )}
-      <AddTransactionSheet opened={addOpened} onClose={add.close} asSheet={!isDesktop} />
+      <AddTransactionSheet opened={addOpened} onClose={add.close} />
     </div>
   );
 }
