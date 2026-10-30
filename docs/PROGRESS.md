@@ -15,9 +15,11 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
     back. One before / after page for approval instead of 3 variants.
 - The third finding (a zero opening balance should clear when the field is focused) is fixed in F-014 itself, on
   its branch.
+- Added the same day: I-013 suggest banks from the NBU's list instead of a list in the app (Low, after F-017). F-014
+  keeps a fixed list, the owner's: Credit Agricole, Izibank, Sense Bank and ProCredit Bank are removed there.
 
 **Next**
-- Owner: confirm both priorities and review the planning PR.
+- Owner: confirm the three priorities (Medium, Medium, Low) and review the planning PR.
 
 ## 2026-10-29 (10)
 
