@@ -48,7 +48,11 @@ export function BottomSheet({
           </Drawer.Header>
         )}
         <FadingScrollArea autosize className={classes.scroll}>
-          <Drawer.Body className={classes.body} data-with-footer={footer ? true : undefined}>
+          <Drawer.Body
+            className={classes.body}
+            data-with-footer={footer ? true : undefined}
+            data-without-title={hideTitle ? true : undefined}
+          >
             {children}
           </Drawer.Body>
         </FadingScrollArea>

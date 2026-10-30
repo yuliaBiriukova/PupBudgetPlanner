@@ -20,10 +20,14 @@
   background: var(--pup-color-rule);
 }
 
+/* The space between the title and the content equals the one between the content and the buttons and the outer
+   padding, 16 px: 8 px (the 28 px title line centred on the 44 px close button) + the body's 8 px; below, the body's
+   8 px + the footer's 8 px (I-012). No minimum height: Mantine's 60 px left 15 px around the close button */
 .header {
   position: static;
   flex: none;
-  padding: 6px 12px 4px 20px;
+  min-height: 0;
+  padding: 6px 12px 0 20px;
   background: transparent;
 }
 
@@ -31,6 +35,7 @@
   font-family: var(--pup-font-display);
   font-size: 20px;
   font-weight: 300;
+  line-height: 28px;
 }
 
 .scroll {
@@ -39,7 +44,17 @@
 }
 
 .body {
-  padding: 4px 16px 20px;
+  padding: 8px 16px 20px;
+}
+
+/* Without a title (More) the content starts right under the grab handle, as before I-012 */
+.body[data-without-title] {
+  padding-top: 4px;
+}
+
+/* The content's own top margin would add to the space under the title */
+.body > :first-child {
+  margin-top: 0;
 }
 
 .body[data-with-footer] {
@@ -52,7 +67,7 @@
   flex: none;
   flex-direction: column-reverse;
   gap: 8px;
-  padding: 12px 16px 16px;
+  padding: 8px 16px 16px;
 }
 
 .footer > * {

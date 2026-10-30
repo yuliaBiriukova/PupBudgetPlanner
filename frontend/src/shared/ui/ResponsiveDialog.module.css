@@ -5,21 +5,36 @@
   overflow: hidden;
 }
 
+/* The space between the title and the content equals the one between the content and the buttons and the outer
+   padding, 20 px: 8 px (the 28 px title line centred on the 44 px close button) + the body's 12 px; below, the
+   body's 8 px + the footer's 12 px (I-012). Mantine's 15 px on the right becomes 16 */
 .header {
   position: static;
   flex: none;
+  padding-inline-end: 16px;
+  padding-bottom: 0;
 }
 
 .title {
   font-family: var(--pup-font-display);
   font-size: 20px;
   font-weight: 300;
-  line-height: 1.3;
+  line-height: 28px;
 }
 
 .scroll {
   flex: 0 1 auto;
   min-height: 0;
+}
+
+/* Mantine drops the body's top padding only when it comes right after the header; here it sits in the scroll area */
+.body {
+  padding-top: 12px;
+}
+
+/* The content's own top margin would add to the space under the title */
+.body > :first-child {
+  margin-top: 0;
 }
 
 .body[data-with-footer] {
@@ -31,7 +46,7 @@
   flex: none;
   justify-content: flex-end;
   gap: 8px;
-  padding: 16px var(--mb-padding) var(--mb-padding);
+  padding: 12px var(--mb-padding) var(--mb-padding);
 }
 
 .footer > * {
