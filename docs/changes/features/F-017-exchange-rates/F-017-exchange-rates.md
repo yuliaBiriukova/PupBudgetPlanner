@@ -37,4 +37,4 @@ Correct, historical exchange rates for conversions.
 
 ## Notes
 
-- —
+- The NBU client is reused by I-013 (suggested banks from the NBU's list).

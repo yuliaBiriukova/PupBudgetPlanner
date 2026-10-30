@@ -95,6 +95,9 @@ owner asks for one.
 | [I-007](changes/improvements/I-007-remove-test-data-after-tests/I-007-remove-test-data-after-tests.md) | Remove test accounts and data after tests; E2E tests clean up after themselves | High | Done |
 | [I-008](changes/improvements/I-008-instant-click-feedback/I-008-instant-click-feedback.md) | Instant response to clicks on check boxes and dialog buttons (closed: fine on production) | High | Done |
 | [I-009](changes/improvements/I-009-planning-only-branches/I-009-planning-only-branches.md) | Planning-only branches (`plan/…`) for lists the owner only wants in the backlog | High | Done |
+| [I-011](changes/improvements/I-011-delete-account-permanently/I-011-delete-account-permanently.md) | 🎨 Delete an account (card, cash) permanently, not only archive it | Medium | Todo |
+| [I-012](changes/improvements/I-012-dialog-title-spacing/I-012-dialog-title-spacing.md) | Less space between a pop-up's title and its content (all pop-ups) | Medium | Todo |
+| [I-013](changes/improvements/I-013-banks-from-nbu/I-013-banks-from-nbu.md) | Suggest banks from the NBU's list instead of a list in the app (after F-017) | Low | Todo |
 
 ## Bugfixes
 
