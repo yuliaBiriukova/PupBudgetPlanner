@@ -207,6 +207,136 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.ToTable("user_tokens", (string)null);
                 });
 
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Accounts.Account", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("archived_at");
+
+                    b.Property<Guid?>("BankId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("bank_id");
+
+                    b.Property<string>("CardStyle")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("card_style");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("currency")
+                        .IsFixedLength();
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("OpeningBalance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("opening_balance");
+
+                    b.Property<DateOnly>("OpeningDate")
+                        .HasColumnType("date")
+                        .HasColumnName("opening_date");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("source");
+
+                    b.Property<Guid?>("SourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_accounts");
+
+                    b.HasIndex("BankId")
+                        .HasDatabaseName("ix_accounts_bank_id");
+
+                    b.HasIndex("SourceId")
+                        .HasDatabaseName("ix_accounts_source_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_accounts_user_id");
+
+                    b.ToTable("accounts", (string)null);
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Accounts.AccountSource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_account_sources");
+
+                    b.HasIndex("UserId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_account_sources_user_id_name");
+
+                    b.ToTable("account_sources", (string)null);
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Accounts.Bank", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_banks");
+
+                    b.HasIndex("UserId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_banks_user_id_name");
+
+                    b.ToTable("banks", (string)null);
+                });
+
             modelBuilder.Entity("PupBudgetPlanner.Domain.Categories.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -490,6 +620,48 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_tokens_users_user_id");
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Accounts.Account", b =>
+                {
+                    b.HasOne("PupBudgetPlanner.Domain.Accounts.Bank", null)
+                        .WithMany()
+                        .HasForeignKey("BankId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("fk_accounts_banks_bank_id");
+
+                    b.HasOne("PupBudgetPlanner.Domain.Accounts.AccountSource", null)
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("fk_accounts_account_sources_source_id");
+
+                    b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_accounts_users_user_id");
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Accounts.AccountSource", b =>
+                {
+                    b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_account_sources_users_user_id");
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Accounts.Bank", b =>
+                {
+                    b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_banks_users_user_id");
                 });
 
             modelBuilder.Entity("PupBudgetPlanner.Domain.Categories.Category", b =>

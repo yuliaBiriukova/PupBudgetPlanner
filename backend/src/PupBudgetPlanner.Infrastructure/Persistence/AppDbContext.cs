@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PupBudgetPlanner.Domain.Accounts;
 using PupBudgetPlanner.Domain.Categories;
 using PupBudgetPlanner.Domain.Invitations;
 using PupBudgetPlanner.Infrastructure.Identity;
@@ -20,6 +21,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Category> Categories => Set<Category>();
 
     public DbSet<Invitation> Invitations => Set<Invitation>();
+
+    public DbSet<Account> Accounts => Set<Account>();
+
+    public DbSet<AccountSource> AccountSources => Set<AccountSource>();
+
+    public DbSet<Bank> Banks => Set<Bank>();
 
     /// <summary>The provider settings shared by the app and the design-time factory.</summary>
     internal static void Configure(DbContextOptionsBuilder options, string connectionString) =>
