@@ -2,6 +2,20 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (plan: drop I-010)
+
+**Done**
+- I-010 (run every Storybook story in CI) dropped by the owner before it was built, on `plan/drop-i010`: running
+  the stories takes too long (all ~112 stories headless took ~10 minutes while building I-012), so stories are no
+  longer run as tests, neither during development nor in CI. Stories are still written, play functions included;
+  CI keeps `build-storybook`.
+- New status `Dropped`: the row and the folder stay, the ID isn't reused (BACKLOG, changes/README).
+- I-012 paused: its frontend code was reverted; its approved plan and before / after page are committed on
+  `improvement/I-012-dialog-title-spacing` (status stays `In progress`).
+
+**Next**
+- Owner: review the planning PR.
+
 ## 2026-10-30 (plan: Storybook stories in CI)
 
 **Done**
