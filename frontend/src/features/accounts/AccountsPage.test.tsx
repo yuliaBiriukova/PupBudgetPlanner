@@ -8,6 +8,9 @@ import { server } from '../../test/server';
 import type { AccountsOverview } from './accountsApi';
 import { account, EMPTY, OVERVIEW } from './accountsTestData';
 
+/** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
+const LOADED = { timeout: 4000 };
+
 /** The API with these accounts; returns what the page sent. */
 function accountsServer(first: AccountsOverview = OVERVIEW, after: AccountsOverview = first) {
   const sent: { url: string; body: unknown }[] = [];
@@ -43,7 +46,7 @@ describe('the Accounts page', () => {
     accountsServer();
     renderApp('/accounts');
 
-    const totals = await screen.findByRole('group', { name: 'Totals' });
+    const totals = await screen.findByRole('group', { name: 'Totals' }, LOADED);
     expect(totals).toHaveTextContent('310 132.20 ₴');
     expect(totals).toHaveTextContent('$1 740.00');
     const dollars = screen.getByRole('region', { name: 'US dollar' });
@@ -59,7 +62,7 @@ describe('the Accounts page', () => {
     accountsServer();
     renderApp('/accounts');
 
-    await userEvent.click(await screen.findByRole('radio', { name: 'Source' }));
+    await userEvent.click(await screen.findByRole('radio', { name: 'Source' }, LOADED));
 
     expect(screen.getByRole('region', { name: 'Monobank' })).toHaveTextContent('Bank, 3 accounts');
     expect(screen.getByRole('region', { name: 'Deposit' })).toBeInTheDocument();
@@ -82,7 +85,9 @@ describe('the Accounts page', () => {
     });
     renderApp('/accounts');
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Add your first account' }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Add your first account' }, LOADED),
+    );
     const form = await screen.findByRole('dialog', { name: 'New account' });
     await userEvent.type(within(form).getByLabelText('Name'), 'Mono black');
     await userEvent.click(within(form).getByRole('button', { name: 'Monobank' }));
@@ -112,7 +117,7 @@ describe('the Accounts page', () => {
     const sent = accountsServer();
     renderApp('/accounts');
 
-    await screen.findByRole('group', { name: 'Totals' });
+    await screen.findByRole('group', { name: 'Totals' }, LOADED);
     await userEvent.click(screen.getByRole('button', { name: 'Add account' }));
     const form = await screen.findByRole('dialog', { name: 'New account' });
     await userEvent.clear(within(form).getByLabelText('Opening balance'));
@@ -131,7 +136,7 @@ describe('the Accounts page', () => {
     accountsServer();
     renderApp('/accounts');
 
-    await screen.findByRole('group', { name: 'Totals' });
+    await screen.findByRole('group', { name: 'Totals' }, LOADED);
     await userEvent.click(screen.getByRole('button', { name: 'Add account' }));
     const form = await screen.findByRole('dialog', { name: 'New account' });
     const opening = within(form).getByLabelText('Opening balance');
@@ -152,7 +157,7 @@ describe('the Accounts page', () => {
     accountsServer();
     renderApp('/accounts');
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Add EUR account' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Add EUR account' }, LOADED));
     const form = await screen.findByRole('dialog', { name: 'New account' });
 
     expect(within(form).getByRole('button', { name: 'Currency' })).toHaveTextContent('EUREuro');
@@ -162,7 +167,7 @@ describe('the Accounts page', () => {
     accountsServer();
     renderApp('/accounts');
 
-    await screen.findByRole('group', { name: 'Totals' });
+    await screen.findByRole('group', { name: 'Totals' }, LOADED);
     await userEvent.click(screen.getByRole('button', { name: 'Add account' }));
     const form = await screen.findByRole('dialog', { name: 'New account' });
     await userEvent.click(within(form).getByRole('button', { name: 'Currency' }));
@@ -179,7 +184,7 @@ describe('the Accounts page', () => {
     const sent = accountsServer();
     renderApp('/accounts');
 
-    await userEvent.click(await screen.findByRole('button', { name: /Mono dollars/ }));
+    await userEvent.click(await screen.findByRole('button', { name: /Mono dollars/ }, LOADED));
     const form = await screen.findByRole('dialog', { name: 'Edit Mono dollars' });
     await userEvent.click(within(form).getByRole('button', { name: 'Archive' }));
     const ask = await screen.findByRole('dialog', { name: 'Archive Mono dollars?' });
@@ -204,7 +209,9 @@ describe('the Accounts page', () => {
     server.use(http.get('/api/accounts', () => new HttpResponse(null, { status: 500 })));
     renderApp('/accounts');
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Couldn’t load your accounts.');
+    expect(await screen.findByRole('alert', {}, LOADED)).toHaveTextContent(
+      'Couldn’t load your accounts.',
+    );
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
   });
 });

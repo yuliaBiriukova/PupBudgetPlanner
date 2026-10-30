@@ -14,19 +14,18 @@ export const NAME_MAX = 40;
 export const SOURCE_NAME_MAX = 30;
 export const BANK_NAME_MAX = 40;
 
-/** Common Ukrainian banks, suggested while a bank's name is typed; the person's own banks are left out. */
+/**
+ * Common Ukrainian banks, suggested while a bank's name is typed; the person's own banks are left out. The owner's
+ * list (2026-10-30); I-013 takes the banks from the NBU instead, once its API is in (F-017).
+ */
 export const SUGGESTED_BANKS = [
   'A-Bank',
-  'Credit Agricole',
-  'Izibank',
   'Monobank',
   'Oschadbank',
   'OTP Bank',
   'PrivatBank',
-  'ProCredit Bank',
   'PUMB',
   'Raiffeisen Bank',
-  'Sense Bank',
   'Ukrgasbank',
   'Ukrsibbank',
 ];

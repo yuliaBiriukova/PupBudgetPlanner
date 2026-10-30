@@ -234,6 +234,9 @@ Chosen variant: 10 (final prototype)
 - **Owner's review, 2026-10-30:** a zero opening balance (new account, or an edited one at 0.00) clears when its field
   takes the focus, so the amount is typed straight in; left empty, it shows 0.00 again and counts as 0. The other
   two findings are planned as I-011 (delete an account permanently) and I-012 (less space under a pop-up's title).
+- **Owner's review, 2026-10-30:** the suggested banks are A-Bank, Monobank, Oschadbank, OTP Bank, PrivatBank, PUMB,
+  Raiffeisen Bank, Ukrgasbank and Ukrsibbank (Credit Agricole, Izibank, Sense Bank and ProCredit Bank removed). They
+  are a fixed list in the app; I-013 takes the banks from the NBU once its API is in (F-017).
 
 ## Tests
 

@@ -122,14 +122,10 @@ describe('the account form', () => {
   });
 
   it('suggests common banks you don’t have yet', () => {
-    expect(bankSuggestions('o', ['Monobank', 'PrivatBank'])).toEqual([
-      'Credit Agricole',
-      'Oschadbank',
-      'OTP Bank',
-      'ProCredit Bank',
-    ]);
+    expect(bankSuggestions('o', ['Monobank', 'PrivatBank'])).toEqual(['Oschadbank', 'OTP Bank']);
     expect(bankSuggestions('', [])).toHaveLength(6);
-    expect(bankSuggestions('sense bank', [])).toEqual([]);
+    expect(bankSuggestions('pumb', [])).toEqual([]);
+    expect(bankSuggestions('bank', [])).not.toContain('Sense Bank');
   });
 });
 

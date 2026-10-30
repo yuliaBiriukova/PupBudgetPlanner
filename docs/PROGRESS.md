@@ -2,6 +2,19 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (7)
+
+**Done**
+- F-014, owner's review: Credit Agricole, Izibank, Sense Bank and ProCredit Bank removed from the suggested banks
+  (9 are left). Taking the banks from the NBU instead is planned as I-013 (after F-017) on `plan/f014-follow-ups`.
+- The accounts page test waits longer for the first render (up to 4 s): it had failed twice as the first test of its
+  file in a busy full run, at 1.6 and 2.1 s; it then passed in three full runs.
+- Checked: lint, format, typecheck, build; unit tests (accounts 22 in every run; the full suite three times, only the
+  older invite page and People "200 people" tests passing the 5 s limit, as before); all 25 stories headless (steps,
+  axe, screenshots); the suggestions watched in the Browser pane (Storybook, first visit); E2E 40 passed, 2 skipped.
+  Backend unchanged; not rerun.
+- Test data: none created by hand; the E2E clean-up removed the tests' own accounts.
+
 ## 2026-10-30 (6)
 
 **Done**
