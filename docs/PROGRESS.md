@@ -2,6 +2,23 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (plan: Storybook stories in CI)
+
+**Done**
+- I-010 planned (not built) on the planning branch `plan/storybook-tests-in-ci`: run every Storybook story in CI —
+  its play function and an axe scan — so a failing story or an accessibility violation fails the build. Today CI
+  only builds Storybook. Prompted by F-014, where running every story by hand after calling the change ready found
+  a real UI gap. Proposed priority High.
+- The plan compares the Vitest addon (`@storybook/addon-vitest`, recommended: no running Storybook, fits the Vitest 5
+  already here, Storybook's own advice for Vite projects) with the test runner (`@storybook/test-runner`, superseded);
+  `a11y.test` goes from `'todo'` to `'error'`; the page-level axe rules `landmark-one-main` and `page-has-heading-one`
+  are off for stories by default and on again for whole screens; every story runs in light and dark; a new
+  `npm run test:stories`; two steps in the Frontend CI job, estimated at ~1 more minute.
+
+**Next**
+- Owner: confirm the priority, review the planning PR, and approve I-010 before it is built on
+  `improvement/I-010-storybook-tests-in-ci`.
+
 ## 2026-10-30 (plan: F-014 follow-ups)
 
 **Done**
