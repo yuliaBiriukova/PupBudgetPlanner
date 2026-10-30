@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  amountOnBlur,
+  amountOnFocus,
   bankSuggestions,
   blankForm,
   formFor,
@@ -93,6 +95,22 @@ describe('the account form', () => {
     expect(toRequest(withNewSource(form, 'Crypto wallet'), OVERVIEW).sourceName).toBe(
       'Crypto wallet',
     );
+  });
+
+  it('clears a zero opening balance on focus and puts it back when left empty', () => {
+    expect(amountOnFocus('0.00')).toBe('');
+    expect(amountOnFocus('0')).toBe('');
+    expect(amountOnFocus('1240.50')).toBe('1240.50');
+    expect(amountOnFocus('1,2.3')).toBe('1,2.3');
+    expect(amountOnBlur('  ')).toBe('0.00');
+    expect(amountOnBlur('450')).toBe('450');
+  });
+
+  it('takes an empty opening balance as nothing on the account yet', () => {
+    const form = { ...blankForm(OVERVIEW, {}, TODAY), name: 'Wallet', openingBalance: '' };
+
+    expect(validateForm(form)).toEqual({});
+    expect(toRequest(form, OVERVIEW).openingBalance).toBe(0);
   });
 
   it('shows the balance the card will have', () => {

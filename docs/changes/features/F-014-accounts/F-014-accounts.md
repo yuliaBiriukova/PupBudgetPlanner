@@ -231,6 +231,9 @@ Chosen variant: 10 (final prototype)
   - "Add account" waits until the accounts are loaded: the form needs your banks and sources.
   - Escape in the currency list closes the list, not the form.
   - Add account with mistakes moves the focus to the first field with one, so the phone scrolls back to it.
+- **Owner's review, 2026-10-30:** a zero opening balance (new account, or an edited one at 0.00) clears when its field
+  takes the focus, so the amount is typed straight in; left empty, it shows 0.00 again and counts as 0. The other
+  two findings are planned as I-011 (delete an account permanently) and I-012 (less space under a pop-up's title).
 
 ## Tests
 

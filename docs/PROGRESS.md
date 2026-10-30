@@ -2,6 +2,26 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (6)
+
+**Done**
+- F-014, owner's review: a zero opening balance (a new account, or an edited one at 0.00) clears when its field
+  takes the focus; left empty, it shows 0.00 again and counts as 0. The other two findings are planned on
+  `plan/f014-follow-ups`: I-011 delete an account permanently, I-012 less space under a pop-up's title.
+- Checked: lint, format, typecheck, build, Storybook build; the accounts unit tests (22, 3 new) three runs in a row;
+  all 25 stories run headless (steps, axe, screenshots), the 20 page stories with no issues; the focus fix watched in
+  the Browser pane (Storybook, phone); E2E 39 passed and 2 skipped in the full run, and the sign-in and accounts
+  specs twice more, all passed.
+- Not green on this machine, unchanged by F-014: in a full unit run with the dev servers up, two to nine older
+  tests (sign-up, invite page, People "200 people") pass the 5 s limit; one sign-in E2E test failed once on the
+  phone and passed on both reruns (also seen in I-004). The accounts page test failed once in that heavy run and
+  passed in every run after.
+- Backend unchanged since its last green run (195 tests); not rerun.
+- Test data: none created by hand; the E2E clean-up removed the tests' own accounts.
+
+**Next**
+- Owner: review the F-014 PR and the planning PR (I-011, I-012).
+
 ## 2026-10-30 (5)
 
 **Done**

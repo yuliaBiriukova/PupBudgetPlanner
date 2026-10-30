@@ -15,6 +15,8 @@ import { ResponsiveDialog } from '../../shared/ui/ResponsiveDialog';
 import { AccountCard, CardStyleMini } from './AccountCard';
 import classes from './Accounts.module.css';
 import {
+  amountOnBlur,
+  amountOnFocus,
   bankSuggestions,
   blankForm,
   formFor,
@@ -324,6 +326,12 @@ export function AccountDialog({
           error={errorText(errors.openingBalance)}
           onChange={(event) => {
             change({ ...values, openingBalance: event.currentTarget.value }, 'openingBalance');
+          }}
+          onFocus={() => {
+            change({ ...values, openingBalance: amountOnFocus(values.openingBalance) });
+          }}
+          onBlur={() => {
+            change({ ...values, openingBalance: amountOnBlur(values.openingBalance) });
           }}
           rightSection={<span className={classes.affix}>{currencySign(values.currency)}</span>}
           rightSectionWidth={48}

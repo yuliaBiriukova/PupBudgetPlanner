@@ -127,6 +127,27 @@ describe('the Accounts page', () => {
     expect(sent).toEqual([]);
   });
 
+  it('clears a zero opening balance when the field is focused', async () => {
+    accountsServer();
+    renderApp('/accounts');
+
+    await screen.findByRole('group', { name: 'Totals' });
+    await userEvent.click(screen.getByRole('button', { name: 'Add account' }));
+    const form = await screen.findByRole('dialog', { name: 'New account' });
+    const opening = within(form).getByLabelText('Opening balance');
+    expect(opening).toHaveValue('0.00');
+
+    await userEvent.click(opening);
+    expect(opening).toHaveValue('');
+    await userEvent.type(opening, '450');
+    expect(opening).toHaveValue('450');
+
+    // Left empty, it shows 0.00 again
+    await userEvent.clear(opening);
+    await userEvent.click(within(form).getByLabelText('Name'));
+    expect(opening).toHaveValue('0.00');
+  });
+
   it('opens the form from a group with its currency picked', async () => {
     accountsServer();
     renderApp('/accounts');

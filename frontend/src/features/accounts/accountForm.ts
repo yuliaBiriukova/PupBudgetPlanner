@@ -114,6 +114,24 @@ export function withNewSource(values: AccountFormValues, name: string): AccountF
   return next.styleSet ? next : { ...next, cardStyle: defaultStyle('Own') };
 }
 
+/** The opening balance as typed: an empty field is nothing on the account yet (0), else `parseAmount`. */
+export function openingAmount(text: string): number | null {
+  return text.trim() === '' ? 0 : parseAmount(text);
+}
+
+/**
+ * The opening balance field when it takes the focus: a zero is cleared, so the amount is typed straight in without
+ * deleting `0.00` first (owner, 2026-10-30). Anything else stays as it is.
+ */
+export function amountOnFocus(text: string): string {
+  return parseAmount(text) === 0 ? '' : text;
+}
+
+/** The field when it loses the focus: left empty, it shows `0.00` again. */
+export function amountOnBlur(text: string): string {
+  return text.trim() === '' ? amountText(0) : text;
+}
+
 export type FormErrors = Partial<
   Record<'name' | 'newSource' | 'bank' | 'openingBalance' | 'openingDate', FormError>
 >;
@@ -138,7 +156,7 @@ export function validateForm(values: AccountFormValues): FormErrors {
   if (sourceKind(values) === 'Bank') {
     check('bank', named(values.newBank ?? values.bank ?? '', BANK_NAME_MAX, { key: 'bank' }));
   }
-  if (parseAmount(values.openingBalance) === null) errors.openingBalance = { key: 'amount' };
+  if (openingAmount(values.openingBalance) === null) errors.openingBalance = { key: 'amount' };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(values.openingDate) || !dayjs(values.openingDate).isValid())
     errors.openingDate = { key: 'date' };
   return errors;
@@ -158,7 +176,7 @@ export function toRequest(
     source,
     sourceName: source === 'Own' ? (ownName?.trim() ?? null) : null,
     bankName: source === 'Bank' ? ((values.newBank ?? values.bank)?.trim() ?? null) : null,
-    openingBalance: parseAmount(values.openingBalance) ?? 0,
+    openingBalance: openingAmount(values.openingBalance) ?? 0,
     openingDate: values.openingDate,
     cardStyle: values.cardStyle,
   };
@@ -179,6 +197,6 @@ export function bankSuggestions(typed: string, yours: readonly string[]): string
  * moved by however much the opening balance changes.
  */
 export function previewBalance(values: AccountFormValues, account?: Account): number {
-  const opening = parseAmount(values.openingBalance) ?? 0;
+  const opening = openingAmount(values.openingBalance) ?? 0;
   return account ? account.balance + opening - account.openingBalance : opening;
 }
