@@ -2,6 +2,23 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (plan: F-014 follow-ups)
+
+**Done**
+- Owner's findings while testing F-014, planned (not built) on `plan/f014-follow-ups`; each will be built on its own
+  branch after approval:
+  - I-011 delete an account (card, cash) permanently, not only archive it (🎨, Medium). Open points with Claude's
+    proposals: Delete on an archived account next to Restore; once F-018 brings transactions, deleting takes them
+    (and whole transfers) along, with the name typed to confirm. Built after F-014 is merged.
+  - I-012 less space between a pop-up's title and its content, for all pop-ups (Medium). Measured: 49 px on the
+    desktop dialog; the likely cause is the I-004 scroll area around the body, which brings Mantine's top padding
+    back. One before / after page for approval instead of 3 variants.
+- The third finding (a zero opening balance should clear when the field is focused) is fixed in F-014 itself, on
+  its branch.
+
+**Next**
+- Owner: confirm both priorities and review the planning PR.
+
 ## 2026-10-29 (10)
 
 **Done**
