@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -121,6 +121,9 @@ describe('the Accounts page', () => {
 
     expect(within(form).getByText('Give the account a name.')).toBeInTheDocument();
     expect(within(form).getByText('Enter an amount like 1240.50 or −300.')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(within(form).getByLabelText('Name')).toHaveFocus();
+    });
     expect(sent).toEqual([]);
   });
 

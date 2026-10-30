@@ -385,6 +385,23 @@
   font-size: 16px;
 }
 
+/* The border and the message carry a mistake; what was typed keeps the normal text color (as on sign-in) */
+.input[data-error] {
+  border-color: var(--mantine-color-error);
+  outline: 1px solid var(--mantine-color-error);
+  color: var(--mantine-color-text);
+}
+
+.error {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
 .amountInput {
   font-variant-numeric: tabular-nums;
   text-align: right;

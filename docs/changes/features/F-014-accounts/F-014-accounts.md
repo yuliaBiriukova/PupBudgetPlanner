@@ -230,6 +230,7 @@ Chosen variant: 10 (final prototype)
     with only "Another bank".
   - "Add account" waits until the accounts are loaded: the form needs your banks and sources.
   - Escape in the currency list closes the list, not the form.
+  - Add account with mistakes moves the focus to the first field with one, so the phone scrolls back to it.
 
 ## Tests
 
@@ -242,6 +243,7 @@ Chosen variant: 10 (final prototype)
   totals by currency and by source, and archives one.
 - Storybook: the page (both groupings, first visit, loading, couldn't load, archived, the form and its states, edit,
   archive) and the card styles.
+  Every story was run headless with its steps and an axe scan, and its screenshot looked at (2026-10-30).
 
 ## Notes
 

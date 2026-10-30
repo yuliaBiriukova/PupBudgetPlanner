@@ -1,7 +1,13 @@
 import { Button, Radio, TextInput, UnstyledButton } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { IconArchive, IconCalendar, IconInfoCircle, IconPlus } from '@tabler/icons-react';
-import { useId, useState } from 'react';
+import {
+  IconAlertCircle,
+  IconArchive,
+  IconCalendar,
+  IconInfoCircle,
+  IconPlus,
+} from '@tabler/icons-react';
+import { useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { currencySign, formatMoney } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
@@ -74,15 +80,20 @@ export function AccountDialog({
   );
   const [errors, setErrors] = useState<FormErrors>({});
   const formId = useId();
+  const form = useRef<HTMLFormElement>(null);
 
   const kind = sourceKind(values);
   const banks = overview.banks.map((b) => b.name);
-  const errorText = (error: FormError | undefined) =>
-    error === undefined
-      ? undefined
-      : error.key === 'tooLong'
-        ? t('accounts.validation.tooLong', { max: error.max })
-        : t(`accounts.validation.${error.key}`);
+  /** A mistake under its field, after an alert icon (the sign-in fields' style, F-011). */
+  const errorText = (error: FormError | undefined): ReactNode =>
+    error === undefined ? undefined : (
+      <>
+        <IconAlertCircle size={16} stroke={1.7} aria-hidden="true" />
+        {error.key === 'tooLong'
+          ? t('accounts.validation.tooLong', { max: error.max })
+          : t(`accounts.validation.${error.key}`)}
+      </>
+    );
 
   /** Changes the form; a field's mistake goes away once it is edited. */
   const change = (next: AccountFormValues, field?: keyof FormErrors) => {
@@ -102,7 +113,14 @@ export function AccountDialog({
   const submit = () => {
     const found = validateForm(values);
     setErrors(found);
-    if (Object.keys(found).length > 0 || save.isPending) return;
+    if (Object.keys(found).length > 0) {
+      // The first mistake may be scrolled away (the phone): its field takes the focus, once it is marked
+      requestAnimationFrame(() => {
+        form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      });
+      return;
+    }
+    if (save.isPending) return;
     save.mutate(
       { id: account?.id, body: toRequest(values, overview) },
       {
@@ -205,6 +223,7 @@ export function AccountDialog({
       }
     >
       <form
+        ref={form}
         id={formId}
         noValidate
         className={classes.form}
@@ -250,7 +269,7 @@ export function AccountDialog({
 
         <TextInput
           label={t('accounts.form.name')}
-          description={t('accounts.form.nameHint')}
+          description={errors.name ? undefined : t('accounts.form.nameHint')}
           value={values.name}
           maxLength={NAME_MAX}
           autoComplete="off"
@@ -259,7 +278,12 @@ export function AccountDialog({
             change({ ...values, name: event.currentTarget.value }, 'name');
           }}
           inputWrapperOrder={['label', 'input', 'description', 'error']}
-          classNames={{ label: classes.label, input: classes.input, description: classes.hint }}
+          classNames={{
+            label: classes.label,
+            input: classes.input,
+            description: classes.hint,
+            error: classes.error,
+          }}
           data-autofocus={account ? undefined : true}
         />
 
@@ -293,7 +317,7 @@ export function AccountDialog({
 
         <TextInput
           label={t('accounts.form.opening')}
-          description={t('accounts.form.openingHint')}
+          description={errors.openingBalance ? undefined : t('accounts.form.openingHint')}
           value={values.openingBalance}
           inputMode="decimal"
           autoComplete="off"
@@ -309,6 +333,7 @@ export function AccountDialog({
             label: classes.label,
             input: cx(classes.input, classes.amountInput),
             description: classes.hint,
+            error: classes.error,
           }}
         />
 
@@ -324,7 +349,7 @@ export function AccountDialog({
             <IconCalendar size={20} stroke={1.7} aria-label={t('accounts.form.pickDate')} />
           }
           rightSectionPointerEvents="none"
-          classNames={{ label: classes.label, input: classes.input }}
+          classNames={{ label: classes.label, input: classes.input, error: classes.error }}
         />
 
         {save.isError && (
@@ -340,7 +365,7 @@ export function AccountDialog({
 interface FieldProps {
   values: AccountFormValues;
   errors: FormErrors;
-  errorText: (error: FormError | undefined) => string | undefined;
+  errorText: (error: FormError | undefined) => ReactNode;
   change: (next: AccountFormValues, field?: keyof FormErrors) => void;
 }
 
@@ -398,7 +423,7 @@ function SourceField({
         <div className={classes.newField}>
           <TextInput
             label={t('accounts.form.newSource')}
-            description={t('accounts.form.newSourceHint')}
+            description={errors.newSource ? undefined : t('accounts.form.newSourceHint')}
             value={values.newSource ?? ''}
             maxLength={SOURCE_NAME_MAX}
             autoComplete="off"
@@ -408,7 +433,12 @@ function SourceField({
               change(withNewSource(values, event.currentTarget.value), 'newSource');
             }}
             inputWrapperOrder={['label', 'input', 'description', 'error']}
-            classNames={{ label: classes.label, input: classes.input, description: classes.hint }}
+            classNames={{
+              label: classes.label,
+              input: classes.input,
+              description: classes.hint,
+              error: classes.error,
+            }}
           />
           <UnstyledButton
             className={classes.textLink}
@@ -440,7 +470,7 @@ function BankField({ values, banks, errors, errorText, change }: FieldProps & { 
         change({ ...values, bank, newBank: null }, 'bank');
       }}
       error={typing ? undefined : errorText(errors.bank)}
-      classNames={{ label: classes.label }}
+      classNames={{ label: classes.label, error: classes.error }}
     >
       {(banks.length > 0 || !typing) && (
         <div className={classes.pills}>
@@ -466,7 +496,7 @@ function BankField({ values, banks, errors, errorText, change }: FieldProps & { 
         <div className={banks.length > 0 ? classes.newField : undefined}>
           <TextInput
             label={t('accounts.form.bankName')}
-            description={t('accounts.form.bankHint')}
+            description={errors.bank ? undefined : t('accounts.form.bankHint')}
             value={values.newBank ?? ''}
             maxLength={BANK_NAME_MAX}
             autoComplete="off"
@@ -476,7 +506,12 @@ function BankField({ values, banks, errors, errorText, change }: FieldProps & { 
               change({ ...values, newBank: event.currentTarget.value }, 'bank');
             }}
             inputWrapperOrder={['label', 'input', 'description', 'error']}
-            classNames={{ label: classes.label, input: classes.input, description: classes.hint }}
+            classNames={{
+              label: classes.label,
+              input: classes.input,
+              description: classes.hint,
+              error: classes.error,
+            }}
           />
           {suggestions.length > 0 && (
             <>

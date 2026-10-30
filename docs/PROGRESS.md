@@ -20,6 +20,11 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   check of the real page (no issues of its own; the sidebar's resize handle overlapping the nav by 4 px shows on
   every page, from the app shell), screenshots at 375 and 1440 px, light and dark, looked at, and the form, currency
   list, archive and restore tried in the browser.
+- Owner asked whether everything was tested with all the tools. Added: every new Storybook story run headless (its
+  steps, an axe scan, a screenshot looked at). It found the form's mistakes too quiet: the field didn't turn red and
+  the hint stayed above the message. Fixed to the sign-in fields' style (red border, alert icon, the message in the
+  hint's place), and the focus now goes to the first field with a mistake. The 20 page stories pass with no axe issues;
+  the 5 card stories only get the page-level rules every component story gets (no main landmark, no h1). CI green.
 - Noted, not changed: on this machine, with the API and Vite running, two existing unit tests (People "picks at most
   200 people", invite page "creates the account with the link") sometimes pass the 5 s limit in a full run; both
   pass on their own, and the second also fails without F-014's tests.

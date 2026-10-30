@@ -141,7 +141,7 @@ export const NewOwnSource: Story = {
   },
 };
 
-/** Add account with nothing filled in: the mistakes under the fields. */
+/** Add account with no name, an empty bank name and a wrong amount: the mistakes under the fields. */
 export const NewWithMistakes: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -149,8 +149,16 @@ export const NewWithMistakes: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Add account' }));
     const body = within(canvasElement.ownerDocument.body);
     const form = await body.findByRole('dialog', { name: 'New account' });
+    await userEvent.click(within(form).getByRole('button', { name: 'Another bank' }));
+    const opening = within(form).getByLabelText('Opening balance');
+    await userEvent.clear(opening);
+    await userEvent.type(opening, '1,240.5.0');
     await userEvent.click(within(form).getByRole('button', { name: 'Add account' }));
     await expect(within(form).getByText('Give the account a name.')).toBeInTheDocument();
+    await expect(within(form).getByText('Pick your bank or type its name.')).toBeInTheDocument();
+    await expect(
+      within(form).getByText('Enter an amount like 1240.50 or −300.'),
+    ).toBeInTheDocument();
   },
 };
 
