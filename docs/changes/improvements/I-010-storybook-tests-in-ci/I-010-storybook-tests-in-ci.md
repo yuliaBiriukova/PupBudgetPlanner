@@ -5,10 +5,16 @@
 | Type | Improvement |
 | Milestone | M2 — Accounts & categories |
 | Priority | High (proposed: it stops UI gaps reaching the owner) |
-| Status | Todo |
+| Status | Dropped (2026-10-30, owner) |
 | Branch | `improvement/I-010-storybook-tests-in-ci` |
 | Design | not needed |
-| Approved | — |
+| Approved | — (dropped before approval) |
+
+## Dropped (2026-10-30)
+The owner dropped I-010 before it was built: running the stories takes too long (all ~112 stories headless took
+~10 minutes while building I-012), so stories are no longer run as tests, neither during development nor in CI.
+Stories are still written for every component and screen (CLAUDE.md), play functions included; CI keeps
+`build-storybook`. The plan below is kept for the record.
 
 ## Goal
 CI runs every Storybook story — its play function and an axe accessibility scan — and a story that fails or has
