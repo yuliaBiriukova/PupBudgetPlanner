@@ -95,6 +95,7 @@ owner asks for one.
 | [I-007](changes/improvements/I-007-remove-test-data-after-tests/I-007-remove-test-data-after-tests.md) | Remove test accounts and data after tests; E2E tests clean up after themselves | High | Done |
 | [I-008](changes/improvements/I-008-instant-click-feedback/I-008-instant-click-feedback.md) | Instant response to clicks on check boxes and dialog buttons (closed: fine on production) | High | Done |
 | [I-009](changes/improvements/I-009-planning-only-branches/I-009-planning-only-branches.md) | Planning-only branches (`plan/…`) for lists the owner only wants in the backlog | High | Done |
+| [I-010](changes/improvements/I-010-storybook-tests-in-ci/I-010-storybook-tests-in-ci.md) | Run every Storybook story in CI (play function and axe scan); a failing story fails the build | High | Todo |
 
 ## Bugfixes
 
