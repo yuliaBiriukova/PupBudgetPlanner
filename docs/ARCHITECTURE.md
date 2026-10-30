@@ -92,6 +92,10 @@ erDiagram
     USER ||--o{ INVITATION : "makes (admin)"
     USER ||--o| INVITATION : "joined with"
     USER ||--o{ ACCOUNT : owns
+    USER ||--o{ ACCOUNT_SOURCE : owns
+    USER ||--o{ BANK : owns
+    ACCOUNT_SOURCE ||--o{ ACCOUNT : "holds (Own)"
+    BANK ||--o{ ACCOUNT : "holds (Bank)"
     USER ||--o{ CATEGORY_GROUP : owns
     CATEGORY_GROUP ||--|{ CATEGORY : contains
     USER ||--o{ TRANSACTION : records
@@ -100,26 +104,37 @@ erDiagram
     CATEGORY ||--o{ TRANSACTION : "classifies"
     EXCHANGE_RATE
 
-    USER { guid Id string Email string DisplayName Currency ReportCurrency datetime CreatedAt datetime BlockedAt }
+    USER { guid Id string Email string DisplayName string ReportCurrency datetime CreatedAt datetime BlockedAt }
     INVITATION { guid Id bytes TokenHash string Note guid CreatedById datetime ExpiresAt guid UsedById datetime UsedAt datetime CancelledAt }
     FAMILY { guid Id string Name guid OwnerUserId }
     FAMILY_MEMBER { guid FamilyId guid UserId FamilyRole Role }
     FAMILY_INVITATION { guid Id guid FamilyId string Token datetime ExpiresAt }
-    ACCOUNT { guid Id guid UserId string Name Institution Institution Currency Currency decimal OpeningBalance date OpeningDate bool IsArchived }
+    ACCOUNT { guid Id guid UserId string Name string Currency SourceKind Source guid SourceId guid BankId decimal OpeningBalance date OpeningDate CardStyle CardStyle datetime CreatedAt datetime ArchivedAt }
+    ACCOUNT_SOURCE { guid Id guid UserId string Name }
+    BANK { guid Id guid UserId string Name }
     CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder }
     CATEGORY { guid Id guid GroupId string Name int SortOrder bool IsArchived }
     TRANSACTION { guid Id guid UserId TransactionType Type date Date guid AccountId decimal Amount guid CategoryId guid ToAccountId decimal ToAmount string Note }
-    EXCHANGE_RATE { date Date Currency Currency decimal RateToUah RateSource Source }
+    EXCHANGE_RATE { date Date string Currency decimal RateToUah RateSource Source }
 ```
 
 - `Amount` is always positive; `Type` gives the direction.
-- Money: `numeric(18,2)`; rates: `numeric(18,6)`.
+- Money: `numeric(18,2)`; rates: `numeric(18,6)`. Amounts people enter are whole units, rounded half away from zero
+  (`Money.Whole`); amounts worked out from rates are kept as they are and rounded when shown
+  ([ADR 0018](decisions/0018-whole-amounts.md)).
 - Categories: every account gets its own copy of the default set (`DefaultCategories`) in the transaction that
   creates it; group names are unique per person, category names per group
   ([ADR 0015](decisions/0015-default-categories-seeding.md)).
 - Invitations (F-028): an invite link for one person, valid once for 7 days; only the token's SHA-256 is stored.
   Its status (waiting, used, expired, cancelled) comes from the dates. A blocked person keeps their data
   (`BlockedAt`) ([ADR 0016](decisions/0016-invite-only-sign-up.md)). F-023 will attach a family to it.
+- Accounts (F-014): the source is Cash, Bank or one of the person's own sources; a bank account names one of the
+  person's banks. Own sources and banks are personal rows (a name unique per person) that stay while an account uses
+  them. Balances are never stored: `BalanceSheet` adds each account's transactions to its opening balance and totals
+  the currencies over the accounts in use (archived ones are left out)
+  ([ADR 0017](decisions/0017-accounts-sources-banks.md)).
+- Currencies are ISO 4217 codes (`char(3)`): the hryvnia and every currency the NBU publishes an official rate for,
+  listed once in `Currencies.All` (Domain). The API sends the list with the accounts; the frontend only names them.
 
 #### Enums
 
@@ -127,13 +142,13 @@ erDiagram
 |------|--------|---------|---------|
 | `TransactionType` | `Expense`, `Income`, `Transfer` | `Transaction.Type` | Direction of the money: leaves an account, comes into an account, or moves between two own accounts |
 | `CategoryKind` | `Income`, `Expense` | `CategoryGroup.Kind` | Report section of the group; which categories the form offers for an expense or an income |
-| `Currency` | `UAH`, `USD`, `EUR` (ISO 4217 codes) | `Account.Currency`, `User.ReportCurrency`, `ExchangeRate.Currency` | More currencies can be added later as new values |
-| `Institution` | `Monobank`, `PrivatBank`, `Cash`, `Other` | `Account.Institution` | Where the account is held (icon and grouping in the UI) |
+| `SourceKind` | `Cash`, `Bank`, `Own` | `Account.Source` | Where the money is: cash, one of the person's banks, or one of their own sources (F-014) |
+| `CardStyle` | `Solid`, `Tinted`, `Envelope`, `Plain` | `Account.CardStyle` | How the account's card looks; a new account starts with its source's style (F-014) |
 | `FamilyRole` | `Owner`, `Member` | `FamilyMember.Role` | The owner can invite and remove members |
 | `RateSource` | `Nbu` | `ExchangeRate.Source` | Where the rate came from; leaves room for other sources |
 
 **Storage:** enums are C# `enum` types in the Domain layer and are stored in PostgreSQL **as text**
-(`"Expense"`, `"UAH"`) with EF Core `HasConversion<string>()`, in a `varchar` column with a maximum length.
+(`"Expense"`, `"Solid"`) with EF Core `HasConversion<string>()`, in a `varchar` column with a maximum length.
 
 - The data stays readable when you query the database directly.
 - Reordering or adding enum values can never change the meaning of existing rows (with numbers, inserting

@@ -18,6 +18,8 @@ class ResizeObserverStub {
   disconnect = vi.fn();
 }
 window.ResizeObserver = ResizeObserverStub;
+// jsdom has no layout, so nothing to scroll into view
+Element.prototype.scrollIntoView = vi.fn();
 
 // Every request must be mocked: an unexpected call fails the test.
 beforeAll(() => {
