@@ -2,7 +2,8 @@
 
 Index of all changes. The details of each change live in its folder in [changes/](changes/).
 
-- Statuses: `Todo` · `In progress` · `Review` · `Done` · `Blocked`.
+- Statuses: `Todo` · `In progress` · `Review` · `Done` · `Blocked` · `Dropped` (the owner decided not to build it;
+  the row and the folder stay, the ID isn't reused).
 - IDs: `F-xxx` feature (incl. setup work), `I-xxx` improvement, `B-xxx` bugfix.
 - 🎨 = screen work: 3 HTML design prototypes before implementation.
 - Priority (improvements, bugfixes and features added after planning): `High` · `Medium` · `Low` — see
@@ -38,7 +39,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 | ID | Feature | Status |
 |----|---------|--------|
-| [F-014](changes/features/F-014-accounts/F-014-accounts.md) | 🎨 Accounts and balances | Todo |
+| [F-014](changes/features/F-014-accounts/F-014-accounts.md) | 🎨 Accounts and balances | Done |
 | [F-015](changes/features/F-015-categories-view/F-015-categories-view.md) | 🎨 Categories view | Todo |
 | [F-016](changes/features/F-016-user-settings/F-016-user-settings.md) | 🎨 User settings | Todo |
 
@@ -89,12 +90,16 @@ owner asks for one.
 |----|-------------|----------|--------|
 | [I-001](changes/improvements/I-001-working-agreement-rules/I-001-working-agreement-rules.md) | Working agreement: PR hand-off, Playwright checks, change docs first, design references | High | Done |
 | [I-003](changes/improvements/I-003-owner-approval-before-implementation/I-003-owner-approval-before-implementation.md) | Owner approval before implementation (backend or frontend) | High | Done |
-| [I-004](changes/improvements/I-004-custom-scroll-bars/I-004-custom-scroll-bars.md) | 🎨 Custom scroll bars; a dialog scrolls inside itself | Medium | Todo |
+| [I-004](changes/improvements/I-004-custom-scroll-bars/I-004-custom-scroll-bars.md) | 🎨 Custom scroll bars; a dialog scrolls inside itself | Medium | Done |
 | [I-005](changes/improvements/I-005-people-pagination/I-005-people-pagination.md) | 🎨 Pages on the People list; "Select all" picks the current page | Medium | Todo |
 | [I-006](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md) | 🎨 Delete used, expired and cancelled invite links (one or many); morning cron job deletes them after 30 days | Medium | Todo |
-| [I-007](changes/improvements/I-007-remove-test-data-after-tests/I-007-remove-test-data-after-tests.md) | Remove test accounts and data after tests | High | Todo |
-| [I-008](changes/improvements/I-008-instant-click-feedback/I-008-instant-click-feedback.md) | Instant response to clicks on check boxes and dialog buttons | High | Todo |
+| [I-007](changes/improvements/I-007-remove-test-data-after-tests/I-007-remove-test-data-after-tests.md) | Remove test accounts and data after tests; E2E tests clean up after themselves | High | Done |
+| [I-008](changes/improvements/I-008-instant-click-feedback/I-008-instant-click-feedback.md) | Instant response to clicks on check boxes and dialog buttons (closed: fine on production) | High | Done |
 | [I-009](changes/improvements/I-009-planning-only-branches/I-009-planning-only-branches.md) | Planning-only branches (`plan/…`) for lists the owner only wants in the backlog | High | Done |
+| [I-010](changes/improvements/I-010-storybook-tests-in-ci/I-010-storybook-tests-in-ci.md) | Run every Storybook story in CI (play function and axe scan); a failing story fails the build | High | Dropped |
+| [I-011](changes/improvements/I-011-delete-account-permanently/I-011-delete-account-permanently.md) | 🎨 Delete an account (card, cash) permanently, not only archive it | Medium | Done |
+| [I-012](changes/improvements/I-012-dialog-title-spacing/I-012-dialog-title-spacing.md) | Less space between a pop-up's title and its content (all pop-ups) | Medium | Done |
+| [I-013](changes/improvements/I-013-banks-from-nbu/I-013-banks-from-nbu.md) | Suggest banks from the NBU's list instead of a list in the app (after F-017) | Low | Todo |
 
 ## Bugfixes
 

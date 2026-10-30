@@ -5,8 +5,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PupBudgetPlanner.Application.Access;
+using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.Auth;
 using PupBudgetPlanner.Infrastructure.Access;
+using PupBudgetPlanner.Infrastructure.Accounts;
 using PupBudgetPlanner.Infrastructure.Identity;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
@@ -36,6 +38,7 @@ public static class DependencyInjection
 
         services.AddIdentityStores();
         services.AddAccess(configuration);
+        services.AddScoped<IAccountService, AccountService>();
 
         return services;
     }

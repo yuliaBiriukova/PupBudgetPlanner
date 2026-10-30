@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I-012 · Before and after</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { min-height: 44px; font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-bar button:focus-visible { outline: 2px solid #8ec1ec; outline-offset: 2px; }
+@media (max-width: 699px) { [data-group='view'] { display: none !important; } }
+.intro { max-width: 980px; margin: 16px auto 0; padding: 0 16px; color: #1b1e24; font-size: 14px; line-height: 1.5; }
+.intro p { margin: 0 0 6px; }
+.stage { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; padding: 16px; }
+.col { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }
+.col .label { margin: 0; font: 600 14px/1.3 system-ui, sans-serif; color: #1b1e24; }
+.col .label span { font-weight: 400; color: #3d434d; }
+.frame { position: relative; overflow: hidden; flex: none; max-width: 100%; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: 720px; border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='desktop'] .frame { width: 640px; height: 640px; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+
+/* ---------- Tokens: the app's theme (theme.ts) ---------- */
+.app {
+  --bg: #f5f6f7; --surface: #fcfcfd; --text: #1c1e21; --muted: #57585b; --rule: #d7d8d9; --hover: #e8e9ea;
+  --primary: #26292e; --on-primary: #f5f6f7; --accent: #2a62a3; --tint: #e7ecf1;
+  --scrim: rgba(18, 19, 21, .45); --shadow-float: 0 8px 24px rgba(15, 17, 20, .1);
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+  --gap: rgba(214, 51, 108, .22); --gap-line: #c2255c;
+}
+.app[data-scheme='dark'] {
+  --bg: #121315; --surface: #1b1c1e; --text: #e9eaec; --muted: #a4a5a7; --rule: #37383a; --hover: #26272a;
+  --primary: #e9eaec; --on-primary: #121315; --accent: #8ec1ec; --tint: #262f37;
+  --scrim: rgba(0, 0, 0, .6); --shadow-float: 0 10px 28px rgba(0, 0, 0, .45);
+  --gap: rgba(250, 162, 193, .25); --gap-line: #faa2c1;
+}
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; color-scheme: light; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+.app :where(h2, p) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.page { padding: 24px 20px; color: var(--muted); }
+.page h1 { margin: 0 0 8px; font: 300 28px/1.15 var(--font-display); color: var(--text); }
+
+/* ---------- Pop-up: a sheet from the bottom on the phone, centred on the desktop ---------- */
+.scrim { position: absolute; inset: 0; display: flex; align-items: flex-end; background: var(--scrim); }
+.dlg { position: relative; display: flex; flex-direction: column; width: 100%; max-height: 90%; overflow: hidden; border-radius: 24px 24px 0 0; background: var(--surface); box-shadow: var(--shadow-float); }
+.grab { flex: none; width: 36px; height: 4px; margin: 10px auto 2px; border-radius: 4px; background: var(--rule); }
+.head { display: flex; flex: none; align-items: center; justify-content: space-between; }
+.head h2 { font-family: var(--font-display); font-size: 20px; font-weight: 300; }
+.x { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 0; border-radius: 999px; background: none; color: var(--text); cursor: pointer; }
+.x:hover { background: var(--hover); }
+/* The app's own scroll bar is hidden until scrolling (I-004), so none is drawn here */
+.body { position: relative; flex: 0 1 auto; min-height: 0; overflow: hidden auto; scrollbar-width: none; }
+.foot { display: flex; flex: none; gap: 8px; }
+.btn { min-height: 44px; padding: 0 18px; border: 0; border-radius: 999px; font: 500 14px var(--font-text); cursor: pointer; }
+.btn-main { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary); color: var(--on-primary); }
+.btn-sub { background: none; color: var(--text); }
+.btn-sub:hover { background: var(--hover); }
+.info { display: flex; gap: 10px; align-items: flex-start; margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: var(--tint); }
+.info svg { flex: none; margin-top: 2px; color: var(--accent); }
+.muted { color: var(--muted); }
+.group { margin: 4px 0 2px; font-size: 14px; color: var(--muted); }
+.check { display: flex; align-items: center; gap: 12px; min-height: 40px; font-size: 14px; }
+.box { display: grid; place-items: center; width: 20px; height: 20px; flex: none; border-radius: 6px; background: var(--accent); color: var(--surface); }
+/* The content fades out at an edge with more behind it, as FadingScrollArea does (I-004) */
+.body { --fade-top: 0px; --fade-bottom: 0px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent); mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent); }
+.body[data-more-above] { --fade-top: 40px; }
+.body[data-more-below] { --fade-bottom: 56px; }
+
+/* Phone sheet (BottomSheet). The outer padding: 16 px at the sides and under the buttons, 20 px under content
+   without buttons */
+.phone .head { min-height: 60px; padding: 6px 12px 4px 20px; }
+.phone .head h2 { line-height: 1; }
+.phone .body { padding: 4px 16px 20px; }
+.phone .body:has(+ .foot) { padding-bottom: 8px; }
+.phone .foot { flex-direction: column-reverse; padding: 12px 16px 16px; }
+.phone .btn { width: 100%; min-height: 48px; }
+/* After: both inner gaps are 16 px, the outer padding: 8 (the 28 px title line centred on the 44 px close button)
+   + 8 above the content; the body's 8 + the footer's 8 below */
+.phone[data-after] .head { min-height: 0; padding-bottom: 0; }
+.phone[data-after] .head h2 { line-height: 28px; }
+.phone[data-after] .body { padding-top: 8px; }
+.phone[data-after] .foot { padding-top: 8px; }
+
+/* Desktop dialog (ResponsiveDialog). The outer padding: 20 px */
+@container app (min-width: 600px) {
+  .scrim { align-items: center; justify-content: center; padding: 32px; }
+  .dlg { width: 480px; border-radius: 24px; }
+  .grab { display: none; }
+  .desk .head { min-height: 60px; padding: 20px 15px 20px 20px; }
+  .desk .head h2 { line-height: 1.3; }
+  .desk .body { padding: 20px; }
+  .desk .body:has(+ .foot) { padding-bottom: 8px; }
+  .desk .foot { justify-content: flex-end; padding: 16px 20px 20px; }
+  /* After: both inner gaps are 20 px, the outer padding: 8 + 12 above the content; the body's 8 + the footer's 12
+     below. Mantine's 15 px on the right becomes 16 */
+  .desk[data-after] .head { padding-right: 16px; padding-bottom: 0; }
+  .desk[data-after] .head h2 { line-height: 28px; }
+  .desk[data-after] .body { padding-top: 12px; }
+  .desk[data-after] .foot { padding-top: 12px; }
+  /* Add transaction today: Mantine's own Modal, 440 px, a small close button, no footer */
+  .desk.plain { width: 440px; }
+  .desk.plain .head h2 { line-height: 1; }
+  .desk.plain .x { width: 28px; height: 28px; }
+  .desk.plain .body { padding: 0 20px 20px; }
+}
+
+/* The gaps above and below the content, marked */
+.mark { position: absolute; left: 0; right: 0; z-index: 5; pointer-events: none; background: var(--gap); border-top: 1px dashed var(--gap-line); border-bottom: 1px dashed var(--gap-line); }
+.mark span { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); padding: 0 6px; border-radius: 4px; background: var(--gap-line); color: var(--surface); font: 600 12px/16px system-ui, sans-serif; }
+[data-hide-gap] .mark { display: none; }
+</style>
+</head>
+<body>
+<div class="pv-bar" role="toolbar" aria-label="Preview">
+  <b>I-012 · Title spacing in pop-ups</b>
+  <div class="pv-group" data-group="popup"><span>Pop-up</span>
+    <button data-v="archive">Archive question</button><button data-v="long">Long list, scrolled</button><button data-v="add">Add transaction</button>
+  </div>
+  <div class="pv-group" data-group="view"><span>View</span><button data-v="phone">Phone</button><button data-v="desktop">Desktop</button></div>
+  <div class="pv-group" data-group="scheme"><span>Scheme</span><button data-v="light">Light</button><button data-v="dark">Dark</button></div>
+  <div class="pv-group" data-group="gap"><span>Gap</span><button data-v="on">Marked</button><button data-v="off">Hidden</button></div>
+</div>
+<div class="intro">
+  <p><strong>Before</strong> is the app today. <strong>After</strong>: the space between the title and the content is the same as between the content and the buttons, and no bigger than the pop-up's outer padding: 20 px on the desktop, 16 px on the phone. The outer padding stays as it is. Every value is even. The pink bands mark both spaces; the numbers are measured in the app.</p>
+  <p>Why: since the scroll area of I-004 went around the content, Mantine adds the content's 20 px top padding back. On the phone the title block keeps Mantine's 60 px minimum height around a 44 px close button.</p>
+</div>
+<main class="stage" id="stage"></main>
+
+<template id="tpl-archive">
+  <p>It leaves the list, the totals and the account pickers. Its transactions stay in the lists and reports, and you can restore it from Archived.</p>
+  <div class="info">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+    <p>It still has 1 240 ₴. Archived, that money is no longer in the UAH total.</p>
+  </div>
+</template>
+
+<script>
+const state = { popup: 'archive', view: window.innerWidth < 700 ? 'phone' : 'desktop', scheme: 'light', gap: 'on' };
+const ICON_X = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+const ICON_ARCHIVE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4"/></svg>';
+const TICK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>';
+const GROUPS = { 'Bills': ['Rent', 'Utilities', 'Internet', 'Mobile'], 'Daily living': ['Groceries', 'Clothing', 'Eating out', 'Transportation', 'Salon/Barber', 'Sport'], 'Health': ['Doctor/Dentist', 'Medicine/Drugs/Skincare', 'Emergency', 'Therapy'], 'Home': ['Home supplies', 'Electronics', 'Bank commission', 'Gifts'] };
+
+function longList() {
+  return Object.entries(GROUPS).map(([g, items]) =>
+    `<p class="group">${g}</p>` + items.map(i => `<div class="check"><span class="box">${TICK}</span>${i}</div>`).join('')
+  ).join('');
+}
+
+function popupHtml(after) {
+  const phone = view() === 'phone';
+  const kind = phone ? 'phone' : 'desk';
+  const p = state.popup;
+  let title, body, foot = '', plain = false;
+  if (p === 'archive') {
+    title = 'Archive Mono black?';
+    body = document.getElementById('tpl-archive').innerHTML;
+    foot = `<button class="btn btn-sub">Cancel</button><button class="btn btn-main">${ICON_ARCHIVE}Archive</button>`;
+  } else if (p === 'long') {
+    title = 'Categories to show';
+    body = longList();
+    foot = '<button class="btn btn-sub">Cancel</button><button class="btn btn-main">Save</button>';
+  } else {
+    title = 'Add transaction';
+    body = '<p class="muted">Adding expenses, income and transfers is coming soon.</p>';
+    // On the desktop it is Mantine's own Modal today; after, it uses the shared dialog like every other pop-up
+    plain = !phone && !after;
+  }
+  return `<div class="dlg ${kind}${plain ? ' plain' : ''}" ${after ? 'data-after' : ''} role="dialog" aria-label="${title}">
+    ${phone ? '<div class="grab" aria-hidden="true"></div>' : ''}
+    <div class="head"><h2>${title}</h2><button class="x" aria-label="Close">${ICON_X}</button></div>
+    <div class="body"${p === 'long' ? ' tabindex="0"' : ''}>${body}</div>
+    ${foot ? `<div class="foot">${foot}</div>` : ''}
+  </div>`;
+}
+
+// A window narrower than the desktop frame only has room for the phone
+const view = () => (window.innerWidth < 700 ? 'phone' : state.view);
+
+function render() {
+  const stage = document.getElementById('stage');
+  stage.dataset.view = view();
+  stage.innerHTML = [false, true].map(after => `
+    <section class="col">
+      <p class="label">${after ? 'After' : 'Before'} <span data-gap-label></span></p>
+      <div class="frame">
+        <div class="app" data-scheme="${state.scheme}" ${state.gap === 'off' ? 'data-hide-gap' : ''}>
+          <div class="page"><h1>Accounts</h1><p>Cards and cash</p></div>
+          <div class="scrim">${popupHtml(after)}</div>
+        </div>
+      </div>
+    </section>`).join('');
+  stage.querySelectorAll('.col').forEach(col => {
+    const dlg = col.querySelector('.dlg');
+    const body = dlg.querySelector('.body');
+    if (state.popup === 'long') body.scrollTop = 150;
+    const fades = () => {
+      const max = body.scrollHeight - body.clientHeight;
+      body.toggleAttribute('data-more-above', body.scrollTop > 1);
+      body.toggleAttribute('data-more-below', max > 1 && body.scrollTop < max - 1);
+    };
+    fades();
+    body.addEventListener('scroll', fades, { passive: true });
+    // Measured like in the app: from the title's box to the content's box, and from the content's box (the end of a
+    // scrolled list) to the top button
+    const box = dlg.getBoundingClientRect();
+    const mark = (from, to) => {
+      const gap = Math.round(to - from);
+      const el = document.createElement('div');
+      el.className = 'mark';
+      el.style.top = `${from - box.top}px`;
+      el.style.height = `${gap}px`;
+      el.innerHTML = `<span>${gap} px</span>`;
+      dlg.append(el);
+      return gap;
+    };
+    const title = dlg.querySelector('.head h2').getBoundingClientRect();
+    const inner = body.getBoundingClientRect();
+    const pad = getComputedStyle(body);
+    const gaps = [mark(title.bottom, inner.top + parseFloat(pad.paddingTop))];
+    const buttons = [...dlg.querySelectorAll('.foot .btn')].map(b => b.getBoundingClientRect().top);
+    if (buttons.length) gaps.push(mark(inner.bottom - parseFloat(pad.paddingBottom), Math.min(...buttons)));
+    col.querySelector('[data-gap-label]').textContent = `· ${gaps.map(g => `${g} px`).join(' / ')}`;
+  });
+  document.querySelectorAll('.pv-group').forEach(g => {
+    g.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(state[g.dataset.group] === b.dataset.v)));
+  });
+}
+
+document.querySelectorAll('.pv-group').forEach(g => {
+  g.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    state[g.dataset.group] = b.dataset.v;
+    render();
+  });
+});
+
+// Hooks for the design check
+window.PAGES = [{ id: 'archive' }, { id: 'long' }, { id: 'add' }];
+window.go = id => { state.popup = id; render(); };
+state.schemePref = 'light';
+window.state = state;
+window.applyScheme = () => { state.scheme = state.schemePref === 'dark' ? 'dark' : 'light'; render(); };
+window.setView = name => { state.view = name === 'phone' ? 'phone' : 'desktop'; render(); };
+
+window.addEventListener('resize', render);
+document.fonts.ready.then(render);
+render();
+</script>
+</body>
+</html>

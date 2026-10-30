@@ -5,10 +5,10 @@
 | Type | Improvement |
 | Milestone | M2 — Accounts & categories |
 | Priority | High |
-| Status | Todo |
-| Branch | `improvement/I-008-instant-click-feedback` (planned on `plan/f028-follow-ups`) |
+| Status | Done (closed without changes: not reproducible on production) |
+| Branch | — (nothing built; closed in the I-007 pull request) |
 | Design | not needed (same look, faster) |
-| Approved | — |
+| Approved | — (nothing to build) |
 
 ## Goal
 Clicking a check box, or a button that opens a dialog, responds at once. Today there is a visible delay, and the
@@ -34,3 +34,7 @@ app feels slow. Found by the owner after F-028, 2026-10-29.
 ## Notes
 - Possible causes to check (not confirmed): the whole list re-rendering on every check box change; Mantine's
   open/close transitions on `Modal` / `Drawer` and the check box; work done before the dialog is shown.
+- **Closed 2026-10-29 without changes.** The owner tested on production: check boxes and dialog buttons respond
+  fine there. The delay was seen on localhost, most likely because of the development build (React's development
+  mode and the Vite dev server are much slower than the production build). Nothing was measured or changed; if the
+  delay shows up on production, it gets a new bugfix.

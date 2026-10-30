@@ -1,0 +1,50 @@
+/* The bar is there while scrolling and under the pointer, then fades (I-004). Without anything to scroll Mantine
+   hides it (type "auto"). */
+.scrollbar {
+  opacity: 0;
+  transition: opacity 300ms ease 100ms;
+}
+
+.root[data-scrolling] .scrollbar {
+  opacity: 1;
+  transition-duration: 120ms;
+  transition-delay: 0s;
+}
+
+/* Only with a mouse: a tap leaves :hover on behind on phones */
+@media (hover: hover) {
+  .root:hover .scrollbar {
+    opacity: 1;
+    transition-duration: 120ms;
+    transition-delay: 0s;
+  }
+}
+
+/* The content fades out at an edge with more behind it; the mask only uses the alpha, so the color is any opaque
+   one */
+.viewport {
+  --pup-fade-top: 0px;
+  --pup-fade-bottom: 0px;
+
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 var(--pup-fade-top),
+    #000 calc(100% - var(--pup-fade-bottom)),
+    transparent
+  );
+}
+
+.root[data-more-above] .viewport {
+  --pup-fade-top: 40px;
+}
+
+.root[data-more-below] .viewport {
+  --pup-fade-bottom: 56px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollbar {
+    transition: none;
+  }
+}

@@ -28,8 +28,10 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
-    // Creates a person and keeps their cookies, so the app's tests start signed in (auth.spec.ts starts signed out)
-    { name: 'setup', testMatch: /auth\.setup\.ts$/ },
+    // Creates a person and keeps their cookies, so the app's tests start signed in (auth.spec.ts starts signed out).
+    // Once the projects that depend on it finish, passed or failed, `cleanup` removes the test data (I-007).
+    { name: 'setup', testMatch: /auth\.setup\.ts$/, teardown: 'cleanup' },
+    { name: 'cleanup', testMatch: /cleanup\.teardown\.ts$/ },
     {
       name: 'desktop-chromium',
       use: { ...devices['Desktop Chrome'], storageState: AUTH_FILE },

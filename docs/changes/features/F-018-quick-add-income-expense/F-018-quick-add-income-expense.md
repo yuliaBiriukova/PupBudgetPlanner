@@ -37,4 +37,7 @@ Prototypes: `prototypes/` (not created yet). Chosen variant: —
 
 ## Notes
 
-- —
+- **Deleting an account (I-011):** only an account without transactions can be deleted (owner, 2026-10-30). Once
+  transactions exist, `DELETE /api/accounts/{id}` refuses an account that has any, and the edit form turns Delete off
+  with the reason, as in the I-011 final prototype (screens "Later (F-018)"); an archived account with transactions
+  keeps only Restore.

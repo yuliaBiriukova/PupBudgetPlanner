@@ -2,6 +2,371 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (I-011)
+
+**Done**
+- I-011 delete an account for good, built on `improvement/I-011-delete-account-permanently`:
+  - Design round: references (YNAB, Actual Budget, BudgetBakers Wallet, GitHub, NN/g; Mobbin needs a sign-in) and
+    3 prototypes on F-014's final one. The owner chose variant 3 and approved it on 2026-10-30, after the
+    "only accounts without transactions" rule was added to it.
+  - API: `DELETE /api/accounts/{id}` (204, or 404 for someone else's account); own sources and banks stay.
+  - UI:
+    - the edit form ends with "Archive or delete";
+    - its buttons are only Cancel and Save;
+    - Delete asks for the account's name, says how much money is still on it, and shows "Keep it" and a red
+      "Delete for good";
+    - Archived rows have Delete next to Restore;
+    - after deleting, a notification shows and the total counts down.
+  - Tests: controller tests, frontend unit tests, Storybook stories, and an E2E test (desktop and phone).
+  - Checked in Playwright screenshots at 375 and 1440 px, light and dark, and by hand in the Browser pane. That
+    found two misses, both fixed: Delete was charcoal instead of red, and the name field didn't take the focus.
+- Test data: the E2E and screenshot runs made `e2e-…@example.com` people on the `dev` database; the cleanup teardown
+  removed them after every run.
+- Not caused by this change, but seen while testing:
+  - the People test "picks at most 200 people at a time" times out at 5 s on this machine (about 8 s alone, on
+    `develop` too);
+  - `auth.spec`'s sign-in test failed once with "That didn't go through" and passed 6 of 6 reruns.
+
+**Decisions**
+- Only an account without transactions can be deleted (owner); F-018 adds the check once transactions exist (noted
+  in F-018).
+
+**Next**
+- Owner: review the I-011 PR.
+
+## 2026-10-30 (I-012 built)
+
+**Done**
+- I-012 (less space between a pop-up's title and its content) built on `improvement/I-012-dialog-title-spacing`,
+  as approved (round 3 of the before / after page), in the shared `ResponsiveDialog` and `BottomSheet` styles:
+  - desktop dialog: title → content 20 px (was 49), content → buttons 20 px (was 24); the title's line 28 px, the
+    title row without bottom padding and with 16 px on the right (Mantine's 15), the body 12 px on top, the footer
+    12 px on top;
+  - phone sheet: 16 / 16 px (was 23 / 20); no 60 px minimum for the title row, the body 8 px on top, the footer 8 px
+    on top;
+  - Add transaction on the desktop uses `ResponsiveDialog` instead of its own `Modal` (its stylesheet is gone).
+- Two details the build turned up, inside the approved spacing: the first thing in a pop-up's content has no top
+  margin (New invite link, Block and Delete had 10–16 px of their own, which made 30–36 px under the title), and the
+  More sheet (no title) keeps its 4 px under the grab handle.
+- Checked: every pop-up (shared dialog short and long, scrolled; account form; Archive; New invite link; Block;
+  Delete; Add transaction; More) measured and screenshotted in Storybook at 375 and 1440 px, light and dark, and
+  the screenshots looked at.
+- E2E: "a dialog taller than the window scrolls inside itself" now uses a 280 px tall window (was 320): with the
+  tighter spacing the New invite link dialog fits in 320 px on the desktop. All E2E tests pass (40, 2 skipped).
+- Unit tests: 7 auth, invite and People page tests time out at 5 s on this machine, on `develop` too without this
+  change; they pass alone. Typecheck, lint, Prettier and the build pass.
+- Test data: the E2E runs made `e2e-…` accounts and `E2E` invite links on the `dev` database; their `cleanup`
+  teardown removed them after every run. Nothing was made by hand.
+
+**Next**
+- Owner: review the PR.
+
+## 2026-10-30 (plan: drop I-010)
+
+**Done**
+- I-010 (run every Storybook story in CI) dropped by the owner before it was built, on `plan/drop-i010`: running
+  the stories takes too long (all ~112 stories headless took ~10 minutes while building I-012), so stories are no
+  longer run as tests, neither during development nor in CI. Stories are still written, play functions included;
+  CI keeps `build-storybook`.
+- New status `Dropped`: the row and the folder stay, the ID isn't reused (BACKLOG, changes/README).
+- I-012 paused: its frontend code was reverted; its approved plan and before / after page are committed on
+  `improvement/I-012-dialog-title-spacing` (status stays `In progress`).
+
+**Next**
+- Owner: review the planning PR.
+
+## 2026-10-30 (plan: Storybook stories in CI)
+
+**Done**
+- I-010 planned (not built) on the planning branch `plan/storybook-tests-in-ci`: run every Storybook story in CI —
+  its play function and an axe scan — so a failing story or an accessibility violation fails the build. Today CI
+  only builds Storybook. Prompted by F-014, where running every story by hand after calling the change ready found
+  a real UI gap. Proposed priority High.
+- The plan compares the Vitest addon (`@storybook/addon-vitest`, recommended: no running Storybook, fits the Vitest 5
+  already here, Storybook's own advice for Vite projects) with the test runner (`@storybook/test-runner`, superseded);
+  `a11y.test` goes from `'todo'` to `'error'`; the page-level axe rules `landmark-one-main` and `page-has-heading-one`
+  are off for stories by default and on again for whole screens; every story runs in light and dark; a new
+  `npm run test:stories`; two steps in the Frontend CI job, estimated at ~1 more minute.
+
+**Next**
+- Owner: confirm the priority, review the planning PR, and approve I-010 before it is built on
+  `improvement/I-010-storybook-tests-in-ci`.
+
+## 2026-10-30 (plan: F-014 follow-ups)
+
+**Done**
+- Owner's findings while testing F-014, planned (not built) on `plan/f014-follow-ups`; each will be built on its own
+  branch after approval:
+  - I-011 delete an account (card, cash) permanently, not only archive it (🎨, Medium). Open points with Claude's
+    proposals: Delete on an archived account next to Restore; once F-018 brings transactions, deleting takes them
+    (and whole transfers) along, with the name typed to confirm. Built after F-014 is merged.
+  - I-012 less space between a pop-up's title and its content, for all pop-ups (Medium). Measured: 49 px on the
+    desktop dialog; the likely cause is the I-004 scroll area around the body, which brings Mantine's top padding
+    back. One before / after page for approval instead of 3 variants.
+- The third finding (a zero opening balance should clear when the field is focused) is fixed in F-014 itself, on
+  its branch.
+- Added the same day: I-013 suggest banks from the NBU's list instead of a list in the app (Low, after F-017). F-014
+  keeps a fixed list, the owner's: Credit Agricole, Izibank, Sense Bank and ProCredit Bank are removed there.
+
+**Next**
+- Owner: confirm the three priorities (Medium, Medium, Low) and review the planning PR.
+
+## 2026-10-30 (8)
+
+**Done**
+- F-014, owner's review: **no cents**. Amounts are whole units everywhere in the app (`48 211 ₴`, `$1 240`,
+  `−4 312 ₴`). The owner's answers: typed cents are rounded when saved, for the whole app, .50 away from zero.
+  - API: `Money.Whole` (Domain) rounds the opening balance when an account is saved; the validator takes any amount
+    in range. Migration `RoundOpeningBalances` rounds balances saved with cents before (test databases only).
+  - App: `formatMoney` shows whole amounts; amount fields read cents and show the whole amount once they lose the
+    focus (`1240,50` → `1241`); the field starts at `0`.
+  - Recorded: ADR 0018, a DESIGN_RULES custom rule and §5, ARCHITECTURE, the F-014 description.
+- The longest accounts page test ("adds the first account", about 2 s on its own) gets a 10 s limit; a busy
+  machine had pushed it past 5 s.
+- Checked:
+  - backend build and tests (201, 6 new);
+  - lint, format, typecheck, build, Storybook build;
+  - unit tests (110), with only the older invite page and People "200 people" tests past their 5 s limit, as before;
+  - all 25 stories headless (steps, axe, screenshots);
+  - the field rounding watched in the Browser pane (Storybook: `1240,50` → `1241`);
+  - E2E 40 passed, 2 skipped;
+  - the design check of the real page with amounts sent with cents (stored and shown whole), with screenshots at
+    375 and 1440 px, light and dark, looked at.
+- Noted: with Storybook's dev server running as well, a full unit run had 7 tests past 5 s; with it stopped, only
+  the usual 2.
+- Test data: one `e2e-design-…@example.com` person with sample accounts for the design check, deleted through the
+  admin API afterwards; only the owner's account and the tests' admin are left in `dev`.
+
+## 2026-10-30 (7)
+
+**Done**
+- F-014, owner's review: Credit Agricole, Izibank, Sense Bank and ProCredit Bank removed from the suggested banks
+  (9 are left). Taking the banks from the NBU instead is planned as I-013 (after F-017) on `plan/f014-follow-ups`.
+- The accounts page test waits longer for the first render (up to 4 s): it had failed twice as the first test of its
+  file in a busy full run, at 1.6 and 2.1 s; it then passed in three full runs.
+- Checked: lint, format, typecheck, build; unit tests (accounts 22 in every run; the full suite three times, only the
+  older invite page and People "200 people" tests passing the 5 s limit, as before); all 25 stories headless (steps,
+  axe, screenshots); the suggestions watched in the Browser pane (Storybook, first visit); E2E 40 passed, 2 skipped.
+  Backend unchanged; not rerun.
+- Test data: none created by hand; the E2E clean-up removed the tests' own accounts.
+
+## 2026-10-30 (6)
+
+**Done**
+- F-014, owner's review: a zero opening balance (a new account, or an edited one at 0.00) clears when its field
+  takes the focus; left empty, it shows 0.00 again and counts as 0. The other two findings are planned on
+  `plan/f014-follow-ups`: I-011 delete an account permanently, I-012 less space under a pop-up's title.
+- Checked: lint, format, typecheck, build, Storybook build; the accounts unit tests (22, 3 new) three runs in a row;
+  all 25 stories run headless (steps, axe, screenshots), the 20 page stories with no issues; the focus fix watched in
+  the Browser pane (Storybook, phone); E2E 39 passed and 2 skipped in the full run, and the sign-in and accounts
+  specs twice more, all passed.
+- Not green on this machine, unchanged by F-014: in a full unit run with the dev servers up, two to nine older
+  tests (sign-up, invite page, People "200 people") pass the 5 s limit; one sign-in E2E test failed once on the
+  phone and passed on both reruns (also seen in I-004). The accounts page test failed once in that heavy run and
+  passed in every run after.
+- Backend unchanged since its last green run (195 tests); not rerun.
+- Test data: none created by hand; the E2E clean-up removed the tests' own accounts.
+
+**Next**
+- Owner: review the F-014 PR and the planning PR (I-011, I-012).
+
+## 2026-10-30 (5)
+
+**Done**
+- F-014 Accounts and balances built on `feature/F-014-accounts`, as approved (final prototype `variant-10.html`,
+  without the "In total, in UAH" line, which comes with F-017):
+  - backend: accounts, the person's own sources and banks, any NBU currency, card styles, archive and restore;
+    balances and totals per currency from `BalanceSheet`; `/api/accounts`; migration `AddAccounts`;
+  - frontend: the Accounts page with the Currency / Source switch, "In total" per currency, cards in four styles
+    with a ghost card per group, archived accounts with Restore, and the account form (card preview with the
+    styles, searchable currency list, sources and banks as pills, typed ones with suggestions).
+  - Small choices within the design, listed in the description: Archive turns the edit dialog into the question
+    (no second dialog); with no banks yet the bank's name field shows right away; "Add account" waits for the
+    accounts to load; Escape in the currency list closes only the list.
+- Checked: backend build and tests (195), frontend lint, typecheck, build, Storybook build, unit tests (104: 19
+  for the page and form, 17 for money), E2E 40 passed and 2 skipped (1 new test, desktop and phone), the design
+  check of the real page (no issues of its own; the sidebar's resize handle overlapping the nav by 4 px shows on
+  every page, from the app shell), screenshots at 375 and 1440 px, light and dark, looked at, and the form, currency
+  list, archive and restore tried in the browser.
+- Owner asked whether everything was tested with all the tools. Added: every new Storybook story run headless (its
+  steps, an axe scan, a screenshot looked at). It found the form's mistakes too quiet: the field didn't turn red and
+  the hint stayed above the message. Fixed to the sign-in fields' style (red border, alert icon, the message in the
+  hint's place), and the focus now goes to the first field with a mistake. The 20 page stories pass with no axe issues;
+  the 5 card stories only get the page-level rules every component story gets (no main landmark, no h1). CI green.
+- Noted, not changed: on this machine, with the API and Vite running, two existing unit tests (People "picks at most
+  200 people", invite page "creates the account with the link") sometimes pass the 5 s limit in a full run; both
+  pass on their own, and the second also fails without F-014's tests.
+- Test data: two people made for checking by hand (`e2e-manual-…` and `e2e-design-…@example.com`, with their
+  accounts) and their two invite links (used). The E2E clean-up deleted both people with their data; afterwards the
+  `dev` database had only the owner's account and the tests' admin, and no waiting test links.
+
+**Decisions**
+- ADR 0017: Cash and Bank are built in (named by the app), own sources and banks are personal rows found by name,
+  currencies are ISO codes listed once in the Domain, balances are worked out, never stored.
+
+**Next**
+- Owner: review the F-014 PR.
+- Then F-015 (categories view) or F-017 (NBU rates, with the "In total, in UAH" line).
+
+## 2026-10-30 (4)
+
+**Done**
+- F-014 approved by the owner: the design (final prototype `variant-10.html`) and the build. Recorded in the
+  description (`Approved` row) and in DESIGN_RULES "Screen decisions", with a new custom rule: names of card styles
+  fit both themes.
+- Owner's choice: F-014 is built first. The "In total, in UAH" line, which needs NBU rates, moves to F-017. F-017's
+  acceptance criteria now include it, using F-014's final prototype as its design.
+
+**Next**
+- Build F-014: backend (accounts, sources, banks, balances, API), then the Accounts page.
+
+## 2026-10-30 (3)
+
+**Done**
+- F-014, the owner's feedback: the card style names must fit both themes. Renamed in the final prototype: Black →
+  Solid (charcoal in light mode, light grey in dark mode), Sky → Tinted; Envelope and Plain stay. The description
+  and the screenshots are updated. Checked: the design check (0 issues), the edit dialog in light and dark.
+
+**Next**
+- Owner: approve the final prototype for implementation, and choose how the NBU rates come (F-017 first, or F-014
+  fetches today's rates).
+
+## 2026-10-30 (2)
+
+**Done**
+- F-014, the owner's choice: variant 9 with the preview, with the style next to the preview. Also back in F-014:
+  the total of all accounts in the report currency at NBU rates. This had been moved to F-017 on 2026-10-29;
+  F-017's description now says so.
+- The final prototype `variant-10.html`:
+  - the card preview with four style tiles right under it, at the top of the form;
+  - "In total" led by everything in UAH at today's NBU rates, with the rates and their date, then each currency;
+  - when today's rates are missing, the earlier ones are used and the line says so;
+  - on the phone: a smaller preview, and Archive and Cancel side by side, so the styles stay in view.
+- Checked: the design check (0 issues), screenshots of every screen at 375, 834 and 1440 px, light and dark.
+  No code written: the change isn't approved yet.
+
+**Next**
+- Owner: approve the final prototype for implementation, and choose how the NBU rates come: F-017 first, or
+  F-014 fetches today's rates.
+
+## 2026-10-30
+
+**Done**
+- F-014, the owner's feedback on round 2, recorded in the description:
+  - an X on every pop-up;
+  - variant 6 out;
+  - variant 2's card styles wanted, picked per account, on variant 4's layout (group switch, ghost card);
+  - a bug: the currency search drew a second outline when focused;
+  - "In total" asked for when grouped by currency.
+- Design round 3: variants 7 · Style thumbnails, 8 · Flip the card, 9 · Preview and named styles. All three share
+  the same list, form and fixes:
+  - card styles from variant 2: Black (light grey in dark mode), Sky, Envelope and Plain;
+  - a new account takes its source's style (Bank black, Cash envelope) until one is picked;
+  - "In total" in both groupings;
+  - an X on the dialogs, the More sheet and the currency list;
+  - one focus border on the search (and no second, browser-drawn clear button);
+  - the ghost card dashed in accent blue.
+- Checked: the design check (0 issues), screenshots at 375, 834 and 1440 px, light and dark, looked at and zoomed
+  into the style pickers. Found and fixed in the checks: variant 9's style drawings lost their shape inside the
+  pills. No code written: the change isn't approved yet.
+
+**Next**
+- Owner: pick the style picker (7, 8 or 9) and answer whether "Black" keeps its name in dark mode. Then the final
+  prototype goes to the owner for approval.
+
+## 2026-10-29 (12)
+
+**Done**
+- F-014, the owner's feedback on round 1, recorded in the description with new acceptance criteria:
+  - any NBU currency;
+  - personal sources: Cash and Bank by default, own sources can be added;
+  - personal banks under Bank, typed in the form and remembered;
+  - a Currency / Source group switch;
+  - an add button for each group;
+  - an archived balance shown, muted, only when it isn't zero.
+
+  Variant 1's table is dropped.
+- Design round 2: three card variants:
+  - 4 · Paper cards: every card the same, a ghost card adds to its group;
+  - 5 · Your colors: six colors to pick, each with a dark-mode version; "+ Add" in the group heading;
+  - 6 · Charcoal columns: all cards charcoal, light in dark mode; a column per group with an add link under it.
+
+  Answered in the description: why Monobank's cards were black, and how dark cards turn around in dark mode.
+- Checked: the design check (0 issues), screenshots of every state at 375, 834 and 1440 px, light and dark. The
+  tablet now shows two cards per row, and no text overlaps. No code written: the change isn't approved yet.
+
+**Next**
+- Owner: pick a variant or a mix for the final prototype.
+
+## 2026-10-29 (11)
+
+**Done**
+- F-014 Accounts and balances started on `feature/F-014-accounts` (M2 is now in progress).
+- Owner's choice: the list shows a total per currency for now. The single total in the report currency needs NBU
+  rates and moves to F-017.
+- Design round 1: references (Actual Budget, YNAB, Copilot Money, Spendee, Monefy; Mobbin answered 403), a brief
+  and 3 prototypes: 1 · Ledger (a table grouped by currency, double-ruled total rows), 2 · Wallet (bank-card tiles
+  grouped by bank, totals on a charcoal band), 3 · Currency columns (one column per currency, its total large on
+  top). Each covers the list, first visit, loading, error, new / edit / archive, archived and the moment after
+  adding.
+- Checked: the design check (0 issues, 0 console errors), screenshots of every state at 375 and 1440 px, light
+  and dark, looked at. No code written: the change isn't approved yet.
+
+**Next**
+- Owner: pick a variant (or a mix) and answer the open points in the F-014 description (archived accounts leave
+  the totals, restore, currency fixed once there are transactions, no delete). Then the final prototype goes to the
+  owner for approval.
+
+## 2026-10-29 (10)
+
+**Done**
+- I-004 custom scroll bars, on `improvement/I-004-custom-scroll-bars`:
+  - design round 1: references (Mantine ScrollArea and Modal, Material 3 dialogs and sheets, Apple HIG scroll
+    views, Radix) and 3 prototypes: 1 · Quiet pill, 2 · Shows while you scroll, 3 · Sky rail;
+  - round 2: the owner picked variant 2, built as the final prototype `variant-4.html` with the owner's answers:
+    the page keeps the browser's own bar; a long dialog keeps its buttons pinned at the bottom, with no line over
+    them (the bottom fade is enough); the pointer stays an arrow on the bar, as on every scroll bar;
+  - approved by the owner ("Approved, build it") and built: a shared `FadingScrollArea` (Mantine ScrollArea that
+    shows its bar while scrolling or under the mouse and fades the edges with more behind them), the bar's look once
+    in the theme, a pinned `footer` slot in `ResponsiveDialog` and `BottomSheet` (the People dialogs use it), and
+    the sidebar's sections scroll in a low window. The app shell's grid row now follows the window's height (a low
+    window cut off the bottom of the sidebar before).
+- Checked: lint, typecheck, build, unit tests 68 (4 new), E2E 38 passed locally (1 new, desktop and phone; the
+  clean-up removed the test data), screenshots at 375 and 1440 px, light and dark, looked at.
+- Noted, not changed: in Storybook the People stories show the phone sheet 16 px to the right (the same on
+  `develop`; the app is fine). One E2E sign-in test failed once locally and passed when run again.
+
+**Next**
+- Owner: review the I-004 PR.
+
+## 2026-10-29 (9)
+
+**Done**
+- I-007, approved by the owner's request (docs only): a "Clean up test data" rule in `CLAUDE.md`. Accounts and
+  data made for testing (by hand, through the API, or by E2E tests against the shared `dev` database) are removed
+  in the same session through the People page or `POST /api/admin/people/delete`; test invite links are cancelled
+  until I-006 lets us delete them. The owner's own account and data are never touched. The PROGRESS entry says
+  what was removed. Also a definition-of-done item and a PR template checklist item.
+- I-008 closed without changes: the owner tested on production and clicks respond fine there; the delay was seen
+  on localhost (development build).
+- I-007, E2E clean-up (added and approved by the owner the same day): a `cleanup` teardown project runs after every
+  E2E run, passed or failed. Signed in as the tests' admin, it deletes the accounts whose emails match `newPerson`'s
+  `e2e-…@example.com` pattern and cancels the tests' waiting invite links. The tests' admin stays (an admin can't
+  delete themselves; every run reuses it). The People test's link note is now `E2E for Olena`, so the clean-up
+  recognises it.
+- Checked against the `dev` database: two full runs (36 passed, 2 skipped) and one run with the People test made to
+  fail on purpose. After each, only the owner's account and the tests' admin were left, and no test link was
+  waiting. Lint, typecheck, unit tests (64) pass. The unit tests need Node 24 (the shell's Node 20 can't start
+  Vitest's workers).
+- Test data from this change: E2E accounts and links, all removed by the clean-up itself. Left on purpose: the tests'
+  admin `e2e-admin@example.com` (created by the first run). 18 waiting links made before this change (12 "For
+  Petro", 3 "For Olena", 3 without a note), which the clean-up doesn't recognise, were cancelled at the owner's
+  request; `dev` has no waiting links left. They can be deleted once I-006 is built.
+
+**Next**
+- Owner: review and merge PR #27.
+- Then I-004, I-005, I-006 prototypes, or F-014 (accounts and balances).
+
 ## 2026-10-29 (8)
 
 **Done**

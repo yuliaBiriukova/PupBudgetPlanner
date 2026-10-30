@@ -24,8 +24,22 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 - Check boxes are Mantine's, themed once in `theme.ts`: a rounded square (6 px), the accent when on, an empty box
   with the fields' border. A field in focus has a 2 px accent border (F-011's sign-in style), set once in the theme for
   every field; no second ring around it. (2026-10-29)
+- Scrolling areas inside the app use the shared `FadingScrollArea` (the bar shows while scrolling and fades, edges
+  with more behind them fade out); the page keeps the browser's own scroll bar. A dialog or sheet puts its buttons in
+  the `footer` of `ResponsiveDialog` / `BottomSheet`, so they stay put while a long content scrolls. (2026-10-29,
+  I-004)
+- Names of things a person picks for looks (card styles) are true in both themes: named by the look, not by a
+  color that turns around in dark mode ("Solid", not "Black"). (2026-10-30, F-014)
+- Amounts are whole, no cents, everywhere in the app (`1 250 ₴`, `$1 240`, `−4 312 ₴`): typed cents are rounded when
+  saved, .50 away from zero ([ADR 0018](decisions/0018-whole-amounts.md)). (2026-10-30, owner, F-014)
 - Menu items and buttons don't end in "…", even when they open a dialog: few people know the convention and it
   reads like a typo. (2026-10-29)
+- Every size and spacing value is even, divisible by 4 or 2: paddings, margins, gaps, line heights and the spaces
+  they add up to. No odd numbers, including Mantine's own (its 15 px on the right of a dialog's title row becomes
+  16). (2026-10-30, owner, I-012)
+- Inner gaps, paddings and margins are never bigger than the outer padding of the box they are in. In a pop-up the
+  space between the title and the content equals the space between the content and the buttons, and is no bigger
+  than the pop-up's outer padding (desktop dialog 20 px, phone sheet 16 px). (2026-10-30, owner, I-012)
 
 ## 2. Process
 
@@ -73,11 +87,12 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 
 ## 5. Money, numbers and dates
 
-- Always show the currency next to an amount (`1 250.00 ₴`, `$100.00`, `€50.00`).
+- Always show the currency next to an amount (`1 250 ₴`, `$100`, `€50`); amounts are whole (custom rule, ADR 0018).
 - Amounts are right-aligned in lists and tables and use tabular numbers (`font-variant-numeric: tabular-nums`).
 - **Semantic colors:** income — green, expense — red, transfer — neutral/blue. Color is never the only
   signal: also use a sign (+ / −) or an icon.
-- Amount inputs open the numeric keyboard on mobile (`inputMode="decimal"`), accept both `.` and `,`.
+- Amount inputs open the numeric keyboard on mobile (`inputMode="decimal"`), accept both `.` and `,`; cents typed
+  are rounded, and the field shows the whole amount once it loses the focus.
 - Dates: `27 Oct 2026` in lists, `Oct 2026` for months. Week starts on Monday.
 - Default transaction date is today; the last used account is preselected.
 
@@ -108,3 +123,7 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 | App shell (F-010) | Mix from `blocks.html`: charcoal and sky colors, Unbounded + Manrope, round corners, coin-stack logo, tinted sidebar with an edge-bar marker, logo-as-expand-button collapse, pill tab bar on the phone, waking-up pill | 2026-10-27 | Colors chosen from 17 schemes. Full list in the [F-010 description](changes/features/F-010-app-shell/F-010-app-shell.md#chosen-2026-10-27) |
 | Sign in / create account (F-011) | Variant 4: variant 1's split layout (charcoal brand half, form half; on the phone a charcoal band with the form card overlapping it) with variant 2's form (Sign in / Create account pill switch, 52 px fields, pill buttons) | 2026-10-28 | No report table, no tagline; neutral message for a taken email (ADR 0012); Confirm password until reset exists. See the [F-011 description](changes/features/F-011-email-password-auth/F-011-email-password-auth.md#round-2-a-mix-of-variants-1-and-2-2026-10-28) |
 | Invite page, People page (F-028) | Variant 7 (chosen after 4 rounds): variant 1's sign-in screens with "Yulia invited you"; People page with underline tabs (People · Invite links), search, sortable columns (a Sort menu on the phone), card rows with a check box left of the initials (with a mouse shown on hover or once anyone is picked, always on the phone) for bulk Block / Delete and a ⋯ menu per row; invite links grouped (Waiting cards with a visible Cancel link, Used and Expired and cancelled folded); a dialog for a new link with Copy / Share | 2026-10-29 | Approved by the owner after it was built (I-003). No sign-in method shown (privacy). See the [F-028 description](changes/features/F-028-invite-only-access/F-028-invite-only-access.md#chosen-2026-10-29) |
+| Scroll bars, long dialogs (I-004) | Variant 4 (variant 2 with the owner's answers): Pup's scroll bar inside the app, a 6 px pill (10 px under the mouse) that shows while scrolling or under the pointer and fades; the list fades out at an edge with more behind it; the page keeps the browser's bar; a dialog or sheet scrolls between its pinned title and pinned buttons, with no lines; the pointer stays an arrow on the bar | 2026-10-29 | Approved by the owner before the build. See the [I-004 description](changes/improvements/I-004-custom-scroll-bars/I-004-custom-scroll-bars.md#round-2-final-prototype-2026-10-29) |
+| Accounts (F-014) | Variant 10 (final, after 3 rounds): variant 4's layout (Group by Currency / Source switch, a dashed ghost card adds an account to its group) with variant 2's card styles picked per account (Solid, Tinted, Envelope, Plain; Solid turns light grey in dark mode); the form opens with the card preview and the four styles right under it; "In total" on top; any NBU currency (searchable list), own sources and banks; an X on every pop-up | 2026-10-30 | Approved by the owner before the build. The "In total, in UAH" line at NBU rates comes with F-017. See the [F-014 description](changes/features/F-014-accounts/F-014-accounts.md#approved-2026-10-30) |
+| Pop-up spacing, all pop-ups (I-012) | Before / after page, round 3: the space between the title and the content equals the space between the content and the buttons and the outer padding (desktop dialog 20 px, phone sheet 16 px); the outer padding unchanged; a scrolled content fades at both edges; every value even; Add transaction uses the shared dialog on the desktop | 2026-10-30 | Approved by the owner before the build. See the [I-012 description](changes/improvements/I-012-dialog-title-spacing/I-012-dialog-title-spacing.md#before--after-page-2026-10-30) |
+| Deleting an account (I-011) | Variant 3: at the end of the edit form, after a rule, "Archive or delete" with two rows (Archive; Delete for good), each with a line on what it does; the form's buttons are only Cancel and Save; Delete asks for the account's name typed, "Keep it" / "Delete for good" (red), and says how much money is still on it; archived rows get Delete next to Restore; only an account without transactions can be deleted (after F-018 Delete is off with the reason) | 2026-10-30 | Approved by the owner before the build. See the [I-011 description](changes/improvements/I-011-delete-account-permanently/I-011-delete-account-permanently.md#final-prototype-2026-10-30) |

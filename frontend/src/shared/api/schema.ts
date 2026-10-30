@@ -4,6 +4,255 @@
  */
 
 export interface paths {
+    "/api/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Everything the Accounts page shows, and what its form offers. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountsOverview"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveAccountRequest"];
+                    "text/json": components["schemas"]["SaveAccountRequest"];
+                    "application/*+json": components["schemas"]["SaveAccountRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountItem"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveAccountRequest"];
+                    "text/json": components["schemas"]["SaveAccountRequest"];
+                    "application/*+json": components["schemas"]["SaveAccountRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountItem"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Removes it for good (I-011); the person's own sources and banks stay. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Takes it out of the totals and the pickers; its history stays. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/people": {
         parameters: {
             query?: never;
@@ -786,6 +1035,57 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /**
+         * @description One account on the Accounts page. SourceName is set for an own source and
+         *     BankName for a bank; Cash and Bank themselves are named by the app.
+         */
+        AccountItem: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            currency: string;
+            source: components["schemas"]["SourceKind"];
+            /** Format: uuid */
+            sourceId: null | string;
+            sourceName: null | string;
+            /** Format: uuid */
+            bankId: null | string;
+            bankName: null | string;
+            /** Format: double */
+            openingBalance: number | string;
+            /** Format: date */
+            openingDate: string;
+            /** Format: double */
+            balance: number | string;
+            cardStyle: components["schemas"]["CardStyle"];
+            /** Format: date-time */
+            archivedAt: null | string;
+        };
+        /**
+         * @description Everything the Accounts page shows: the accounts in use (oldest first), the archived ones (last archived first),
+         *     the totals per currency, the person's own sources and banks (by name) for the form, and every currency an
+         *     account can be in.
+         */
+        AccountsOverview: {
+            accounts: components["schemas"]["AccountItem"][];
+            archived: components["schemas"]["AccountItem"][];
+            totals: components["schemas"]["CurrencyTotal"][];
+            sources: components["schemas"]["SourceItem"][];
+            banks: components["schemas"]["BankItem"][];
+            currencies: string[];
+        };
+        /** @description One of the person's banks. */
+        BankItem: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        /**
+         * @description How an account's card looks on the Accounts page (F-014). Named by the look, so the names fit both themes: Solid
+         *     is charcoal in light mode and light grey in dark mode.
+         * @enum {unknown}
+         */
+        CardStyle: "Solid" | "Tinted" | "Envelope" | "Plain";
+        /**
          * @description The link just made. Token goes into `/invite/{token}`; it is never shown again, because
          *     only its hash is stored.
          */
@@ -800,6 +1100,14 @@ export interface components {
         /** @description A new invite link; Note says who it is for and only the admin sees it. */
         CreateInvitationRequest: {
             note: null | string;
+        };
+        /** @description The total of one currency over the accounts in use. */
+        CurrencyTotal: {
+            currency: string;
+            /** Format: int32 */
+            accounts: number | string;
+            /** Format: double */
+            total: number | string;
         };
         /** @description The signed-in person, as the app shows them. The admin also sees the People page (F-028). */
         CurrentUser: {
@@ -880,6 +1188,23 @@ export interface components {
             password: string;
             inviteToken?: null | string;
         };
+        /**
+         * @description A new account or the edited one. For SourceKind.Own, SourceName names one of the
+         *     person's own sources, or a new one, which is then kept; the same for BankName and
+         *     SourceKind.Bank. Names match ignoring case.
+         */
+        SaveAccountRequest: {
+            name: string;
+            currency: string;
+            source: components["schemas"]["SourceKind"];
+            sourceName: null | string;
+            bankName: null | string;
+            /** Format: double */
+            openingBalance: number | string;
+            /** Format: date */
+            openingDate: string;
+            cardStyle: components["schemas"]["CardStyle"];
+        };
         SignInRequest: {
             email: string;
             password: string;
@@ -893,6 +1218,18 @@ export interface components {
          * @enum {unknown}
          */
         SignUpMode: "InviteOnly" | "Open";
+        /** @description A source of the person's own, besides Cash and Bank. */
+        SourceItem: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        /**
+         * @description Where an account's money is (F-014). Everyone has Cash and Bank; the app names them in the person's language.
+         *     Anything else is a source of the person's own (AccountSource).
+         * @enum {unknown}
+         */
+        SourceKind: "Cash" | "Bank" | "Own";
         ValidationProblemDetails: {
             type?: null | string;
             title?: null | string;

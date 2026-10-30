@@ -3,9 +3,11 @@ import {
   Checkbox,
   createTheme,
   Input,
+  ScrollArea,
   type CSSVariablesResolver,
   type MantineColorsTuple,
 } from '@mantine/core';
+import { SCROLL_BAR_HIDE_DELAY } from '../shared/ui/FadingScrollArea';
 import themeClasses from './theme.module.css';
 
 // The single place for theme settings (docs/DESIGN_RULES.md). Colors: "charcoal and sky", chosen in F-010 from the
@@ -98,6 +100,16 @@ export const theme = createTheme({
     }),
     // Fields in focus get a 2 px accent border (theme.module.css): Mantine only changes the border color
     Input: Input.extend({ classNames: { input: themeClasses.input } }),
+    // Pup's scroll bar for every scroll area, Mantine's own too (dropdowns): the look is in theme.module.css; it
+    // shows while scrolling. Shared areas add the fades with FadingScrollArea (I-004). Autosize takes its own
+    // defaults and passes them on, so it needs them too.
+    ScrollArea: ScrollArea.extend({
+      defaultProps: { type: 'scroll', scrollbarSize: 12, scrollHideDelay: SCROLL_BAR_HIDE_DELAY },
+      classNames: { scrollbar: themeClasses.scrollbar, thumb: themeClasses.thumb },
+    }),
+    ScrollAreaAutosize: ScrollArea.Autosize.extend({
+      defaultProps: { type: 'scroll', scrollbarSize: 12, scrollHideDelay: SCROLL_BAR_HIDE_DELAY },
+    }),
     // A rounded square (the md default made the 20 px box a circle, like a radio) in the accent, the color of
     // picked rows and the active section
     Checkbox: Checkbox.extend({
@@ -152,6 +164,15 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-danger': '#b3261e',
     '--pup-color-danger-hover': '#9c211a',
     '--pup-color-on-danger': '#fcfcfd',
+    // Amounts below zero (a debt, an expense), and the tint of a picked or new thing
+    '--pup-color-expense': '#b3261e',
+    '--pup-color-tint': '#e7ecf1',
+    // The Solid account card (F-014): charcoal here, light grey in dark mode
+    '--pup-card-solid': '#26292e',
+    '--pup-card-solid-hover': '#363a40',
+    '--pup-card-on-solid': '#f5f6f7',
+    '--pup-card-solid-muted': '#b4b9bf',
+    '--pup-card-solid-debt': '#f2958c',
   },
   dark: {
     '--mantine-color-body': '#121315',
@@ -183,5 +204,12 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-danger': '#f2958c',
     '--pup-color-danger-hover': '#f6b8b2',
     '--pup-color-on-danger': '#121315',
+    '--pup-color-expense': '#f2958c',
+    '--pup-color-tint': '#262f37',
+    '--pup-card-solid': '#e9eaec',
+    '--pup-card-solid-hover': '#d3d6da',
+    '--pup-card-on-solid': '#1c1e21',
+    '--pup-card-solid-muted': '#474c54',
+    '--pup-card-solid-debt': '#a1221b',
   },
 });

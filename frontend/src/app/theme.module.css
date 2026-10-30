@@ -7,6 +7,42 @@
   background-color: var(--pup-color-surface);
 }
 
+/* Scroll bars inside the app (I-004): no track, a 6 px pill in the fields' border color (3:1), 10 px and darker
+   under the mouse, kept 12 px clear of the ends so it stays inside rounded corners. The pointer stays an arrow, as
+   on every scroll bar. The doubled classes beat Mantine's own hover colors */
+.scrollbar.scrollbar {
+  padding: 0 3px;
+  background-color: transparent;
+  transition:
+    opacity 150ms ease,
+    padding 120ms ease;
+}
+
+.scrollbar[data-orientation='vertical'] {
+  top: 12px;
+  bottom: 12px;
+}
+
+.scrollbar.scrollbar:hover,
+.scrollbar.scrollbar:active {
+  padding: 0 1px;
+  background-color: transparent;
+}
+
+.thumb.thumb {
+  background-color: var(--pup-color-field-border);
+}
+
+.scrollbar.scrollbar:is(:hover, :active) > .thumb {
+  background-color: var(--mantine-color-dimmed);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollbar.scrollbar {
+    transition: none;
+  }
+}
+
 /* A field in focus gets a 2 px accent border (the border and a 1 px outline on it), the sign-in fields' style from
    F-011, everywhere. Mantine alone only changes the border color, which is easy to miss */
 .input:focus,

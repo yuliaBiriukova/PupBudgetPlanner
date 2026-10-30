@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 import en from '../src/shared/i18n/locales/en.json' with { type: 'json' };
 import { E2E_ADMIN, newPerson, signedInAdmin, signUpThroughApi, type Person } from './auth.ts';
 
@@ -42,14 +42,14 @@ test('the admin invites a person, then blocks and unblocks them', async ({
   await openPeople(page, isMobile);
   await page.getByRole('button', { name: en.people.newLink.button }).click();
   const form = page.getByRole('dialog', { name: en.people.newLink.title });
-  await form.getByLabel(en.people.newLink.noteLabel).fill('For Olena');
+  await form.getByLabel(en.people.newLink.noteLabel).fill('E2E for Olena');
   await form.getByRole('button', { name: en.people.newLink.create }).click();
   const ready = page.getByRole('dialog', { name: en.people.newLink.readyTitle });
   const link = await ready.getByLabel(en.people.newLink.linkLabel).inputValue();
   expect(link).toMatch(/\/invite\/[A-Za-z0-9_-]{43}$/);
   await ready.getByRole('button', { name: en.people.newLink.done }).click();
   await expect(page).toHaveURL(/\/people\/links$/);
-  await expect(page.getByText('For Olena').first()).toBeVisible();
+  await expect(page.getByText('E2E for Olena').first()).toBeVisible();
 
   // The person opens it in their own browser and creates the account
   const theirs = await browser.newContext({ baseURL: new URL(link).origin });
@@ -98,4 +98,56 @@ test('a person who isn’t the admin has no People page', async ({ page }) => {
 
   await page.goto('/people');
   await expect(page.getByRole('heading', { name: en.notFound.title })).toBeVisible();
+});
+
+/** Where an element sits once it stops moving (the dialog slides in when it opens). */
+async function settledTop(locator: Locator): Promise<number> {
+  let last = Number.NaN;
+  await expect
+    .poll(
+      async () => {
+        const top = (await locator.boundingBox())?.y ?? Number.NaN;
+        const still = top === last;
+        last = top;
+        return still;
+      },
+      { intervals: [100] },
+    )
+    .toBe(true);
+  return last;
+}
+
+// I-004: in a low window the new-link dialog is taller than the screen. Only its content scrolls: the title and the
+// buttons stay, and the page behind keeps its place.
+test('a dialog taller than the window scrolls inside itself', async ({ page, isMobile }) => {
+  await (await signedInAdmin()).dispose();
+  const width = page.viewportSize()?.width ?? 375;
+  await page.setViewportSize({ width, height: 280 });
+  await signIn(page, E2E_ADMIN);
+  await openPeople(page, isMobile);
+
+  const main = page.getByRole('main');
+  await main.evaluate((el) => {
+    el.scrollTop = 40;
+  });
+
+  await page.getByRole('button', { name: en.people.newLink.button }).click();
+  const dialog = page.getByRole('dialog', { name: en.people.newLink.title });
+  const title = dialog.getByRole('heading', { name: en.people.newLink.title });
+  const create = dialog.getByRole('button', { name: en.people.newLink.create });
+  const body = dialog.locator('[data-scrollarea-viewport]');
+  await expect(create).toBeInViewport();
+  expect(await body.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+  const titleTop = await settledTop(title);
+  // Taken now, not before opening: the list and its counts may still arrive and move the page by themselves
+  const pageScroll = await main.evaluate((el) => el.scrollTop);
+
+  // Past the end of the content too: the scroll stays in the dialog
+  await body.hover();
+  await page.mouse.wheel(0, 400);
+  await page.mouse.wheel(0, 400);
+  await expect.poll(() => body.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+  expect(await settledTop(title)).toBe(titleTop);
+  await expect(create).toBeInViewport();
+  expect(await main.evaluate((el) => el.scrollTop)).toBe(pageScroll);
 });
