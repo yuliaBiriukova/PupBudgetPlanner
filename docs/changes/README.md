@@ -65,7 +65,7 @@ Claude proposes the priority from this table; the owner has the last word.
 | Type | Feature / Improvement |
 | Milestone | Mx — Name |
 | Priority | High / Medium / Low |
-| Status | Todo / In progress / Review / Done / Blocked |
+| Status | Todo / In progress / Review / Done / Blocked / Dropped |
 | Branch | `feature/F-000-short-name` |
 | Design | 3 HTML prototypes required / not needed |
 | Approved | — (date the owner approved the description and the final prototype) |
@@ -101,7 +101,7 @@ Decisions, links, open points.
 |---|---|
 | Type | Bugfix |
 | Priority | High / Medium / Low |
-| Status | Todo / In progress / Review / Done |
+| Status | Todo / In progress / Review / Done / Dropped |
 | Branch | `bugfix/B-000-short-name` |
 | Found in | version / date / environment |
 | Approved | — (date the owner approved the root cause and the planned fix) |
