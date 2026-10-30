@@ -2,6 +2,38 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (I-011)
+
+**Done**
+- I-011 delete an account for good, built on `improvement/I-011-delete-account-permanently`:
+  - Design round: references (YNAB, Actual Budget, BudgetBakers Wallet, GitHub, NN/g; Mobbin needs a sign-in) and
+    3 prototypes on F-014's final one. The owner chose variant 3 and approved it on 2026-10-30, after the
+    "only accounts without transactions" rule was added to it.
+  - API: `DELETE /api/accounts/{id}` (204, or 404 for someone else's account); own sources and banks stay.
+  - UI:
+    - the edit form ends with "Archive or delete";
+    - its buttons are only Cancel and Save;
+    - Delete asks for the account's name, says how much money is still on it, and shows "Keep it" and a red
+      "Delete for good";
+    - Archived rows have Delete next to Restore;
+    - after deleting, a notification shows and the total counts down.
+  - Tests: controller tests, frontend unit tests, Storybook stories, and an E2E test (desktop and phone).
+  - Checked in Playwright screenshots at 375 and 1440 px, light and dark, and by hand in the Browser pane. That
+    found two misses, both fixed: Delete was charcoal instead of red, and the name field didn't take the focus.
+- Test data: the E2E and screenshot runs made `e2e-…@example.com` people on the `dev` database; the cleanup teardown
+  removed them after every run.
+- Not caused by this change, but seen while testing:
+  - the People test "picks at most 200 people at a time" times out at 5 s on this machine (about 8 s alone, on
+    `develop` too);
+  - `auth.spec`'s sign-in test failed once with "That didn't go through" and passed 6 of 6 reruns.
+
+**Decisions**
+- Only an account without transactions can be deleted (owner); F-018 adds the check once transactions exist (noted
+  in F-018).
+
+**Next**
+- Owner: review the I-011 PR.
+
 ## 2026-10-30 (I-012 built)
 
 **Done**

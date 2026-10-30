@@ -75,6 +75,24 @@ public sealed class AccountsControllerTests
     }
 
     [Fact]
+    public async Task Deleting_someone_elses_or_a_made_up_account_is_not_found()
+    {
+        accounts.DeleteAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(false);
+
+        ((IStatusCodeActionResult)await controller.Delete(AccountId, CancellationToken.None))
+            .StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Delete_removes_the_signed_in_persons_account()
+    {
+        accounts.DeleteAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(true);
+
+        (await controller.Delete(AccountId, CancellationToken.None)).Should().BeOfType<NoContentResult>();
+        await accounts.Received(1).DeleteAsync(UserId, AccountId, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Update_archive_and_restore_answer_for_the_persons_account()
     {
         accounts.UpdateAsync(UserId, AccountId, Request, Arg.Any<CancellationToken>()).Returns(Item);

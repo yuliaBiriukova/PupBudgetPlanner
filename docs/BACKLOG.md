@@ -97,7 +97,7 @@ owner asks for one.
 | [I-008](changes/improvements/I-008-instant-click-feedback/I-008-instant-click-feedback.md) | Instant response to clicks on check boxes and dialog buttons (closed: fine on production) | High | Done |
 | [I-009](changes/improvements/I-009-planning-only-branches/I-009-planning-only-branches.md) | Planning-only branches (`plan/…`) for lists the owner only wants in the backlog | High | Done |
 | [I-010](changes/improvements/I-010-storybook-tests-in-ci/I-010-storybook-tests-in-ci.md) | Run every Storybook story in CI (play function and axe scan); a failing story fails the build | High | Dropped |
-| [I-011](changes/improvements/I-011-delete-account-permanently/I-011-delete-account-permanently.md) | 🎨 Delete an account (card, cash) permanently, not only archive it | Medium | Todo |
+| [I-011](changes/improvements/I-011-delete-account-permanently/I-011-delete-account-permanently.md) | 🎨 Delete an account (card, cash) permanently, not only archive it | Medium | Done |
 | [I-012](changes/improvements/I-012-dialog-title-spacing/I-012-dialog-title-spacing.md) | Less space between a pop-up's title and its content (all pop-ups) | Medium | Done |
 | [I-013](changes/improvements/I-013-banks-from-nbu/I-013-banks-from-nbu.md) | Suggest banks from the NBU's list instead of a list in the app (after F-017) | Low | Todo |
 

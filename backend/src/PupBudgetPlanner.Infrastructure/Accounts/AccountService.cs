@@ -99,6 +99,23 @@ internal sealed class AccountService(AppDbContext dbContext, TimeProvider clock)
         return true;
     }
 
+    /// <summary>
+    /// No transactions yet (F-018), so every account can go. F-018 refuses an account that has any: the owner chose
+    /// that only an account without transactions can be deleted (I-011).
+    /// </summary>
+    public async Task<bool> DeleteAsync(Guid userId, Guid accountId, CancellationToken cancellationToken)
+    {
+        var account = await FindAsync(userId, accountId, cancellationToken);
+        if (account is null)
+        {
+            return false;
+        }
+
+        dbContext.Accounts.Remove(account);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
     /// <summary>Only the person's own accounts: someone else's id is as good as a made-up one.</summary>
     private Task<Account?> FindAsync(Guid userId, Guid accountId, CancellationToken cancellationToken) =>
         dbContext.Accounts.SingleOrDefaultAsync(

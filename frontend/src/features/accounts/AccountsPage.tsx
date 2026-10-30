@@ -6,6 +6,7 @@ import {
   IconPlus,
   IconRefresh,
   IconRestore,
+  IconTrash,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useId, useState } from 'react';
@@ -31,9 +32,13 @@ import {
   type AccountsOverview,
 } from './accountsApi';
 import { CountUp } from './CountUp';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 import { useCurrencyTitle } from './currencyNames';
 
-/** The account just added or restored: its card gets a ring and its currency's total counts up. */
+/**
+ * The account just added or restored: its card gets a ring and its currency's total counts up by `amount`. After a
+ * delete (I-011) `amount` is minus the deleted balance, so the total counts down.
+ */
 interface Fresh {
   id: string;
   currency: string;
@@ -53,6 +58,7 @@ export function AccountsPage() {
   const [groupBy, setGroupBy] = useState<GroupBy>(readGroupBy);
   const [dialog, setDialog] = useState<{ mode: AccountDialogMode; opened: boolean; key: number }>();
   const [fresh, setFresh] = useState<Fresh>();
+  const [deleting, setDeleting] = useState<Account>();
 
   useEffect(() => {
     if (!fresh) return;
@@ -214,6 +220,18 @@ export function AccountsPage() {
         onRestored={(account) => {
           setFresh({ id: account.id, currency: account.currency, amount: account.balance });
         }}
+        onDelete={setDeleting}
+      />
+
+      <DeleteAccountDialog
+        account={deleting}
+        onClose={() => {
+          setDeleting(undefined);
+        }}
+        onDeleted={(account) => {
+          setDeleting(undefined);
+          notifications.show({ message: t('accounts.delete.done', { name: account.name }) });
+        }}
       />
 
       {dialog && (
@@ -235,6 +253,11 @@ export function AccountsPage() {
           onArchived={(account) => {
             closeForm();
             notifications.show({ message: t('accounts.archive.done', { name: account.name }) });
+          }}
+          onDeleted={(account) => {
+            closeForm();
+            notifications.show({ message: t('accounts.delete.done', { name: account.name }) });
+            setFresh({ id: account.id, currency: account.currency, amount: -account.balance });
           }}
         />
       )}
@@ -359,13 +382,15 @@ function Group({ group, groupBy, fresh, onOpen, onAdd }: GroupProps) {
   );
 }
 
-/** Archived accounts, folded under the list; each can be restored. */
+/** Archived accounts, folded under the list; each can be restored or deleted for good (I-011). */
 function Archived({
   accounts,
   onRestored,
+  onDelete,
 }: {
   accounts: Account[];
   onRestored: (account: Account) => void;
+  onDelete: (account: Account) => void;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -419,30 +444,43 @@ function Archived({
                   </>
                 )}
               </span>
-              <Button
-                radius="xl"
-                variant="subtle"
-                color="gray"
-                className={classes.restoreButton}
-                leftSection={<IconRestore size={20} stroke={1.7} />}
-                aria-label={t('accounts.archived.restoreLabel', { name: account.name })}
-                loading={restore.isPending && restore.variables.id === account.id}
-                onClick={() => {
-                  restore.mutate(
-                    { id: account.id, restore: true },
-                    {
-                      onSuccess: () => {
-                        notifications.show({
-                          message: t('accounts.archived.restored', { name: account.name }),
-                        });
-                        onRestored(account);
+              <span className={classes.archivedActions}>
+                <Button
+                  radius="xl"
+                  variant="subtle"
+                  color="gray"
+                  leftSection={<IconRestore size={20} stroke={1.7} />}
+                  aria-label={t('accounts.archived.restoreLabel', { name: account.name })}
+                  loading={restore.isPending && restore.variables.id === account.id}
+                  onClick={() => {
+                    restore.mutate(
+                      { id: account.id, restore: true },
+                      {
+                        onSuccess: () => {
+                          notifications.show({
+                            message: t('accounts.archived.restored', { name: account.name }),
+                          });
+                          onRestored(account);
+                        },
                       },
-                    },
-                  );
-                }}
-              >
-                {t('accounts.archived.restore')}
-              </Button>
+                    );
+                  }}
+                >
+                  {t('accounts.archived.restore')}
+                </Button>
+                <Button
+                  radius="xl"
+                  variant="subtle"
+                  color="var(--mantine-color-error)"
+                  leftSection={<IconTrash size={20} stroke={1.7} />}
+                  aria-label={t('accounts.archived.deleteLabel', { name: account.name })}
+                  onClick={() => {
+                    onDelete(account);
+                  }}
+                >
+                  {t('accounts.archived.delete')}
+                </Button>
+              </span>
             </li>
           ))}
         </ul>

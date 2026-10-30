@@ -101,3 +101,18 @@ export function useArchiveAccount() {
     onSettled: () => queryClient.invalidateQueries({ queryKey: accountsQuery.queryKey }),
   });
 }
+
+/** Deletes an account for good (I-011); the person's own sources and banks stay. */
+export function useDeleteAccount() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const { response } = await apiClient.DELETE('/api/accounts/{id}', {
+        params: { path: { id } },
+      });
+      if (!response.ok) throw new Error(`Couldn't delete the account: ${String(response.status)}`);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: accountsQuery.queryKey }),
+  });
+}
