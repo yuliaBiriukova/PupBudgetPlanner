@@ -164,6 +164,15 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-danger': '#b3261e',
     '--pup-color-danger-hover': '#9c211a',
     '--pup-color-on-danger': '#fcfcfd',
+    // Amounts below zero (a debt, an expense), and the tint of a picked or new thing
+    '--pup-color-expense': '#b3261e',
+    '--pup-color-tint': '#e7ecf1',
+    // The Solid account card (F-014): charcoal here, light grey in dark mode
+    '--pup-card-solid': '#26292e',
+    '--pup-card-solid-hover': '#363a40',
+    '--pup-card-on-solid': '#f5f6f7',
+    '--pup-card-solid-muted': '#b4b9bf',
+    '--pup-card-solid-debt': '#f2958c',
   },
   dark: {
     '--mantine-color-body': '#121315',
@@ -195,5 +204,12 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-danger': '#f2958c',
     '--pup-color-danger-hover': '#f6b8b2',
     '--pup-color-on-danger': '#121315',
+    '--pup-color-expense': '#f2958c',
+    '--pup-color-tint': '#262f37',
+    '--pup-card-solid': '#e9eaec',
+    '--pup-card-solid-hover': '#d3d6da',
+    '--pup-card-on-solid': '#1c1e21',
+    '--pup-card-solid-muted': '#474c54',
+    '--pup-card-solid-debt': '#a1221b',
   },
 });
