@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>F-014 · Variant 2 · Wallet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(480px, calc(100vw - 32px)); background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.pv-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.pv-notes li + li { margin-top: 4px; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='tablet'] .frame { width: 834px; height: min(1050px, 100%); border: 12px solid #16181d; border-radius: 28px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+@media (max-width: 600px) {
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+}
+
+/* ---------- Tokens: the app's theme (F-010, F-011, F-028) plus income / expense for balances ---------- */
+.app {
+  --bg: #f5f6f7; --surface: #fcfcfd; --sidebar: #ebedf0; --seg-bg: #ebedf0; --text: #1c1e21; --muted: #57585b;
+  --rule: #d7d8d9; --hover: #e8e9ea; --field-border: #7c828a;
+  --primary: #26292e; --primary-hover: #363a40; --on-primary: #f5f6f7;
+  --accent: #2a62a3; --active-bg: #e7ecf1; --tint: #e7ecf1; --logo: #8ec1ec; --logo-mark: #1c1e21;
+  --hero: #26292e; --on-hero: #f5f6f7; --hero-muted: #b4b9bf; --hero-rule: #474c54;
+  --error: #b3261e; --error-bg: #fbeceb; --error-text: #8c1d18;
+  --expense: #b3261e; --income: #1f7a4d;
+  --pill: #1c1e21; --on-pill: #f5f6f7; --focus: #26292e; --scrim: rgba(18, 19, 21, .45);
+  --shadow-float: 0 8px 24px rgba(15, 17, 20, .1);
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+  --r-sm: 12px; --r-lg: 24px;
+}
+.app[data-scheme='dark'] {
+  --bg: #121315; --surface: #1b1c1e; --sidebar: #18191b; --seg-bg: #121315; --text: #e9eaec; --muted: #a4a5a7;
+  --rule: #37383a; --hover: #26272a; --field-border: #71747b;
+  --primary: #e9eaec; --primary-hover: #d3d6da; --on-primary: #121315;
+  --accent: #8ec1ec; --active-bg: #262f37; --tint: #262f37; --logo: #8ec1ec; --logo-mark: #121315;
+  --hero: #0b0c0d; --on-hero: #e9eaec; --hero-muted: #a4a5a7; --hero-rule: #2e3035;
+  --error: #f2958c; --error-bg: #3a1d1b; --error-text: #f6b8b2;
+  --expense: #f2958c; --income: #7fd1a4;
+  --pill: #e9eaec; --on-pill: #121315; --focus: #e9eaec; --scrim: rgba(0, 0, 0, .6);
+  --shadow-float: 0 10px 28px rgba(0, 0, 0, .45);
+}
+
+/* ---------- Base ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; color-scheme: light; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+:where(.app) :where(button, input) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, h3, p, ul, fieldset, legend) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.neg { color: var(--expense); }
+.muted { color: var(--muted); }
+.list { list-style: none; padding: 0; margin: 0; }
+
+/* Buttons and fields (the F-011 set, corners from F-028: pills for text buttons, circles for icon buttons) */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; font-weight: 500; font-size: 15px; text-decoration: none; white-space: nowrap; background: none; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-outline { background: var(--surface); color: var(--text); border-color: var(--field-border); }
+.btn-outline:hover { background: var(--hover); }
+.btn-quiet { color: var(--text); }
+.btn-quiet:hover { background: var(--hover); }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+.field label, .field legend { display: block; font-weight: 500; font-size: 14px; margin-bottom: 6px; padding: 0; }
+.field .hint { margin-top: 6px; font-size: 13px; color: var(--muted); }
+.field .err { display: flex; gap: 6px; align-items: center; margin-top: 6px; font-size: 13px; color: var(--error); font-weight: 500; }
+fieldset.field { border: 0; padding: 0; min-width: 0; }
+.control { position: relative; display: flex; align-items: center; height: 52px; border: 1px solid var(--field-border); border-radius: var(--r-sm); background: var(--surface); }
+.control:focus-within { border-color: var(--accent); outline: 1px solid var(--accent); outline-offset: 0; }
+.control input { flex: 1; min-width: 0; height: 100%; padding: 0 16px; border: 0; background: none; color: var(--text); font-size: 16px; outline: none; border-radius: inherit; }
+.control .affix { padding: 0 16px 0 0; color: var(--muted); font-size: 16px; }
+.control .affix-start { padding: 0 0 0 16px; }
+.control .affix-start + input { padding-left: 8px; }
+.control .end-btn { margin-right: 4px; }
+.field[data-invalid] .control { border-color: var(--error); outline: 1px solid var(--error); }
+.control input.amount { text-align: right; font-variant-numeric: tabular-nums; }
+/* Options as pills: radio buttons (bank, currency) */
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { position: relative; display: inline-flex; }
+.opt input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.opt span { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid var(--field-border); border-radius: 999px; background: var(--surface); font-weight: 500; font-size: 14px; white-space: nowrap; }
+.opt input:checked + span { background: var(--active-bg); border-color: var(--accent); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.opt input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+.opt:hover input:not(:checked) + span { background: var(--hover); }
+.text-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--accent); font-weight: 500; background: none; border: 0; padding: 0; cursor: pointer; }
+.text-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.toast { position: absolute; bottom: 88px; left: 50%; transform: translateX(-50%); padding: 10px 16px; border-radius: 999px; background: var(--pill); color: var(--on-pill); font-size: 14px; z-index: 30; white-space: nowrap; }
+.banner { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-sm); background: var(--tint); color: var(--text); }
+.banner .ic { margin-top: 2px; color: var(--accent); }
+.banner-error { background: var(--error-bg); color: var(--error-text); }
+.banner-error .ic { color: var(--error-text); }
+
+/* ---------- App shell (F-010): top bar and tab bar on the phone, sidebar from 768 px ---------- */
+.logo { width: 44px; height: 44px; display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--logo); color: var(--logo-mark); }
+.shell { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); }
+.side { display: none; }
+.column { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+.top { display: flex; flex: none; align-items: center; gap: 10px; height: 56px; padding: 0 8px 0 16px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; margin-right: auto; }
+.brand .logo { width: 32px; height: 32px; }
+.brand-name { font-family: var(--font-display); font-size: 15px; font-weight: 300; letter-spacing: .02em; white-space: nowrap; }
+.main { flex: 1; min-height: 0; overflow: hidden auto; position: relative; }
+.content { max-width: 1040px; margin: 0 auto; padding: 8px 16px 32px; }
+.tabs { display: flex; flex: none; align-items: center; gap: 2px; padding: 8px 8px 10px; border-top: 1px solid var(--rule); background: var(--bg); }
+.tab { display: flex; flex: none; align-items: center; justify-content: center; gap: 8px; width: 44px; min-height: 48px; border-radius: 999px; color: var(--muted); font-size: 13px; text-decoration: none; background: none; border: 0; cursor: pointer; }
+.tab[data-active] { width: auto; padding: 0 14px 0 12px; background: var(--active-bg); color: var(--accent); font-weight: 500; }
+.tab:not([data-active]) .tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.tab-add { display: grid; place-items: center; width: 52px; height: 52px; margin-left: auto; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); cursor: pointer; }
+.avatar { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 50%; background: var(--active-bg); color: var(--accent); font-size: 13px; font-weight: 500; }
+@container app (min-width: 768px) {
+  .shell { grid-template-columns: 248px minmax(0, 1fr); }
+  .side { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-right: 1px solid var(--rule); background: var(--sidebar); min-width: 0; }
+  .side-head { display: flex; align-items: center; gap: 10px; height: 44px; margin-bottom: 12px; padding: 0 2px; }
+  .side-head .logo { width: 32px; height: 32px; margin: 0 6px; }
+  .side-add { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; margin-bottom: 14px; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 500; cursor: pointer; }
+  .nav-link { position: relative; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-radius: 999px; color: var(--text); font-size: 14px; line-height: 1; text-decoration: none; white-space: nowrap; }
+  .nav-link:hover { background: var(--hover); }
+  .nav-link[aria-current='page'] { font-weight: 500; }
+  .nav-link[aria-current='page'] > svg { color: var(--accent); }
+  .nav-link[aria-current='page']::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: -12px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+  .nav-sep { height: 1px; margin: 10px 14px; background: var(--rule); }
+  .side-foot { display: flex; align-items: center; gap: 12px; min-height: 40px; margin-top: auto; padding: 0 8px; font-size: 14px; }
+  .top, .tabs { display: none; }
+  .content { padding: 32px 40px 48px; }
+  .toast { bottom: 24px; }
+}
+
+/* ---------- Page head ---------- */
+.page-head { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 8px 0 18px; }
+.page-head h1 { font-family: var(--font-display); font-weight: 300; font-size: 28px; line-height: 1.15; letter-spacing: -.01em; margin-right: auto; }
+.page-head .new-btn { order: 3; width: 100%; min-height: 52px; }
+@container app (min-width: 768px) {
+  .page-head { flex-wrap: nowrap; }
+  .page-head .new-btn { order: 0; width: auto; min-height: 48px; }
+}
+
+/* ---------- Dialogs: a sheet on the phone, centered from 768 px; title and buttons stay, the middle scrolls (I-004) ---------- */
+.scrim { position: absolute; inset: 0; z-index: 20; display: flex; align-items: flex-end; background: var(--scrim); }
+.dialog { display: flex; flex-direction: column; width: 100%; max-height: 92%; border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--surface); box-shadow: var(--shadow-float); overflow: hidden; }
+.dialog > form { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.dlg-head { padding: 20px 20px 4px; }
+.dlg-head h2 { font-family: var(--font-display); font-weight: 300; font-size: 20px; line-height: 1.3; }
+.dlg-head p { margin-top: 6px; color: var(--muted); }
+.dlg-body { flex: 1; min-height: 0; overflow: auto; padding: 8px 20px 20px; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent); }
+.dlg-body > * + * { margin-top: 18px; }
+.dlg-body p + p { margin-top: 10px; }
+.dlg-foot { display: flex; flex-direction: column-reverse; gap: 8px; padding: 4px 20px 20px; }
+.dlg-foot .btn { width: 100%; min-height: 48px; }
+@container app (min-width: 768px) {
+  .scrim { align-items: center; justify-content: center; }
+  .dialog { width: 480px; max-height: 88%; border-radius: var(--r-lg); }
+  .dlg-head { padding: 24px 28px 4px; }
+  .dlg-body { padding: 8px 28px 20px; }
+  .dlg-foot { flex-direction: row; justify-content: flex-end; padding: 8px 28px 24px; }
+  .dlg-foot .btn { width: auto; min-height: 44px; }
+  .dlg-foot .left { margin-right: auto; }
+}
+
+/* ---------- States shared by all variants ---------- */
+.sk { display: block; height: 14px; border-radius: 6px; background: var(--hover); }
+.state-box { max-width: 460px; padding: 32px 0 8px; }
+.state-box h2 { font-family: var(--font-display); font-weight: 300; font-size: 20px; line-height: 1.3; }
+.state-box p { margin-top: 8px; color: var(--muted); }
+.state-box .btn { margin-top: 18px; }
+/* Archived: folded under the list */
+.disc { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; margin-top: 28px; padding: 0 8px; border: 0; border-radius: var(--r-sm); background: none; color: var(--text); cursor: pointer; text-align: left; }
+.disc:hover { background: var(--hover); }
+.disc h2 { font-family: var(--font-display); font-weight: 300; font-size: 17px; }
+.disc .n { color: var(--muted); font-size: 14px; margin-right: auto; font-variant-numeric: tabular-nums; }
+.chev { transition: transform 160ms; color: var(--muted); }
+[aria-expanded='true'] > .chev { transform: rotate(180deg); }
+.arch-list { display: grid; gap: 8px; margin-top: 6px; }
+.arch-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 10px 8px 10px 16px; border: 1px dashed var(--field-border); border-radius: var(--r-sm); }
+.arch-row .what { color: var(--muted); font-size: 14px; }
+.arch-row .btn { grid-column: 2; grid-row: 1 / span 2; }
+/* The one moment: a new account's row is tinted for a moment while its total counts up */
+@keyframes flash { from { background: var(--tint); } }
+[data-new] { animation: flash 1600ms ease-out; }
+@media (prefers-reduced-motion: reduce) { [data-new] { animation: none; } .chev { transition: none; } }
+
+/* ====================================================================================================== */
+/* ---------- Variant 2 · Wallet: every account a card in the hand, the totals on the charcoal band ---------- */
+/* The totals band: the sign-in screens' charcoal brand color */
+.band { margin: 0 0 28px; padding: 18px 20px 20px; border-radius: var(--r-lg); background: var(--hero); color: var(--on-hero); --expense: #f2958c; --focus: #f5f6f7; }
+.app[data-scheme='dark'] .band { border: 1px solid var(--hero-rule); }
+.band-label { color: var(--hero-muted); font-size: 14px; }
+.band-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; margin-top: 6px; }
+.band-item { min-width: 0; }
+.band-item:first-child { grid-column: 1 / -1; }
+.band-item .what { display: block; color: var(--hero-muted); font-size: 13px; }
+.band-item .num { display: block; font-family: var(--font-display); font-weight: 300; font-size: 20px; letter-spacing: -.01em; line-height: 1.25; }
+.band-item:first-child .num { font-size: 34px; }
+
+/* Groups by bank */
+.bank + .bank { margin-top: 26px; }
+.bank-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.bank-head h2 { font-family: var(--font-display); font-weight: 300; font-size: 17px; }
+.bank-head .n { color: var(--muted); font-size: 14px; }
+.tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+
+/* A tile: a bank card's proportions on the desktop. Monobank charcoal, PrivatBank sky, cash a dashed envelope */
+.tile { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; width: 100%; min-height: 112px; padding: 16px 18px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); color: var(--text); text-align: left; cursor: pointer; }
+.tile:hover { border-color: var(--field-border); }
+.tile .t-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.tile .t-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile .t-cur { color: var(--muted); font-size: 13px; font-weight: 500; }
+.tile .t-bal { font-family: var(--font-display); font-weight: 300; font-size: 24px; letter-spacing: -.01em; line-height: 1.2; }
+.tile .t-open { color: var(--muted); font-size: 13px; }
+.tile[data-bank='Monobank'] { background: var(--hero); color: var(--on-hero); border-color: var(--hero); --muted: var(--hero-muted); --expense: #f2958c; --focus: var(--accent); }
+.app[data-scheme='dark'] .tile[data-bank='Monobank'] { border-color: var(--hero-rule); }
+.tile[data-bank='Monobank']:hover { background: #363a40; }
+.app[data-scheme='dark'] .tile[data-bank='Monobank']:hover { background: #1b1c1e; }
+.tile[data-bank='PrivatBank'] { background: var(--tint); border-color: var(--tint); }
+.tile[data-bank='PrivatBank']:hover { border-color: var(--accent); }
+.tile[data-bank='Cash'] { border-style: dashed; border-color: var(--field-border); }
+.tile[data-new] { animation: none; }
+.tile[data-new]::after { content: ''; position: absolute; inset: -4px; border: 2px solid var(--accent); border-radius: 15px; animation: ring 1600ms ease-out forwards; pointer-events: none; }
+@keyframes ring { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .tile[data-new]::after { display: none; } }
+
+/* The dialog shows the card as it will look */
+.preview { display: grid; place-items: center; padding: 6px 0 4px; }
+.preview .tile { width: min(100%, 300px); cursor: default; }
+
+@container app (min-width: 768px) {
+  .band { padding: 22px 28px 24px; }
+  .band-grid { grid-template-columns: auto auto auto; justify-content: start; gap: 0; }
+  .band-item:first-child { grid-column: auto; }
+  .band-item { padding: 0 28px; border-left: 1px solid var(--hero-rule); }
+  .band-item:first-child { padding-left: 0; border-left: 0; }
+  .band-item .num { font-size: 24px; line-height: 44px; }
+  .band-item:first-child .num { font-size: 36px; }
+  .tiles { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .tiles .tile { aspect-ratio: 1.586; min-height: 0; padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="frame">
+    <div class="app" id="app" data-scheme="light"></div>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  stack: ['M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z', 'M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4', 'M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z', 'M3 6v10c0 .888 .772 1.45 2 2', 'M3 11c0 .888 .772 1.45 2 2'],
+  receipt: ['M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2', 'M9 7h6', 'M9 11h6', 'M13 15h2'],
+  wallet: ['M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12', 'M20 12v4h-4a2 2 0 0 1 0 -4h4'],
+  chart: ['M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M4 20h14'],
+  users: ['M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2', 'M16 3.13a4 4 0 0 1 0 7.75', 'M21 21v-2a4 4 0 0 0 -3 -3.85'],
+  settings: ['M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z', 'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0'],
+  people: ['M6 21v-2a4 4 0 0 1 4 -4h2', 'M22 16c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5z', 'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0'],
+  plus: ['M12 5l0 14', 'M5 12l14 0'],
+  dots: ['M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  chevDown: ['M6 9l6 6l6 -6'],
+  chevRight: ['M9 6l6 6l-6 6'],
+  pencil: ['M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4', 'M13.5 6.5l4 4'],
+  archive: ['M3 6a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2', 'M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10', 'M10 12l4 0'],
+  restore: ['M3.06 13a9 9 0 1 0 .49 -4.087', 'M3 4.001v5h5', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  calendar: ['M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z', 'M16 3v4', 'M8 3v4', 'M4 11h16'],
+  alert: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 8v4', 'M12 16h.01'],
+  info: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 9h.01', 'M11 12h1v4h1'],
+  refresh: ['M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4', 'M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4'],
+  bank: ['M3 21l18 0', 'M3 10l18 0', 'M5 6l7 -3l7 3', 'M4 10l0 11', 'M20 10l0 11', 'M8 14l0 3', 'M12 14l0 3', 'M16 14l0 3'],
+  cash: ['M7 15h-3a1 1 0 0 1 -1 -1v-8a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v3', 'M7 9m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z', 'M12 14a2 2 0 1 0 4 0a2 2 0 0 0 -4 0'],
+};
+const icon = (n, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n].map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+// ---------- Money: "1 250.00 ₴", "$1 240.00", "€300.00"; a true minus (DESIGN_RULES §5) ----------
+const NB = ' ';
+const CUR = {
+  UAH: { sign: '₴', name: 'Hryvnia', word: 'hryvnia', plural: 'hryvnia' },
+  USD: { sign: '$', name: 'Dollars', word: 'dollar', plural: 'dollars' },
+  EUR: { sign: '€', name: 'Euro', word: 'euro', plural: 'euro' },
+};
+const CURS = ['UAH', 'USD', 'EUR'];
+function money(v, cur) {
+  const [i, d] = Math.abs(v).toFixed(2).split('.');
+  const n = `${i.replace(/\B(?=(\d{3})+(?!\d))/g, NB)}.${d}`;
+  return (v < 0 ? '−' : '') + (cur === 'UAH' ? `${n}${NB}₴` : `${CUR[cur].sign}${n}`);
+}
+const amount = (v, cur, cls = '') => `<span class="num${v < 0 ? ' neg' : ''}${cls ? ` ${cls}` : ''}">${money(v, cur)}</span>`;
+const BANKS = ['Monobank', 'PrivatBank', 'Cash', 'Other'];
+
+// ---------- Data: "today" is 29 Oct 2026 ----------
+const START = [
+  { id: 'mono', name: 'Mono black', bank: 'Monobank', cur: 'UAH', bal: 48210.5, open: 21500, opened: '1 Jan 2026' },
+  { id: 'mono-credit', name: 'Mono credit', bank: 'Monobank', cur: 'UAH', bal: -4312.4, open: 0, opened: '1 Jan 2026' },
+  { id: 'mono-usd', name: 'Mono dollars', bank: 'Monobank', cur: 'USD', bal: 1240, open: 900, opened: '1 Jan 2026' },
+  { id: 'privat', name: 'Privat card', bank: 'PrivatBank', cur: 'UAH', bal: 12784.1, open: 8000, opened: '1 Jan 2026' },
+  { id: 'privat-eur', name: 'Privat euro', bank: 'PrivatBank', cur: 'EUR', bal: 300, open: 300, opened: '14 Mar 2026' },
+  { id: 'cash', name: 'Wallet', bank: 'Cash', cur: 'UAH', bal: 3450, open: 1200, opened: '1 Jan 2026' },
+  { id: 'cash-usd', name: 'Dollars at home', bank: 'Cash', cur: 'USD', bal: 500, open: 500, opened: '1 Jan 2026' },
+];
+const START_ARCHIVED = [
+  { id: 'oschad', name: 'Oschad salary card', bank: 'Other', cur: 'UAH', bal: 0, open: 0, opened: '1 Jan 2026', archived: '3 Oct 2026' },
+];
+const NEW_ACCOUNT = { id: 'envelope', name: 'Vacation envelope', bank: 'Cash', cur: 'EUR', bal: 450, open: 450, opened: '29 Oct 2026' };
+
+const PAGES = [
+  { id: 'accounts', label: 'Accounts' },
+  { id: 'accounts-empty', label: 'First visit' },
+  { id: 'accounts-loading', label: 'Loading' },
+  { id: 'accounts-error', label: 'Couldn’t load' },
+  { id: 'accounts-new', label: 'New account' },
+  { id: 'accounts-new-errors', label: 'New: mistakes' },
+  { id: 'accounts-saved', label: 'Added: total updates' },
+  { id: 'accounts-edit', label: 'Edit' },
+  { id: 'accounts-archive', label: 'Archive: still has money' },
+  { id: 'accounts-archived', label: 'Archived open' },
+];
+
+const app = document.getElementById('app');
+const stage = document.getElementById('stage');
+const mq = matchMedia('(prefers-color-scheme: dark)');
+const state = { page: 'accounts', schemePref: 'light', more: false, accounts: [], archived: [], showArchived: false, form: null, newId: null };
+
+function applyScheme() {
+  const scheme = state.schemePref === 'system' ? (mq.matches ? 'dark' : 'light') : state.schemePref;
+  app.dataset.scheme = scheme;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+}
+mq.addEventListener('change', applyScheme);
+
+const byCur = (cur, list = state.accounts) => list.filter((a) => a.cur === cur);
+const total = (cur) => byCur(cur).reduce((s, a) => s + a.bal, 0);
+const usedCurs = () => CURS.filter((c) => byCur(c).length);
+const find = (id) => state.accounts.find((a) => a.id === id) ?? state.archived.find((a) => a.id === id);
+
+// ---------- Shell ----------
+const NAV = [['receipt', 'Transactions'], ['wallet', 'Accounts'], ['chart', 'Reports'], ['users', 'Family'], ['settings', 'Settings']];
+function shell(inner) {
+  return `<div class="shell">
+    <aside class="side" aria-label="Sections">
+      <div class="side-head"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div>
+      <button class="side-add" type="button" data-action="add-tx">${icon('plus')}Add transaction</button>
+      <nav class="nav" aria-label="Main">
+        ${NAV.map(([i, l]) => `<a class="nav-link" href="#${l.toLowerCase()}"${l === 'Accounts' ? ' aria-current="page"' : ''}>${icon(i)}${l}</a>`).join('')}
+        <div class="nav-sep" role="presentation"></div>
+        <a class="nav-link" href="#people">${icon('people')}People</a>
+      </nav>
+      <div class="side-foot"><span class="avatar" aria-hidden="true">YB</span><span>Yulia Biriukova</span></div>
+    </aside>
+    <div class="column">
+      <header class="top"><div class="brand"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div><span class="avatar" aria-hidden="true">YB</span></header>
+      <main class="main"><div class="content">${inner}</div></main>
+      <nav class="tabs" aria-label="Main">
+        ${NAV.slice(0, 3).map(([i, l]) => `<a class="tab" href="#${l.toLowerCase()}"${l === 'Accounts' ? ' data-active aria-current="page"' : ''}>${icon(i)}<span class="tab-label">${l}</span></a>`).join('')}
+        <button class="tab" type="button" data-action="more" aria-expanded="${state.more}">${icon('dots')}<span class="tab-label">More</span></button>
+        <button class="tab-add" type="button" data-action="add-tx" aria-label="Add transaction">${icon('plus', 24)}</button>
+      </nav>
+    </div>
+  </div>`;
+}
+const pageHead = (extra = '') => `<div class="page-head"><h1>Accounts</h1>${extra}<button class="btn btn-primary new-btn" type="button" data-action="new">${icon('plus')}Add account</button></div>`;
+
+// ---------- Shared states ----------
+const emptyState = (text) => `<div class="page-head"><h1>Accounts</h1></div>
+  <div class="state-box">
+    <h2>Where is your money?</h2>
+    <p>${text}</p>
+    <button class="btn btn-primary" type="button" data-action="new">${icon('plus')}Add your first account</button>
+  </div>`;
+const errorState = () => `${pageHead()}<div class="banner banner-error" role="alert">${icon('alert')}<div><p>Couldn’t load your accounts. Check the connection and try again.</p>
+  <button class="text-link" type="button" data-action="retry" style="color:inherit">${icon('refresh')}Try again</button></div></div>`;
+
+function archivedBlock() {
+  if (!state.archived.length) return '';
+  return `<button class="disc" type="button" data-action="toggle-archived" aria-expanded="${state.showArchived}" aria-controls="archived"><h2>Archived</h2><span class="n">${state.archived.length}</span>${icon('chevDown')}</button>
+  <div id="archived"${state.showArchived ? '' : ' hidden'}>
+    <p class="muted" style="font-size:14px;margin:2px 8px 10px">Not in the totals or the account pickers. Their transactions stay in the lists and reports.</p>
+    <ul class="list arch-list">${state.archived.map((a) => `<li class="arch-row"><span>${esc(a.name)}</span><span class="what">${a.bank}, archived <span class="num">${a.archived}</span>, ${amount(a.bal, a.cur)}</span>
+      <button class="btn btn-quiet" type="button" data-action="restore" data-id="${a.id}">${icon('restore')}Restore</button></li>`).join('')}</ul>
+  </div>`;
+}
+
+// ---------- The account form (new and edit) ----------
+function field({ id, label, value = '', hint, error, inputmode, before = '', after = '', cls = '', extra = '' }) {
+  return `<div class="field"${error ? ' data-invalid' : ''}>
+    <label for="${id}">${label}</label>
+    <div class="control">${before}<input id="${id}" name="${id}" type="text" value="${esc(value)}"${inputmode ? ` inputmode="${inputmode}"` : ''}${cls ? ` class="${cls}"` : ''} autocomplete="off"${error ? ` aria-invalid="true" aria-describedby="${id}-err"` : hint ? ` aria-describedby="${id}-hint"` : ''} ${extra}>${after}</div>
+    ${error ? `<p class="err" id="${id}-err">${icon('alert', 16)}${error}</p>` : hint ? `<p class="hint" id="${id}-hint">${hint}</p>` : ''}
+  </div>`;
+}
+const radios = (name, legend, options, current, hint = '') => `<fieldset class="field"><legend>${legend}</legend>
+  <div class="opts">${options.map(([v, l]) => `<label class="opt"><input type="radio" name="${name}" value="${v}"${v === current ? ' checked' : ''} data-form-field="${name}"><span>${l}</span></label>`).join('')}</div>
+  ${hint ? `<p class="hint">${hint}</p>` : ''}</fieldset>`;
+const fName = (f) => field({ id: 'acc-name', label: 'Name', value: f.name, hint: 'As you call it: Mono black, Wallet, Dollars at home.', error: f.errors?.name, extra: 'maxlength="40" data-form-field="name"' });
+const fBank = (f) => radios('bank', 'Where it is', BANKS.map((b) => [b, b]), f.bank);
+const fCur = (f) => radios('cur', 'Currency', CURS.map((c) => [c, `${c} ${CUR[c].sign}`]), f.cur, f.mode === 'edit' ? 'Can’t be changed once the account has transactions.' : '');
+const fOpen = (f) => field({ id: 'acc-open', label: 'Opening balance', value: f.open, inputmode: 'decimal', cls: 'amount', after: `<span class="affix" aria-hidden="true">${CUR[f.cur].sign}</span>`, hint: 'What was on it that day. Below zero for a credit card debt.', error: f.errors?.open, extra: 'data-form-field="open"' });
+const fDate = (f) => field({ id: 'acc-date', label: 'Opening date', value: f.date, after: `<button class="icon-btn end-btn" type="button" aria-label="Pick a date" data-action="toast" data-text="Opens the calendar">${icon('calendar')}</button>`, extra: 'data-form-field="date"' });
+const defaultFields = (f) => [fName(f), fBank(f), fCur(f), fOpen(f), fDate(f)].join('');
+
+function accountDialog() {
+  const f = state.form; const edit = f.mode === 'edit';
+  const acc = edit ? find(f.id) : null;
+  return `<div class="scrim" data-action="close-dialog"><div class="dialog${V.dialogClass ? ` ${V.dialogClass}` : ''}" role="dialog" aria-modal="true" aria-labelledby="dlg-title" data-stop>
+    <div class="dlg-head"><h2 id="dlg-title">${edit ? `Edit ${esc(acc.name)}` : 'New account'}</h2>
+      ${edit ? `<p>Balance now ${amount(acc.bal, acc.cur)}</p>` : ''}</div>
+    <form novalidate data-form="account">
+      <div class="dlg-body">${(V.formTop?.(f) ?? '') + (V.fields ?? defaultFields)(f)}</div>
+      <div class="dlg-foot">
+        ${edit ? `<button class="btn btn-quiet left" type="button" data-action="ask-archive">${icon('archive')}Archive</button>` : ''}
+        <button class="btn btn-quiet" type="button" data-action="close-dialog">Cancel</button>
+        <button class="btn btn-primary" type="submit">${edit ? 'Save' : 'Add account'}</button>
+      </div>
+    </form>
+  </div></div>`;
+}
+function archiveDialog() {
+  const a = find(state.form.id);
+  return `<div class="scrim" data-action="close-dialog"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" data-stop>
+    <div class="dlg-head"><h2 id="dlg-title">Archive ${esc(a.name)}?</h2></div>
+    <div class="dlg-body">
+      <p>It leaves the list, the totals and the account pickers. Its transactions stay in the lists and reports, and you can restore it from Archived.</p>
+      ${a.bal !== 0 ? `<div class="banner">${icon('info')}<p>It still has ${amount(a.bal, a.cur)}. Archived, that money is no longer in the ${CUR[a.cur].word} total.</p></div>` : ''}
+    </div>
+    <div class="dlg-foot"><button class="btn btn-quiet" type="button" data-action="close-dialog">Cancel</button><button class="btn btn-primary" type="button" data-action="do-archive">${icon('archive')}Archive</button></div>
+  </div></div>`;
+}
+
+// ---------- Count-up: the total of the currency that changed (the one moment that moves) ----------
+function countUp() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    const [from, to, cur] = [Number(el.dataset.from), Number(el.dataset.count), el.dataset.cur];
+    const t0 = performance.now();
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / 700); const e = 1 - (1 - k) ** 3;
+      el.textContent = money(from + (to - from) * e, cur);
+      if (k < 1) requestAnimationFrame(step);
+    };
+    el.textContent = money(from, cur);
+    requestAnimationFrame(step);
+  });
+}
+/** Attributes for a total: it counts up from the old value when the new account is in its currency. */
+const countAttrs = (cur) => {
+  const n = state.newId && state.accounts.find((a) => a.id === state.newId);
+  return n && n.cur === cur ? ` data-count="${total(cur)}" data-from="${total(cur) - n.bal}" data-cur="${cur}"` : '';
+};
+const isNew = (a) => (a.id === state.newId ? ' data-new' : '');
+
+// ---------- Variant 2 · Wallet ----------
+const DIRECTION = {
+  name: 'Variant 2 · Wallet',
+  thesis: 'The wallet in your hand: every account is a card with a bank card’s proportions, grouped by bank, and the totals sit on the charcoal band of the sign-in screens.',
+  notes: [
+    'The totals band: hryvnia large, dollars and euro next to it; each currency on its own until exchange rates arrive (F-017).',
+    'Cards by bank: Monobank charcoal (like its black card), PrivatBank in the sky tint, cash a dashed envelope, other banks plain. No bank logos or brand colors.',
+    'A card shows the name, the currency and the balance in the display face; on the phone the cards are full-width and shorter.',
+    'The new-account dialog shows the card as it will look while you type (name, bank, currency, opening balance).',
+    'A card opens the account to edit; Archive is in the edit dialog. Archived accounts fold under the list with Restore.',
+    'The one moment: after adding an account, its card gets a short accent ring and its currency’s total counts up.',
+  ],
+};
+
+function tile(a, tag = 'button') {
+  const attrs = tag === 'button' ? ` type="button" data-action="edit" data-id="${a.id}"${isNew(a)}` : '';
+  return `<${tag} class="tile" data-bank="${a.bank}"${attrs}>
+    <span class="t-top"><span class="t-name" data-pv="name">${esc(a.name) || '<span class="t-open">Name</span>'}</span><span class="t-cur" data-pv="cur">${a.cur}</span></span>
+    <span class="t-bal num${a.bal < 0 ? ' neg' : ''}" data-pv="bal">${money(a.bal, a.cur)}</span>
+  </${tag}>`;
+}
+function v2Band() {
+  return `<div class="band" role="group" aria-label="Totals"><p class="band-label">In total</p>
+    <div class="band-grid">${usedCurs().map((c) => `<div class="band-item"><span class="what">${CUR[c].name}</span><span class="num${total(c) < 0 ? ' neg' : ''}"${countAttrs(c)}>${money(total(c), c)}</span></div>`).join('')}</div></div>`;
+}
+function v2Banks() {
+  return BANKS.filter((b) => state.accounts.some((a) => a.bank === b)).map((b) => {
+    const list = state.accounts.filter((a) => a.bank === b);
+    return `<section class="bank" aria-labelledby="b-${b}"><div class="bank-head"><h2 id="b-${b}">${b}</h2><span class="n">${list.length === 1 ? '1 account' : `${list.length} accounts`}</span></div>
+      <ul class="list tiles">${list.map((a) => `<li>${tile(a)}</li>`).join('')}</ul></section>`;
+  }).join('');
+}
+const parseOpen = (s) => { const n = Number(String(s).replace(/\s/g, '').replace(',', '.').replace('−', '-')); return Number.isFinite(n) ? n : 0; };
+/** The card shows the balance it will have: the opening balance for a new account, the balance now (with a changed opening balance) when editing. */
+const previewBal = (f) => (f.mode === 'edit' ? find(f.id).bal + parseOpen(f.open) - find(f.id).open : parseOpen(f.open));
+
+const V = {
+  list: () => `${pageHead()}${v2Band()}${v2Banks()}${archivedBlock()}`,
+  empty: () => emptyState('Add each card and each pocket of cash, one currency each. They line up here like the cards in your wallet, with the total of every currency on top.'),
+  loading: () => `${pageHead()}<div role="status" aria-busy="true" aria-label="Loading accounts">
+    <div class="band"><span class="sk" style="width:80px;background:var(--hero-rule)"></span><span class="sk" style="width:200px;height:30px;margin-top:12px;background:var(--hero-rule)"></span></div>
+    <span class="sk" style="width:110px;height:18px;margin-bottom:12px"></span>
+    <div class="tiles">${[0, 1, 2].map(() => `<div class="tile" style="cursor:default"><span class="sk" style="width:50%"></span><span class="sk" style="width:70%;height:22px"></span></div>`).join('')}</div></div>`,
+  formTop: (f) => `<div class="preview" aria-hidden="true">${tile({ name: f.name, bank: f.bank, cur: f.cur, bal: previewBal(f) }, 'div')}</div>`,
+  onInput: () => {
+    const f = state.form;
+    const name = document.querySelector('.preview [data-pv="name"]');
+    if (name) name.innerHTML = esc(f.name) || '<span class="t-open">Name</span>';
+    const bal = document.querySelector('.preview [data-pv="bal"]');
+    if (bal) { const v = previewBal(f); bal.textContent = money(v, f.cur); bal.classList.toggle('neg', v < 0); }
+  },
+};
+
+// ---------- Render ----------
+function body() {
+  const p = state.page;
+  if (p === 'accounts-empty') return V.empty();
+  if (p === 'accounts-loading') return V.loading();
+  if (p === 'accounts-error') return errorState();
+  return V.list();
+}
+function dialog() {
+  if (state.page === 'accounts-archive') return archiveDialog();
+  if (state.form) return accountDialog();
+  if (state.more) return `<div class="scrim" data-action="close-more"><div class="dialog" role="dialog" aria-modal="true" aria-label="More sections" data-stop><div class="dlg-body" style="padding:16px">
+    <ul class="list">${[['users', 'Family'], ['settings', 'Settings'], ['people', 'People']].map(([i, l]) => `<li><a href="#${l.toLowerCase()}" data-action="close-more" style="display:flex;align-items:center;gap:14px;min-height:52px;padding:0 12px;border-radius:12px;color:var(--text);text-decoration:none">${icon(i)}${l}</a></li>`).join('')}</ul></div></div></div>`;
+  return '';
+}
+function render() {
+  const scroll = document.querySelector('.main')?.scrollTop ?? 0;
+  app.innerHTML = shell(body()) + dialog();
+  document.querySelector('.main').scrollTop = scroll;
+  document.querySelectorAll('[data-page-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pageSet === state.page)));
+}
+const formFor = (a) => ({ mode: 'edit', id: a.id, name: a.name, bank: a.bank, cur: a.cur, open: a.open.toFixed(2), date: a.opened });
+const blankForm = (cur = 'UAH') => ({ mode: 'new', name: '', bank: 'Monobank', cur, open: '0.00', date: '29 Oct 2026' });
+function go(id) {
+  Object.assign(state, { page: id, more: false, form: null, newId: null, showArchived: false });
+  state.accounts = id === 'accounts-empty' ? [] : START.map((a) => ({ ...a }));
+  state.archived = id === 'accounts-empty' ? [] : START_ARCHIVED.map((a) => ({ ...a }));
+  if (id === 'accounts-new') state.form = blankForm();
+  if (id === 'accounts-new-errors') state.form = { ...blankForm('USD'), name: '', open: '1,240.5.0', errors: { name: 'Give the account a name.', open: 'Enter an amount like 1240.50 or −300.' } };
+  if (id === 'accounts-edit' || id === 'accounts-archive') state.form = formFor(state.accounts.find((a) => a.id === 'mono-usd'));
+  if (id === 'accounts-archived') state.showArchived = true;
+  if (id === 'accounts-saved') { state.accounts.push({ ...NEW_ACCOUNT }); state.newId = NEW_ACCOUNT.id; }
+  render();
+  if (id === 'accounts-saved') { countUp(); toast('Vacation envelope added'); }
+}
+function toast(text) {
+  document.querySelector('.toast')?.remove();
+  const t = document.createElement('div');
+  t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = text;
+  app.appendChild(t); setTimeout(() => t.remove(), 2200);
+}
+function readForm() {
+  const f = state.form;
+  document.querySelectorAll('[data-form-field]').forEach((el) => {
+    const k = el.dataset.formField;
+    if (el.type === 'radio') { if (el.checked) f[k] = el.value; } else f[k] = el.value;
+  });
+}
+
+// Preview bar (review aid)
+document.body.insertAdjacentHTML('afterbegin', `<div class="pv-bar"><b>F-014 · ${DIRECTION.name}</b>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="tablet">Tablet</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>Screen</span>${PAGES.map((p) => `<button data-page-set="${p.id}">${p.label}</button>`).join('')}</div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <button data-action="notes" aria-expanded="false">About this direction</button>
+  <div class="pv-notes" id="notes" hidden><b>${DIRECTION.name}</b><p style="margin:4px 0 0">${DIRECTION.thesis}</p><ul>${DIRECTION.notes.map((n) => `<li>${n}</li>`).join('')}</ul></div></div>`);
+function setView(v) { stage.dataset.view = v; document.querySelectorAll('button[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); }
+setView(innerWidth >= 1200 ? 'desktop' : 'phone');
+
+document.addEventListener('click', (e) => {
+  const p = e.target.closest('[data-page-set]');
+  if (p) { go(p.dataset.pageSet); return; }
+  const s = e.target.closest('[data-scheme-set]');
+  if (s) { state.schemePref = s.dataset.schemeSet; applyScheme(); return; }
+  const v = e.target.closest('button[data-view]');
+  if (v) { setView(v.dataset.view); return; }
+  const a = e.target.closest('[data-action]');
+  if (!a) return;
+  if (a.classList.contains('scrim') && e.target.closest('[data-stop]')) return;
+  e.preventDefault();
+  ({
+    new: () => { state.form = blankForm(a.dataset.cur); render(); document.getElementById('acc-name')?.focus(); },
+    edit: () => { state.form = formFor(find(a.dataset.id)); render(); },
+    'close-dialog': () => { state.form = null; if (state.page === 'accounts-archive') state.page = 'accounts'; render(); },
+    'ask-archive': () => { readForm(); state.page = 'accounts-archive'; render(); },
+    'do-archive': () => {
+      const acc = state.accounts.find((x) => x.id === state.form.id);
+      state.accounts = state.accounts.filter((x) => x !== acc);
+      state.archived.unshift({ ...acc, archived: '29 Oct 2026' });
+      state.form = null; state.page = 'accounts'; render(); toast(`${acc.name} archived`);
+    },
+    restore: () => {
+      const acc = state.archived.find((x) => x.id === a.dataset.id);
+      state.archived = state.archived.filter((x) => x !== acc);
+      state.accounts.push(acc); state.newId = acc.id; render(); toast(`${acc.name} is back`);
+    },
+    'toggle-archived': () => { state.showArchived = !state.showArchived; render(); document.querySelector('[data-action="toggle-archived"]')?.focus(); },
+    retry: () => go('accounts'),
+    'add-tx': () => toast('Add transaction (F-018)'),
+    toast: () => toast(a.dataset.text),
+    more: () => { state.more = !state.more; render(); },
+    'close-more': () => { state.more = false; render(); },
+    ...(V.actions ?? {}),
+    notes: () => { const n = document.getElementById('notes'); n.hidden = !n.hidden; a.setAttribute('aria-expanded', String(!n.hidden)); },
+  })[a.dataset.action]?.(a);
+});
+// The form keeps what was typed; a different currency changes the amount's sign
+document.addEventListener('change', (e) => {
+  if (!state.form || !e.target.matches('[data-form-field]')) return;
+  readForm();
+  if (e.target.type === 'radio') { render(); document.querySelector(`input[name="${e.target.name}"][value="${e.target.value}"]`)?.focus(); }
+});
+document.addEventListener('input', (e) => {
+  if (!state.form || !e.target.matches('[data-form-field]')) return;
+  readForm(); V.onInput?.();
+});
+document.addEventListener('submit', (e) => {
+  e.preventDefault();
+  readForm();
+  const f = state.form;
+  const errors = {};
+  if (!f.name.trim()) errors.name = 'Give the account a name.';
+  if (!/^[−-]?\d[\d\s]*([.,]\d{1,2})?$/.test(f.open.trim())) errors.open = 'Enter an amount like 1240.50 or −300.';
+  if (Object.keys(errors).length) { f.errors = errors; render(); return; }
+  const open = Number(f.open.replace(/\s/g, '').replace(',', '.').replace('−', '-'));
+  if (f.mode === 'edit') {
+    const acc = find(f.id);
+    Object.assign(acc, { name: f.name.trim(), bank: f.bank, cur: f.cur, bal: acc.bal + (open - acc.open), open, opened: f.date });
+    state.form = null; state.newId = null; render(); toast('Saved');
+  } else {
+    const acc = { id: `a${Date.now()}`, name: f.name.trim(), bank: f.bank, cur: f.cur, bal: open, open, opened: f.date };
+    state.accounts.push(acc); state.form = null; state.newId = acc.id; state.page = 'accounts';
+    render(); countUp(); toast(`${acc.name} added`);
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  document.getElementById('notes').hidden = true;
+  if (state.form || state.more) { state.form = null; state.more = false; if (state.page === 'accounts-archive') state.page = 'accounts'; render(); }
+});
+applyScheme();
+go('accounts');
+</script>
+</body>
+</html>

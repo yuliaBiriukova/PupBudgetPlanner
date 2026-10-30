@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>F-014 · Variant 4 · Paper cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(480px, calc(100vw - 32px)); background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.pv-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.pv-notes li + li { margin-top: 4px; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='tablet'] .frame { width: 834px; height: min(1050px, 100%); border: 12px solid #16181d; border-radius: 28px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+@media (max-width: 600px) {
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+}
+
+/* ---------- Tokens: the app's theme (F-010, F-011, F-028) plus income / expense for balances ---------- */
+.app {
+  --bg: #f5f6f7; --surface: #fcfcfd; --sidebar: #ebedf0; --seg-bg: #ebedf0; --text: #1c1e21; --muted: #57585b;
+  --rule: #d7d8d9; --hover: #e8e9ea; --field-border: #7c828a;
+  --primary: #26292e; --primary-hover: #363a40; --on-primary: #f5f6f7;
+  --accent: #2a62a3; --active-bg: #e7ecf1; --tint: #e7ecf1; --logo: #8ec1ec; --logo-mark: #1c1e21;
+  --hero: #26292e; --on-hero: #f5f6f7; --hero-muted: #b4b9bf; --hero-rule: #474c54;
+  --error: #b3261e; --error-bg: #fbeceb; --error-text: #8c1d18;
+  --expense: #b3261e; --income: #1f7a4d;
+  --pill: #1c1e21; --on-pill: #f5f6f7; --focus: #26292e; --scrim: rgba(18, 19, 21, .45);
+  --shadow-float: 0 8px 24px rgba(15, 17, 20, .1);
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+  --r-sm: 12px; --r-lg: 24px;
+}
+.app[data-scheme='dark'] {
+  --bg: #121315; --surface: #1b1c1e; --sidebar: #18191b; --seg-bg: #121315; --text: #e9eaec; --muted: #a4a5a7;
+  --rule: #37383a; --hover: #26272a; --field-border: #71747b;
+  --primary: #e9eaec; --primary-hover: #d3d6da; --on-primary: #121315;
+  --accent: #8ec1ec; --active-bg: #262f37; --tint: #262f37; --logo: #8ec1ec; --logo-mark: #121315;
+  --hero: #0b0c0d; --on-hero: #e9eaec; --hero-muted: #a4a5a7; --hero-rule: #2e3035;
+  --error: #f2958c; --error-bg: #3a1d1b; --error-text: #f6b8b2;
+  --expense: #f2958c; --income: #7fd1a4;
+  --pill: #e9eaec; --on-pill: #121315; --focus: #e9eaec; --scrim: rgba(0, 0, 0, .6);
+  --shadow-float: 0 10px 28px rgba(0, 0, 0, .45);
+}
+
+/* ---------- Base ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; color-scheme: light; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+:where(.app) :where(button, input) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, h3, p, ul, fieldset, legend) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.neg { color: var(--expense); }
+.muted { color: var(--muted); }
+.list { list-style: none; padding: 0; margin: 0; }
+
+/* Buttons and fields (the F-011 set, corners from F-028: pills for text buttons, circles for icon buttons) */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; font-weight: 500; font-size: 15px; text-decoration: none; white-space: nowrap; background: none; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-outline { background: var(--surface); color: var(--text); border-color: var(--field-border); }
+.btn-outline:hover { background: var(--hover); }
+.btn-quiet { color: var(--text); }
+.btn-quiet:hover { background: var(--hover); }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+.field label, .field legend { display: block; font-weight: 500; font-size: 14px; margin-bottom: 6px; padding: 0; }
+.field .hint { margin-top: 6px; font-size: 13px; color: var(--muted); }
+.field .err { display: flex; gap: 6px; align-items: center; margin-top: 6px; font-size: 13px; color: var(--error); font-weight: 500; }
+fieldset.field { border: 0; padding: 0; min-width: 0; }
+.control { position: relative; display: flex; align-items: center; height: 52px; border: 1px solid var(--field-border); border-radius: var(--r-sm); background: var(--surface); }
+.control:focus-within { border-color: var(--accent); outline: 1px solid var(--accent); outline-offset: 0; }
+.control input { flex: 1; min-width: 0; height: 100%; padding: 0 16px; border: 0; background: none; color: var(--text); font-size: 16px; outline: none; border-radius: inherit; }
+.control .affix { padding: 0 16px 0 0; color: var(--muted); font-size: 16px; }
+.control .affix-start { padding: 0 0 0 16px; }
+.control .affix-start + input { padding-left: 8px; }
+.control .end-btn { margin-right: 4px; }
+.field[data-invalid] .control { border-color: var(--error); outline: 1px solid var(--error); }
+.control input.amount { text-align: right; font-variant-numeric: tabular-nums; }
+/* Options as pills: radio buttons (bank, currency) */
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { position: relative; display: inline-flex; }
+.opt input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.opt span { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid var(--field-border); border-radius: 999px; background: var(--surface); font-weight: 500; font-size: 14px; white-space: nowrap; }
+.opt input:checked + span { background: var(--active-bg); border-color: var(--accent); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.opt input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+.opt:hover input:not(:checked) + span { background: var(--hover); }
+.text-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--accent); font-weight: 500; background: none; border: 0; padding: 0; cursor: pointer; }
+.text-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.toast { position: absolute; bottom: 88px; left: 50%; transform: translateX(-50%); padding: 10px 16px; border-radius: 999px; background: var(--pill); color: var(--on-pill); font-size: 14px; z-index: 30; white-space: nowrap; }
+.banner { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-sm); background: var(--tint); color: var(--text); }
+.banner .ic { margin-top: 2px; color: var(--accent); }
+.banner-error { background: var(--error-bg); color: var(--error-text); }
+.banner-error .ic { color: var(--error-text); }
+
+/* ---------- App shell (F-010): top bar and tab bar on the phone, sidebar from 768 px ---------- */
+.logo { width: 44px; height: 44px; display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--logo); color: var(--logo-mark); }
+.shell { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); }
+.side { display: none; }
+.column { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+.top { display: flex; flex: none; align-items: center; gap: 10px; height: 56px; padding: 0 8px 0 16px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; margin-right: auto; }
+.brand .logo { width: 32px; height: 32px; }
+.brand-name { font-family: var(--font-display); font-size: 15px; font-weight: 300; letter-spacing: .02em; white-space: nowrap; }
+.main { flex: 1; min-height: 0; overflow: hidden auto; position: relative; }
+.content { max-width: 1040px; margin: 0 auto; padding: 8px 16px 32px; }
+.tabs { display: flex; flex: none; align-items: center; gap: 2px; padding: 8px 8px 10px; border-top: 1px solid var(--rule); background: var(--bg); }
+.tab { display: flex; flex: none; align-items: center; justify-content: center; gap: 8px; width: 44px; min-height: 48px; border-radius: 999px; color: var(--muted); font-size: 13px; text-decoration: none; background: none; border: 0; cursor: pointer; }
+.tab[data-active] { width: auto; padding: 0 14px 0 12px; background: var(--active-bg); color: var(--accent); font-weight: 500; }
+.tab:not([data-active]) .tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.tab-add { display: grid; place-items: center; width: 52px; height: 52px; margin-left: auto; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); cursor: pointer; }
+.avatar { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 50%; background: var(--active-bg); color: var(--accent); font-size: 13px; font-weight: 500; }
+@container app (min-width: 768px) {
+  .shell { grid-template-columns: 248px minmax(0, 1fr); }
+  .side { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-right: 1px solid var(--rule); background: var(--sidebar); min-width: 0; }
+  .side-head { display: flex; align-items: center; gap: 10px; height: 44px; margin-bottom: 12px; padding: 0 2px; }
+  .side-head .logo { width: 32px; height: 32px; margin: 0 6px; }
+  .side-add { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; margin-bottom: 14px; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 500; cursor: pointer; }
+  .nav-link { position: relative; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-radius: 999px; color: var(--text); font-size: 14px; line-height: 1; text-decoration: none; white-space: nowrap; }
+  .nav-link:hover { background: var(--hover); }
+  .nav-link[aria-current='page'] { font-weight: 500; }
+  .nav-link[aria-current='page'] > svg { color: var(--accent); }
+  .nav-link[aria-current='page']::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: -12px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+  .nav-sep { height: 1px; margin: 10px 14px; background: var(--rule); }
+  .side-foot { display: flex; align-items: center; gap: 12px; min-height: 40px; margin-top: auto; padding: 0 8px; font-size: 14px; }
+  .top, .tabs { display: none; }
+  .content { padding: 32px 40px 48px; }
+  .toast { bottom: 24px; }
+}
+
+/* ---------- Page head ---------- */
+.page-head { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 8px 0 18px; }
+.page-head h1 { font-family: var(--font-display); font-weight: 300; font-size: 28px; line-height: 1.15; letter-spacing: -.01em; margin-right: auto; }
+.page-head .new-btn { order: 3; width: 100%; min-height: 52px; }
+@container app (min-width: 768px) {
+  .page-head { flex-wrap: nowrap; }
+  .page-head .new-btn { order: 0; width: auto; min-height: 48px; }
+}
+
+/* ---------- Dialogs: a sheet on the phone, centered from 768 px; title and buttons stay, the middle scrolls (I-004) ---------- */
+.scrim { position: absolute; inset: 0; z-index: 20; display: flex; align-items: flex-end; background: var(--scrim); }
+.dialog { display: flex; flex-direction: column; width: 100%; max-height: 92%; border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--surface); box-shadow: var(--shadow-float); overflow: hidden; }
+.dialog > form { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.dlg-head { padding: 20px 20px 4px; }
+.dlg-head h2 { font-family: var(--font-display); font-weight: 300; font-size: 20px; line-height: 1.3; }
+.dlg-head p { margin-top: 6px; color: var(--muted); }
+.dlg-body { flex: 1; min-height: 0; overflow: auto; padding: 8px 20px 20px; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent); }
+.dlg-body > * + * { margin-top: 18px; }
+.dlg-body p + p { margin-top: 10px; }
+.dlg-foot { display: flex; flex-direction: column-reverse; gap: 8px; padding: 4px 20px 20px; }
+.dlg-foot .btn { width: 100%; min-height: 48px; }
+@container app (min-width: 768px) {
+  .scrim { align-items: center; justify-content: center; }
+  .dialog { width: 480px; max-height: 88%; border-radius: var(--r-lg); }
+  .dlg-head { padding: 24px 28px 4px; }
+  .dlg-body { padding: 8px 28px 20px; }
+  .dlg-foot { flex-direction: row; justify-content: flex-end; padding: 8px 28px 24px; }
+  .dlg-foot .btn { width: auto; min-height: 44px; }
+  .dlg-foot .left { margin-right: auto; }
+}
+
+/* ---------- States shared by all variants ---------- */
+.sk { display: block; height: 14px; border-radius: 6px; background: var(--hover); }
+.state-box { max-width: 460px; padding: 32px 0 8px; }
+.state-box h2 { font-family: var(--font-display); font-weight: 300; font-size: 20px; line-height: 1.3; }
+.state-box p { margin-top: 8px; color: var(--muted); }
+.state-box .btn { margin-top: 18px; }
+/* Archived: folded under the list */
+.disc { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; margin-top: 28px; padding: 0 8px; border: 0; border-radius: var(--r-sm); background: none; color: var(--text); cursor: pointer; text-align: left; }
+.disc:hover { background: var(--hover); }
+.disc h2 { font-family: var(--font-display); font-weight: 300; font-size: 17px; }
+.disc .n { color: var(--muted); font-size: 14px; margin-right: auto; font-variant-numeric: tabular-nums; }
+.chev { transition: transform 160ms; color: var(--muted); }
+[aria-expanded='true'] > .chev { transform: rotate(180deg); }
+.arch-list { display: grid; gap: 8px; margin-top: 6px; }
+.arch-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 10px 8px 10px 16px; border: 1px dashed var(--field-border); border-radius: var(--r-sm); }
+.arch-row .what { color: var(--muted); font-size: 14px; }
+.arch-row .btn { grid-column: 2; grid-row: 1 / span 2; }
+/* The one moment: a new account's row is tinted for a moment while its total counts up */
+@keyframes flash { from { background: var(--tint); } }
+[data-new] { animation: flash 1600ms ease-out; }
+@media (prefers-reduced-motion: reduce) { [data-new] { animation: none; } .chev { transition: none; } }
+.arch-row .bal { color: var(--muted); }
+
+/* ---------- Round 2: the group switch, the currency picker, sources and banks ---------- */
+/* Group by: a two-way switch, the Sign in / Create account pill (F-011) */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 0 0 20px; }
+.seg { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 4px; border-radius: 999px; background: var(--seg-bg); border: 0; margin: 0; min-width: 0; }
+.app[data-scheme='dark'] .seg { background: #0d0e0f; }
+.seg legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.seg .opt { display: block; }
+.seg .opt span { justify-content: center; width: 100%; min-height: 40px; padding: 0 18px; border: 0; background: none; color: var(--muted); }
+.seg .opt input:checked + span { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(15, 17, 20, .14); }
+.app[data-scheme='dark'] .seg .opt input:checked + span { background: #2e3035; box-shadow: none; }
+.seg .opt:hover input:not(:checked) + span { background: none; color: var(--text); }
+.seg-label { color: var(--muted); font-size: 14px; }
+.group-by { display: flex; align-items: center; gap: 10px; }
+@container app (max-width: 767px) { .seg .opt span { min-height: 44px; } .group-by { width: 100%; } .group-by .seg { flex: 1; } }
+
+/* The currency field: a button that opens a searchable list inside the dialog */
+.pick-btn { display: flex; align-items: center; gap: 12px; width: 100%; height: 52px; padding: 0 12px 0 16px; border: 1px solid var(--field-border); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font-size: 16px; text-align: left; cursor: pointer; }
+.pick-btn b { font-weight: 500; }
+.pick-btn .what { flex: 1; min-width: 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-btn[aria-expanded='true'] { border-color: var(--accent); outline: 1px solid var(--accent); }
+.picker { margin-top: 8px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); }
+.picker .control { margin: 8px; height: 48px; }
+.picker-list { max-height: 248px; overflow: auto; padding: 0 6px 6px; }
+.picker-list h3 { padding: 10px 10px 4px; color: var(--muted); font-size: 13px; font-weight: 500; }
+.picker-list button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 0 10px; border: 0; border-radius: 8px; background: none; color: var(--text); text-align: left; cursor: pointer; }
+.picker-list button:hover { background: var(--hover); }
+.picker-list button b { width: 40px; flex: none; font-weight: 500; }
+.picker-list button[aria-pressed='true'] { color: var(--accent); background: var(--active-bg); }
+.picker-list .none { padding: 12px 10px; color: var(--muted); }
+/* "New source" and "Another bank": a pill that turns into a field */
+.opt-new { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border: 1px dashed var(--field-border); border-radius: 999px; background: none; color: var(--accent); font-weight: 500; font-size: 14px; cursor: pointer; }
+.opt-new:hover { background: var(--hover); }
+.new-field { margin-top: 10px; }
+.suggest { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.suggest button { min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--seg-bg); color: var(--text); font-size: 14px; cursor: pointer; }
+.app[data-scheme='dark'] .suggest button { background: #2e3035; }
+.suggest button:hover { background: var(--hover); }
+.suggest-label { margin-top: 8px; color: var(--muted); font-size: 13px; }
+
+/* Totals by currency, when the groups don't show them (grouped by source) */
+.totals { display: flex; flex-wrap: wrap; gap: 12px 32px; }
+.totals .t-item { min-width: 0; }
+.totals .what { display: block; color: var(--muted); font-size: 13px; }
+.totals .num { display: block; font-family: var(--font-display); font-weight: 300; font-size: 22px; letter-spacing: -.01em; line-height: 1.3; }
+.totals .t-item:first-child .num { font-size: 30px; }
+
+/* Groups */
+.grp + .grp { margin-top: 30px; }
+.grp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin-bottom: 12px; }
+.grp-head h2 { font-family: var(--font-display); font-weight: 300; font-size: 18px; line-height: 1.3; }
+.grp-head .n { color: var(--muted); font-size: 14px; }
+
+/* A card: the name and what it is on top, the balance at the bottom; the balance shrinks with the card (never
+   overlaps or wraps): the card is a size container */
+.acard { container: acard / inline-size; position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; width: 100%; min-width: 0; min-height: 108px; padding: 16px 18px; border: 1px solid var(--card-border, var(--rule)); border-radius: var(--r-sm); background: var(--card-bg, var(--surface)); color: var(--card-text, var(--text)); text-align: left; cursor: pointer; --muted: var(--card-muted, #57585b); }
+.app[data-scheme='dark'] .acard { --muted: var(--card-muted, #a4a5a7); }
+.acard .a-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 12px; align-items: baseline; }
+.acard .a-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acard .a-code { color: var(--muted); font-size: 13px; font-weight: 500; }
+.acard .a-meta { grid-column: 1 / -1; color: var(--muted); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acard .a-bal { font-family: var(--font-display); font-weight: 300; font-size: min(24px, 10cqi); letter-spacing: -.01em; line-height: 1.2; white-space: nowrap; }
+.acard .neg { color: var(--card-debt, var(--expense)); }
+.acard[data-new] { animation: none; }
+.acard[data-new]::after { content: ''; position: absolute; inset: -4px; border: 2px solid var(--accent); border-radius: 15px; animation: ring 1600ms ease-out forwards; pointer-events: none; }
+@keyframes ring { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .acard[data-new]::after { display: none; } }
+.acards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+
+/* ====================================================================================================== */
+/* ---------- Variant 4 · Paper cards: every card the same, the group says the rest; a ghost card adds one ---------- */
+.v4 { container: v4 / inline-size; }
+.v4 .grp-head { justify-content: space-between; }
+.v4 .grp-head .title { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.v4 .grp-head .cap { color: var(--muted); font-size: 14px; }
+.v4 .grp-total { margin-left: auto; font-family: var(--font-display); font-weight: 300; font-size: 22px; letter-spacing: -.01em; }
+/* The ghost card: the next card in the group, still empty */
+.acard.ghost { flex-direction: row; align-items: center; justify-content: center; gap: 10px; min-height: 56px; border: 1px dashed var(--field-border); background: none; color: var(--accent); font-weight: 500; text-align: center; }
+.acard.ghost:hover { background: var(--hover); }
+.v4-totals { margin: 0 0 26px; padding: 14px 0 16px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.v4-totals .label { margin-bottom: 4px; color: var(--muted); font-size: 14px; }
+.acard:not(.ghost):hover { border-color: var(--field-border); }
+@container v4 (min-width: 420px) {
+  .v4 .acards { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+  .v4 .acard { aspect-ratio: 1.586; min-height: 0; padding: 18px 20px; }
+  .acard.ghost { flex-direction: column; gap: 8px; padding: 12px 20px; }
+  .v4 .grp-total { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="frame">
+    <div class="app" id="app" data-scheme="light"></div>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  stack: ['M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z', 'M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4', 'M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z', 'M3 6v10c0 .888 .772 1.45 2 2', 'M3 11c0 .888 .772 1.45 2 2'],
+  receipt: ['M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2', 'M9 7h6', 'M9 11h6', 'M13 15h2'],
+  wallet: ['M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12', 'M20 12v4h-4a2 2 0 0 1 0 -4h4'],
+  chart: ['M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M4 20h14'],
+  users: ['M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2', 'M16 3.13a4 4 0 0 1 0 7.75', 'M21 21v-2a4 4 0 0 0 -3 -3.85'],
+  settings: ['M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z', 'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0'],
+  people: ['M6 21v-2a4 4 0 0 1 4 -4h2', 'M22 16c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5z', 'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0'],
+  plus: ['M12 5l0 14', 'M5 12l14 0'],
+  dots: ['M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  chevDown: ['M6 9l6 6l6 -6'],
+  selector: ['M8 9l4 -4l4 4', 'M16 15l-4 4l-4 -4'],
+  search: ['M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0', 'M21 21l-6 -6'],
+  check: ['M5 12l5 5l10 -10'],
+  archive: ['M3 6a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2', 'M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10', 'M10 12l4 0'],
+  restore: ['M3.06 13a9 9 0 1 0 .49 -4.087', 'M3 4.001v5h5', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  calendar: ['M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z', 'M16 3v4', 'M8 3v4', 'M4 11h16'],
+  alert: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 8v4', 'M12 16h.01'],
+  info: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 9h.01', 'M11 12h1v4h1'],
+  refresh: ['M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4', 'M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4'],
+};
+const icon = (n, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n].map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+// ---------- Currencies: UAH plus the ones NBU publishes official rates for ----------
+const NBU = [
+  ['UAH', 'Ukrainian hryvnia', 'Hryvnia'], ['USD', 'US dollar', 'US dollar'], ['EUR', 'Euro', 'Euro'], ['PLN', 'Polish zloty', 'Polish zloty'],
+  ['AUD', 'Australian dollar'], ['AZN', 'Azerbaijani manat'], ['BDT', 'Bangladeshi taka'], ['CAD', 'Canadian dollar'], ['CHF', 'Swiss franc'],
+  ['CNY', 'Chinese yuan'], ['CZK', 'Czech koruna'], ['DKK', 'Danish krone'], ['DZD', 'Algerian dinar'], ['EGP', 'Egyptian pound'],
+  ['GBP', 'Pound sterling'], ['GEL', 'Georgian lari'], ['HKD', 'Hong Kong dollar'], ['HUF', 'Hungarian forint'], ['IDR', 'Indonesian rupiah'],
+  ['ILS', 'Israeli shekel'], ['INR', 'Indian rupee'], ['JPY', 'Japanese yen'], ['KRW', 'South Korean won'], ['KZT', 'Kazakhstani tenge'],
+  ['LBP', 'Lebanese pound'], ['MDL', 'Moldovan leu'], ['MXN', 'Mexican peso'], ['MYR', 'Malaysian ringgit'], ['NOK', 'Norwegian krone'],
+  ['NZD', 'New Zealand dollar'], ['RON', 'Romanian leu'], ['RSD', 'Serbian dinar'], ['SAR', 'Saudi riyal'], ['SEK', 'Swedish krona'],
+  ['SGD', 'Singapore dollar'], ['THB', 'Thai baht'], ['TND', 'Tunisian dinar'], ['TRY', 'Turkish lira'], ['VND', 'Vietnamese dong'], ['ZAR', 'South African rand'],
+].map(([code, name, short]) => ({ code, name, short: short ?? name }));
+const CUR = Object.fromEntries(NBU.map((c) => [c.code, c]));
+
+// ---------- Money: "1 250.00 ₴", "$1 240.00", "€300.00", "640.00 PLN"; a true minus (DESIGN_RULES §5) ----------
+const NB = ' ';
+const BEFORE = { USD: '$', EUR: '€', GBP: '£' };
+function money(v, code) {
+  const [i, d] = Math.abs(v).toFixed(2).split('.');
+  const n = `${i.replace(/\B(?=(\d{3})+(?!\d))/g, NB)}.${d}`;
+  const s = BEFORE[code] ? `${BEFORE[code]}${n}` : code === 'UAH' ? `${n}${NB}₴` : `${n}${NB}${code}`;
+  return (v < 0 ? '−' : '') + s;
+}
+const amount = (v, code, cls = '') => `<span class="num${v < 0 ? ' neg' : ''}${cls ? ` ${cls}` : ''}">${money(v, code)}</span>`;
+const sign = (code) => BEFORE[code] ?? (code === 'UAH' ? '₴' : code);
+
+// ---------- Data: "today" is 29 Oct 2026. Sources and banks are this person's own ----------
+const START_SOURCES = [{ id: 'cash', name: 'Cash' }, { id: 'bank', name: 'Bank' }, { id: 'deposit', name: 'Deposit', own: true }];
+const START_BANKS = ['Monobank', 'PrivatBank'];
+const SUGGESTED_BANKS = ['A-Bank', 'Credit Agricole', 'Izibank', 'Monobank', 'Oschadbank', 'OTP Bank', 'PrivatBank', 'ProCredit Bank', 'PUMB', 'Raiffeisen Bank', 'Sense Bank', 'Ukrgasbank', 'Ukrsibbank'];
+const START = [
+  { id: 'mono', name: 'Mono black', src: 'bank', bank: 'Monobank', cur: 'UAH', bal: 48210.5, open: 21500, opened: '1 Jan 2026', color: 'charcoal' },
+  { id: 'mono-credit', name: 'Mono credit', src: 'bank', bank: 'Monobank', cur: 'UAH', bal: -4312.4, open: 0, opened: '1 Jan 2026', color: 'rose' },
+  { id: 'mono-usd', name: 'Mono dollars', src: 'bank', bank: 'Monobank', cur: 'USD', bal: 1240, open: 900, opened: '1 Jan 2026', color: 'charcoal' },
+  { id: 'privat', name: 'Privat card', src: 'bank', bank: 'PrivatBank', cur: 'UAH', bal: 12784.1, open: 8000, opened: '1 Jan 2026', color: 'sage' },
+  { id: 'privat-eur', name: 'Privat euro', src: 'bank', bank: 'PrivatBank', cur: 'EUR', bal: 300, open: 300, opened: '14 Mar 2026', color: 'sky' },
+  { id: 'cash', name: 'Wallet', src: 'cash', cur: 'UAH', bal: 3450, open: 1200, opened: '1 Jan 2026', color: 'sand' },
+  { id: 'cash-usd', name: 'Dollars at home', src: 'cash', cur: 'USD', bal: 500, open: 500, opened: '1 Jan 2026', color: 'plain' },
+  { id: 'cash-pln', name: 'Złoty left from Kraków', src: 'cash', cur: 'PLN', bal: 640, open: 640, opened: '2 Aug 2026', color: 'plain' },
+  { id: 'deposit', name: 'Deposit for the new apartment', src: 'deposit', cur: 'UAH', bal: 250000, open: 250000, opened: '1 Sep 2026', color: 'sky' },
+];
+const START_ARCHIVED = [
+  { id: 'oschad', name: 'Oschad salary card', src: 'bank', bank: 'Oschadbank', cur: 'UAH', bal: 0, open: 0, opened: '1 Jan 2025', archived: '3 Oct 2026', color: 'plain' },
+  { id: 'old-privat-usd', name: 'Old Privat dollars', src: 'bank', bank: 'PrivatBank', cur: 'USD', bal: 12.4, open: 0, opened: '1 Jan 2025', archived: '20 Sep 2026', color: 'plain' },
+];
+const NEW_ACCOUNT = { id: 'envelope', name: 'Vacation envelope', src: 'cash', cur: 'EUR', bal: 450, open: 450, opened: '29 Oct 2026', color: 'sand' };
+
+const PAGES = [
+  { id: 'accounts', label: 'By currency' },
+  { id: 'accounts-by-source', label: 'By source' },
+  { id: 'accounts-empty', label: 'First visit' },
+  { id: 'accounts-loading', label: 'Loading' },
+  { id: 'accounts-error', label: 'Couldn’t load' },
+  { id: 'accounts-new', label: 'New account' },
+  { id: 'accounts-new-in-group', label: 'New: from a group' },
+  { id: 'accounts-new-currency', label: 'New: currency list' },
+  { id: 'accounts-new-bank', label: 'New: another bank' },
+  { id: 'accounts-new-source', label: 'New: own source' },
+  { id: 'accounts-new-errors', label: 'New: mistakes' },
+  { id: 'accounts-saved', label: 'Added: total updates' },
+  { id: 'accounts-edit', label: 'Edit' },
+  { id: 'accounts-archive', label: 'Archive: still has money' },
+  { id: 'accounts-archived', label: 'Archived open' },
+];
+
+const app = document.getElementById('app');
+const stage = document.getElementById('stage');
+const mq = matchMedia('(prefers-color-scheme: dark)');
+const state = { page: 'accounts', schemePref: 'light', groupBy: 'cur', more: false, accounts: [], archived: [], sources: [], banks: [], showArchived: false, form: null, newId: null };
+
+function applyScheme() {
+  const scheme = state.schemePref === 'system' ? (mq.matches ? 'dark' : 'light') : state.schemePref;
+  app.dataset.scheme = scheme;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+}
+mq.addEventListener('change', applyScheme);
+
+const find = (id) => state.accounts.find((a) => a.id === id) ?? state.archived.find((a) => a.id === id);
+const srcName = (id) => state.sources.find((s) => s.id === id)?.name ?? id;
+const srcLabel = (a) => (a.src === 'bank' ? a.bank : srcName(a.src));
+const total = (cur) => state.accounts.filter((a) => a.cur === cur).reduce((s, a) => s + a.bal, 0);
+/** Currencies in use: hryvnia first, then by how many accounts, then by code. */
+function usedCurs() {
+  const n = {};
+  state.accounts.forEach((a) => { n[a.cur] = (n[a.cur] ?? 0) + 1; });
+  return Object.keys(n).sort((a, b) => (a === 'UAH' ? -1 : b === 'UAH' ? 1 : n[b] - n[a] || a.localeCompare(b)));
+}
+const count = (n) => (n === 1 ? '1 account' : `${n} accounts`);
+
+/** The groups on the page: by currency (each with its total) or by source (cash, each bank, own sources). */
+function groups() {
+  if (state.groupBy === 'cur') {
+    return usedCurs().map((c) => ({ key: c, by: 'cur', cur: c, title: CUR[c].short, caption: c, list: state.accounts.filter((a) => a.cur === c), total: total(c), addLabel: `Add ${c} account`, preset: { cur: c } }));
+  }
+  const g = [];
+  const add = (key, title, caption, list, preset, word) => { if (list.length) g.push({ key, by: 'src', title, caption, list, addLabel: `Add ${word} account`, preset }); };
+  add('cash', srcName('cash'), '', state.accounts.filter((a) => a.src === 'cash'), { src: 'cash' }, 'cash');
+  [...new Set(state.accounts.filter((a) => a.src === 'bank').map((a) => a.bank))].sort().forEach((b) => add(`bank:${b}`, b, 'Bank', state.accounts.filter((a) => a.src === 'bank' && a.bank === b), { src: 'bank', bank: b }, b));
+  state.sources.filter((s) => s.own).forEach((s) => add(s.id, s.name, '', state.accounts.filter((a) => a.src === s.id), { src: s.id }, s.name));
+  return g;
+}
+/** On a card: what the group doesn't already say — the source when grouped by currency, the currency when by source. */
+const cardMeta = (a) => (state.groupBy === 'cur' ? srcLabel(a) : '');
+const cardCode = (a) => (state.groupBy === 'cur' ? '' : a.cur);
+
+// ---------- Shell ----------
+const NAV = [['receipt', 'Transactions'], ['wallet', 'Accounts'], ['chart', 'Reports'], ['users', 'Family'], ['settings', 'Settings']];
+function shell(inner) {
+  return `<div class="shell">
+    <aside class="side" aria-label="Sections">
+      <div class="side-head"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div>
+      <button class="side-add" type="button" data-action="add-tx">${icon('plus')}Add transaction</button>
+      <nav class="nav" aria-label="Main">
+        ${NAV.map(([i, l]) => `<a class="nav-link" href="#${l.toLowerCase()}"${l === 'Accounts' ? ' aria-current="page"' : ''}>${icon(i)}${l}</a>`).join('')}
+        <div class="nav-sep" role="presentation"></div>
+        <a class="nav-link" href="#people">${icon('people')}People</a>
+      </nav>
+      <div class="side-foot"><span class="avatar" aria-hidden="true">YB</span><span>Yulia Biriukova</span></div>
+    </aside>
+    <div class="column">
+      <header class="top"><div class="brand"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div><span class="avatar" aria-hidden="true">YB</span></header>
+      <main class="main"><div class="content">${inner}</div></main>
+      <nav class="tabs" aria-label="Main">
+        ${NAV.slice(0, 3).map(([i, l]) => `<a class="tab" href="#${l.toLowerCase()}"${l === 'Accounts' ? ' data-active aria-current="page"' : ''}>${icon(i)}<span class="tab-label">${l}</span></a>`).join('')}
+        <button class="tab" type="button" data-action="more" aria-expanded="${state.more}">${icon('dots')}<span class="tab-label">More</span></button>
+        <button class="tab-add" type="button" data-action="add-tx" aria-label="Add transaction">${icon('plus', 24)}</button>
+      </nav>
+    </div>
+  </div>`;
+}
+const pageHead = () => `<div class="page-head"><h1>Accounts</h1><button class="btn btn-primary new-btn" type="button" data-action="new">${icon('plus')}Add account</button></div>`;
+const groupSwitch = () => `<div class="group-by"><span class="seg-label" aria-hidden="true">Group by</span><fieldset class="seg"><legend>Group accounts by</legend>
+  ${[['cur', 'Currency'], ['src', 'Source']].map(([v, l]) => `<label class="opt"><input type="radio" name="group-by" value="${v}"${state.groupBy === v ? ' checked' : ''} data-group-by><span>${l}</span></label>`).join('')}</fieldset></div>`;
+/** Totals by currency for the source view, where the groups mix currencies. */
+const totalsItems = () => usedCurs().map((c) => `<div class="t-item"><span class="what">${CUR[c].short}</span><span class="num${total(c) < 0 ? ' neg' : ''}"${countAttrs(c)}>${money(total(c), c)}</span></div>`).join('');
+
+// ---------- Shared states ----------
+const emptyState = (text) => `<div class="page-head"><h1>Accounts</h1></div>
+  <div class="state-box">
+    <h2>Where is your money?</h2>
+    <p>${text}</p>
+    <button class="btn btn-primary" type="button" data-action="new">${icon('plus')}Add your first account</button>
+  </div>`;
+const errorState = () => `${pageHead()}<div class="banner banner-error" role="alert">${icon('alert')}<div><p>Couldn’t load your accounts. Check the connection and try again.</p>
+  <button class="text-link" type="button" data-action="retry" style="color:inherit">${icon('refresh')}Try again</button></div></div>`;
+
+function archivedBlock() {
+  if (!state.archived.length) return '';
+  return `<button class="disc" type="button" data-action="toggle-archived" aria-expanded="${state.showArchived}" aria-controls="archived"><h2>Archived</h2><span class="n">${state.archived.length}</span>${icon('chevDown')}</button>
+  <div id="archived"${state.showArchived ? '' : ' hidden'}>
+    <p class="muted" style="font-size:14px;margin:2px 8px 10px">Not in the totals or the account pickers. Their transactions stay in the lists and reports.</p>
+    <ul class="list arch-list">${state.archived.map((a) => `<li class="arch-row"><span>${esc(a.name)}</span><span class="what">${esc(srcLabel(a))}, archived <span class="num">${a.archived}</span>${a.bal !== 0 ? `, <span class="bal num">${money(a.bal, a.cur)} left</span>` : ''}</span>
+      <button class="btn btn-quiet" type="button" data-action="restore" data-id="${a.id}">${icon('restore')}Restore</button></li>`).join('')}</ul>
+  </div>`;
+}
+
+// ---------- The account form (new and edit) ----------
+function field({ id, label, value = '', hint, error, inputmode, after = '', cls = '', extra = '' }) {
+  return `<div class="field"${error ? ' data-invalid' : ''}>
+    <label for="${id}">${label}</label>
+    <div class="control"><input id="${id}" name="${id}" type="text" value="${esc(value)}"${inputmode ? ` inputmode="${inputmode}"` : ''}${cls ? ` class="${cls}"` : ''} autocomplete="off"${error ? ` aria-invalid="true" aria-describedby="${id}-err"` : hint ? ` aria-describedby="${id}-hint"` : ''} ${extra}>${after}</div>
+    ${error ? `<p class="err" id="${id}-err">${icon('alert', 16)}${error}</p>` : hint ? `<p class="hint" id="${id}-hint">${hint}</p>` : ''}
+  </div>`;
+}
+const errLine = (text) => (text ? `<p class="err">${icon('alert', 16)}${text}</p>` : '');
+const fName = (f) => field({ id: 'acc-name', label: 'Name', value: f.name, hint: 'As you call it: Mono black, Wallet, Dollars at home.', error: f.errors?.name, extra: 'maxlength="40" data-form-field="name"' });
+
+/** Currency: your currencies first, then every NBU currency; the search matches the code or the name. */
+function pickerList(f) {
+  const q = (f.curQuery ?? '').trim().toLowerCase();
+  const match = (c) => !q || c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q);
+  const mine = [...new Set([...state.accounts, ...state.archived].map((a) => a.cur))].sort((a, b) => (a === 'UAH' ? -1 : b === 'UAH' ? 1 : a.localeCompare(b))).map((c) => CUR[c]).filter(match);
+  const rest = NBU.filter((c) => !mine.includes(c) && match(c)).sort((a, b) => a.code.localeCompare(b.code));
+  const item = (c) => `<li><button type="button" aria-pressed="${c.code === f.cur}" data-action="cur-pick" data-code="${c.code}"><b>${c.code}</b><span>${c.name}</span></button></li>`;
+  if (!mine.length && !rest.length) return `<p class="none">No currency matches “${esc(f.curQuery)}”. NBU publishes rates for about 40 currencies.</p>`;
+  return `${mine.length ? `<h3 id="cur-mine">Yours</h3><ul class="list" aria-labelledby="cur-mine">${mine.map(item).join('')}</ul>` : ''}
+    ${rest.length ? `<h3 id="cur-all">All NBU currencies</h3><ul class="list" aria-labelledby="cur-all">${rest.map(item).join('')}</ul>` : ''}`;
+}
+const fCur = (f) => `<div class="field"><label id="cur-label" for="cur-btn">Currency</label>
+  <button class="pick-btn" id="cur-btn" type="button" data-action="cur-toggle" aria-expanded="${!!f.curOpen}" aria-controls="cur-picker"><b>${f.cur}</b><span class="what">${CUR[f.cur].name}</span>${icon('selector')}</button>
+  ${f.curOpen ? `<div class="picker" id="cur-picker">
+    <div class="control">${icon('search').replace('class="ic"', 'class="ic" style="margin-left:12px;color:var(--muted)"')}<input id="cur-search" type="search" placeholder="Search: zloty, GBP" aria-label="Search currencies" value="${esc(f.curQuery)}" autocomplete="off" data-cur-search></div>
+    <div class="picker-list" id="cur-list">${pickerList(f)}</div></div>` : ''}
+  ${f.mode === 'edit' ? '<p class="hint">Can’t be changed once the account has transactions.</p>' : ''}</div>`;
+
+function fSrc(f) {
+  return `<fieldset class="field"><legend>Source</legend>
+    <div class="opts">${state.sources.map((s) => `<label class="opt"><input type="radio" name="src" value="${s.id}"${f.newSrc == null && s.id === f.src ? ' checked' : ''} data-form-field="src"><span>${esc(s.name)}</span></label>`).join('')}
+      ${f.newSrc == null ? `<button class="opt-new" type="button" data-action="src-new">${icon('plus', 16)}New source</button>` : ''}</div>
+    ${f.newSrc != null ? `<div class="new-field">${field({ id: 'new-src', label: 'New source', value: f.newSrc, hint: 'Only you see it, e.g. Deposit, Crypto wallet, Piggy bank.', error: f.errors?.newSrc, extra: 'maxlength="30" data-form-field="newSrc"' })}
+      <button class="text-link" type="button" data-action="src-cancel">Pick one of yours instead</button></div>` : ''}
+  </fieldset>`;
+}
+function fBank(f) {
+  if (f.newSrc != null || f.src !== 'bank') return '';
+  const q = (f.newBank ?? '').trim().toLowerCase();
+  const sugg = SUGGESTED_BANKS.filter((b) => !state.banks.includes(b) && (!q || b.toLowerCase().includes(q)) && b.toLowerCase() !== q).slice(0, 6);
+  return `<fieldset class="field"><legend>Bank</legend>
+    <div class="opts">${state.banks.map((b) => `<label class="opt"><input type="radio" name="bank" value="${esc(b)}"${f.newBank == null && b === f.bank ? ' checked' : ''} data-form-field="bank"><span>${esc(b)}</span></label>`).join('')}
+      ${f.newBank == null ? `<button class="opt-new" type="button" data-action="bank-new">${icon('plus', 16)}Another bank</button>` : ''}</div>
+    ${f.newBank != null ? `<div class="new-field">${field({ id: 'new-bank', label: 'Bank name', value: f.newBank, hint: 'Kept for your next accounts.', error: f.errors?.bank, extra: 'maxlength="40" data-form-field="newBank"' })}
+      <div id="bank-suggest">${bankSuggest(sugg)}</div>
+      <button class="text-link" type="button" data-action="bank-cancel">Pick one of yours instead</button></div>` : errLine(f.errors?.bank)}
+  </fieldset>`;
+}
+const bankSuggest = (sugg) => (sugg.length ? `<p class="suggest-label">Suggestions</p><div class="suggest">${sugg.map((b) => `<button type="button" data-action="bank-suggest" data-bank="${esc(b)}">${esc(b)}</button>`).join('')}</div>` : '');
+const fOpen = (f) => field({ id: 'acc-open', label: 'Opening balance', value: f.open, inputmode: 'decimal', cls: 'amount', after: `<span class="affix" aria-hidden="true">${sign(f.cur)}</span>`, hint: 'What was on it that day. Below zero for a credit card debt.', error: f.errors?.open, extra: 'data-form-field="open"' });
+const fDate = (f) => field({ id: 'acc-date', label: 'Opening date', value: f.date, after: `<button class="icon-btn end-btn" type="button" aria-label="Pick a date" data-action="toast" data-text="Opens the calendar">${icon('calendar')}</button>`, extra: 'data-form-field="date"' });
+const formFields = (f) => [fName(f), fCur(f), fSrc(f), fBank(f), V.extraFields?.(f) ?? '', fOpen(f), fDate(f)].join('');
+
+function accountDialog() {
+  const f = state.form; const edit = f.mode === 'edit';
+  const acc = edit ? find(f.id) : null;
+  return `<div class="scrim" data-action="close-dialog"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" data-stop>
+    <div class="dlg-head"><h2 id="dlg-title">${edit ? `Edit ${esc(acc.name)}` : 'New account'}</h2>
+      ${edit ? `<p>Balance now ${amount(acc.bal, acc.cur)}</p>` : ''}</div>
+    <form novalidate data-form="account">
+      <div class="dlg-body">${(V.formTop?.(f) ?? '') + formFields(f)}</div>
+      <div class="dlg-foot">
+        ${edit ? `<button class="btn btn-quiet left" type="button" data-action="ask-archive">${icon('archive')}Archive</button>` : ''}
+        <button class="btn btn-quiet" type="button" data-action="close-dialog">Cancel</button>
+        <button class="btn btn-primary" type="submit">${edit ? 'Save' : 'Add account'}</button>
+      </div>
+    </form>
+  </div></div>`;
+}
+function archiveDialog() {
+  const a = find(state.form.id);
+  return `<div class="scrim" data-action="close-dialog"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" data-stop>
+    <div class="dlg-head"><h2 id="dlg-title">Archive ${esc(a.name)}?</h2></div>
+    <div class="dlg-body">
+      <p>It leaves the list, the totals and the account pickers. Its transactions stay in the lists and reports, and you can restore it from Archived.</p>
+      ${a.bal !== 0 ? `<div class="banner">${icon('info')}<p>It still has ${amount(a.bal, a.cur)}. Archived, that money is no longer in the ${a.cur} total.</p></div>` : ''}
+    </div>
+    <div class="dlg-foot"><button class="btn btn-quiet" type="button" data-action="close-dialog">Cancel</button><button class="btn btn-primary" type="button" data-action="do-archive">${icon('archive')}Archive</button></div>
+  </div></div>`;
+}
+
+// ---------- Count-up: the total of the currency that changed (the one moment that moves) ----------
+function countUp() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    const [from, to, cur] = [Number(el.dataset.from), Number(el.dataset.count), el.dataset.cur];
+    const t0 = performance.now();
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / 700); const e = 1 - (1 - k) ** 3;
+      el.textContent = money(from + (to - from) * e, cur);
+      if (k < 1) requestAnimationFrame(step);
+    };
+    el.textContent = money(from, cur);
+    requestAnimationFrame(step);
+  });
+}
+const countAttrs = (cur) => {
+  const n = state.newId && state.accounts.find((a) => a.id === state.newId);
+  return n && n.cur === cur ? ` data-count="${total(cur)}" data-from="${total(cur) - n.bal}" data-cur="${cur}"` : '';
+};
+const isNew = (a) => (a.id === state.newId ? ' data-new' : '');
+
+// ---------- Variant 4 · Paper cards ----------
+const DIRECTION = {
+  name: 'Variant 4 · Paper cards',
+  thesis: 'Every card the same: a light card in light mode, a dark one in dark mode. No colors by bank; the group heading carries the currency and its total, and a dashed ghost card at the end of each group adds the next account to it.',
+  notes: [
+    'Group by Currency or Source (a switch above the cards, remembered). By currency each group shows its total; by source the totals per currency sit on top, since a group mixes currencies.',
+    'A card: the name, then what the group doesn’t say (the source when grouped by currency, the currency code when by source), the balance at the bottom. Long names end in “…”; the balance gets smaller with the card and never wraps.',
+    'The ghost card at the end of each group: “Add UAH account”, “Add Monobank account” opens the form with that currency or source picked.',
+    'Any NBU currency: the form’s currency list has yours first and searches the rest. Sources: Cash, Bank and your own; a bank is picked from yours or typed (suggestions while typing).',
+    'Archived accounts fold under the list; the balance shows only when something is left on it.',
+    'The one moment: after adding, the new card gets a short accent ring and its currency’s total counts up.',
+  ],
+};
+
+function v4Card(a) {
+  const meta = cardMeta(a); const code = cardCode(a);
+  return `<li><button class="acard" type="button" data-action="edit" data-id="${a.id}"${isNew(a)}>
+    <span class="a-top"><span class="a-name">${esc(a.name)}</span>${code ? `<span class="a-code">${code}</span>` : ''}${meta ? `<span class="a-meta">${esc(meta)}</span>` : ''}</span>
+    ${amount(a.bal, a.cur, 'a-bal')}</button></li>`;
+}
+const presetAttrs = (p) => Object.entries(p).map(([k, v]) => ` data-${k}="${esc(v)}"`).join('');
+function v4Group(g) {
+  return `<section class="grp" aria-labelledby="g-${g.key}">
+    <div class="grp-head"><div class="title"><h2 id="g-${g.key}">${esc(g.title)}</h2><span class="cap">${g.caption ? `${esc(g.caption)}, ` : ''}${count(g.list.length)}</span></div>
+      ${g.by === 'cur' ? `<span class="grp-total num${g.total < 0 ? ' neg' : ''}"${countAttrs(g.cur)}>${money(g.total, g.cur)}</span>` : ''}</div>
+    <ul class="list acards">${g.list.map(v4Card).join('')}
+      <li><button class="acard ghost" type="button" data-action="new"${presetAttrs(g.preset)}>${icon('plus')}<span>${esc(g.addLabel)}</span></button></li></ul>
+  </section>`;
+}
+
+const V = {
+  groups: (gs) => `<div class="v4">${gs.map(v4Group).join('')}</div>`,
+  totals: () => `<div class="v4-totals" role="group" aria-label="Totals"><p class="label">In total</p><div class="totals">${totalsItems()}</div></div>`,
+  empty: () => emptyState('Add each bank card, savings account and pocket of cash, in any currency. They line up here as cards, grouped by currency or by where the money is.'),
+  loading: () => `${pageHead()}<div class="v4" role="status" aria-busy="true" aria-label="Loading accounts">
+    <span class="sk" style="width:140px;height:18px;margin-bottom:14px"></span>
+    <div class="acards">${[0, 1, 2].map(() => `<div class="acard" style="cursor:default"><span class="sk" style="width:55%"></span><span class="sk" style="width:70%;height:22px"></span></div>`).join('')}</div></div>`,
+};
+
+// ---------- Render ----------
+function body() {
+  const p = state.page;
+  if (p === 'accounts-empty') return V.empty();
+  if (p === 'accounts-loading') return V.loading();
+  if (p === 'accounts-error') return errorState();
+  return `${pageHead()}<div class="toolbar">${groupSwitch()}</div>${state.groupBy === 'src' ? V.totals() : ''}${V.groups(groups())}${archivedBlock()}`;
+}
+function dialog() {
+  if (state.page === 'accounts-archive') return archiveDialog();
+  if (state.form) return accountDialog();
+  if (state.more) return `<div class="scrim" data-action="close-more"><div class="dialog" role="dialog" aria-modal="true" aria-label="More sections" data-stop><div class="dlg-body" style="padding:16px">
+    <ul class="list">${[['users', 'Family'], ['settings', 'Settings'], ['people', 'People']].map(([i, l]) => `<li><a href="#${l.toLowerCase()}" data-action="close-more" style="display:flex;align-items:center;gap:14px;min-height:52px;padding:0 12px;border-radius:12px;color:var(--text);text-decoration:none">${icon(i)}${l}</a></li>`).join('')}</ul></div></div></div>`;
+  return '';
+}
+function render() {
+  const scroll = document.querySelector('.main')?.scrollTop ?? 0;
+  const dlgScroll = document.querySelector('.dlg-body')?.scrollTop ?? 0;
+  app.innerHTML = shell(body()) + dialog();
+  document.querySelector('.main').scrollTop = scroll;
+  const db = document.querySelector('.dlg-body'); if (db) db.scrollTop = dlgScroll;
+  document.querySelectorAll('[data-page-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pageSet === state.page)));
+}
+const formFor = (a) => ({ mode: 'edit', id: a.id, name: a.name, cur: a.cur, src: a.src, bank: a.bank ?? state.banks[0], newSrc: null, newBank: null, open: a.open.toFixed(2), date: a.opened, color: a.color });
+const blankForm = (preset = {}) => ({ mode: 'new', name: '', cur: 'UAH', src: 'bank', bank: state.banks[0], newSrc: null, newBank: null, open: '0.00', date: '29 Oct 2026', color: 'plain', ...preset });
+function go(id) {
+  Object.assign(state, { page: id, more: false, form: null, newId: null, showArchived: false, groupBy: id === 'accounts-by-source' ? 'src' : 'cur' });
+  const empty = id === 'accounts-empty';
+  state.accounts = empty ? [] : START.map((a) => ({ ...a }));
+  state.archived = empty ? [] : START_ARCHIVED.map((a) => ({ ...a }));
+  state.sources = START_SOURCES.filter((s) => !empty || !s.own).map((s) => ({ ...s }));
+  state.banks = empty ? [] : [...START_BANKS];
+  if (id === 'accounts-new') state.form = blankForm();
+  if (id === 'accounts-new-in-group') state.form = blankForm({ cur: 'USD' });
+  if (id === 'accounts-new-currency') state.form = { ...blankForm(), name: 'Pounds for London', src: 'cash', curOpen: true, curQuery: 'pou' };
+  if (id === 'accounts-new-bank') state.form = { ...blankForm(), name: 'Oschad card', newBank: 'O' };
+  if (id === 'accounts-new-source') state.form = { ...blankForm(), name: 'Bitcoin', cur: 'USD', newSrc: 'Crypto wallet' };
+  if (id === 'accounts-new-errors') state.form = { ...blankForm({ cur: 'USD' }), open: '1,240.5.0', newBank: '', errors: { name: 'Give the account a name.', bank: 'Pick your bank or type its name.', open: 'Enter an amount like 1240.50 or −300.' } };
+  if (id === 'accounts-edit' || id === 'accounts-archive') state.form = formFor(state.accounts.find((a) => a.id === 'mono-usd'));
+  if (id === 'accounts-archived') state.showArchived = true;
+  if (id === 'accounts-saved') { state.accounts.push({ ...NEW_ACCOUNT }); state.newId = NEW_ACCOUNT.id; }
+  render();
+  document.querySelector('.main').scrollTop = 0;
+  if (id === 'accounts-saved') { countUp(); toast('Vacation envelope added'); }
+  // Screens about one part of a long form or page open scrolled to that part
+  const focusOn = { 'accounts-new-currency': '#cur-picker', 'accounts-new-bank': '#new-bank', 'accounts-new-source': '#new-src', 'accounts-archived': '#archived' }[id];
+  if (focusOn) document.querySelector(focusOn)?.scrollIntoView({ block: 'center' });
+}
+function toast(text) {
+  document.querySelector('.toast')?.remove();
+  const t = document.createElement('div');
+  t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = text;
+  app.appendChild(t); setTimeout(() => t.remove(), 2200);
+}
+function readForm() {
+  const f = state.form;
+  document.querySelectorAll('[data-form-field]').forEach((el) => {
+    const k = el.dataset.formField;
+    if (el.type === 'radio') { if (el.checked) f[k] = el.value; } else f[k] = el.value;
+  });
+}
+/** Re-draws the dialog and puts the focus back where it was (or on the given selector). */
+function rerender(focusSel) {
+  const id = document.activeElement?.id;
+  render();
+  const el = (focusSel && document.querySelector(focusSel)) || (id && document.getElementById(id));
+  el?.focus();
+}
+
+// Preview bar (review aid)
+document.body.insertAdjacentHTML('afterbegin', `<div class="pv-bar"><b>F-014 · ${DIRECTION.name}</b>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="tablet">Tablet</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>Screen</span>${PAGES.map((p) => `<button data-page-set="${p.id}">${p.label}</button>`).join('')}</div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <button data-action="notes" aria-expanded="false">About this direction</button>
+  <div class="pv-notes" id="notes" hidden><b>${DIRECTION.name}</b><p style="margin:4px 0 0">${DIRECTION.thesis}</p><ul>${DIRECTION.notes.map((n) => `<li>${n}</li>`).join('')}</ul></div></div>`);
+function setView(v) { stage.dataset.view = v; document.querySelectorAll('button[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); }
+setView(innerWidth >= 1200 ? 'desktop' : 'phone');
+
+document.addEventListener('click', (e) => {
+  const p = e.target.closest('[data-page-set]');
+  if (p) { go(p.dataset.pageSet); return; }
+  const s = e.target.closest('[data-scheme-set]');
+  if (s) { state.schemePref = s.dataset.schemeSet; applyScheme(); return; }
+  const v = e.target.closest('button[data-view]');
+  if (v) { setView(v.dataset.view); return; }
+  const a = e.target.closest('[data-action]');
+  if (!a) return;
+  if (a.classList.contains('scrim') && e.target.closest('[data-stop]')) return;
+  e.preventDefault();
+  if (state.form && a.closest('form')) readForm();
+  ({
+    new: () => {
+      const preset = {};
+      if (a.dataset.cur) preset.cur = a.dataset.cur;
+      if (a.dataset.src) preset.src = a.dataset.src;
+      if (a.dataset.bank) preset.bank = a.dataset.bank;
+      state.form = blankForm(preset); render(); document.getElementById('acc-name')?.focus();
+    },
+    edit: () => { state.form = formFor(find(a.dataset.id)); render(); },
+    'close-dialog': () => { state.form = null; if (state.page === 'accounts-archive') state.page = 'accounts'; render(); },
+    'cur-toggle': () => { state.form.curOpen = !state.form.curOpen; state.form.curQuery = ''; rerender(state.form.curOpen ? '#cur-search' : '#cur-btn'); },
+    'cur-pick': () => { Object.assign(state.form, { cur: a.dataset.code, curOpen: false, curQuery: '' }); rerender('#cur-btn'); },
+    'src-new': () => { state.form.newSrc = ''; rerender('#new-src'); },
+    'src-cancel': () => { state.form.newSrc = null; rerender('input[name="src"]:checked'); },
+    'bank-new': () => { state.form.newBank = ''; rerender('#new-bank'); },
+    'bank-cancel': () => { state.form.newBank = null; rerender('input[name="bank"]:checked'); },
+    'bank-suggest': () => { state.form.newBank = a.dataset.bank; rerender('#new-bank'); },
+    'ask-archive': () => { state.page = 'accounts-archive'; render(); },
+    'do-archive': () => {
+      const acc = state.accounts.find((x) => x.id === state.form.id);
+      state.accounts = state.accounts.filter((x) => x !== acc);
+      state.archived.unshift({ ...acc, archived: '29 Oct 2026' });
+      state.form = null; state.page = 'accounts'; render(); toast(`${acc.name} archived`);
+    },
+    restore: () => {
+      const acc = state.archived.find((x) => x.id === a.dataset.id);
+      state.archived = state.archived.filter((x) => x !== acc);
+      state.accounts.push(acc); state.newId = acc.id; render(); toast(`${acc.name} is back`);
+    },
+    'toggle-archived': () => { state.showArchived = !state.showArchived; render(); document.querySelector('[data-action="toggle-archived"]')?.focus(); },
+    retry: () => go('accounts'),
+    'add-tx': () => toast('Add transaction (F-018)'),
+    toast: () => toast(a.dataset.text),
+    more: () => { state.more = !state.more; render(); },
+    'close-more': () => { state.more = false; render(); },
+    notes: () => { const n = document.getElementById('notes'); n.hidden = !n.hidden; a.setAttribute('aria-expanded', String(!n.hidden)); },
+  })[a.dataset.action]?.(a);
+});
+document.addEventListener('change', (e) => {
+  if (e.target.matches('[data-group-by]')) { state.groupBy = e.target.value; state.newId = null; rerender(`input[name="group-by"][value="${e.target.value}"]`); return; }
+  if (!state.form || !e.target.matches('[data-form-field]')) return;
+  readForm();
+  if (e.target.type === 'radio') {
+    if (e.target.name === 'src') state.form.newSrc = null;
+    if (e.target.name === 'bank') state.form.newBank = null;
+    rerender(`input[name="${e.target.name}"][value="${e.target.value}"]`);
+  }
+});
+document.addEventListener('input', (e) => {
+  if (e.target.matches('[data-cur-search]')) { state.form.curQuery = e.target.value; document.getElementById('cur-list').innerHTML = pickerList(state.form); return; }
+  if (!state.form || !e.target.matches('[data-form-field]')) return;
+  readForm();
+  if (e.target.id === 'new-bank') {
+    const q = state.form.newBank.trim().toLowerCase();
+    document.getElementById('bank-suggest').innerHTML = bankSuggest(SUGGESTED_BANKS.filter((b) => !state.banks.includes(b) && (!q || b.toLowerCase().includes(q)) && b.toLowerCase() !== q).slice(0, 6));
+  }
+  V.onInput?.();
+});
+document.addEventListener('submit', (e) => {
+  e.preventDefault();
+  readForm();
+  const f = state.form;
+  const errors = {};
+  if (!f.name.trim()) errors.name = 'Give the account a name.';
+  if (f.newSrc != null && !f.newSrc.trim()) errors.newSrc = 'Name the new source.';
+  if (f.newSrc == null && f.src === 'bank' && (f.newBank != null ? !f.newBank.trim() : !f.bank)) errors.bank = 'Pick your bank or type its name.';
+  if (!/^[−-]?\d[\d\s]*([.,]\d{1,2})?$/.test(f.open.trim())) errors.open = 'Enter an amount like 1240.50 or −300.';
+  if (Object.keys(errors).length) { f.errors = errors; render(); return; }
+  if (f.newSrc != null) { const id = `own-${Date.now()}`; state.sources.push({ id, name: f.newSrc.trim(), own: true }); f.src = id; }
+  if (f.src === 'bank' && f.newBank != null) { f.bank = f.newBank.trim(); if (!state.banks.includes(f.bank)) state.banks.push(f.bank); }
+  const open = Number(f.open.replace(/\s/g, '').replace(',', '.').replace('−', '-'));
+  const fields = { name: f.name.trim(), src: f.src, bank: f.src === 'bank' ? f.bank : undefined, cur: f.cur, open, opened: f.date, color: f.color };
+  if (f.mode === 'edit') {
+    const acc = find(f.id);
+    Object.assign(acc, fields, { bal: acc.bal + (open - acc.open) });
+    state.form = null; state.newId = null; render(); toast('Saved');
+  } else {
+    const acc = { id: `a${Date.now()}`, ...fields, bal: open };
+    state.accounts.push(acc); state.form = null; state.newId = acc.id; state.page = 'accounts';
+    render(); countUp(); toast(`${acc.name} added`);
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  document.getElementById('notes').hidden = true;
+  if (state.form?.curOpen) { state.form.curOpen = false; rerender('#cur-btn'); return; }
+  if (state.form || state.more) { state.form = null; state.more = false; if (state.page === 'accounts-archive') state.page = 'accounts'; render(); }
+});
+applyScheme();
+go('accounts');
+
+</script>
+</body>
+</html>

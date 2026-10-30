@@ -17,6 +17,11 @@ Correct, historical exchange rates for conversions.
 - [ ] Rates for USD and EUR to UAH come from the NBU API for any date
 - [ ] Fetched on demand and cached in the database
 - [ ] If NBU is unavailable, the latest earlier rate is used and marked as such
+- [ ] **"In total, in UAH" on the Accounts page** (owner, 2026-10-30): the total of all accounts in the report
+      currency at today's NBU rates, above the totals per currency, with the rates and their date under it; when
+      today's rates aren't published yet, the latest earlier ones are used and the line says so. The design is F-014's
+      approved final prototype (`../F-014-accounts/prototypes/variant-10.html`, screens "By currency" and "Total:
+      earlier rates"); it also counts up after an account is added
 
 ## Tasks
 
@@ -32,4 +37,4 @@ Correct, historical exchange rates for conversions.
 
 ## Notes
 
-- —
+- The NBU client is reused by I-013 (suggested banks from the NBU's list).
