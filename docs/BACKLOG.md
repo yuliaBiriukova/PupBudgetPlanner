@@ -38,7 +38,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 | ID | Feature | Status |
 |----|---------|--------|
-| [F-014](changes/features/F-014-accounts/F-014-accounts.md) | 🎨 Accounts and balances | Todo |
+| [F-014](changes/features/F-014-accounts/F-014-accounts.md) | 🎨 Accounts and balances | In progress |
 | [F-015](changes/features/F-015-categories-view/F-015-categories-view.md) | 🎨 Categories view | Todo |
 | [F-016](changes/features/F-016-user-settings/F-016-user-settings.md) | 🎨 User settings | Todo |
 

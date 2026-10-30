@@ -2,6 +2,115 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-30 (4)
+
+**Done**
+- F-014 approved by the owner: the design (final prototype `variant-10.html`) and the build. Recorded in the
+  description (`Approved` row) and in DESIGN_RULES "Screen decisions", with a new custom rule: names of card styles
+  fit both themes.
+- Owner's choice: F-014 is built first. The "In total, in UAH" line, which needs NBU rates, moves to F-017. F-017's
+  acceptance criteria now include it, using F-014's final prototype as its design.
+
+**Next**
+- Build F-014: backend (accounts, sources, banks, balances, API), then the Accounts page.
+
+## 2026-10-30 (3)
+
+**Done**
+- F-014, the owner's feedback: the card style names must fit both themes. Renamed in the final prototype: Black →
+  Solid (charcoal in light mode, light grey in dark mode), Sky → Tinted; Envelope and Plain stay. The description
+  and the screenshots are updated. Checked: the design check (0 issues), the edit dialog in light and dark.
+
+**Next**
+- Owner: approve the final prototype for implementation, and choose how the NBU rates come (F-017 first, or F-014
+  fetches today's rates).
+
+## 2026-10-30 (2)
+
+**Done**
+- F-014, the owner's choice: variant 9 with the preview, with the style next to the preview. Also back in F-014:
+  the total of all accounts in the report currency at NBU rates. This had been moved to F-017 on 2026-10-29;
+  F-017's description now says so.
+- The final prototype `variant-10.html`:
+  - the card preview with four style tiles right under it, at the top of the form;
+  - "In total" led by everything in UAH at today's NBU rates, with the rates and their date, then each currency;
+  - when today's rates are missing, the earlier ones are used and the line says so;
+  - on the phone: a smaller preview, and Archive and Cancel side by side, so the styles stay in view.
+- Checked: the design check (0 issues), screenshots of every screen at 375, 834 and 1440 px, light and dark.
+  No code written: the change isn't approved yet.
+
+**Next**
+- Owner: approve the final prototype for implementation, and choose how the NBU rates come: F-017 first, or
+  F-014 fetches today's rates.
+
+## 2026-10-30
+
+**Done**
+- F-014, the owner's feedback on round 2, recorded in the description:
+  - an X on every pop-up;
+  - variant 6 out;
+  - variant 2's card styles wanted, picked per account, on variant 4's layout (group switch, ghost card);
+  - a bug: the currency search drew a second outline when focused;
+  - "In total" asked for when grouped by currency.
+- Design round 3: variants 7 · Style thumbnails, 8 · Flip the card, 9 · Preview and named styles. All three share
+  the same list, form and fixes:
+  - card styles from variant 2: Black (light grey in dark mode), Sky, Envelope and Plain;
+  - a new account takes its source's style (Bank black, Cash envelope) until one is picked;
+  - "In total" in both groupings;
+  - an X on the dialogs, the More sheet and the currency list;
+  - one focus border on the search (and no second, browser-drawn clear button);
+  - the ghost card dashed in accent blue.
+- Checked: the design check (0 issues), screenshots at 375, 834 and 1440 px, light and dark, looked at and zoomed
+  into the style pickers. Found and fixed in the checks: variant 9's style drawings lost their shape inside the
+  pills. No code written: the change isn't approved yet.
+
+**Next**
+- Owner: pick the style picker (7, 8 or 9) and answer whether "Black" keeps its name in dark mode. Then the final
+  prototype goes to the owner for approval.
+
+## 2026-10-29 (12)
+
+**Done**
+- F-014, the owner's feedback on round 1, recorded in the description with new acceptance criteria:
+  - any NBU currency;
+  - personal sources: Cash and Bank by default, own sources can be added;
+  - personal banks under Bank, typed in the form and remembered;
+  - a Currency / Source group switch;
+  - an add button for each group;
+  - an archived balance shown, muted, only when it isn't zero.
+
+  Variant 1's table is dropped.
+- Design round 2: three card variants:
+  - 4 · Paper cards: every card the same, a ghost card adds to its group;
+  - 5 · Your colors: six colors to pick, each with a dark-mode version; "+ Add" in the group heading;
+  - 6 · Charcoal columns: all cards charcoal, light in dark mode; a column per group with an add link under it.
+
+  Answered in the description: why Monobank's cards were black, and how dark cards turn around in dark mode.
+- Checked: the design check (0 issues), screenshots of every state at 375, 834 and 1440 px, light and dark. The
+  tablet now shows two cards per row, and no text overlaps. No code written: the change isn't approved yet.
+
+**Next**
+- Owner: pick a variant or a mix for the final prototype.
+
+## 2026-10-29 (11)
+
+**Done**
+- F-014 Accounts and balances started on `feature/F-014-accounts` (M2 is now in progress).
+- Owner's choice: the list shows a total per currency for now. The single total in the report currency needs NBU
+  rates and moves to F-017.
+- Design round 1: references (Actual Budget, YNAB, Copilot Money, Spendee, Monefy; Mobbin answered 403), a brief
+  and 3 prototypes: 1 · Ledger (a table grouped by currency, double-ruled total rows), 2 · Wallet (bank-card tiles
+  grouped by bank, totals on a charcoal band), 3 · Currency columns (one column per currency, its total large on
+  top). Each covers the list, first visit, loading, error, new / edit / archive, archived and the moment after
+  adding.
+- Checked: the design check (0 issues, 0 console errors), screenshots of every state at 375 and 1440 px, light
+  and dark, looked at. No code written: the change isn't approved yet.
+
+**Next**
+- Owner: pick a variant (or a mix) and answer the open points in the F-014 description (archived accounts leave
+  the totals, restore, currency fixed once there are transactions, no delete). Then the final prototype goes to the
+  owner for approval.
+
 ## 2026-10-29 (10)
 
 **Done**
