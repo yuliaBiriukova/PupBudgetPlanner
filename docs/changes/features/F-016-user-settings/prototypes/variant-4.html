@@ -197,13 +197,35 @@ body { display: flex; flex-direction: column; height: 100dvh; background: #d7dad
 /* Picked from the list: marked like the picked segment (the accent), with a check */
 .pick-btn[data-picked] { border-color: var(--accent); outline: 1px solid var(--accent); background: var(--active-bg); }
 .pick-btn[data-picked] b, .pick-btn[data-picked] > .ok { color: var(--accent); }
-.picker { border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); }
-.pick-search { position: relative; margin: 8px; }
+/* Desktop: the list floats under the field over the page (the page doesn't move); phone: a sheet (see below) */
+.pick-wrap { position: relative; }
+.picker { position: absolute; z-index: 15; top: calc(100% + 8px); left: 0; right: 0; display: flex; flex-direction: column; height: 344px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); box-shadow: var(--shadow-float); }
+.picker .sa { flex: 1; }
+.pick-sheet .dialog { height: 80%; }
+/* The rows' highlight lines up with the search box and the title (16 px from the edge) */
+.pick-sheet .dlg-body { display: flex; flex-direction: column; padding: 8px 16px 0; }
+.pick-sheet .pick-search { margin: 8px 0 4px; }
+.pick-sheet .pick-scroll { padding: 0 0 8px; }
+.pick-sheet .sa { flex: 1; }
+.pick-search { position: relative; margin: 8px; flex: none; }
 .pick-search > .ic { position: absolute; left: 14px; top: 14px; color: var(--muted); pointer-events: none; }
 .pick-search .input { padding: 0 52px 0 44px; }
 .pick-search .icon-btn { position: absolute; right: 4px; top: 2px; }
 .pick-search input::-webkit-search-cancel-button { display: none; }
-.pick-scroll { max-height: 248px; overflow: auto; padding: 0 6px 6px; }
+.pick-scroll { padding: 0 6px 6px; }
+/* I-004's scroll area: a 6 px pill that shows while scrolling or under the pointer and fades; edges with more fade out */
+.sa { position: relative; display: flex; flex-direction: column; min-height: 0; }
+.sa-vp { flex: 1; min-height: 0; overflow: hidden auto; overscroll-behavior: contain; scrollbar-width: none; }
+.sa-vp::-webkit-scrollbar { display: none; }
+.sa-track { position: absolute; display: none; pointer-events: none; }
+.sa[data-overflow] > .sa-track { display: block; pointer-events: auto; top: 8px; bottom: 8px; right: 2px; width: 12px; opacity: 0; transition: opacity .3s ease .1s; }
+.sa[data-scrolling] > .sa-track, .sa[data-dragging] > .sa-track, .sa:hover > .sa-track { opacity: 1; transition-delay: 0s; transition-duration: .12s; }
+.sa-thumb { position: absolute; top: 0; left: 50%; width: 6px; margin-left: -3px; border-radius: 999px; background: var(--field-border); transition: width .12s, margin-left .12s, background-color .12s; }
+.sa-track:hover .sa-thumb, .sa[data-dragging] .sa-thumb { width: 10px; margin-left: -5px; background: var(--muted); }
+.sa > .sa-vp { --ft: 0px; --fb: 0px; mask-image: linear-gradient(to bottom, transparent, #000 var(--ft), #000 calc(100% - var(--fb)), transparent); }
+.sa[data-top] > .sa-vp { --ft: 32px; }
+.sa[data-bottom] > .sa-vp { --fb: 40px; }
+@media (prefers-reduced-motion: reduce) { .sa-track, .sa-thumb { transition: none !important; } }
 .pick-h { padding: 10px 10px 4px; color: var(--muted); font-size: 13px; font-weight: 500; }
 .pick-item { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 0 10px; border: 0; border-radius: 8px; background: none; color: var(--text); text-align: left; cursor: pointer; }
 .pick-item:hover { background: var(--hover); }
@@ -380,12 +402,64 @@ const ratesLine = (report) => {
   return `At the NBU rates of 31 Oct 2026: ${codes.map(rateText).join(', ')}.`;
 };
 const R = { draft: NAME, error: '', saveError: false, fresh: false, open: false, query: '' };
+/** From 768 px the list is a dropdown under the field; below, a sheet. */
+const isWide = () => app.clientWidth >= 768;
+let wasWide = null;
+new ResizeObserver(() => { const w = isWide(); if (wasWide !== null && w !== wasWide && R.open) render(); wasWide = w; }).observe(app);
+// The dropdown closes on a click anywhere outside it and its field
+document.addEventListener('pointerdown', (e) => {
+  if (R.open && isWide() && !e.target.closest('.pick-wrap')) { R.open = false; R.query = ''; render(); }
+});
+
+// ---------- I-004's scroll area: the thumb's size and place, and the edges with more behind them ----------
+function wireScrollAreas() {
+  document.querySelectorAll('[data-sa]').forEach((sa) => {
+    const vp = sa.querySelector('.sa-vp');
+    const track = sa.querySelector('.sa-track');
+    const thumb = sa.querySelector('.sa-thumb');
+    let hideTimer;
+    sa.update = () => {
+      const { scrollTop, scrollHeight, clientHeight } = vp;
+      const max = scrollHeight - clientHeight;
+      const over = max > 1;
+      sa.toggleAttribute('data-overflow', over);
+      sa.toggleAttribute('data-top', scrollTop > 1);
+      sa.toggleAttribute('data-bottom', over && scrollTop < max - 1);
+      if (!over) return;
+      const th = track.clientHeight;
+      const h = Math.max(32, (th * clientHeight) / scrollHeight);
+      thumb.style.height = `${h}px`;
+      thumb.style.transform = `translateY(${((th - h) * scrollTop) / max}px)`;
+    };
+    vp.addEventListener('scroll', () => {
+      sa.update();
+      sa.setAttribute('data-scrolling', '');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => sa.removeAttribute('data-scrolling'), 900);
+    }, { passive: true });
+    new ResizeObserver(sa.update).observe(vp);
+    thumb.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      thumb.setPointerCapture(e.pointerId);
+      sa.setAttribute('data-dragging', '');
+      const startY = e.clientY;
+      const startTop = vp.scrollTop;
+      const ratio = (vp.scrollHeight - vp.clientHeight) / (track.clientHeight - thumb.offsetHeight);
+      const move = (ev) => { vp.scrollTop = startTop + (ev.clientY - startY) * ratio; };
+      const up = () => { sa.removeAttribute('data-dragging'); thumb.removeEventListener('pointermove', move); thumb.removeEventListener('pointerup', up); };
+      thumb.addEventListener('pointermove', move);
+      thumb.addEventListener('pointerup', up);
+    });
+    sa.update();
+  });
+}
 const V = {
   DIRECTION: {
     name: 'Variant 4 (final) · Variant 1 with any NBU currency',
     thesis: 'Variant 1 as chosen, with one change: besides hryvnia, dollar and euro, the report currency can be any currency the NBU publishes rates for.',
     notes: [
-      'Report currency: Hryvnia, US dollar and Euro stay one tap away. Under them, Another currency opens the account form’s list (F-014): your accounts’ currencies first, then every NBU currency, with a search by code or name.',
+      'Report currency: Hryvnia, US dollar and Euro stay one tap away. Under them, Another currency opens the list of the account form (F-014): your accounts’ currencies first, then every NBU currency, with a search by code or name.',
+      'The list doesn’t push the page down: on the desktop it is a dropdown floating under the field (a click outside or Escape closes it); on the phone it is a sheet, so the search and the keyboard have room. It scrolls with the app’s own fading scroll bar (I-004).',
       'A currency picked from the list is marked like a picked choice (the accent and a check), and none of the three is. Picking one of the three again clears it.',
       'Either way it saves at once, with a short notification, and your total right under it comes in in the new currency (the one moment). The rates line lists the rates the total uses.',
       'Here the person has 12 000 ₴, $500 and 1 000 PLN, so PLN is under “Yours” in the list.',
@@ -429,8 +503,7 @@ const V = {
     const seg = (name, items, picked, action) => `<div class="seg" role="radiogroup" aria-labelledby="${name}">${items.map((it) => `<button type="button" role="radio" aria-checked="${it.id === picked}" data-action="${action}" data-id="${it.id}">${it.ic ? icon(it.ic) : ''}${it.label}</button>`).join('')}</div>`;
     const pickBtn = `<button class="pick-btn" type="button" data-action="toggle-list" aria-expanded="${R.open}"${R.open ? ' aria-controls="pk"' : ''}${other ? ' data-picked' : ''}>
       ${other ? `<span class="sr">Another currency: </span><b>${state.currency}</b><span class="what">${NAMES[state.currency]}</span>${icon('check').replace('class="ic"', 'class="ic ok"')}` : '<span class="ph">Another currency</span>'}${icon('selector')}</button>`;
-    const picker = R.open ? `<div class="picker" id="pk"><div class="pick-search">${icon('search')}<input class="input" id="pk-q" type="search" aria-label="Search currencies" placeholder="Search: zloty, GBP" value="${esc(R.query)}" autocomplete="off"><button class="icon-btn" type="button" data-action="toggle-list" aria-label="Close the list">${icon('x')}</button></div>
-      <div class="pick-scroll" id="pk-list" tabindex="-1">${V.list()}</div></div>` : '';
+    const picker = R.open && isWide() ? `<div class="picker" id="pk">${V.panel()}</div>` : '';
     return `${head}<div class="v1">
       <section class="v1-sec" aria-labelledby="s-name">
         <div class="v1-label"><h2 id="s-name">Name and email</h2><p>Your name is shown in the menu, and to your family once families come.</p></div>
@@ -446,7 +519,7 @@ const V = {
         <div class="v1-label"><h2 id="s-cur">Report currency</h2><p>Totals on Accounts and the reports are shown in it.</p></div>
         <div class="v1-ctl">
           ${seg('s-cur', QUICK, state.currency, 'pick-cur')}
-          ${pickBtn}${picker}
+          <div class="pick-wrap">${pickBtn}${picker}</div>
           ${R.saveError ? `<div class="banner banner-error" role="alert">${icon('alert')}<div><p>Couldn’t save the currency. Check the connection and try again.</p><button class="text-link" type="button" data-action="retry-cur">${icon('refresh')}Try again</button></div></div>` : ''}
           <div class="v1-total"><span class="cap">Your accounts in total</span><span class="amt num" aria-live="polite"><span class="${R.fresh ? 'swap-in' : ''}">${money(state.currency, totalIn(state.currency))}</span></span>
             <span class="rates">${ratesLine(state.currency)}</span></div>
@@ -458,7 +531,21 @@ const V = {
       </section>
     </div>`;
   },
+  /** The search and the list: in the dropdown on the desktop, in the sheet on the phone. */
+  panel() {
+    return `<div class="pick-search">${icon('search')}<input class="input" id="pk-q" type="search" aria-label="Search currencies" placeholder="Search: zloty, GBP" value="${esc(R.query)}" autocomplete="off"><button class="icon-btn" type="button" data-action="toggle-list" aria-label="Close the list">${icon('x')}</button></div>
+      <div class="sa" data-sa><div class="sa-vp pick-scroll" id="pk-list">${V.list()}</div><div class="sa-track" aria-hidden="true"><div class="sa-thumb"></div></div></div>`;
+  },
+  /** The phone: the list in a sheet, so the search and the keyboard have room. */
+  overlay() {
+    if (!R.open || isWide()) return '';
+    return `<div class="scrim pick-sheet" data-action="toggle-list"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="pk-title" data-stop>
+      <div class="dlg-head"><button class="icon-btn dlg-x" type="button" data-action="toggle-list" aria-label="Close">${icon('x')}</button><h2 id="pk-title">Report currency</h2></div>
+      <div class="dlg-body" id="pk">${V.panel().replace(/<button class="icon-btn" type="button" data-action="toggle-list" aria-label="Close the list">.*?<\/button>/, '')}</div></div></div>`;
+  },
+  escape() { if (R.open) V.actions['toggle-list'](); },
   afterRender() {
+    wireScrollAreas();
     const input = document.getElementById('name');
     input?.addEventListener('input', () => {
       R.draft = input.value;
@@ -466,7 +553,11 @@ const V = {
     });
     input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') V.actions['name-save'](); });
     const q = document.getElementById('pk-q');
-    q?.addEventListener('input', () => { R.query = q.value; document.getElementById('pk-list').innerHTML = V.list(); });
+    q?.addEventListener('input', () => {
+      R.query = q.value;
+      const vp = document.getElementById('pk-list');
+      vp.innerHTML = V.list(); vp.scrollTop = 0; vp.closest('.sa').update();
+    });
     q?.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); V.actions['toggle-list'](); } });
   },
   /** Saves the report currency: at once, with a notification; on the Couldn't save screen the first try fails. */

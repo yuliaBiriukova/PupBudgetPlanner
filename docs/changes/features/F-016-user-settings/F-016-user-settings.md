@@ -112,6 +112,10 @@ currency works as the report currency without new rates.
 - Either way it saves at once with a notification, the total under it comes in in the new currency, and the rates
   line lists the rates the total uses (the accounts' currencies and the report currency).
 - Everything else as variant 1.
+- Owner's review (same day): the list opened inside the page, pushing the total and Theme down, and scrolled with
+  the browser's bar. Now it doesn't move the page: on the desktop it is a dropdown floating under the field (a click
+  outside or Escape closes it); on the phone a sheet titled "Report currency", so the search and the keyboard have
+  room. It scrolls with I-004's fading scroll bar. The account form keeps its list inside the form (F-014).
 
 If approved, the acceptance criterion becomes "Choose report currency: UAH (default), USD, EUR or any other NBU
 currency".

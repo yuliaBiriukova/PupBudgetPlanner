@@ -9,6 +9,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   variant 1 with "Another currency" under Hryvnia / US dollar / Euro: the account form's searchable list of NBU
   currencies, the person's own first. Any NBU currency works as the report currency because the total converts
   through the hryvnia (F-017).
+- Owner's review: the currency list opened inside the page and used the browser's scroll bar. Now a dropdown over
+  the page on the desktop and a sheet on the phone, with I-004's fading scroll bar.
 - The design check passes; the list, a search, a picked PLN and Couldn't save were looked at at 375 and 1440 px,
   light and dark, and tried in the Browser pane.
 - Test data: none.
