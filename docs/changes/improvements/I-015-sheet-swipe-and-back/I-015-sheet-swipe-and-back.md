@@ -4,7 +4,7 @@
 |---|---|
 | Type | Improvement |
 | Milestone | M2 — Accounts & categories |
-| Priority | Medium (proposed) |
+| Priority | Medium (confirmed by the owner, 2026-10-31) |
 | Status | Todo |
 | Branch | `improvement/I-015-sheet-swipe-and-back` (planned on `plan/i015-sheet-swipe-and-back`) |
 | Design | No new screens: the sheets stay as they are. A small demo page to try the swipe on a phone, for the owner's approval |
@@ -29,6 +29,7 @@ pop-ups.
 - [ ] Dragging the content closes the sheet only when the content is scrolled to the top and the finger moves down;
       otherwise the content scrolls as it does today (I-004).
 - [ ] **Back closes the top pop-up** instead of leaving the page; the next Back goes to the previous page as usual.
+      The same for the desktop dialog (decision 2).
 - [ ] Closing a pop-up any other way (X, Cancel, the dimmed page, Escape, Save, a swipe) leaves no extra step in the
       history: Back afterwards goes to the previous page, and Forward doesn't open the pop-up again.
 - [ ] A link inside a sheet that opens another page (the More sheet's sections) still lands on that page, and Back
@@ -65,17 +66,21 @@ pop-ups.
 - [Vaul](https://vaul.emilkowal.ski/): a React drawer with drag to close; how far and how fast a drag must be to
   close, and how dragging the content works only from the top.
 
-### Open points (Claude's proposals)
+### Decisions (owner, 2026-10-31)
 
-1. **Own code or a library for the swipe:** own pointer handling in `BottomSheet` (a small hook) rather than Vaul, so
-   the app keeps one kind of pop-up (Mantine's) and the I-004 / I-012 styling stays as it is. Vaul would bring a
-   second dialog system (Radix) next to Mantine's.
-2. **Back on the desktop:** closes the dialog there too, so it works the same everywhere (the browser's Back, or Alt +
-   ←).
+Claude's four proposals, each accepted by the owner:
+
+1. **Own code for the swipe:** own pointer handling in `BottomSheet` (a small hook), not Vaul, so the app keeps one
+   kind of pop-up (Mantine's) and the I-004 / I-012 styling stays as it is. Vaul would bring a second dialog system
+   (Radix) next to Mantine's.
+2. **Back on the desktop** closes the dialog there too, so it works the same everywhere (the browser's Back, or
+   Alt + ←).
 3. **Unsaved form:** a swipe or Back closes without asking, like the X today. Asking "Discard changes?" would be a
    change of its own, for every pop-up.
-4. **Order:** after F-016, so its currency sheets are covered from the start (and the first sheet over a sheet is
-   tested).
+4. **Order:** built after F-016, so its currency sheets are covered from the start (and the first sheet over a sheet
+   is tested).
+
+These settle the plan's questions; they aren't the approval to build. That comes after the demo page (see Tasks).
 
 ## Tests
 
