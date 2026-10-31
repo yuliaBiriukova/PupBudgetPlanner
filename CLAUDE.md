@@ -119,6 +119,11 @@ This file tells Claude (and any human contributor) how we work on this project.
   3. Update `docs/ROADMAP.md`, `docs/BACKLOG.md`, `docs/PROGRESS.md`, the change's description file
      and any other affected docs.
   4. Make sure the build and all tests pass.
+- **While working on a change, run only the affected tests**: the test files of the feature you are changing
+  (`npx vitest run src/features/<feature>`, `npx playwright test e2e/<name>.spec.ts`, `dotnet test` on the one
+  test project). Every suite runs once before the commit and push (step 4 above), not after each edit. Run a
+  suite that takes more than a minute in the background and say so, so the owner can see it isn't stuck.
+  Why: repeated full runs, each about 2 silent minutes, made I-011 look stuck for almost an hour (I-014).
 - **Before every commit that changes UI**, check it in Playwright (see "Screens and design") — not only the
   tests passing, but screenshots you have looked at.
 - Never commit secrets. Local secrets go to `dotnet user-secrets` / `.env.local`.

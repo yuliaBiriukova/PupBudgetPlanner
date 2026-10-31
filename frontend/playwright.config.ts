@@ -18,7 +18,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  workers: isCI ? 1 : undefined,
+  // Locally 3: the fastest from a cold start on the owner's 8-thread laptop, at about 40% CPU (4 took 100%, I-014)
+  workers: isCI ? 1 : 3,
   reporter: isCI
     ? [['github'], ['html', { open: 'never' }]]
     : [['list'], ['html', { open: 'never' }]],
