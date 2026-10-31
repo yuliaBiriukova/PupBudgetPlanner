@@ -34,8 +34,9 @@ test('a person adds accounts and sees their balances and totals, then archives o
   form = page.getByRole('dialog', { name: en.accounts.form.newTitle });
   await form.getByLabel(en.accounts.form.name, { exact: true }).fill('Dollars at home');
   await form.getByRole('button', { name: en.accounts.form.currency }).click();
-  await form.getByLabel(en.accounts.picker.search).fill('dollar');
-  await form.getByRole('button', { name: /USD\s*US dollar/ }).click();
+  // The list opens over the form (a dropdown on the desktop, a sheet on the phone, F-016), not inside it
+  await page.getByLabel(en.currencyPicker.search).fill('dollar');
+  await page.getByRole('button', { name: /USD\s*US dollar/ }).click();
   await form.getByRole('radio', { name: en.accounts.cash }).click();
   await expect(form.getByRole('radio', { name: en.accounts.form.styles.Envelope })).toBeChecked();
   await form.getByLabel(en.accounts.form.opening).fill('500');

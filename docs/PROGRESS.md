@@ -2,6 +2,37 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-31 (F-016 build)
+
+**Done**
+- F-016 user settings built on `feature/F-016-user-settings`, as approved on 2026-10-31 (variant 4 with the shared
+  currency list; recorded in the description file and DESIGN_RULES "Screen decisions" before any code). M2 is done.
+  - Backend: the report currency is kept on the account (`users.report_currency`, migration `AddReportCurrency`, UAH
+    for everyone before); `GET /api/settings`, `PUT /api/settings/name`, `PUT /api/settings/report-currency` (any
+    NBU currency); "In total" on Accounts in the person's report currency, its rates in hryvnias as the NBU publishes
+    them (ADR 0020).
+  - Settings page: Name and email (Cancel / Save name once it differs), Report currency (Hryvnia / US dollar / Euro
+    saved at once, plus Another currency from the list, the total in it right under it), Theme (Light / Dark /
+    System, kept on the device).
+  - `CurrencyPicker` (shared): the account form's currency field uses it too. A dropdown under the field on the
+    desktop, over the page or the dialog; a sheet on the phone; your currencies first. New custom rule in
+    DESIGN_RULES.
+  - Tests: backend 267, frontend unit 137, E2E 46 (2 skipped) on desktop and phone, including the new
+    `settings.spec.ts`. Lint, format, typecheck, the build and the Storybook build pass. Storybook stories for the
+    page and the picker.
+- Checked: the design check passes on the real Settings and Accounts pages. Screenshots at 375 and 1440 px, light and
+  dark, of the list open, a search, a picked zloty, a name being changed and the account form's list were looked at.
+  They found two things, both fixed: the account form's dropdown turned up over the field's label when there was
+  little room below it (now it stays under it and gets shorter), and in dark mode the switch's track had the page's
+  colour. The flow was also tried in the Browser pane.
+- Test data: the E2E runs made `e2e-…` people on the `dev` database, removed by the cleanup teardown after each run.
+  For the screenshots and the Browser-pane check one more test person (`e2e-shots-…@example.com`, with three accounts)
+  was made through the API; the cleanup teardown deleted it in the same session. The migration added the
+  `report_currency` column on the `dev` database.
+
+**Next**
+- Owner: review the F-016 PR. M3 continues with F-018 (quick add).
+
 ## 2026-10-31 (F-016 final prototype)
 
 **Done**

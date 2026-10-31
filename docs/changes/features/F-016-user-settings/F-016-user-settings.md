@@ -4,10 +4,10 @@
 |---|---|
 | Type | Feature |
 | Milestone | M2 — Accounts & categories |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-016-user-settings` |
 | Design | 3 HTML prototypes required |
-| Approved | — (final prototype shown 2026-10-31) |
+| Approved | 2026-10-31, by the owner in chat ("Approved, build it"): [variant 4 (final)](prototypes/variant-4.html), with the shared currency list and the open points 1, 2 and 4 as proposed |
 
 ## Goal
 
@@ -15,10 +15,10 @@ Personal preferences.
 
 ## Acceptance criteria
 
-- [ ] Change display name
-- [ ] Choose report currency (UAH default, USD, EUR)
-- [ ] Choose light/dark/system theme
-- [ ] (Round 2, owner) Every currency field — the report currency's "Another currency" and the account form's
+- [x] Change display name
+- [x] Choose report currency: UAH (default), USD, EUR or any other NBU currency (changed in round 2, owner)
+- [x] Choose light/dark/system theme
+- [x] (Round 2, owner) Every currency field — the report currency's "Another currency" and the account form's
       Currency — opens the same list: a dropdown on the desktop, a sheet on the phone; the person's currencies
       first, then the other NBU currencies, with a search
 
@@ -26,10 +26,14 @@ Personal preferences.
 
 - [x] References
 - [x] 3 HTML prototypes
-- [ ] Owner picks a variant; final prototype approved
-- [ ] API endpoint
-- [ ] UI
-- [ ] Storybook stories
+- [x] Owner picks a variant; final prototype approved (2026-10-31)
+- [x] API: `GET /api/settings`, `PUT /api/settings/name`, `PUT /api/settings/report-currency`; the report currency
+      on the account (migration `AddReportCurrency`, UAH for everyone before); the total in it
+- [x] Shared `CurrencyPicker` (dropdown on the desktop, sheet on the phone) for Settings and the account form
+- [x] UI: the Settings page
+- [x] Storybook stories (Settings page, currency picker)
+- [x] Tests: backend unit tests, frontend unit tests, E2E (desktop and phone)
+- [x] ADR 0020, ARCHITECTURE "Exchange rates"
 
 ## Design
 
@@ -133,13 +137,38 @@ currency".
 The design check passes; the list open, a search, PLN picked and Couldn't save were looked at in screenshots at 375
 and 1440 px, light and dark, and tried in the Browser pane.
 
-Chosen variant: 1, with any NBU currency (variant 4) — waiting for approval.
+Chosen variant: 1, with any NBU currency and the shared currency list: **variant 4 (final), approved 2026-10-31**.
+
+## Implementation (2026-10-31)
+
+- **Backend:** `AppUser.ReportCurrency` (`users.report_currency`, three letters, default `UAH`); `ISettingsService`
+  saves through Identity's `UserManager`; `SettingsController`; validators: a name of 1–50 characters (trimmed), any
+  currency of `Currencies.All`. `AccountService.TotalAsync` totals in the person's report currency.
+- **Rates in hryvnias** ([ADR 0020](../../../decisions/0020-user-settings.md)): a total gives the rates it used as the NBU
+  publishes them ("$1 = 45.53 ₴"), the report currency's own included when it isn't the hryvnia, as the prototype
+  shows. For the hryvnia nothing changes on Accounts; the frontend converts a fresh account's count-up through the
+  hryvnia.
+- **Frontend:** `SettingsPage` (sections; segmented choices as native radios; the total with the rates under it,
+  the amount coming in from below when the currency changes); `CurrencyPicker` in `src/shared/ui` replaces F-014's
+  `CurrencyField`; `BottomSheet` takes a pinned `top` and a `tall` (80 %) height; the currency names moved to
+  `src/shared/i18n/currencyNames.ts`; the rates line moved to `TotalRates`. The theme is Mantine's color scheme
+  (`auto` for System), kept on the device.
+- **Found while checking, fixed:** on the desktop the account form's dropdown flipped above the field when there was
+  little room below; it now stays under it and gets shorter. In dark mode the choice's track was the page's colour;
+  the choice has its own tokens (`--pup-color-choice`, `--pup-color-choice-active`).
 
 ## Tests
 
-- Unit: Validators.
-- E2E (Playwright): Change report currency and see totals in it.
+- Backend (xUnit): the validators; the controller; the settings service (trimmed name, currency saved, a gone
+  account, a failed save); the total in another report currency and its rates in hryvnias.
+- Frontend (Vitest): the Settings page (shows, saves the name, refuses an empty one, saves a currency at once, picks
+  another from the list with your own first, a failed save and Try again, the theme, Couldn't load); the account
+  form's list and Escape (existing tests).
+- E2E (Playwright, desktop and phone): `settings.spec.ts` picks US dollars and the zloty, sees the total in them in
+  Settings and on Accounts, and changes the name; `accounts.spec.ts` picks a currency from the new list.
 
 ## Notes
 
 - Sign out stays where it is (the sidebar's foot, the phone's More sheet).
+- The rates line lists the accounts' currencies in the totals' order, as on Accounts (F-017), then the report
+  currency.

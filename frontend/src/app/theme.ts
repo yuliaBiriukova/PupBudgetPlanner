@@ -154,6 +154,9 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-hero-rule': '#474c54',
     '--pup-color-switch': '#ebedf0',
     '--pup-color-switch-active': '#fcfcfd',
+    // A segmented choice on the page (Settings, F-016): the track and the picked pill
+    '--pup-color-choice': '#ebedf0',
+    '--pup-color-choice-active': '#fcfcfd',
     '--pup-shadow-switch': '0 1px 3px rgba(15, 17, 20, 0.14)',
     '--pup-color-field-border': '#7c828a',
     // Errors: field messages and the banner
@@ -200,6 +203,9 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-hero-rule': '#2e3035',
     '--pup-color-switch': '#121315',
     '--pup-color-switch-active': '#2e3035',
+    // On the page the switch's own track would be the page's colour: the tag's, and the picked pill in the accent's tint
+    '--pup-color-choice': '#26272a',
+    '--pup-color-choice-active': '#262f37',
     '--pup-shadow-switch': 'none',
     '--pup-color-field-border': '#71747b',
     '--mantine-color-error': '#f2958c',

@@ -41,7 +41,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 |----|---------|--------|
 | [F-014](changes/features/F-014-accounts/F-014-accounts.md) | 🎨 Accounts and balances | Done |
 | [F-015](changes/features/F-015-categories-view/F-015-categories-view.md) | 🎨 Categories view | Done |
-| [F-016](changes/features/F-016-user-settings/F-016-user-settings.md) | 🎨 User settings | In progress |
+| [F-016](changes/features/F-016-user-settings/F-016-user-settings.md) | 🎨 User settings | Done |
 
 ### M3 — Transactions
 

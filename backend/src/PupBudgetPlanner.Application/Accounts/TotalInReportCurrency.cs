@@ -12,7 +12,8 @@ public static class TotalInReportCurrency
         currency != Currencies.Hryvnia || totals.Any(total => total.Currency != currency);
 
     /// <summary>
-    /// The totals together in <paramref name="currency"/>, with the rates of the other currencies;
+    /// The totals together in <paramref name="currency"/>, with the rates it used in hryvnias, as the NBU publishes
+    /// them: the accounts' other currencies, then the report currency when it isn't the hryvnia (F-016).
     /// <paramref name="rates"/> may be null when <see cref="NeedsRates"/> said no. Without a rate for every currency
     /// there is no total (<see cref="RatesStatus.Missing"/>).
     /// </summary>
@@ -29,8 +30,12 @@ public static class TotalInReportCurrency
         }
 
         var shown = totals
-            .Where(total => total.Currency != currency)
-            .Select(total => new RateItem(total.Currency, Conversion.Rate(total.Currency, currency, rates.ToUah)!.Value))
+            .Select(total => total.Currency)
+            .Append(currency)
+            .Where(code => code != Currencies.Hryvnia)
+            .Distinct()
+            .Select(code => rates.ToUah.TryGetValue(code, out var rate) ? new RateItem(code, rate) : null)
+            .OfType<RateItem>()
             .ToList();
         return new AccountsTotal(currency, sum, rates.Date, rates.Status, shown);
     }

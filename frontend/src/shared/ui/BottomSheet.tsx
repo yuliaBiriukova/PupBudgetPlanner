@@ -13,6 +13,10 @@ interface BottomSheetProps {
   children: ReactNode;
   /** Buttons pinned under the content; a long content scrolls between the title and them (I-004). */
   footer?: ReactNode;
+  /** Pinned between the title and the content, e.g. a search over a list (F-016's currency list). */
+  top?: ReactNode;
+  /** A set height (80 % of the screen) instead of the content's, so a list being searched doesn't jump. */
+  tall?: boolean;
 }
 
 /** A sheet that slides up from the bottom of the phone screen; closes on the overlay, Escape or the button. */
@@ -23,6 +27,8 @@ export function BottomSheet({
   hideTitle,
   children,
   footer,
+  top,
+  tall,
 }: BottomSheetProps) {
   const { t } = useTranslation();
 
@@ -35,7 +41,7 @@ export function BottomSheet({
       classNames={{ content: classes.content }}
     >
       <Drawer.Overlay />
-      <Drawer.Content>
+      <Drawer.Content data-tall={tall ? true : undefined}>
         <div className={classes.grab} aria-hidden="true" />
         {hideTitle ? (
           <Drawer.Title>
@@ -47,6 +53,7 @@ export function BottomSheet({
             <Drawer.CloseButton size="xl" aria-label={t('common.close')} />
           </Drawer.Header>
         )}
+        {top && <div className={classes.top}>{top}</div>}
         <FadingScrollArea autosize className={classes.scroll}>
           <Drawer.Body
             className={classes.body}

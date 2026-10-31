@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PupBudgetPlanner.Application.Auth;
+using PupBudgetPlanner.Application.ExchangeRates;
+using PupBudgetPlanner.Domain.Accounts;
 
 namespace PupBudgetPlanner.Infrastructure.Identity;
 
@@ -13,6 +15,10 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
         builder.Property(user => user.DisplayName).HasMaxLength(AuthLimits.DisplayNameMaxLength);
         // Accounts made before F-028 get their date from the id (UUIDv7) in the migration
         builder.Property(user => user.CreatedAt).HasDefaultValueSql("now()");
+        // Everyone who had an account before F-016 gets the hryvnia, as their totals were until then
+        builder.Property(user => user.ReportCurrency)
+            .HasMaxLength(Currencies.CodeLength)
+            .HasDefaultValue(ReportCurrency.Default);
         builder.HasIndex(user => user.NormalizedEmail).HasDatabaseName("ix_users_normalized_email");
         builder.HasIndex(user => user.NormalizedUserName).HasDatabaseName("ix_users_normalized_user_name");
     }

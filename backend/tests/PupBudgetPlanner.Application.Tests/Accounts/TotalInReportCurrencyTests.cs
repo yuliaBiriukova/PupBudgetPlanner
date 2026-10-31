@@ -44,6 +44,37 @@ public sealed class TotalInReportCurrencyTests
     }
 
     [Fact]
+    public void Another_report_currency_converts_through_the_hryvnia_and_lists_its_own_rate_in_hryvnias()
+    {
+        var total = TotalInReportCurrency.Of(
+            [Hryvnias, Dollars, new CurrencyTotal("EUR", 1, 200m)], "EUR", RatesOf(Today, RatesStatus.Current));
+
+        total.Currency.Should().Be("EUR");
+        // Division leaves the last of 28 digits to rounding; amounts are shown whole anyway (ADR 0018)
+        total.Total.Should().BeApproximately((43_899m / 48.1m) + (1_240m * 41.35m / 48.1m) + 200m, 0.000001m);
+        // As the NBU publishes them: the accounts' other currencies, then the report currency; never the hryvnia
+        total.Rates.Should().Equal(new RateItem("USD", 41.35m), new RateItem("EUR", 48.1m));
+    }
+
+    [Fact]
+    public void A_report_currency_none_of_the_accounts_is_in_still_lists_its_rate()
+    {
+        var total = TotalInReportCurrency.Of([Hryvnias], "USD", RatesOf(Today, RatesStatus.Current));
+
+        total.Total.Should().BeApproximately(43_899m / 41.35m, 0.000001m);
+        total.Rates.Should().Equal(new RateItem("USD", 41.35m));
+    }
+
+    [Fact]
+    public void A_report_currency_the_nbu_gave_no_rate_for_leaves_no_total()
+    {
+        var total = TotalInReportCurrency.Of([Hryvnias], "PLN", RatesOf(Today, RatesStatus.Current));
+
+        total.Total.Should().BeNull();
+        total.Status.Should().Be(RatesStatus.Missing);
+    }
+
+    [Fact]
     public void Earlier_rates_keep_their_date_and_the_reason()
     {
         var earlier = Today.AddDays(-3);

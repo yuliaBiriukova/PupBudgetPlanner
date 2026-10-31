@@ -9,6 +9,7 @@ using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.Auth;
 using PupBudgetPlanner.Application.Categories;
 using PupBudgetPlanner.Application.ExchangeRates;
+using PupBudgetPlanner.Application.Settings;
 using PupBudgetPlanner.Infrastructure.Access;
 using PupBudgetPlanner.Infrastructure.Accounts;
 using PupBudgetPlanner.Infrastructure.Categories;
@@ -76,6 +77,7 @@ public static class DependencyInjection
 
         services.AddScoped<IAccountCreator, AccountCreator>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ISettingsService, SettingsService>();
     }
 
     /// <summary>Invite-only sign-up, invite links and the admin's People page (F-028).</summary>

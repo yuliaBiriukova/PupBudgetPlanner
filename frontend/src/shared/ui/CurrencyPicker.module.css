@@ -1,0 +1,153 @@
+/* A currency field (F-016): the button, and the list in a dropdown (desktop) or a sheet (phone). The button and the
+   rows are F-014's; the list no longer opens inside the form */
+
+/* The same label and hint as the account form's other fields */
+.label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.hint {
+  margin-top: 6px;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.button {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  height: 52px;
+  padding: 0 12px 0 16px;
+  border: 1px solid var(--pup-color-field-border);
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-surface);
+  font-size: 16px;
+}
+
+.button b {
+  font-weight: 500;
+}
+
+.button[aria-expanded='true'] {
+  border-color: var(--pup-color-accent);
+  outline: 1px solid var(--pup-color-accent);
+}
+
+/* Picked from the list (Settings): marked like the picked choice next to it, with a check */
+.button[data-marked] {
+  border-color: var(--pup-color-accent);
+  outline: 1px solid var(--pup-color-accent);
+  background: var(--pup-color-active-bg);
+}
+
+.button[data-marked] b,
+.check {
+  color: var(--pup-color-accent);
+}
+
+.what {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--mantine-color-dimmed);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder {
+  flex: 1;
+  color: var(--mantine-color-dimmed);
+}
+
+.selector {
+  flex: none;
+  color: var(--mantine-color-dimmed);
+}
+
+.check {
+  flex: none;
+}
+
+/* The desktop dropdown: over the page or the dialog, the fields' radius, a float shadow */
+.dropdown {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-surface);
+  box-shadow: var(--pup-shadow-float);
+}
+
+.dropdownSearch {
+  flex: none;
+  padding: 8px;
+}
+
+.searchInput {
+  height: 48px;
+  min-height: 48px;
+  border-color: var(--pup-color-field-border);
+  font-size: 16px;
+}
+
+/* The list has its own X on the desktop; the browser's clear button would be a second one */
+.searchInput::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* Shrinks with the dropdown when there is little room below the button */
+.scroll {
+  flex: 0 1 auto;
+  min-height: 0;
+  padding: 0 6px 6px;
+}
+
+.heading {
+  margin: 0;
+  padding: 10px 10px 4px;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: var(--mantine-radius-sm);
+}
+
+.item:hover {
+  background: var(--pup-color-hover);
+}
+
+.item b {
+  flex: none;
+  width: 40px;
+  font-weight: 500;
+}
+
+.item[aria-pressed='true'] {
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+}
+
+.none {
+  margin: 0;
+  padding: 12px 10px;
+  color: var(--mantine-color-dimmed);
+}

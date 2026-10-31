@@ -176,6 +176,9 @@ erDiagram
   (`RatesStatus`: `NotPublished`, `Unavailable`; `Missing` when there are none); they are never stored under the
   later date. After a failed call the NBU is left alone for 5 minutes.
 - "Today" is Kyiv's date. `Conversion` (Domain, pure) converts through the hryvnia, so any report currency works.
+- Each person picks their report currency in Settings (F-016): the hryvnia or any other NBU currency, kept on the
+  account (`users.report_currency`). Totals give the rates they used in hryvnias, as the NBU publishes them
+  ([ADR 0020](decisions/0020-user-settings.md)).
 - The NBU's address is configuration (`Nbu:BaseAddress`); the E2E run in CI points it at a stub.
 
 ## Authentication
