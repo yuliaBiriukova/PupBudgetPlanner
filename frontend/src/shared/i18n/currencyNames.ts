@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import en from '../../shared/i18n/locales/en.json';
+import en from './locales/en.json';
 
 type NamedCurrency = keyof typeof en.currencies;
 

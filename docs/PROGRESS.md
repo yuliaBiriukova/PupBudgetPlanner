@@ -2,6 +2,37 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-31 (F-016 build)
+
+**Done**
+- F-016 user settings built on `feature/F-016-user-settings`, as approved on 2026-10-31 (variant 4 with the shared
+  currency list; recorded in the description file and DESIGN_RULES "Screen decisions" before any code). M2 is done.
+  - Backend: the report currency is kept on the account (`users.report_currency`, migration `AddReportCurrency`, UAH
+    for everyone before); `GET /api/settings`, `PUT /api/settings/name`, `PUT /api/settings/report-currency` (any
+    NBU currency); "In total" on Accounts in the person's report currency, its rates in hryvnias as the NBU publishes
+    them (ADR 0020).
+  - Settings page: Name and email (Cancel / Save name once it differs), Report currency (Hryvnia / US dollar / Euro
+    saved at once, plus Another currency from the list, the total in it right under it), Theme (Light / Dark /
+    System, kept on the device).
+  - `CurrencyPicker` (shared): the account form's currency field uses it too. A dropdown under the field on the
+    desktop, over the page or the dialog; a sheet on the phone; your currencies first. New custom rule in
+    DESIGN_RULES.
+  - Tests: backend 267, frontend unit 137, E2E 46 (2 skipped) on desktop and phone, including the new
+    `settings.spec.ts`. Lint, format, typecheck, the build and the Storybook build pass. Storybook stories for the
+    page and the picker.
+- Checked: the design check passes on the real Settings and Accounts pages. Screenshots at 375 and 1440 px, light and
+  dark, of the list open, a search, a picked zloty, a name being changed and the account form's list were looked at.
+  They found two things, both fixed: the account form's dropdown turned up over the field's label when there was
+  little room below it (now it stays under it and gets shorter), and in dark mode the switch's track had the page's
+  colour. The flow was also tried in the Browser pane.
+- Test data: the E2E runs made `e2e-…` people on the `dev` database, removed by the cleanup teardown after each run.
+  For the screenshots and the Browser-pane check one more test person (`e2e-shots-…@example.com`, with three accounts)
+  was made through the API; the cleanup teardown deleted it in the same session. The migration added the
+  `report_currency` column on the `dev` database.
+
+**Next**
+- Owner: review the F-016 PR. M3 continues with F-018 (quick add).
+
 ## 2026-10-31 (plan: I-015)
 
 **Done**
@@ -14,6 +45,49 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the planning PR. F-016 is still waiting for the final prototype's approval.
+
+## 2026-10-31 (F-016 final prototype)
+
+**Done**
+- The owner chose variant 1 and asked about people whose money is in other currencies. Variant 4 (final) is
+  variant 1 with "Another currency" under Hryvnia / US dollar / Euro: the account form's searchable list of NBU
+  currencies, the person's own first. Any NBU currency works as the report currency because the total converts
+  through the hryvnia (F-017).
+- Owner's review: the currency list opened inside the page and used the browser's scroll bar. Now a dropdown over
+  the page on the desktop and a sheet on the phone, with I-004's fading scroll bar. The dropdown is as tall as its
+  rows, up to 344 px.
+- Owner's review: every currency field uses the same list, own currencies first. The account form's Currency
+  (F-014) gets the same dropdown and phone sheet; added to the prototype as "Account form: currency", and to F-016's
+  scope as one shared component.
+- The design check passes; the list, a search, a picked PLN and Couldn't save were looked at at 375 and 1440 px,
+  light and dark, and tried in the Browser pane.
+- Test data: none.
+
+**Next**
+- Owner: approve variant 4 for implementation (and the open points 1, 2 and 4), or ask for changes.
+
+## 2026-10-31 (F-016 design round 1)
+
+**Done**
+- F-016 user settings started on `feature/F-016-user-settings`, design only (not approved, no code). It is the last
+  M2 item: F-014 and F-015 are done.
+  - References: GitHub's theme settings, Actual Budget's settings page, Lunch Money's primary currency, Apple's HIG
+    for settings. Mobbin needs a sign-in.
+  - 3 prototypes in `prototypes/`:
+    - 1, one page with everything in place: currency and theme as segmented choices that save at once, the name
+      with its own Save, your total right under the currency;
+    - 2, rows with their values that open a sheet (phone) or a dialog (desktop) with Save; the currency choices
+      show your total in each;
+    - 3, pick by seeing: three cards with your total in each currency, the theme as small pictures of the app.
+  - Open points with Claude's proposals in the description file: the theme kept on the device (name and currency on
+    the account); the sun / moon button stays; only UAH, USD and EUR; email shown but not changeable.
+  - The design check passes on all three (it first found the layouts too tight at 768 px, a small Try again and the
+    field's focus ring; all fixed). The screenshots at 375 and 1440 px, light and dark, were looked at, and the
+    pop-ups, errors and name editing were tried in the Browser pane.
+- Test data: none; nothing was run against the database.
+
+**Next**
+- Owner: pick a variant (or a mix) and answer the open points; then the final prototype for approval.
 
 ## 2026-10-31 (F-017)
 

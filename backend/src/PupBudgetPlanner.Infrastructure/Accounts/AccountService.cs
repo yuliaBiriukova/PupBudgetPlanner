@@ -54,7 +54,11 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             .Where(account => account.UserId == userId)
             .ToListAsync(cancellationToken);
         var totals = BalanceSheet.TotalsOf(BalanceSheet.BalancesOf(accounts, NoMovements));
-        var currency = ReportCurrency.Default;
+        // The person's own, picked in Settings (F-016)
+        var currency = await dbContext.Users.AsNoTracking()
+            .Where(user => user.Id == userId)
+            .Select(user => user.ReportCurrency)
+            .SingleOrDefaultAsync(cancellationToken) ?? ReportCurrency.Default;
         var day = TotalInReportCurrency.NeedsRates(totals, currency)
             ? await rates.RatesOnAsync(Kyiv.Today(clock), cancellationToken)
             : null;

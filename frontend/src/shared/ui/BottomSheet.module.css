@@ -11,6 +11,18 @@
   background: var(--pup-color-surface);
 }
 
+/* A sheet that keeps its height while its list is searched (F-016) */
+.content[data-tall] {
+  height: 80dvh;
+}
+
+/* Pinned between the title and the content: 16 px under the title like the content would be (8 px from the title's
+   centring + these 8, I-012); the body's own 8 px follow it */
+.top {
+  flex: none;
+  padding: 8px 16px 0;
+}
+
 .grab {
   flex: none;
   width: 36px;

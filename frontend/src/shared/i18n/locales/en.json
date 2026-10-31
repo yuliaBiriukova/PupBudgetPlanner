@@ -39,8 +39,7 @@
   "placeholder": {
     "transactions": "Your expenses, income and transfers will be listed here.",
     "reports": "Monthly and yearly reports, like your spreadsheet, will be here.",
-    "family": "Invite your family and see your money together here.",
-    "settings": "Your name and report currency will be set here."
+    "family": "Invite your family and see your money together here."
   },
   "colorScheme": {
     "switchToDark": "Switch to dark mode",
@@ -384,14 +383,6 @@
       "amount": "Enter an amount like 1240 or −300.",
       "date": "Pick the opening date."
     },
-    "picker": {
-      "search": "Search currencies",
-      "placeholder": "Search: zloty, GBP",
-      "close": "Close the list",
-      "yours": "Yours",
-      "all": "All NBU currencies",
-      "none": "No currency matches “{{query}}”. NBU publishes rates for about 40 currencies."
-    },
     "archive": {
       "title": "Archive {{name}}?",
       "text": "It leaves the list, the totals and the account pickers. Its transactions stay in the lists and reports, and you can restore it from Archived.",
@@ -408,6 +399,41 @@
       "keep": "Keep it",
       "confirm": "Delete for good",
       "done": "{{name}} deleted"
+    }
+  },
+  "settings": {
+    "loading": "Loading your settings",
+    "nameTitle": "Name and email",
+    "nameText": "Your name is shown in the menu, and to your family once families come.",
+    "name": "Name",
+    "saveName": "Save name",
+    "cancel": "Cancel",
+    "nameSaved": "Name saved",
+    "email": "Email",
+    "emailFixed": "Can’t be changed yet.",
+    "currencyTitle": "Report currency",
+    "currencyText": "Totals on Accounts and the reports are shown in it.",
+    "quick": {
+      "UAH": "Hryvnia",
+      "USD": "US dollar",
+      "EUR": "Euro"
+    },
+    "anotherCurrency": "Another currency",
+    "currencySaved": "Totals are now in {{currency}}",
+    "total": "Your accounts in total",
+    "themeTitle": "Theme",
+    "themeText": "Kept on this device. System follows your phone or computer.",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "System"
+    },
+    "errors": {
+      "load": "Couldn’t load your settings. Check the connection and try again.",
+      "nameRequired": "Enter your name.",
+      "save": "That didn’t go through. Try again in a moment.",
+      "currency": "Couldn’t save the currency. Check the connection and try again.",
+      "retry": "Try again"
     }
   },
   "currencies": {
@@ -451,5 +477,13 @@
     "USD": "US dollar",
     "VND": "Vietnamese dong",
     "ZAR": "South African rand"
+  },
+  "currencyPicker": {
+    "search": "Search currencies",
+    "placeholder": "Search: zloty, GBP",
+    "close": "Close the list",
+    "yours": "Yours",
+    "all": "All NBU currencies",
+    "none": "No currency matches “{{query}}”. NBU publishes rates for about 40 currencies."
   }
 }

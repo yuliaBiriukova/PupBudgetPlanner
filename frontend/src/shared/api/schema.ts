@@ -1105,6 +1105,169 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserSettings"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangeNameRequest"];
+                    "text/json": components["schemas"]["ChangeNameRequest"];
+                    "application/*+json": components["schemas"]["ChangeNameRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserSettings"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/report-currency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** The currency "In total" on Accounts (and the reports later) is shown in. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChangeReportCurrencyRequest"];
+                    "text/json": components["schemas"]["ChangeReportCurrencyRequest"];
+                    "application/*+json": components["schemas"]["ChangeReportCurrencyRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserSettings"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1150,7 +1313,8 @@ export interface components {
         };
         /**
          * @description "In total, in UAH" on the Accounts page (F-017): every account in use together in Currency (the
-         *     report currency) at the NBU rates of RatesDate, with the rates of the person's other currencies.
+         *     person's report currency, F-016) at the NBU rates of RatesDate, with the rates it used: the
+         *     person's other currencies and the report currency's own when it isn't the hryvnia.
          *     Total is empty when there are no rates for it (RatesStatus.Missing). With
          *     accounts in the report currency only, no rates are needed: no date and no rates.
          */
@@ -1201,6 +1365,14 @@ export interface components {
          * @enum {unknown}
          */
         CategoryKind: "Income" | "Expense";
+        /** @description The name the person and their family see; saved trimmed. */
+        ChangeNameRequest: {
+            displayName: string;
+        };
+        /** @description The currency totals and reports are shown in: the hryvnia, or any other currency the NBU publishes a rate for. */
+        ChangeReportCurrencyRequest: {
+            currency: string;
+        };
         /**
          * @description The link just made. Token goes into `/invite/{token}`; it is never shown again, because
          *     only its hash is stored.
@@ -1294,7 +1466,10 @@ export interface components {
             detail?: null | string;
             instance?: null | string;
         };
-        /** @description One currency's rate in the total's currency: units of it for one unit of Currency. */
+        /**
+         * @description One currency's NBU rate: hryvnias for one unit of Currency, as the NBU publishes it (F-016;
+         *     F-017 gave it in the report currency, which was the hryvnia then).
+         */
         RateItem: {
             currency: string;
             /** Format: double */
@@ -1357,6 +1532,15 @@ export interface components {
          * @enum {unknown}
          */
         SourceKind: "Cash" | "Bank" | "Own";
+        /**
+         * @description The signed-in person's settings (F-016). The email can't be changed yet. The theme isn't here: it is kept on each
+         *     device, so a phone can be dark while the laptop is light.
+         */
+        UserSettings: {
+            displayName: string;
+            email: string;
+            reportCurrency: string;
+        };
         ValidationProblemDetails: {
             type?: null | string;
             title?: null | string;

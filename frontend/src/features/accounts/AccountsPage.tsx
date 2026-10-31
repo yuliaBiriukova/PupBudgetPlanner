@@ -10,10 +10,11 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { Fragment, useEffect, useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../shared/format/date';
-import { formatMoney, formatRate } from '../../shared/format/money';
+import { formatMoney } from '../../shared/format/money';
+import { useCurrencyTitle } from '../../shared/i18n/currencyNames';
 import { cx } from '../../shared/ui/cx';
 import { AccountCard, AddCard } from './AccountCard';
 import { AccountDialog, type AccountDialogMode } from './AccountDialog';
@@ -36,7 +37,7 @@ import {
 } from './accountsApi';
 import { CountUp } from './CountUp';
 import { DeleteAccountDialog } from './DeleteAccountDialog';
-import { useCurrencyTitle } from './currencyNames';
+import { TotalRates } from './TotalRates';
 
 /**
  * The account just added or restored: its card gets a ring and its currency's total counts up by `amount`. After a
@@ -48,7 +49,7 @@ interface Fresh {
   amount: number;
 }
 
-/** The currency "In total" starts with until the API names it: the hryvnia until F-016 lets people choose. */
+/** The currency "In total" starts with until the API names the person's own (F-016): the hryvnia. */
 const REPORT_CURRENCY = 'UAH';
 
 /** How long the ring shows (AccountCard.module.css). */
@@ -308,7 +309,7 @@ function Totals({ overview, fresh }: { overview: AccountsOverview; fresh?: Fresh
                 from={freshFrom(grand.data, fresh)}
               />
             </span>
-            <Rates total={grand.data} />
+            <TotalRates total={grand.data} />
           </>
         )}
       </div>
@@ -338,44 +339,16 @@ function Totals({ overview, fresh }: { overview: AccountsOverview; fresh?: Fresh
  */
 function freshFrom(grand: AccountsTotal, fresh?: Fresh): number | undefined {
   if (!fresh || grand.total === null) return undefined;
-  const rate =
-    fresh.currency === grand.currency
-      ? 1
-      : grand.rates.find((item) => item.currency === fresh.currency)?.rate;
-  return rate === undefined ? undefined : grand.total - fresh.amount * rate;
+  const from = hryvniasFor(grand, fresh.currency);
+  const to = hryvniasFor(grand, grand.currency);
+  return from === undefined || to === undefined
+    ? undefined
+    : grand.total - (fresh.amount * from) / to;
 }
 
-/** The rates under the grand total and their date; earlier ones say why (F-014's "Total: earlier rates"). */
-function Rates({ total }: { total: AccountsTotal }) {
-  const { t } = useTranslation();
-  if (total.rates.length === 0 || !total.ratesDate) return null;
-
-  const date = formatDate(new Date(`${total.ratesDate}T00:00`));
-  const rates = total.rates.map((item, i) => (
-    <Fragment key={item.currency}>
-      {i > 0 && ', '}
-      <span className={classes.num}>{formatRate(item.currency, item.rate, total.currency)}</span>
-    </Fragment>
-  ));
-
-  return (
-    <p className={classes.rates}>
-      {total.status === 'Current' ? (
-        t('accounts.rates.current', { date })
-      ) : (
-        <span className={classes.stale}>
-          <IconInfoCircle size={16} stroke={1.7} aria-hidden />
-          {t(
-            total.status === 'NotPublished'
-              ? 'accounts.rates.notPublished'
-              : 'accounts.rates.unavailable',
-            { date },
-          )}
-        </span>
-      )}{' '}
-      {rates}
-    </p>
-  );
+/** Hryvnias for one unit, as the NBU gives the rates (F-016); the hryvnia's own is 1. */
+function hryvniasFor(grand: AccountsTotal, currency: string): number | undefined {
+  return currency === 'UAH' ? 1 : grand.rates.find((item) => item.currency === currency)?.rate;
 }
 
 interface GroupProps {

@@ -64,6 +64,7 @@ export const accountsQuery = queryOptions({
 });
 
 export type RatesStatus = Schemas['RatesStatus'];
+/** One NBU rate: hryvnias for one unit of the currency, as the NBU publishes it (F-016). */
 export type RateItem = Omit<Schemas['RateItem'], 'rate'> & { rate: number };
 
 /** "In total, in UAH" (F-017); `total` is null when there are no rates for it (`Missing`). */
