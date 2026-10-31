@@ -1,13 +1,21 @@
 import { expect, test, type Page } from '@playwright/test';
 import en from '../src/shared/i18n/locales/en.json' with { type: 'json' };
 
-const SECTIONS = ['accounts', 'reports', 'family', 'settings', 'transactions'] as const;
+const SECTIONS = [
+  'accounts',
+  'reports',
+  'categories',
+  'family',
+  'settings',
+  'transactions',
+] as const;
 type SectionId = (typeof SECTIONS)[number];
+const IN_MORE: readonly SectionId[] = ['categories', 'family', 'settings'];
 
 /** Opens a section the way a person would: the sidebar on desktop; the tab bar or More on the phone. */
 async function openSection(page: Page, id: SectionId, isMobile: boolean) {
   const name = en.nav[id];
-  if (isMobile && (id === 'family' || id === 'settings')) {
+  if (isMobile && IN_MORE.includes(id)) {
     await page.getByRole('button', { name: en.nav.more }).click();
     await page.getByRole('dialog', { name: en.nav.more }).getByRole('link', { name }).click();
   } else {
@@ -82,7 +90,7 @@ test('the desktop sidebar collapses to a rail and expands from the logo', async 
     .locator('aside nav svg')
     .or(page.getByRole('button', { name: en.shell.addTransaction }).locator('svg'))
     .all();
-  expect(icons).toHaveLength(6);
+  expect(icons).toHaveLength(7);
   for (const icon of icons) {
     const box = await icon.boundingBox();
     expect(

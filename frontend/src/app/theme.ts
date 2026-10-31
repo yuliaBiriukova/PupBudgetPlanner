@@ -167,6 +167,10 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     // Amounts below zero (a debt, an expense), and the tint of a picked or new thing
     '--pup-color-expense': '#b3261e',
     '--pup-color-tint': '#e7ecf1',
+    // Income, and the tags of the Categories page (F-015): neutral, income ones green
+    '--pup-color-income': '#1f7a4d',
+    '--pup-color-income-bg': '#e4f1ea',
+    '--pup-color-tag': '#ebedf0',
     // The Solid account card (F-014): charcoal here, light grey in dark mode
     '--pup-card-solid': '#26292e',
     '--pup-card-solid-hover': '#363a40',
@@ -206,6 +210,9 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-on-danger': '#121315',
     '--pup-color-expense': '#f2958c',
     '--pup-color-tint': '#262f37',
+    '--pup-color-income': '#7fd1a4',
+    '--pup-color-income-bg': '#1b2d23',
+    '--pup-color-tag': '#26272a',
     '--pup-card-solid': '#e9eaec',
     '--pup-card-solid-hover': '#d3d6da',
     '--pup-card-on-solid': '#1c1e21',
