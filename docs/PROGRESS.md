@@ -10,15 +10,20 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   - API: `GET /api/categories`, the person's groups and categories in the report's order, archived categories left
     out. No migration.
   - Menu: Categories after Reports (under More on the phone).
-  - Page: below 1200 px every group as tags, each folding on its own and remembered on the device, with Collapse all /
-    Expand all. From 1200 px the list of groups and the picked group's tags. Loading, Couldn't load and Empty states.
+  - Page: below 1200 px every group as tags, with Collapse all / Expand all. From 1200 px the list of groups and the
+    picked group's tags. Loading, Couldn't load and Empty states.
+  - Owner's review after trying it locally: on the phone and tablet every group starts folded except the one open on
+    the desktop (Income at first), and several can be open; the desktop shows one. Both layouts share the open
+    groups, remembered on the device. The E2E specs now find the More button by its exact name ("… and 6 more" in a
+    folded group matched it too).
   - Decision: the wide layout starts at Mantine's `lg` (1200 px) and not the prototype's 1100 px, to keep to the
     theme's breakpoints.
   - New theme tokens for income and tags.
-- Checked: backend 209 tests, frontend 119 unit tests, lint, format, build and 44 E2E tests (phone and desktop) pass.
-  The screenshots at 375, 834 and 1440 px, light and dark, were looked at, and folding was tried in the Browser pane.
-- Test data: the E2E runs and the screenshots made `e2e-…@example.com` people on the `dev` database; the cleanup
-  teardown deleted them all, the screenshot person included. Nothing was made by hand.
+- Checked after the review change: backend 209 tests, frontend 121 unit tests, lint, format, build and 44 E2E tests
+  (phone and desktop) pass. The screenshots at 375, 834 and 1440 px, light and dark, were looked at, including the
+  phone after a group was picked on the desktop. Folding was tried in the Browser pane.
+- Test data: the E2E runs and the two screenshot runs made `e2e-…@example.com` people on the `dev` database; the
+  cleanup teardown deleted them all, the screenshot people included. Nothing was made by hand.
 
 **Next**
 - Owner: review the F-015 PR.

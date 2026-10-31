@@ -6,13 +6,14 @@ import { DEFAULT_CATEGORIES, NO_CATEGORIES } from './categoriesTestData';
 
 interface ScreenProps {
   data?: 'categories' | 'empty' | 'loading' | 'error';
-  /** Ids of the groups folded on this device (phone and tablet). */
-  folded?: string[];
+  /** Ids of the open groups on this device, the last one shown on the desktop; none stored: only the first. */
+  open?: string[];
 }
 
 /** The Categories page with a fake API (F-015). */
-function CategoriesScreen({ data = 'categories', folded = [] }: ScreenProps) {
-  localStorage.setItem('pup.categories.folded', JSON.stringify(folded));
+function CategoriesScreen({ data = 'categories', open }: ScreenProps) {
+  if (open) localStorage.setItem('pup.categories.open', JSON.stringify(open));
+  else localStorage.removeItem('pup.categories.open');
   const routes: MockRoutes = {
     '/api/categories':
       data === 'loading'
@@ -32,6 +33,7 @@ function CategoriesScreen({ data = 'categories', folded = [] }: ScreenProps) {
   );
 }
 
+const ALL_GROUPS = DEFAULT_CATEGORIES.groups.map((group) => group.id);
 const tablet = { viewport: { value: 'tablet', isRotated: false } };
 const desktop = { viewport: { value: 'desktop', isRotated: false } };
 
@@ -45,6 +47,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+/** The first visit: every group folded but Income. */
 export const Phone: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -54,23 +57,28 @@ export const Phone: Story = {
 
 export const PhoneDark: Story = { globals: { colorScheme: 'dark' } };
 
-/** Folding a group: its first categories show in its row. */
-export const PhoneFoldOne: Story = {
+/** Opening another group: Income stays open too. */
+export const PhoneOpenAnother: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const home = await canvas.findByRole('button', { name: /Home expenses/ });
     await userEvent.click(home);
-    await expect(home).toHaveTextContent('Rent, Bills, Home supplies and 6 more');
+    await expect(home).toHaveAttribute('aria-expanded', 'true');
+    await expect(canvas.getByRole('button', { name: /Income/ })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
   },
 };
 
-export const SomeFolded: Story = { args: { folded: ['group-2', 'group-3', 'group-4'] } };
+/** Health was picked on the desktop: only Health is open. */
+export const PickedOnDesktop: Story = { args: { open: ['group-4'] } };
 
-export const AllFolded: Story = {
-  args: { folded: DEFAULT_CATEGORIES.groups.map((group) => group.id) },
-};
+export const AllOpen: Story = { args: { open: ALL_GROUPS } };
 
-export const Tablet: Story = { args: { folded: ['group-2', 'group-3'] }, globals: tablet };
+export const AllFolded: Story = { args: { open: [] } };
+
+export const Tablet: Story = { args: { open: ['group-1', 'group-4'] }, globals: tablet };
 
 export const Desktop: Story = { globals: desktop };
 

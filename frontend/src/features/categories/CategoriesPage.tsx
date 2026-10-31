@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { cx } from '../../shared/ui/cx';
 import classes from './Categories.module.css';
 import { categoriesQuery, type CategoryGroup } from './categoriesApi';
-import { readFolded, writeFolded } from './foldedGroups';
+import { openGroups, readOpen, writeOpen } from './openGroups';
 
 /** Mantine's `lg` breakpoint: from here the list of groups sits beside the picked group's categories. */
 const WIDE_QUERY = '(min-width: 75em)';
@@ -44,13 +44,16 @@ function Tags({ group, id, animate }: { group: CategoryGroup; id?: string; anima
 
 /**
  * Categories (F-015, final prototype variant 7): read-only. On the phone and tablet every group with its categories
- * as tags, each group folding on its own (remembered on the device); on the desktop the list of groups and the
- * picked group's tags beside it.
+ * as tags, folded except the open ones (any number); on the desktop the list of groups and one group's tags beside
+ * it. Both layouts share the open groups, remembered on the device (owner's review, 2026-10-31).
  */
 export function CategoriesPage() {
   const { t } = useTranslation();
   const categories = useQuery(categoriesQuery);
   const isWide = useMediaQuery(WIDE_QUERY, false, { getInitialValueInEffect: false });
+  const [stored, setStored] = useState(readOpen);
+  // The group just opened: its tags come out of its row, or in from the right on the desktop
+  const [fresh, setFresh] = useState<string>();
 
   const head = (
     <header className={classes.head}>
@@ -136,14 +139,21 @@ export function CategoriesPage() {
     groups: t('categories.groupCount', { count: groups.length }),
   });
 
+  const open = openGroups(
+    stored,
+    groups.map((group) => group.id),
+  );
+  const setOpen = (next: string[], opened?: string) => {
+    setStored(next);
+    writeOpen(next);
+    setFresh(opened);
+  };
+  const props = { groups, summary, open, setOpen, fresh };
+
   return (
     <>
       {head}
-      {isWide ? (
-        <GroupsBeside groups={groups} summary={summary} />
-      ) : (
-        <FoldingGroups groups={groups} summary={summary} />
-      )}
+      {isWide ? <GroupsBeside {...props} /> : <FoldingGroups {...props} />}
       <p className={classes.later}>
         <IconInfoCircle size={16} stroke={1.7} aria-hidden />
         {t('categories.later')}
@@ -155,59 +165,57 @@ export function CategoriesPage() {
 interface GroupsProps {
   groups: CategoryGroup[];
   summary: string;
+  /** The open groups, the most recently opened last. */
+  open: string[];
+  setOpen: (open: string[], opened?: string) => void;
+  /** The group just opened by a tap or click. */
+  fresh?: string;
 }
 
-/** Phone and tablet: every group, each folding on its own; Income first, then the expenses under their label. */
-function FoldingGroups({ groups, summary }: GroupsProps) {
+/**
+ * Phone and tablet: every group, folded except the open ones; any number can be open. Income first, then the
+ * expenses under their label.
+ */
+function FoldingGroups({ groups, summary, open, setOpen, fresh }: GroupsProps) {
   const { t } = useTranslation();
   const preview = usePreview();
-  const [folded, setFolded] = useState(readFolded);
-  // The group just opened: its tags come out of its row
-  const [opened, setOpened] = useState<string>();
 
-  const fold = (next: Set<string>) => {
-    setFolded(next);
-    writeFolded(next);
-  };
-  const allFolded = groups.every((group) => folded.has(group.id));
+  const allFolded = open.length === 0;
   const expenses = groups.filter((group) => group.kind === 'Expense');
   const expenseCount = expenses.reduce((sum, group) => sum + group.categories.length, 0);
 
   const renderGroup = (group: CategoryGroup) => {
-    const open = !folded.has(group.id);
+    const isOpen = open.includes(group.id);
     const tagsId = `category-group-${group.id}`;
     return (
       <section
         key={group.id}
         className={classes.group}
         data-kind={group.kind}
-        data-folded={open ? undefined : true}
+        data-folded={isOpen ? undefined : true}
       >
         <h2 className={classes.groupHeading}>
           <UnstyledButton
             className={classes.groupButton}
-            aria-expanded={open}
-            aria-controls={open ? tagsId : undefined}
+            aria-expanded={isOpen}
+            aria-controls={isOpen ? tagsId : undefined}
             onClick={() => {
-              const next = new Set(folded);
-              if (open) {
-                next.add(group.id);
+              if (isOpen) {
+                setOpen(open.filter((id) => id !== group.id));
               } else {
-                next.delete(group.id);
-                setOpened(group.id);
+                setOpen([...open, group.id], group.id);
               }
-              fold(next);
             }}
           >
             <span className={classes.groupText}>
               <span className={classes.groupName}>{group.name}</span>
-              {!open && <span className={classes.preview}>{preview(group)}</span>}
+              {!isOpen && <span className={classes.preview}>{preview(group)}</span>}
             </span>
             <span className={cx(classes.count, classes.num)}>{group.categories.length}</span>
             <IconChevronDown className={classes.chevron} size={20} stroke={1.7} aria-hidden />
           </UnstyledButton>
         </h2>
-        {open && <Tags group={group} id={tagsId} animate={opened === group.id} />}
+        {isOpen && <Tags group={group} id={tagsId} animate={fresh === group.id} />}
       </section>
     );
   };
@@ -219,7 +227,8 @@ function FoldingGroups({ groups, summary }: GroupsProps) {
         <UnstyledButton
           className={classes.textLink}
           onClick={() => {
-            fold(allFolded ? new Set() : new Set(groups.map((group) => group.id)));
+            // The first group comes last, so the desktop shows it, as it does when nothing is open
+            setOpen(allFolded ? groups.map((group) => group.id).reverse() : []);
           }}
         >
           {allFolded ? t('categories.expandAll') : t('categories.collapseAll')}
@@ -237,12 +246,14 @@ function FoldingGroups({ groups, summary }: GroupsProps) {
   );
 }
 
-/** Desktop: the list of groups on the left, the picked group's categories as bigger tags on the right. */
-function GroupsBeside({ groups, summary }: GroupsProps) {
+/**
+ * Desktop: the list of groups on the left, one group's categories as bigger tags on the right: the last one opened,
+ * or the first group. Picking one makes it the only open group, so the phone shows just that one open.
+ */
+function GroupsBeside({ groups, summary, open, setOpen, fresh }: GroupsProps) {
   const { t } = useTranslation();
   const preview = usePreview();
-  const [picked, setPicked] = useState<string>();
-  const group = groups.find((g) => g.id === picked) ?? groups[0];
+  const group = groups.find((g) => g.id === open.at(-1)) ?? groups[0];
   if (!group) return null;
   const kindWord = t(`categories.kind.${group.kind}`);
   const count = t('categories.count', { count: group.categories.length });
@@ -253,7 +264,7 @@ function GroupsBeside({ groups, summary }: GroupsProps) {
         className={classes.indexButton}
         aria-current={g.id === group.id}
         onClick={() => {
-          setPicked(g.id);
+          setOpen([g.id], g.id);
         }}
       >
         <span className={classes.groupText}>
@@ -286,7 +297,7 @@ function GroupsBeside({ groups, summary }: GroupsProps) {
         <section
           // A new key per group, so its tags come in from the right when another one is picked
           key={group.id}
-          className={cx(classes.detail, picked !== undefined && classes.detailIn)}
+          className={cx(classes.detail, fresh === group.id && classes.detailIn)}
           data-kind={group.kind}
           aria-labelledby="category-group-title"
           aria-live="polite"

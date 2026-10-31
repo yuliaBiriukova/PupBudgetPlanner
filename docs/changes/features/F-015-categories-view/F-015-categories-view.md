@@ -131,6 +131,22 @@ Checked:
 **Chosen variant: [variant 7](prototypes/variant-7.html)**, approved by the owner for implementation on 2026-10-31.
 The desktop keeps variant 5's list of groups and the picked group's tags, as proposed.
 
+### Owner's review: which groups are open (2026-10-31)
+
+After trying the build locally, the owner asked for this change (approved by the request):
+
+- **Phone and tablet:** every group starts folded except the one open on the desktop (Income on a first visit).
+  Several groups can be open at once.
+- **Desktop:** only one group at a time, as before.
+
+How it works: both layouts share one list of open groups, kept on the device (`localStorage`,
+`pup.categories.open`), with the most recently opened group last.
+- Picking a group on the desktop makes it the only open one.
+- The desktop shows the last group opened, so a group opened on the phone is the one the desktop shows next.
+- With nothing open (Collapse all), the desktop shows the first group. Expand all keeps the first group as the one
+  the desktop shows.
+- A list stored by someone else on the same device (no known groups in it) counts as nothing stored.
+
 ## Open points (for the owner)
 
 - **Where:** its own menu item (owner, 2026-10-31; round 2 had it in Settings).
@@ -146,11 +162,11 @@ The desktop keeps variant 5's list of groups and the picked group's tags, as pro
   migration: the tables came with F-013.
 - **Menu:** Categories after Reports (`IconListTree`), in the sidebar and under More on the phone.
 - **Page** (`frontend/src/features/categories/`):
-  - below 1200 px (Mantine `lg`), every group with its categories as tags; a group's row folds it and a folded
-    group shows its first categories; Collapse all / Expand all; the folded groups are kept in `localStorage`
-    (`pup.categories.folded`);
-  - from 1200 px, the list of groups and the picked group's tags beside it. The prototype switched at 1100 px; the
-    app uses Mantine's nearest breakpoint, so 1100–1199 px shows the folding list;
+  - below 1200 px (Mantine `lg`), every group with its categories as tags; a group's row opens or folds it and a
+    folded group shows its first categories; Collapse all / Expand all. Which groups are open follows the owner's
+    review above (`openGroups.ts`);
+  - from 1200 px, the list of groups and one group's tags beside it. The prototype switched at 1100 px; the app uses
+    Mantine's nearest breakpoint, so 1100–1199 px shows the folding list;
   - Loading, Couldn't load (Try again) and Empty states; the "comes later" line at the end.
 - **Theme:** new tokens `--pup-color-income`, `--pup-color-income-bg` and `--pup-color-tag` (light and dark), the
   prototype's colors.
@@ -159,16 +175,24 @@ The desktop keeps variant 5's list of groups and the picked group's tags, as pro
 
 - Unit (xUnit): `CategoriesOverviewTests` (the report's order, sort order, archived left out, no groups) and
   `CategoriesControllerTests`.
-- Unit (Vitest): `CategoriesPage.test.tsx`, phone (open groups, folding and remembering it, Collapse all, a stored
-  fold, Empty, Couldn't load and Try again) and desktop (the list and the picked group).
-- E2E (Playwright): `categories.spec.ts`, a new person sees the default categories (phone: open, fold, kept after a
-  reload; desktop: pick a group). `shell.spec.ts` now visits Categories, and the rail has one more icon.
-- Storybook: phone (light, dark, fold one, some and all folded), tablet, desktop (light, dark, another group),
-  Loading, Couldn't load, Empty.
-- Checked: screenshots at 375, 834 and 1440 px, light and dark, phone with groups folded and desktop with another
-  group picked, were looked at; folding was tried in the Browser pane, with no console errors.
+- Unit (Vitest): `CategoriesPage.test.tsx`.
+  - Phone: only Income open at first; several groups open, folded again and remembered; Collapse all / Expand all;
+    only the group picked on the desktop open; a list stored by someone else ignored; Empty; Couldn't load with Try
+    again.
+  - Desktop: the list and the picked group, which becomes the only open one; the group opened last on the phone
+    shown.
+- E2E (Playwright): `categories.spec.ts`, a new person sees the default categories.
+  - Phone: only Income open, two more opened and still open after a reload, Collapse all.
+  - Desktop: pick a group.
+  - `shell.spec.ts` now visits Categories, and the rail has one more icon. The More button is found by its exact
+    name in every spec, since a folded group's "… and 6 more" matched it too.
+- Storybook: phone (first visit light and dark, open another group, picked on the desktop, all open, all folded),
+  tablet, desktop (light, dark, another group), Loading, Couldn't load, Empty.
+- Checked: screenshots at 375, 834 and 1440 px, light and dark, were looked at. They include the first visit,
+  several groups open, the desktop showing the group opened last, and the phone after a group was picked on the
+  desktop. Folding was tried in the Browser pane, with no console errors.
 - Test data: the E2E runs and the screenshots made `e2e-…@example.com` people on the `dev` database; the cleanup
-  teardown deleted them (checked: the screenshot person's session no longer signs in).
+  teardown deleted them (checked after the first build: the screenshot person's session no longer signs in).
 
 ## Notes
 

@@ -21,7 +21,7 @@ const tagsOf = (element: HTMLElement) =>
     .map((item) => item.textContent);
 
 describe('the Categories page on the phone', () => {
-  it('shows every group open with its categories, Income first and the expenses under their label', async () => {
+  it('starts with every group folded but Income, the expenses under their label', async () => {
     categoriesServer();
     renderApp('/categories');
 
@@ -30,36 +30,44 @@ describe('the Categories page on the phone', () => {
       screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent),
     ).toEqual([
       'Income3',
-      'Home expenses9',
-      'Daily living6',
-      'Health4',
-      'Education3',
-      'Entertainment5',
-      'Subscriptions3',
+      'Home expensesRent, Bills, Home supplies and 6 more9',
+      'Daily livingGroceries, Clothing, Eating out and 3 more6',
+      'HealthDoctor/Dentist, Medicine/Drugs/Skincare, Emergency and Therapy4',
+      'EducationEnglish lessons, Piano lessons and Driving3',
+      'EntertainmentActivities, Books, Games and 2 more5',
+      'SubscriptionsSpotify, Phone and Subscriptions3',
     ]);
     expect(screen.getByText('30 categories')).toBeInTheDocument();
     const income = screen.getByRole('button', { name: /Income/ });
     expect(income).toHaveAttribute('aria-expanded', 'true');
     const tags = document.getElementById(income.getAttribute('aria-controls') ?? '');
     expect(tags && tagsOf(tags)).toEqual(['Salary', 'Gifts', 'Other']);
+    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(6);
   });
 
-  it('folds a group to its first categories and remembers it', async () => {
+  it('opens several groups at once, folds them again and remembers it', async () => {
     categoriesServer();
     const user = userEvent.setup();
     renderApp('/categories');
 
     const home = await screen.findByRole('button', { name: /Home expenses/ }, LOADED);
     await user.click(home);
+    await user.click(screen.getByRole('button', { name: /Health/ }));
 
+    expect(home).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('Bank commission')).toBeInTheDocument();
+    expect(screen.getByText('Therapy')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Income/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(JSON.parse(localStorage.getItem('pup.categories.open') ?? '[]')).toEqual([
+      'group-1',
+      'group-2',
+      'group-4',
+    ]);
+
+    await user.click(home);
     expect(home).toHaveAttribute('aria-expanded', 'false');
     expect(home).toHaveTextContent('Rent, Bills, Home supplies and 6 more');
     expect(screen.queryByText('Bank commission')).not.toBeInTheDocument();
-    expect(JSON.parse(localStorage.getItem('pup.categories.folded') ?? '[]')).toEqual(['group-2']);
-
-    await user.click(home);
-    expect(home).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByText('Bank commission')).toBeInTheDocument();
   });
 
   it('collapses and expands every group at once', async () => {
@@ -68,32 +76,38 @@ describe('the Categories page on the phone', () => {
     renderApp('/categories');
 
     await user.click(await screen.findByRole('button', { name: 'Collapse all' }, LOADED));
-
-    for (const group of screen.getAllByRole('button', { expanded: false })) {
-      expect(group).toHaveAttribute('aria-expanded', 'false');
-    }
     expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(7);
-    expect(screen.getByRole('button', { name: /Health/ })).toHaveTextContent(
-      'Doctor/Dentist, Medicine/Drugs/Skincare, Emergency and Therapy',
-    );
+    expect(screen.queryByRole('button', { expanded: true })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Expand all' }));
     expect(screen.getAllByRole('button', { expanded: true })).toHaveLength(7);
   });
 
-  it('starts with the groups folded on this device', async () => {
-    localStorage.setItem('pup.categories.folded', JSON.stringify(['group-1', 'group-7']));
+  it('opens only the group picked on the desktop', async () => {
+    localStorage.setItem('pup.categories.open', JSON.stringify(['group-5']));
+    categoriesServer();
+    renderApp('/categories');
+
+    expect(await screen.findByRole('button', { name: /Education/ }, LOADED)).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(6);
+    expect(screen.getByRole('button', { name: /Income/ })).toHaveTextContent(
+      'Salary, Gifts and Other',
+    );
+  });
+
+  it('starts with Income open when what is stored belongs to someone else', async () => {
+    localStorage.setItem('pup.categories.open', JSON.stringify(['another-persons-group']));
     categoriesServer();
     renderApp('/categories');
 
     expect(await screen.findByRole('button', { name: /Income/ }, LOADED)).toHaveAttribute(
       'aria-expanded',
-      'false',
+      'true',
     );
-    expect(screen.getByRole('button', { name: /Subscriptions/ })).toHaveTextContent(
-      'Spotify, Phone and Subscriptions',
-    );
-    expect(screen.getByRole('button', { name: /Health/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(6);
   });
 
   it('says what to do when there are no categories', async () => {
@@ -150,5 +164,21 @@ describe('the Categories page on the desktop', () => {
       'true',
     );
     expect(screen.queryByRole('button', { name: 'Collapse all' })).not.toBeInTheDocument();
+    // The picked group is the only open one, so the phone opens just that one
+    expect(JSON.parse(localStorage.getItem('pup.categories.open') ?? '[]')).toEqual(['group-2']);
+  });
+
+  it('shows the group opened last on the phone', async () => {
+    setScreenWidth(1440);
+    localStorage.setItem('pup.categories.open', JSON.stringify(['group-1', 'group-6']));
+    categoriesServer();
+    renderApp('/categories');
+
+    const index = await screen.findByRole('navigation', { name: 'Category groups' }, LOADED);
+    expect(within(index).getByRole('button', { name: /Entertainment/ })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+    expect(tagsOf(screen.getByRole('region', { name: 'Entertainment' }))).toHaveLength(5);
   });
 });

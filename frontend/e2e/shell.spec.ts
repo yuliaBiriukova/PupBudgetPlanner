@@ -16,7 +16,7 @@ const IN_MORE: readonly SectionId[] = ['categories', 'family', 'settings'];
 async function openSection(page: Page, id: SectionId, isMobile: boolean) {
   const name = en.nav[id];
   if (isMobile && IN_MORE.includes(id)) {
-    await page.getByRole('button', { name: en.nav.more }).click();
+    await page.getByRole('button', { name: en.nav.more, exact: true }).click();
     await page.getByRole('dialog', { name: en.nav.more }).getByRole('link', { name }).click();
   } else {
     await page.getByRole('navigation', { name: en.nav.main }).getByRole('link', { name }).click();
