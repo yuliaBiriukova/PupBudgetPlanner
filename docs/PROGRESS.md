@@ -2,6 +2,26 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-31 (I-014)
+
+**Done**
+- I-014 faster, steadier tests on the owner's laptop, built on `improvement/I-014-faster-local-tests` (approved
+  2026-10-31):
+  - Unit tests: Vitest on 4 workers (was 7), isolation kept; the People "200 people" test queries by label and has a
+    15 s timeout. 3 runs in a row pass in 23–26 s; before, it timed out in about half the runs.
+  - E2E: `setup` opens the app once before the tests run in parallel, and 3 local workers (was 4). From a cold start
+    (Vite's cache cleared): 3 of 3 runs pass in 58–59 s at about 40% CPU; before, 1 min 50 s with 4 timeouts and the
+    CPU at 100%.
+  - `CLAUDE.md`: while working on a change, run only the affected tests; every suite once before the commit and
+    push; a suite longer than a minute runs in the background.
+  - The measurements behind each choice are in the description file. No ADR: the Vitest pool and isolation are
+    unchanged.
+- Test data: the E2E runs (6 to compare worker counts, 3 to check) made `e2e-…` accounts and `E2E` invite links on
+  the `dev` database; the cleanup teardown removed them after every run. Nothing was made by hand.
+
+**Next**
+- Owner: review the I-014 PR.
+
 ## 2026-10-31 (plan: I-014)
 
 **Done**

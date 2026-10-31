@@ -226,14 +226,16 @@ describe('the People page', () => {
     const user = userEvent.setup();
     renderApp('/people');
 
-    await user.click(await screen.findByRole('checkbox', { name: 'Pick all shown' }));
-    const bar = screen.getByRole('region', { name: 'Picked people' });
+    // By label, not by role: a role query works out every element's role and name, which takes seconds over 209
+    // rows and timed out on a busy laptop (I-014)
+    await user.click(await screen.findByLabelText('Pick all shown'));
+    const bar = screen.getByLabelText('Picked people');
     expect(bar).toHaveTextContent('200 picked');
     expect(bar).toHaveTextContent('That’s the most at once');
     // The list goes by name: the last tests are past the 200 and can't be added
-    expect(screen.getByRole('checkbox', { name: 'Pick Test 197' })).toBeChecked();
-    expect(screen.getByRole('checkbox', { name: 'Pick Test 198' })).toBeDisabled();
-    expect(screen.getByRole('checkbox', { name: 'Pick all shown' })).toBeChecked();
+    expect(screen.getByLabelText('Pick Test 197')).toBeChecked();
+    expect(screen.getByLabelText('Pick Test 198')).toBeDisabled();
+    expect(screen.getByLabelText('Pick all shown')).toBeChecked();
 
     await user.click(within(bar).getByRole('button', { name: 'Delete' }));
     const dialog = await screen.findByRole('dialog', { name: 'Delete 200 accounts?' });
@@ -244,7 +246,9 @@ describe('the People page', () => {
     const [deleted] = actions;
     expect(deleted?.url).toBe('/api/admin/people/delete');
     expect((deleted?.body as { userIds: string[] }).userIds).toHaveLength(200);
-  });
+    // About 3 s on its own (209 rows render twice when all are picked): a busy machine needs more than the default
+    // 5 s (I-014)
+  }, 15_000);
 
   it('says why when the API refuses the request itself', async () => {
     adminServer();
