@@ -2,6 +2,20 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-31 (plan: I-014)
+
+**Done**
+- I-014 (faster, steadier tests on the owner's laptop) planned on `plan/i014-faster-local-tests`, priority High.
+  Found by the owner: I-011 took almost an hour, looked stuck and loaded the computer.
+- Measured every suite on `develop`: backend 25 s; frontend unit 1 min 45 s, with the People "200 people" test
+  timing out at 5 s; E2E 1 min 50 s from a cold start with 4 `page.goto` timeouts, 52 s and all passing once warm.
+  Details and the likely causes are in the description file.
+- Test data: the two E2E runs made `e2e-…` accounts on the `dev` database; the cleanup teardown removed them after
+  each run. Nothing was made by hand.
+
+**Next**
+- Owner: confirm the priority, review the planning PR, and approve I-014 before it is built.
+
 ## 2026-10-30 (I-011)
 
 **Done**
