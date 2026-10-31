@@ -2,15 +2,37 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from 'storybook/test';
 import { MockFetch, type MockRoutes } from '../../test/mockFetch';
 import { AccountsPage } from './AccountsPage';
-import { EMPTY, OVERVIEW } from './accountsTestData';
+import type { AccountsTotal, RatesStatus } from './accountsApi';
+import { EMPTY, OVERVIEW, TOTAL } from './accountsTestData';
 
 interface ScreenProps {
-  data?: 'accounts' | 'empty' | 'loading' | 'error';
+  data?: 'accounts' | 'hryvnias' | 'empty' | 'loading' | 'error';
   groupBy?: 'currency' | 'source';
+  /** "In total, in UAH" (F-017): today's rates, earlier ones and why, none, or still loading. */
+  rates?: RatesStatus | 'loading';
+}
+
+/** Accounts in hryvnias only: one total, no rates. */
+const HRYVNIAS = {
+  ...OVERVIEW,
+  accounts: OVERVIEW.accounts.filter((account) => account.currency === 'UAH'),
+  totals: OVERVIEW.totals.filter((total) => total.currency === 'UAH'),
+};
+
+function totalOf(data: ScreenProps['data'], rates: RatesStatus): AccountsTotal {
+  if (data === 'hryvnias')
+    return { currency: 'UAH', total: 310133, ratesDate: null, status: 'Current', rates: [] };
+  if (rates === 'Missing')
+    return { currency: 'UAH', total: null, ratesDate: null, status: 'Missing', rates: [] };
+  return rates === 'Current' ? TOTAL : { ...TOTAL, status: rates, ratesDate: '2026-10-29' };
 }
 
 /** The Accounts page with a fake API (F-014). */
-function AccountsScreen({ data = 'accounts', groupBy = 'currency' }: ScreenProps) {
+function AccountsScreen({
+  data = 'accounts',
+  groupBy = 'currency',
+  rates = 'Current',
+}: ScreenProps) {
   localStorage.setItem('pup.accounts.groupBy', groupBy);
   const routes: MockRoutes = {
     '/api/accounts':
@@ -18,7 +40,8 @@ function AccountsScreen({ data = 'accounts', groupBy = 'currency' }: ScreenProps
         ? 'pending'
         : data === 'error'
           ? { status: 500 }
-          : { json: data === 'empty' ? EMPTY : OVERVIEW },
+          : { json: data === 'empty' ? EMPTY : data === 'hryvnias' ? HRYVNIAS : OVERVIEW },
+    '/api/accounts/total': rates === 'loading' ? 'pending' : { json: totalOf(data, rates) },
   };
 
   // In <main>, as in the app shell: the page's header isn't the document's banner
@@ -46,9 +69,9 @@ type Story = StoryObj<typeof meta>;
 export const ByCurrencyPhone: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByRole('group', { name: 'Totals' })).toHaveTextContent(
-      '310 133 ₴',
-    );
+    const totals = await canvas.findByRole('group', { name: 'Totals' });
+    await expect(await within(totals).findByText('403 744 ₴')).toBeInTheDocument();
+    await expect(totals).toHaveTextContent('310 133 ₴');
   },
 };
 
@@ -66,6 +89,41 @@ export const BySourceDesktopDark: Story = {
   args: { groupBy: 'source' },
   globals: { ...desktop, colorScheme: 'dark' },
 };
+
+/** F-014's "Total: earlier rates": today's NBU rates aren't out yet (F-017). */
+export const TotalEarlierRates: Story = {
+  args: { rates: 'NotPublished' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByText(
+        'NBU hasn’t published today’s rates yet. At the rates of 29 Oct 2026:',
+      ),
+    ).toBeInTheDocument();
+  },
+};
+
+export const TotalEarlierRatesDesktopDark: Story = {
+  ...TotalEarlierRates,
+  globals: { ...desktop, colorScheme: 'dark' },
+};
+
+/** The NBU can't be reached: the latest earlier rates, saying why. */
+export const TotalNbuUnavailable: Story = { args: { rates: 'Unavailable' }, globals: desktop };
+
+/** No rates at all: no grand total, each currency's total still there. */
+export const TotalNoRates: Story = { args: { rates: 'Missing' } };
+
+export const TotalNoRatesDesktopDark: Story = {
+  args: { rates: 'Missing' },
+  globals: { ...desktop, colorScheme: 'dark' },
+};
+
+/** The accounts are in, the NBU rates still on their way. */
+export const TotalLoading: Story = { args: { rates: 'loading' } };
+
+/** Hryvnias only: one total, no rates. */
+export const TotalHryvniasOnly: Story = { args: { data: 'hryvnias' }, globals: desktop };
 
 export const FirstVisit: Story = { args: { data: 'empty' } };
 

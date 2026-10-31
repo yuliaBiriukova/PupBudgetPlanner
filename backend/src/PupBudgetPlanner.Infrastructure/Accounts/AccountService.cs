@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using PupBudgetPlanner.Application.Accounts;
+using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Domain.Accounts;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
 namespace PupBudgetPlanner.Infrastructure.Accounts;
 
-internal sealed class AccountService(AppDbContext dbContext, TimeProvider clock) : IAccountService
+internal sealed class AccountService(AppDbContext dbContext, IExchangeRateService rates, TimeProvider clock)
+    : IAccountService
 {
     /// <summary>No transactions yet (F-018): every balance is the opening balance.</summary>
     private static readonly IReadOnlyDictionary<Guid, decimal> NoMovements = new Dictionary<Guid, decimal>();
@@ -44,6 +46,20 @@ internal sealed class AccountService(AppDbContext dbContext, TimeProvider clock)
             sources,
             banks,
             Currencies.All);
+    }
+
+    public async Task<AccountsTotal> TotalAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var accounts = await dbContext.Accounts.AsNoTracking()
+            .Where(account => account.UserId == userId)
+            .ToListAsync(cancellationToken);
+        var totals = BalanceSheet.TotalsOf(BalanceSheet.BalancesOf(accounts, NoMovements));
+        var currency = ReportCurrency.Default;
+        var day = TotalInReportCurrency.NeedsRates(totals, currency)
+            ? await rates.RatesOnAsync(Kyiv.Today(clock), cancellationToken)
+            : null;
+
+        return TotalInReportCurrency.Of(totals, currency, day);
     }
 
     public async Task<AccountItem> CreateAsync(

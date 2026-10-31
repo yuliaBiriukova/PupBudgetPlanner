@@ -2,6 +2,37 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-31 (F-017)
+
+**Done**
+- F-017 NBU exchange rates, built on `feature/F-017-exchange-rates` (approved 2026-10-31):
+  - Backend:
+    - one NBU call brings a day's rates of every account currency, kept in the new `exchange_rates` table;
+    - if the day isn't published or the NBU can't be reached, the latest earlier rates are used and marked, and
+      never stored under the later day;
+    - one call at a time, and a 5-minute pause after a failure;
+    - "today" is Kyiv's date;
+    - `GET /api/accounts/total` gives the total.
+  - Accounts page: "In total, in UAH" as in F-014's final prototype, with the rates and their date, notes for
+    earlier rates and no rates, a skeleton while loading, and the count up or down after a change.
+  - Tests: backend unit tests (conversion, the total, the NBU client, the service with the NBU faked, Kyiv's date),
+    frontend unit tests, Storybook stories for every state, and the accounts E2E test.
+  - CI's E2E run asks an NBU stub with fixed rates. Locally the real NBU is asked, so stub rates never land in the
+    `dev` database.
+  - ADR 0019; ARCHITECTURE "Exchange rates" updated.
+- Checked:
+  - Storybook screenshots of every state at 375 and 1440 px, light and dark. They turned up one fix: the info icon
+    now stays on the first line when the note wraps on the phone.
+  - The real app in the Browser pane with the real NBU: 12 000 ₴ + $500 gave 34 765 ₴ at $1 = 45.53 ₴, matching the
+    NBU's 45.5293 for 31 Oct.
+- Test data:
+  - The E2E runs made `e2e-…` accounts on the `dev` database; the cleanup teardown removed them.
+  - The Browser-pane check added two accounts to the tests' admin; both were deleted in the same session.
+  - The `dev` database keeps the real NBU rates it fetched; they are a cache, not test data.
+
+**Next**
+- Owner: review the F-017 PR. F-018 (quick add) is next in M3.
+
 ## 2026-10-31 (F-015 build)
 
 **Done**

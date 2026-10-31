@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PupBudgetPlanner.Domain.Accounts;
 using PupBudgetPlanner.Domain.Categories;
+using PupBudgetPlanner.Domain.ExchangeRates;
 using PupBudgetPlanner.Infrastructure.Identity;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
@@ -80,6 +81,19 @@ public sealed class AppDbContextTests
                 .Which.DeleteBehavior.Should().Be(DeleteBehavior.Cascade);
             UniqueIndexColumns(context, personal).Should().ContainSingle().Which.Should().Equal("user_id", "name");
         }
+    }
+
+    [Fact]
+    public void Exchange_rates_are_kept_one_per_day_and_currency_with_six_decimals()
+    {
+        using var context = CreateContext();
+
+        var rates = context.Model.FindEntityType(typeof(ExchangeRate))!;
+
+        rates.GetTableName().Should().Be("exchange_rates");
+        rates.FindPrimaryKey()!.Properties.Select(property => property.GetColumnName()).Should().Equal("date", "currency");
+        rates.FindProperty(nameof(ExchangeRate.RateToUah))!.GetColumnType().Should().Be("numeric(18,6)");
+        rates.FindProperty(nameof(ExchangeRate.Source))!.GetProviderClrType().Should().Be<string>();
     }
 
     private static IEnumerable<IEnumerable<string>> UniqueIndexColumns(AppDbContext context, Type entity) =>

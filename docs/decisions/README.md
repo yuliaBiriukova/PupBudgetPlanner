@@ -23,6 +23,7 @@ decision — write a new ADR that supersedes it.
 | [0016](0016-invite-only-sign-up.md) | Invite-only sign-up: hashed invite links, the admin from configuration, blocking | Accepted |
 | [0017](0017-accounts-sources-banks.md) | Accounts: built-in Cash and Bank, personal sources and banks, currency codes kept in the app | Accepted |
 | [0018](0018-whole-amounts.md) | Whole amounts: no cents, rounded half away from zero | Accepted |
+| [0019](0019-exchange-rate-cache.md) | Exchange rates: one NBU call per day, kept per date, fallback never kept | Accepted |
 
 Template for new ADRs:
 

@@ -295,6 +295,14 @@
     "byCurrency": "Currency",
     "bySource": "Source",
     "inTotal": "In total",
+    "inTotalIn": "In total, in {{currency}}",
+    "rates": {
+      "current": "At NBU rates of {{date}}:",
+      "notPublished": "NBU hasn’t published today’s rates yet. At the rates of {{date}}:",
+      "unavailable": "Can’t reach the NBU right now. At the rates of {{date}}:",
+      "missing": "NBU rates aren’t available right now. Try again later.",
+      "loading": "Loading NBU rates"
+    },
     "totalsLabel": "Totals",
     "count_one": "{{count}} account",
     "count_other": "{{count}} accounts",
