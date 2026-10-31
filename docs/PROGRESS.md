@@ -2,6 +2,29 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-31 (F-016 design round 1)
+
+**Done**
+- F-016 user settings started on `feature/F-016-user-settings`, design only (not approved, no code). It is the last
+  M2 item: F-014 and F-015 are done.
+  - References: GitHub's theme settings, Actual Budget's settings page, Lunch Money's primary currency, Apple's HIG
+    for settings. Mobbin needs a sign-in.
+  - 3 prototypes in `prototypes/`:
+    - 1, one page with everything in place: currency and theme as segmented choices that save at once, the name
+      with its own Save, your total right under the currency;
+    - 2, rows with their values that open a sheet (phone) or a dialog (desktop) with Save; the currency choices
+      show your total in each;
+    - 3, pick by seeing: three cards with your total in each currency, the theme as small pictures of the app.
+  - Open points with Claude's proposals in the description file: the theme kept on the device (name and currency on
+    the account); the sun / moon button stays; only UAH, USD and EUR; email shown but not changeable.
+  - The design check passes on all three (it first found the layouts too tight at 768 px, a small Try again and the
+    field's focus ring; all fixed). The screenshots at 375 and 1440 px, light and dark, were looked at, and the
+    pop-ups, errors and name editing were tried in the Browser pane.
+- Test data: none; nothing was run against the database.
+
+**Next**
+- Owner: pick a variant (or a mix) and answer the open points; then the final prototype for approval.
+
 ## 2026-10-31 (F-017)
 
 **Done**

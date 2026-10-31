@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>F-016 · Variant 2 · Rows that open</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(480px, calc(100vw - 32px)); background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.pv-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.pv-notes li + li { margin-top: 4px; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='tablet'] .frame { width: 834px; height: min(1050px, 100%); border: 12px solid #16181d; border-radius: 28px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+@media (max-width: 600px) {
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+}
+
+/* ---------- Tokens: the app's theme (F-010, F-011, F-028, F-014, F-015) ---------- */
+.app {
+  --bg: #f5f6f7; --surface: #fcfcfd; --sidebar: #ebedf0; --seg-bg: #ebedf0; --text: #1c1e21; --muted: #57585b;
+  --rule: #d7d8d9; --hover: #e8e9ea; --field-border: #7c828a;
+  --primary: #26292e; --primary-hover: #363a40; --on-primary: #f5f6f7;
+  --accent: #2a62a3; --active-bg: #e7ecf1; --tint: #e7ecf1; --logo: #8ec1ec; --logo-mark: #1c1e21;
+  --error: #b3261e; --error-bg: #fbeceb; --error-text: #8c1d18;
+  --pill: #1c1e21; --on-pill: #f5f6f7; --focus: #26292e; --scrim: rgba(18, 19, 21, .45);
+  --shadow-float: 0 8px 24px rgba(15, 17, 20, .1);
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+  --r-sm: 12px; --r-lg: 24px;
+}
+.app[data-scheme='dark'] {
+  --bg: #121315; --surface: #1b1c1e; --sidebar: #18191b; --seg-bg: #1f2022; --text: #e9eaec; --muted: #a4a5a7;
+  --rule: #37383a; --hover: #26272a; --field-border: #71747b;
+  --primary: #e9eaec; --primary-hover: #d3d6da; --on-primary: #121315;
+  --accent: #8ec1ec; --active-bg: #262f37; --tint: #262f37; --logo: #8ec1ec; --logo-mark: #121315;
+  --error: #f2958c; --error-bg: #3a1d1b; --error-text: #f6b8b2;
+  --pill: #e9eaec; --on-pill: #121315; --focus: #e9eaec; --scrim: rgba(0, 0, 0, .6);
+  --shadow-float: 0 10px 28px rgba(0, 0, 0, .45);
+}
+
+/* ---------- Base ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; color-scheme: light; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+:where(.app) :where(button, input) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, h3, p, ul, ol, dl, dd) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted { color: var(--muted); }
+.list { list-style: none; padding: 0; margin: 0; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; font-weight: 500; font-size: 15px; text-decoration: none; white-space: nowrap; background: none; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-default { border-color: var(--rule); color: var(--text); }
+.btn-default:hover { background: var(--hover); }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+.text-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--accent); font-weight: 500; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: none; }
+.text-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.toast { position: absolute; bottom: 88px; left: 50%; transform: translateX(-50%); padding: 10px 16px; border-radius: 999px; background: var(--pill); color: var(--on-pill); font-size: 14px; z-index: 30; white-space: nowrap; }
+.banner { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-sm); background: var(--tint); color: var(--text); }
+.banner .ic { margin-top: 2px; color: var(--accent); }
+.banner-error { background: var(--error-bg); color: var(--error-text); }
+.banner-error .ic { color: var(--error-text); }
+.banner .text-link { min-height: 44px; margin: -6px 0 -10px; color: inherit; }
+.later { display: flex; gap: 8px; align-items: flex-start; color: var(--muted); font-size: 14px; }
+.later .ic { margin-top: 2px; }
+
+/* Fields (F-011: 48 px, a 2 px accent border in focus, the error under the field) */
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 500; font-size: 14px; }
+.input { width: 100%; height: 48px; padding: 0 14px; border: 1px solid var(--field-border); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font-size: 16px; }
+/* In focus: a 2 px accent border, drawn as an inset outline (DESIGN_RULES, custom rules) */
+.input:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+.input[aria-invalid='true'] { border-color: var(--error); box-shadow: inset 0 0 0 1px var(--error); }
+.field-error { color: var(--error); font-size: 14px; }
+.field-hint { color: var(--muted); font-size: 14px; }
+
+/* ---------- App shell (F-010): top bar and tab bar on the phone, sidebar from 768 px ---------- */
+.logo { width: 44px; height: 44px; display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--logo); color: var(--logo-mark); }
+.shell { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); }
+.side { display: none; }
+.column { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+.top { display: flex; flex: none; align-items: center; gap: 4px; height: 56px; padding: 0 8px 0 16px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; margin-right: auto; }
+.brand .logo { width: 32px; height: 32px; }
+.brand-name { font-family: var(--font-display); font-size: 15px; font-weight: 300; letter-spacing: .02em; white-space: nowrap; }
+.main { flex: 1; min-height: 0; overflow: hidden auto; position: relative; }
+.content { max-width: 1040px; margin: 0 auto; padding: 8px 16px 32px; }
+.tabs { display: flex; flex: none; align-items: center; gap: 2px; padding: 8px 8px 10px; border-top: 1px solid var(--rule); background: var(--bg); }
+.tab { display: flex; flex: none; align-items: center; justify-content: center; gap: 8px; width: 44px; min-height: 48px; border-radius: 999px; color: var(--muted); font-size: 13px; text-decoration: none; background: none; border: 0; cursor: pointer; }
+.tab[data-active] { width: auto; padding: 0 14px 0 12px; background: var(--active-bg); color: var(--accent); font-weight: 500; }
+.tab:not([data-active]) .tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.tab-add { display: grid; place-items: center; width: 52px; height: 52px; margin-left: auto; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); cursor: pointer; }
+.avatar { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 50%; background: var(--active-bg); color: var(--accent); font-size: 13px; font-weight: 500; }
+.avatar-link { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; text-decoration: none; }
+/* The initials are drawn by CSS so the link is named "Settings" only */
+.avatar[data-initials]::before { content: attr(data-initials); }
+@container app (min-width: 768px) {
+  .shell { grid-template-columns: 248px minmax(0, 1fr); }
+  .side { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-right: 1px solid var(--rule); background: var(--sidebar); min-width: 0; }
+  .side-head { display: flex; align-items: center; gap: 10px; height: 44px; margin-bottom: 12px; padding: 0 2px; }
+  .side-head .logo { width: 32px; height: 32px; margin: 0 6px; }
+  .side-add { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; margin-bottom: 14px; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 500; cursor: pointer; }
+  .nav-link { position: relative; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-radius: 999px; color: var(--text); font-size: 14px; line-height: 1; text-decoration: none; white-space: nowrap; }
+  .nav-link:hover { background: var(--hover); }
+  .nav-link[aria-current='page'] { font-weight: 500; }
+  .nav-link[aria-current='page'] > svg { color: var(--accent); }
+  .nav-link[aria-current='page']::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: -12px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+  .nav-sep { height: 1px; margin: 10px 14px; background: var(--rule); }
+  .side-foot { display: flex; align-items: center; gap: 12px; min-height: 40px; margin-top: auto; padding: 0 0 0 8px; font-size: 14px; }
+  .side-foot .who { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .side-foot .icon-btn { width: 36px; height: 36px; }
+  .top, .tabs { display: none; }
+  .content { padding: 32px 40px 48px; }
+  .toast { bottom: 24px; }
+}
+
+/* ---------- Page head ---------- */
+.page-head { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 8px 0 20px; }
+.page-head h1 { font-family: var(--font-display); font-weight: 300; font-size: 28px; line-height: 1.15; letter-spacing: -.01em; margin-right: auto; }
+
+/* ---------- Pop-ups (I-012): a sheet on the phone, a dialog from 768 px ---------- */
+.scrim { position: absolute; inset: 0; z-index: 20; display: flex; align-items: flex-end; background: var(--scrim); }
+.dialog { display: flex; flex-direction: column; width: 100%; max-height: 92%; border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--surface); box-shadow: var(--shadow-float); overflow: hidden; }
+.dlg-head { position: relative; padding: 16px 64px 0 16px; }
+.dlg-x { position: absolute; top: 8px; right: 8px; }
+.dlg-head h2 { font-family: var(--font-display); font-weight: 300; font-size: 20px; line-height: 28px; }
+.dlg-body { flex: 1; min-height: 0; overflow: auto; padding: 16px 16px 0; }
+.dlg-foot { display: flex; gap: 8px; justify-content: flex-end; padding: 16px; }
+.dlg-foot .btn { flex: 1; }
+.more-link { display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 12px; border-radius: 12px; color: var(--text); text-decoration: none; background: none; border: 0; width: 100%; cursor: pointer; }
+.more-link:hover { background: var(--hover); }
+.more-link[aria-current='page'] { background: var(--active-bg); color: var(--accent); font-weight: 500; }
+@container app (min-width: 768px) {
+  .scrim { align-items: center; justify-content: center; }
+  .dialog { width: 440px; max-height: 80%; border-radius: var(--r-lg); }
+  .dlg-head { padding: 20px 64px 0 20px; }
+  .dlg-x { top: 12px; right: 12px; }
+  .dlg-body { padding: 20px 20px 0; }
+  .dlg-foot { padding: 20px; }
+  .dlg-foot .btn { flex: none; }
+}
+
+/* ---------- States ---------- */
+.sk { display: block; height: 14px; border-radius: 6px; background: var(--hover); }
+/* The one moment: after the report currency changes, the total in it comes in from below in place of the old one */
+@keyframes swap-in { from { opacity: 0; transform: translateY(8px); } }
+.swap-in { display: inline-block; animation: swap-in 200ms ease-out; }
+@media (prefers-reduced-motion: reduce) { .swap-in { animation: none; } }
+
+/* ====================================================================================================== */
+/* ---------- Variant 2 · Rows that open ---------- */
+.v2 { max-width: 640px; }
+.v2-rows { border-top: 1px solid var(--rule); }
+.v2-rows > li { border-bottom: 1px solid var(--rule); }
+.v2-row { display: flex; align-items: center; gap: 16px; width: 100%; min-height: 60px; padding: 8px 8px 8px 12px; border: 0; border-radius: var(--r-sm); background: none; color: var(--text); text-align: left; cursor: pointer; }
+button.v2-row:hover { background: var(--hover); }
+div.v2-row { cursor: default; }
+.v2-row > .ic { color: var(--muted); }
+.v2-row .lbl { flex: none; font-weight: 500; }
+.v2-row .val { flex: 1; min-width: 0; color: var(--muted); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+div.v2-row .val { padding-right: 36px; }
+.v2-row .chev { color: var(--muted); }
+.v2-foot { margin-top: 16px; }
+/* The choices inside the pop-ups: whole rows you tap, a round mark for the picked one */
+.v2-intro { color: var(--muted); margin-bottom: 12px; }
+.v2-opts { display: grid; gap: 4px; }
+.v2-opt { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 12px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: none; color: var(--text); text-align: left; cursor: pointer; }
+.v2-opt:hover { background: var(--hover); }
+.v2-opt[aria-checked='true'] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--active-bg); }
+.v2-mark { display: grid; place-items: center; width: 20px; height: 20px; flex: none; border: 1.5px solid var(--field-border); border-radius: 50%; }
+.v2-opt[aria-checked='true'] .v2-mark { border-color: var(--accent); }
+.v2-opt[aria-checked='true'] .v2-mark::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.v2-opt .ic { color: var(--muted); }
+.v2-opt .t { flex: 1; min-width: 0; }
+.v2-opt .t span { color: var(--muted); font-size: 14px; margin-left: 6px; }
+.v2-opt .amt { font-family: var(--font-display); font-weight: 300; font-size: 17px; }
+.v2-rates { margin-top: 12px; color: var(--muted); font-size: 14px; }
+.v2-pop-err { margin-bottom: 12px; }
+
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="frame">
+    <div class="app" id="app" data-scheme="light"></div>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  stack: ['M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z', 'M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4', 'M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z', 'M3 6v10c0 .888 .772 1.45 2 2', 'M3 11c0 .888 .772 1.45 2 2'],
+  receipt: ['M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2', 'M9 7h6', 'M9 11h6', 'M13 15h2'],
+  wallet: ['M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12', 'M20 12v4h-4a2 2 0 0 1 0 -4h4'],
+  chart: ['M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M4 20h14'],
+  tree: ['M9 6h11', 'M12 12h8', 'M15 18h5', 'M5 6v.01', 'M8 12v.01', 'M11 18v.01'],
+  users: ['M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2', 'M16 3.13a4 4 0 0 1 0 7.75', 'M21 21v-2a4 4 0 0 0 -3 -3.85'],
+  settings: ['M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z', 'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0'],
+  people: ['M6 21v-2a4 4 0 0 1 4 -4h2', 'M22 16c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5z', 'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0'],
+  plus: ['M12 5l0 14', 'M5 12l14 0'],
+  dots: ['M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  chevRight: ['M9 6l6 6l-6 6'],
+  alert: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 8v4', 'M12 16h.01'],
+  info: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 9h.01', 'M11 12h1v4h1'],
+  x: ['M18 6l-12 12', 'M6 6l12 12'],
+  check: ['M5 12l5 5l10 -10'],
+  refresh: ['M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4', 'M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4'],
+  user: ['M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0', 'M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2'],
+  mail: ['M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z', 'M3 7l9 6l9 -6'],
+  coins: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1', 'M12 7v10'],
+  moon: ['M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z'],
+  sun: ['M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7'],
+  device: ['M3 5a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10z', 'M7 20h10', 'M9 16v4', 'M15 16v4'],
+  pencil: ['M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4', 'M13.5 6.5l4 4'],
+  logout: ['M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2', 'M9 12h12l-3 -3', 'M18 15l3 -3'],
+};
+const icon = (n, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n].map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+// ---------- Data: the signed-in person and "In total" on Accounts (F-017's example: 12 000 ₴ + $500) ----------
+const NAME = 'Yulia Biriukova';
+const EMAIL = 'yulia@example.com';
+const CURRENCIES = [
+  { code: 'UAH', name: 'Hryvnia', total: 34765 },
+  { code: 'USD', name: 'US dollar', total: 764 },
+  { code: 'EUR', name: 'Euro', total: 715 },
+];
+const RATES = 'At the NBU rates of 31 Oct 2026: <span class="num">$1 = 45.53 ₴</span>, <span class="num">€1 = 48.60 ₴</span>.';
+const THEMES = [
+  { id: 'light', label: 'Light', long: 'Light', ic: 'sun' },
+  { id: 'dark', label: 'Dark', long: 'Dark', ic: 'moon' },
+  { id: 'system', label: 'System', long: 'Same as the system', ic: 'device' },
+];
+const group = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const money = (code, n) => (code === 'UAH' ? `${group(n)} ₴` : `${code === 'USD' ? '$' : '€'}${group(n)}`);
+const cur = (code) => CURRENCIES.find((c) => c.code === code);
+const initials = (name) => name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
+
+const app = document.getElementById('app');
+const stage = document.getElementById('stage');
+const mq = matchMedia('(prefers-color-scheme: dark)');
+/** The person's settings as saved; `schemePref` is also the prototype's own theme, so picking one shows it. */
+const state = { page: 'settings', schemePref: 'system', more: false, name: NAME, currency: 'UAH' };
+
+function applyScheme() {
+  const scheme = state.schemePref === 'system' ? (mq.matches ? 'dark' : 'light') : state.schemePref;
+  app.dataset.scheme = scheme;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+}
+mq.addEventListener('change', applyScheme);
+const NAV = [['receipt', 'Transactions'], ['wallet', 'Accounts'], ['chart', 'Reports'], ['tree', 'Categories'], ['users', 'Family'], ['settings', 'Settings']];
+
+// ---------- Shell ----------
+function shell(inner) {
+  const tabs = NAV.slice(0, 3);
+  return `<div class="shell">
+    <aside class="side" aria-label="Sections">
+      <div class="side-head"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div>
+      <button class="side-add" type="button" data-action="add-tx">${icon('plus')}Add transaction</button>
+      <nav class="nav" aria-label="Main">
+        ${NAV.map(([i, l]) => `<a class="nav-link" href="#${l.toLowerCase()}"${l === 'Settings' ? ' aria-current="page"' : ''} data-action="nav" data-to="${l}">${icon(i)}${l}</a>`).join('')}
+        <div class="nav-sep" role="presentation"></div>
+        <a class="nav-link" href="#people" data-action="nav" data-to="People">${icon('people')}People</a>
+      </nav>
+      <div class="side-foot"><span class="avatar" aria-hidden="true">${esc(initials(state.name))}</span><span class="who">${esc(state.name)}</span>
+        <button class="icon-btn" type="button" data-action="flip-scheme" aria-label="Switch to ${app.dataset.scheme === 'dark' ? 'light' : 'dark'} mode">${icon(app.dataset.scheme === 'dark' ? 'sun' : 'moon')}</button>
+        <button class="icon-btn" type="button" data-action="nav" data-to="Sign out" aria-label="Sign out">${icon('logout')}</button></div>
+    </aside>
+    <div class="column">
+      <header class="top"><div class="brand"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div>
+        <button class="icon-btn" type="button" data-action="flip-scheme" aria-label="Switch to ${app.dataset.scheme === 'dark' ? 'light' : 'dark'} mode">${icon(app.dataset.scheme === 'dark' ? 'sun' : 'moon')}</button>
+        <a class="avatar-link" href="#settings" aria-label="Settings" aria-current="page"><span class="avatar" data-initials="${esc(initials(state.name))}"></span></a></header>
+      <main class="main" tabindex="0"><div class="content">${inner}</div></main>
+      <nav class="tabs" aria-label="Main">
+        ${tabs.map(([i, l]) => `<a class="tab" href="#${l.toLowerCase()}" data-action="nav" data-to="${l}">${icon(i)}<span class="tab-label">${l}</span></a>`).join('')}
+        <button class="tab" type="button" data-action="more" aria-expanded="${state.more}" data-active>${icon('dots')}<span class="tab-label">More</span></button>
+        <button class="tab-add" type="button" data-action="add-tx" aria-label="Add transaction">${icon('plus', 24)}</button>
+      </nav>
+    </div>
+  </div>`;
+}
+function moreSheet() {
+  if (!state.more) return '';
+  const items = [...NAV.slice(3), ['people', 'People']];
+  return `<div class="scrim" data-action="close-more"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="more-title" data-stop><div class="dlg-head"><button class="icon-btn dlg-x" type="button" data-action="close-more" aria-label="Close">${icon('x')}</button><h2 id="more-title">More</h2></div><div class="dlg-body" style="padding-bottom:16px">
+    <ul class="list">${items.map(([i, l]) => `<li><a class="more-link" href="#${l.toLowerCase()}" data-action="nav" data-to="${l}"${l === 'Settings' ? ' aria-current="page"' : ''}>${icon(i)}${l}</a></li>`).join('')}
+    <li><button class="more-link" type="button" data-action="nav" data-to="Sign out">${icon('logout')}Sign out</button></li></ul></div></div></div>`;
+}
+/** A pop-up: a sheet on the phone, a dialog on the desktop (I-012); buttons in the footer. */
+function popup({ id, title, body, foot }) {
+  return `<div class="scrim" data-action="close-pop"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="${id}-title" data-stop>
+    <div class="dlg-head"><button class="icon-btn dlg-x" type="button" data-action="close-pop" aria-label="Close">${icon('x')}</button><h2 id="${id}-title">${title}</h2></div>
+    <div class="dlg-body">${body}</div><div class="dlg-foot">${foot}</div></div></div>`;
+}
+const skeleton = (rows) => `<div role="status" aria-busy="true"><span class="sr">Loading your settings</span>${rows}</div>`;
+
+function render() {
+  const scroll = document.querySelector('.main')?.scrollTop ?? 0;
+  app.innerHTML = shell(V.body(state.page)) + moreSheet() + (V.overlay?.() ?? '');
+  document.querySelector('.main').scrollTop = scroll;
+  document.querySelectorAll('[data-page-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pageSet === state.page)));
+  V.afterRender?.();
+}
+function go(id) {
+  Object.assign(state, { page: id, more: false, name: NAME, currency: 'UAH' });
+  V.go?.(id);
+  render();
+  document.querySelector('.main').scrollTop = 0;
+}
+function toast(text) {
+  document.querySelector('.toast')?.remove();
+  const t = document.createElement('div');
+  t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = text;
+  app.appendChild(t); setTimeout(() => t.remove(), 2200);
+}
+function setScheme(pref) { state.schemePref = pref; applyScheme(); }
+
+// ---------- Variant 2 · Rows that open ----------
+const R = { pop: null, draft: NAME, error: '', pickCur: 'UAH', pickTheme: 'system', themeBefore: 'system', saveError: false, fresh: null };
+const curLabel = (code) => `${cur(code).name}, ${code}`;
+const themeLabel = (id) => THEMES.find((t) => t.id === id).long;
+const V = {
+  DIRECTION: {
+    name: 'Variant 2 · Rows that open',
+    thesis: 'The page is a short summary: one row per setting with its value. A tap opens a sheet on the phone or a dialog on the desktop, where you pick and press Save.',
+    notes: [
+      'Rows: Name, Email (can’t be changed yet, so no arrow), Report currency, Theme. Each shows its current value on the right.',
+      'Report currency: the pop-up lists hryvnia, dollar and euro, each with your accounts’ total in it, so you see what you’ll get before you save.',
+      'Theme: picking one shows it behind the pop-up at once; Cancel puts the old one back. Kept on this device. The sun / moon button in the menu stays.',
+      'Every change is saved with the pop-up’s Save and says so in a short notification; the row’s value changes in place (the one moment).',
+      'The same rows and pop-ups on the phone and the desktop; the desktop keeps the list narrow (640 px).',
+    ],
+  },
+  PAGES: [
+    { id: 'settings', label: 'Settings' },
+    { id: 'pop-name', label: 'Name' },
+    { id: 'name-error', label: 'Name empty' },
+    { id: 'pop-currency', label: 'Report currency' },
+    { id: 'pop-theme', label: 'Theme' },
+    { id: 'save-error', label: 'Couldn’t save' },
+    { id: 'loading', label: 'Loading' },
+  ],
+  go(id) {
+    Object.assign(R, { pop: null, draft: NAME, error: '', pickCur: 'UAH', pickTheme: state.schemePref, themeBefore: state.schemePref, saveError: false, fresh: null });
+    if (id === 'pop-name') R.pop = 'name';
+    if (id === 'name-error') Object.assign(R, { pop: 'name', draft: '', error: 'Enter your name.' });
+    if (id === 'pop-currency') Object.assign(R, { pop: 'currency', pickCur: 'USD' });
+    if (id === 'save-error') Object.assign(R, { pop: 'currency', pickCur: 'USD', saveError: true });
+    if (id === 'pop-theme') R.pop = 'theme';
+  },
+  body(p) {
+    const head = '<div class="page-head"><h1>Settings</h1></div>';
+    if (p === 'loading') {
+      return head + skeleton(`<div class="v2"><ul class="list v2-rows">${[90, 150, 120, 110].map((w) => `<li><div class="v2-row"><span class="sk" style="width:20px;height:20px;border-radius:50%"></span><span class="sk" style="width:${w}px"></span></div></li>`).join('')}</ul></div>`);
+    }
+    const sw = (key, text) => `<span class="${R.fresh === key ? 'swap-in' : ''}">${esc(text)}</span>`;
+    const row = (key, ic, label, value) => `<li><button class="v2-row" type="button" data-action="open" data-pop="${key}" aria-haspopup="dialog">${icon(ic)}<span class="lbl">${label}</span><span class="val">${sw(key, value)}</span>${icon('chevRight').replace('class="ic"', 'class="ic chev"')}</button></li>`;
+    return `${head}<div class="v2">
+      <ul class="list v2-rows">
+        ${row('name', 'user', 'Name', state.name)}
+        <li><div class="v2-row">${icon('mail')}<span class="lbl">Email</span><span class="val">${EMAIL}</span></div></li>
+        ${row('currency', 'coins', 'Report currency', curLabel(state.currency))}
+        ${row('theme', 'moon', 'Theme', themeLabel(state.schemePref))}
+      </ul>
+      <p class="later v2-foot">${icon('info', 16)}Email can’t be changed yet. The theme is kept on this device.</p>
+    </div>`;
+  },
+  overlay() {
+    if (R.pop === 'name') {
+      return popup({ id: 'pn', title: 'Name', body: `<div class="field"><label for="name">Your name</label>
+        <input class="input" id="name" value="${esc(R.draft)}" maxlength="50" autocomplete="name"${R.error ? ' aria-invalid="true" aria-describedby="name-err"' : ' aria-describedby="name-hint"'}>
+        ${R.error ? `<p class="field-error" id="name-err">${R.error}</p>` : '<p class="field-hint" id="name-hint">Shown in the menu, and to your family once families come.</p>'}</div>`,
+        foot: '<button class="btn btn-default" type="button" data-action="close-pop">Cancel</button><button class="btn btn-primary" type="button" data-action="save-name">Save</button>' });
+    }
+    if (R.pop === 'currency') {
+      return popup({ id: 'pc', title: 'Report currency', body: `${R.saveError ? `<div class="banner banner-error v2-pop-err" role="alert">${icon('alert')}<p>Couldn’t save the currency. Check the connection and try again.</p></div>` : ''}
+        <p class="v2-intro" id="pc-intro">Totals on Accounts and the reports are shown in it. Your accounts in total:</p>
+        <div class="v2-opts" role="radiogroup" aria-labelledby="pc-title" aria-describedby="pc-intro">${CURRENCIES.map((c) => `<button class="v2-opt" type="button" role="radio" aria-checked="${R.pickCur === c.code}" data-action="pick-cur" data-id="${c.code}"><span class="v2-mark" aria-hidden="true"></span><span class="t">${c.name}<span>${c.code}</span></span><span class="amt num">${money(c.code, c.total)}</span></button>`).join('')}</div>
+        <p class="v2-rates">${RATES}</p>`,
+        foot: `<button class="btn btn-default" type="button" data-action="close-pop">Cancel</button><button class="btn btn-primary" type="button" data-action="save-cur">${R.saveError ? 'Try again' : 'Save'}</button>` });
+    }
+    if (R.pop === 'theme') {
+      return popup({ id: 'pt', title: 'Theme', body: `<div class="v2-opts" role="radiogroup" aria-labelledby="pt-title">${THEMES.map((t) => `<button class="v2-opt" type="button" role="radio" aria-checked="${R.pickTheme === t.id}" data-action="pick-theme" data-id="${t.id}"><span class="v2-mark" aria-hidden="true"></span><span class="t">${t.long}</span>${icon(t.ic)}</button>`).join('')}</div>
+        <p class="v2-rates">Kept on this device. Same as the system follows your phone or computer.</p>`,
+        foot: '<button class="btn btn-default" type="button" data-action="close-pop">Cancel</button><button class="btn btn-primary" type="button" data-action="save-theme">Save</button>' });
+    }
+    return '';
+  },
+  afterRender() {
+    const input = document.getElementById('name');
+    input?.addEventListener('input', () => { R.draft = input.value; });
+    input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') V.actions['save-name'](); });
+  },
+  escape() { if (R.pop) V.actions['close-pop'](); },
+  actions: {
+    open: (a) => {
+      Object.assign(R, { pop: a.dataset.pop, draft: state.name, error: '', pickCur: state.currency, pickTheme: state.schemePref, themeBefore: state.schemePref, saveError: false });
+      render(); (document.getElementById('name') ?? document.querySelector('.v2-opt[aria-checked="true"]'))?.focus();
+    },
+    'close-pop': () => {
+      const was = R.pop;
+      if (was === 'theme' && state.schemePref !== R.themeBefore) setScheme(R.themeBefore);
+      R.pop = null; render(); document.querySelector(`[data-pop="${was}"]`)?.focus();
+    },
+    'pick-cur': (a) => { R.pickCur = a.dataset.id; render(); document.querySelector(`[data-action="pick-cur"][data-id="${a.dataset.id}"]`)?.focus(); },
+    'pick-theme': (a) => { R.pickTheme = a.dataset.id; setScheme(a.dataset.id); render(); document.querySelector(`[data-action="pick-theme"][data-id="${a.dataset.id}"]`)?.focus(); },
+    'save-cur': () => {
+      if (state.page === 'save-error' && !R.saveError) { R.saveError = true; render(); return; }
+      const changed = R.pickCur !== state.currency;
+      state.currency = R.pickCur; V.done('currency', changed ? `Totals are now in ${R.pickCur}` : null);
+    },
+    'save-theme': () => { R.themeBefore = R.pickTheme; V.done('theme', 'Theme saved on this device'); },
+    'save-name': () => {
+      if (!R.draft.trim()) { R.error = 'Enter your name.'; render(); document.getElementById('name').focus(); return; }
+      const changed = R.draft.trim() !== state.name;
+      state.name = R.draft.trim(); V.done('name', changed ? 'Name saved' : null);
+    },
+  },
+  done(key, message) {
+    Object.assign(R, { pop: null, fresh: message ? key : null, saveError: false });
+    render(); R.fresh = null;
+    document.querySelector(`[data-pop="${key}"]`)?.focus();
+    if (message) toast(message);
+  },
+};
+
+
+const PAGES = V.PAGES;
+// Preview bar (review aid)
+document.body.insertAdjacentHTML('afterbegin', `<div class="pv-bar"><b>F-016 · ${V.DIRECTION.name}</b>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="tablet">Tablet</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>Screen</span>${PAGES.map((p) => `<button data-page-set="${p.id}">${p.label}</button>`).join('')}</div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <button data-action="notes" aria-expanded="false">About this direction</button>
+  <div class="pv-notes" id="notes" hidden><b>${V.DIRECTION.name}</b><p style="margin:4px 0 0">${V.DIRECTION.thesis}</p><ul>${V.DIRECTION.notes.map((n) => `<li>${n}</li>`).join('')}</ul></div></div>`);
+function setView(v) { stage.dataset.view = v; document.querySelectorAll('button[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); }
+setView(innerWidth >= 1200 ? 'desktop' : 'phone');
+
+document.addEventListener('click', (e) => {
+  const p = e.target.closest('[data-page-set]');
+  if (p) { go(p.dataset.pageSet); return; }
+  const s = e.target.closest('[data-scheme-set]');
+  if (s) { setScheme(s.dataset.schemeSet); render(); return; }
+  const v = e.target.closest('button[data-view]');
+  if (v) { setView(v.dataset.view); return; }
+  const a = e.target.closest('[data-action]');
+  if (!a) return;
+  if (a.classList.contains('scrim') && e.target.closest('[data-stop]')) return;
+  e.preventDefault();
+  ({
+    nav: () => { state.more = false; render(); toast(`${a.dataset.to} isn’t part of this prototype`); },
+    'add-tx': () => toast('Add transaction (F-018)'),
+    more: () => { state.more = !state.more; render(); },
+    'close-more': () => { state.more = false; render(); },
+    // The sun / moon button stays (open point 2): it sets Light or Dark
+    'flip-scheme': () => { setScheme(app.dataset.scheme === 'dark' ? 'light' : 'dark'); render(); },
+    ...(V.actions ?? {}),
+    notes: () => { const n = document.getElementById('notes'); n.hidden = !n.hidden; a.setAttribute('aria-expanded', String(!n.hidden)); },
+  })[a.dataset.action]?.(a, e);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  document.getElementById('notes').hidden = true;
+  if (state.more) { state.more = false; render(); return; }
+  V.escape?.();
+});
+applyScheme();
+go(PAGES[0].id);
+</script>
+</body>
+</html>
