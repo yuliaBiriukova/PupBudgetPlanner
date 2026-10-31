@@ -2,6 +2,20 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-10-31 (F-016 final prototype)
+
+**Done**
+- The owner chose variant 1 and asked about people whose money is in other currencies. Variant 4 (final) is
+  variant 1 with "Another currency" under Hryvnia / US dollar / Euro: the account form's searchable list of NBU
+  currencies, the person's own first. Any NBU currency works as the report currency because the total converts
+  through the hryvnia (F-017).
+- The design check passes; the list, a search, a picked PLN and Couldn't save were looked at at 375 and 1440 px,
+  light and dark, and tried in the Browser pane.
+- Test data: none.
+
+**Next**
+- Owner: approve variant 4 for implementation (and the open points 1, 2 and 4), or ask for changes.
+
 ## 2026-10-31 (F-016 design round 1)
 
 **Done**

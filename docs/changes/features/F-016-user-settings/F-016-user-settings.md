@@ -7,7 +7,7 @@
 | Status | In progress |
 | Branch | `feature/F-016-user-settings` |
 | Design | 3 HTML prototypes required |
-| Approved | — (design round 1 shown 2026-10-31) |
+| Approved | — (final prototype shown 2026-10-31) |
 
 ## Goal
 
@@ -82,6 +82,8 @@ on top; both dropped (icons only where they help find a row, in variant 2, plain
 | [2 · Rows that open](prototypes/variant-2.html) | The iOS pattern: one row per setting with its value; a tap opens a sheet (phone) or a dialog (desktop) with the choices and Save. The page is a summary, the pop-up does the work. |
 | [3 · Pick by seeing](prototypes/variant-3.html) | The risk: you pick the report currency by seeing your own total in each one (three cards with the amount set big), and the theme by its preview, like GitHub. More room, more obvious. |
 
+The owner chose variant 1 (2026-10-31).
+
 ### Open points (Claude's proposals)
 
 1. **Where the theme is kept:** on the device, as today (not on the account). A phone can be dark while the laptop is
@@ -89,12 +91,35 @@ on top; both dropped (icons only where they help find a row, in variant 2, plain
    Name and report currency are kept on the account.
 2. **The sun / moon button** in the sidebar and the phone's top bar stays: it sets Light or Dark; Settings is where
    "Same as the system" is picked again.
-3. **Report currency:** only UAH, USD and EUR (the acceptance criteria), not every NBU currency. It changes "In
+3. **Report currency:** ~~only UAH, USD and EUR~~ — changed in round 2: any NBU currency (see below). It changes "In
    total" on Accounts now and the reports later (M4).
 4. **Email** is shown but can't be changed; changing the password and deleting the account (F-027) come later and
    aren't shown yet.
 
-Chosen variant: —
+### Round 2: final prototype (2026-10-31)
+
+The owner liked variant 1 and asked what happens when someone keeps money in other currencies than UAH, USD and EUR.
+Accounts can be in any NBU currency already (F-014), and the total converts through the hryvnia (F-017), so any NBU
+currency works as the report currency without new rates.
+
+[Variant 4 (final)](prototypes/variant-4.html) is variant 1 with one change:
+
+- Hryvnia, US dollar and Euro stay one tap away. Under them, **Another currency** opens the account form's list
+  (F-014's `CurrencyField`): the person's own account currencies first ("Yours"), then every NBU currency, with a
+  search by code or name.
+- A currency picked from the list is marked like a picked choice (the accent and a check) and none of the three is;
+  picking one of the three again clears it.
+- Either way it saves at once with a notification, the total under it comes in in the new currency, and the rates
+  line lists the rates the total uses (the accounts' currencies and the report currency).
+- Everything else as variant 1.
+
+If approved, the acceptance criterion becomes "Choose report currency: UAH (default), USD, EUR or any other NBU
+currency".
+
+The design check passes; the list open, a search, PLN picked and Couldn't save were looked at in screenshots at 375
+and 1440 px, light and dark, and tried in the Browser pane.
+
+Chosen variant: 1, with any NBU currency (variant 4) — waiting for approval.
 
 ## Tests
 
