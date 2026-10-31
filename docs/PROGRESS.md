@@ -2,6 +2,25 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-01 (I-015 demo)
+
+**Done**
+- I-015 (phone pop-ups close with a swipe down and with Back) started on `improvement/I-015-sheet-swipe-and-back`.
+  Demo only, not approved, no code:
+  - References: Vaul's numbers taken as they are (close past 25 % of the height or on a 0.4 px/ms flick; 100 ms after
+    a scroll before the content can be dragged), Material and Android for Back.
+  - `prototypes/demo.html`: Accounts with the account form, the currency list over it, More and Add transaction, the
+    swipe and Back working as they would in `BottomSheet` / `ResponsiveDialog`.
+  - Three points for the owner: a quarter instead of a third, Forward onto a closed pop-up is skipped, the desktop
+    currency dropdown isn't closed by Back.
+- Checked: the design check passes (0 issues), scripted drags, Back, Forward, the More link, the desktop dialog and
+  reduced motion behave as planned, and screenshots at 375 and 1440 px, light and dark, were looked at (one fix: the
+  sheet's own focus ring). A real phone's touch isn't checked yet.
+- Test data: none; nothing was run against the database.
+
+**Next**
+- Owner: try the demo on a phone and approve I-015 for implementation, or ask for changes.
+
 ## 2026-10-31 (F-016 build)
 
 **Done**
