@@ -33,6 +33,19 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the F-016 PR. M3 continues with F-018 (quick add).
 
+## 2026-10-31 (plan: I-015)
+
+**Done**
+- I-015 (phone pop-ups close with a swipe down and with Back) planned on `plan/i015-sheet-swipe-and-back`, proposed
+  priority Medium. Found by the owner while reviewing F-016's prototype: the sheets have a grab handle that can't be
+  dragged, and Back leaves the page instead of closing the sheet.
+- The owner confirmed the priority and decided the open points: own swipe code in `BottomSheet` (no library), Back
+  closes the desktop dialog too, no "Discard changes?" question, built after F-016.
+- Test data: none.
+
+**Next**
+- Owner: review the planning PR. F-016 is still waiting for the final prototype's approval.
+
 ## 2026-10-31 (F-016 final prototype)
 
 **Done**
