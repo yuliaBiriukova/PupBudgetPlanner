@@ -120,6 +120,49 @@
   font-size: 30px;
 }
 
+/* Everything in the report currency at NBU rates (F-017), above each currency's total */
+.grandAmount {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--pup-font-display);
+  font-size: 34px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.rates {
+  margin: 6px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+/* The icon stays on the first line when the note wraps on the phone */
+.stale {
+  display: inline-flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.stale svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* Under the grand total each currency's total is smaller, the first one too */
+.perCurrency {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--pup-color-rule);
+}
+
+.perCurrency .totalAmount,
+.perCurrency .totalItem:first-child .totalAmount {
+  font-size: 18px;
+}
+
 /* Groups of cards; the columns come by the list's own width (a size container), not the window's */
 .groups {
   container: accounts / inline-size;
@@ -758,6 +801,14 @@
 
   .totalItem:first-child .totalAmount {
     font-size: 30px;
+  }
+
+  .grandAmount {
+    font-size: 40px;
+  }
+
+  .perCurrency .totalItem:first-child .totalAmount {
+    font-size: 18px;
   }
 
   .preview > * {

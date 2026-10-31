@@ -74,6 +74,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/total": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * "In total, in UAH": the accounts in use together in the report currency at today's NBU rates (F-017), or the
+         *     latest earlier ones, marked.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountsTotal"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{id}": {
         parameters: {
             query?: never;
@@ -1073,6 +1112,21 @@ export interface components {
             banks: components["schemas"]["BankItem"][];
             currencies: string[];
         };
+        /**
+         * @description "In total, in UAH" on the Accounts page (F-017): every account in use together in Currency (the
+         *     report currency) at the NBU rates of RatesDate, with the rates of the person's other currencies.
+         *     Total is empty when there are no rates for it (RatesStatus.Missing). With
+         *     accounts in the report currency only, no rates are needed: no date and no rates.
+         */
+        AccountsTotal: {
+            currency: string;
+            /** Format: double */
+            total: null | number | string;
+            /** Format: date */
+            ratesDate: null | string;
+            status: components["schemas"]["RatesStatus"];
+            rates: components["schemas"]["RateItem"][];
+        };
         /** @description One of the person's banks. */
         BankItem: {
             /** Format: uuid */
@@ -1178,6 +1232,17 @@ export interface components {
             detail?: null | string;
             instance?: null | string;
         };
+        /** @description One currency's rate in the total's currency: units of it for one unit of Currency. */
+        RateItem: {
+            currency: string;
+            /** Format: double */
+            rate: number | string;
+        };
+        /**
+         * @description Whether the rates are the asked day's, and if not, why.
+         * @enum {unknown}
+         */
+        RatesStatus: "Current" | "NotPublished" | "Unavailable" | "Missing";
         /**
          * @description Creating an account with email and password. The display name is what the family sees. While sign-up is
          *     invite-only, InviteToken is the token from the invite link (F-028).

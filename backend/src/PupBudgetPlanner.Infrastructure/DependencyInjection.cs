@@ -7,8 +7,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using PupBudgetPlanner.Application.Access;
 using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.Auth;
+using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Infrastructure.Access;
 using PupBudgetPlanner.Infrastructure.Accounts;
+using PupBudgetPlanner.Infrastructure.ExchangeRates;
 using PupBudgetPlanner.Infrastructure.Identity;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
@@ -38,6 +40,7 @@ public static class DependencyInjection
 
         services.AddIdentityStores();
         services.AddAccess(configuration);
+        services.AddExchangeRates(configuration);
         services.AddScoped<IAccountService, AccountService>();
 
         return services;
@@ -79,6 +82,21 @@ public static class DependencyInjection
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<IInvitationService, InvitationService>();
         services.AddScoped<IPeopleService, PeopleService>();
+    }
+
+    /// <summary>The NBU's rates, fetched on demand and kept in the database (F-017).</summary>
+    private static void AddExchangeRates(this IServiceCollection services, IConfiguration configuration)
+    {
+        var nbu = configuration.GetSection(NbuOptions.SectionName).Get<NbuOptions>() ?? new NbuOptions();
+        services.AddHttpClient<INbuClient, NbuClient>(http =>
+        {
+            http.BaseAddress = nbu.BaseAddress;
+            http.Timeout = nbu.Timeout;
+        });
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton<NbuGate>();
+        services.AddScoped<IExchangeRateStore, ExchangeRateStore>();
+        services.AddScoped<IExchangeRateService, ExchangeRateService>();
     }
 
     /// <summary>Applies pending EF Core migrations (one API instance, so start-up is a safe place).</summary>

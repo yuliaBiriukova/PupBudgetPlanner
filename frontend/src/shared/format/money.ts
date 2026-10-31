@@ -33,6 +33,20 @@ export function formatMoney(value: number, currency: string): string {
   return whole < 0 ? `${TRUE_MINUS}${text}` : text;
 }
 
+/**
+ * An exchange rate (F-017): one unit of `from` in `to`, as F-014's final prototype shows it: `$1 = 41.35 ₴`,
+ * `1 PLN = 11.30 ₴`. Unlike amounts it keeps its kopiyky: two decimals, or three significant digits below one
+ * (`1 JPY = 0.271 ₴`).
+ */
+export function formatRate(from: string, rate: number, to: string): string {
+  const unit = SIGN_BEFORE[from] ? `${SIGN_BEFORE[from]}1` : `1${NBSP}${from}`;
+  const [whole = '0', decimals] = (rate >= 1 ? rate.toFixed(2) : rate.toPrecision(3)).split('.');
+  const number = `${whole.replace(/\B(?=(\d{3})+(?!\d))/g, NBSP)}${decimals ? `.${decimals}` : ''}`;
+  const before = SIGN_BEFORE[to];
+  const value = before ? `${before}${number}` : `${number}${NBSP}${currencySign(to)}`;
+  return `${unit} = ${value}`;
+}
+
 /** The database keeps 16 digits before the point (`numeric(18,2)`). */
 const AMOUNT_LIMIT = 1e16;
 

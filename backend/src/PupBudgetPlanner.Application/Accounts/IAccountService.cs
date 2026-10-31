@@ -5,6 +5,12 @@ public interface IAccountService
 {
     Task<AccountsOverview> OverviewAsync(Guid userId, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// The accounts in use together in the report currency at today's NBU rates (F-017), apart from the overview so
+    /// the page doesn't wait for the NBU.
+    /// </summary>
+    Task<AccountsTotal> TotalAsync(Guid userId, CancellationToken cancellationToken);
+
     /// <summary>Adds the account, and its own source or bank when the name is new.</summary>
     Task<AccountItem> CreateAsync(Guid userId, SaveAccountRequest request, CancellationToken cancellationToken);
 

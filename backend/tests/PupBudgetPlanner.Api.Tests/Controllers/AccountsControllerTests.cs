@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PupBudgetPlanner.Api.Controllers;
 using PupBudgetPlanner.Application.Accounts;
+using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Domain.Accounts;
 
 namespace PupBudgetPlanner.Api.Tests.Controllers;
@@ -57,6 +58,17 @@ public sealed class AccountsControllerTests
             .Which.Value.Should().BeSameAs(overview);
         (await controller.Create(Request, CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeSameAs(Item);
+    }
+
+    [Fact]
+    public async Task The_total_is_the_signed_in_persons()
+    {
+        var total = new AccountsTotal(
+            "UAH", 52_174m, new DateOnly(2026, 11, 2), RatesStatus.Current, [new RateItem("USD", 41.35m)]);
+        accounts.TotalAsync(UserId, Arg.Any<CancellationToken>()).Returns(total);
+
+        (await controller.Total(CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
+            .Which.Value.Should().BeSameAs(total);
     }
 
     [Fact]

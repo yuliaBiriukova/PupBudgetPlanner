@@ -3,16 +3,17 @@ import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
   IconChevronDown,
+  IconInfoCircle,
   IconPlus,
   IconRefresh,
   IconRestore,
   IconTrash,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useId, useState } from 'react';
+import { Fragment, useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../shared/format/date';
-import { formatMoney } from '../../shared/format/money';
+import { formatMoney, formatRate } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
 import { AccountCard, AddCard } from './AccountCard';
 import { AccountDialog, type AccountDialogMode } from './AccountDialog';
@@ -27,9 +28,11 @@ import {
 import classes from './Accounts.module.css';
 import {
   accountsQuery,
+  accountsTotalQuery,
   useArchiveAccount,
   type Account,
   type AccountsOverview,
+  type AccountsTotal,
 } from './accountsApi';
 import { CountUp } from './CountUp';
 import { DeleteAccountDialog } from './DeleteAccountDialog';
@@ -44,6 +47,9 @@ interface Fresh {
   currency: string;
   amount: number;
 }
+
+/** The currency "In total" starts with until the API names it: the hryvnia until F-016 lets people choose. */
+const REPORT_CURRENCY = 'UAH';
 
 /** How long the ring shows (AccountCard.module.css). */
 const FRESH_MS = 1700;
@@ -265,29 +271,110 @@ export function AccountsPage() {
   );
 }
 
-/** "In total": each currency's total over the accounts in use. */
+/**
+ * "In total": everything in the report currency at today's NBU rates first, with the rates and their date (F-017),
+ * then each currency's total over the accounts in use. With the report currency only, its total is all there is.
+ */
 function Totals({ overview, fresh }: { overview: AccountsOverview; fresh?: Fresh }) {
   const { t } = useTranslation();
   const title = useCurrencyTitle();
+  const grand = useQuery(accountsTotalQuery);
+  const currency = grand.data?.currency ?? REPORT_CURRENCY;
+  const others = overview.totals.some((total) => total.currency !== currency);
 
   return (
     <div className={classes.totals} role="group" aria-label={t('accounts.totalsLabel')}>
-      <p className={classes.totalsLabel}>{t('accounts.inTotal')}</p>
-      <div className={classes.totalItems}>
-        {overview.totals.map((total) => (
-          <div key={total.currency} className={classes.totalItem}>
-            <span className={classes.totalWhat}>{title(total.currency)}</span>
-            <span className={cx(classes.totalAmount, total.total < 0 && classes.debt)}>
+      <div className={classes.grand}>
+        <p className={classes.totalsLabel}>{t('accounts.inTotalIn', { currency })}</p>
+        {grand.isPending ? (
+          <Skeleton
+            height={40}
+            width={240}
+            radius="sm"
+            role="status"
+            aria-label={t('accounts.rates.loading')}
+          />
+        ) : grand.data?.total == null ? (
+          <p className={cx(classes.rates, classes.stale)}>
+            <IconInfoCircle size={16} stroke={1.7} aria-hidden />
+            {t('accounts.rates.missing')}
+          </p>
+        ) : (
+          <>
+            <span className={cx(classes.grandAmount, grand.data.total < 0 && classes.debt)}>
               <CountUp
-                value={total.total}
-                currency={total.currency}
-                from={fresh?.currency === total.currency ? total.total - fresh.amount : undefined}
+                value={grand.data.total}
+                currency={currency}
+                from={freshFrom(grand.data, fresh)}
               />
             </span>
-          </div>
-        ))}
+            <Rates total={grand.data} />
+          </>
+        )}
       </div>
+      {others && (
+        <div className={cx(classes.totalItems, classes.perCurrency)}>
+          {overview.totals.map((total) => (
+            <div key={total.currency} className={classes.totalItem}>
+              <span className={classes.totalWhat}>{title(total.currency)}</span>
+              <span className={cx(classes.totalAmount, total.total < 0 && classes.debt)}>
+                <CountUp
+                  value={total.total}
+                  currency={total.currency}
+                  from={fresh?.currency === total.currency ? total.total - fresh.amount : undefined}
+                />
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
+  );
+}
+
+/**
+ * Where the grand total counts from after an account is added, restored or deleted: less the fresh account's balance
+ * at its rate. Nothing when its rate isn't there.
+ */
+function freshFrom(grand: AccountsTotal, fresh?: Fresh): number | undefined {
+  if (!fresh || grand.total === null) return undefined;
+  const rate =
+    fresh.currency === grand.currency
+      ? 1
+      : grand.rates.find((item) => item.currency === fresh.currency)?.rate;
+  return rate === undefined ? undefined : grand.total - fresh.amount * rate;
+}
+
+/** The rates under the grand total and their date; earlier ones say why (F-014's "Total: earlier rates"). */
+function Rates({ total }: { total: AccountsTotal }) {
+  const { t } = useTranslation();
+  if (total.rates.length === 0 || !total.ratesDate) return null;
+
+  const date = formatDate(new Date(`${total.ratesDate}T00:00`));
+  const rates = total.rates.map((item, i) => (
+    <Fragment key={item.currency}>
+      {i > 0 && ', '}
+      <span className={classes.num}>{formatRate(item.currency, item.rate, total.currency)}</span>
+    </Fragment>
+  ));
+
+  return (
+    <p className={classes.rates}>
+      {total.status === 'Current' ? (
+        t('accounts.rates.current', { date })
+      ) : (
+        <span className={classes.stale}>
+          <IconInfoCircle size={16} stroke={1.7} aria-hidden />
+          {t(
+            total.status === 'NotPublished'
+              ? 'accounts.rates.notPublished'
+              : 'accounts.rates.unavailable',
+            { date },
+          )}
+        </span>
+      )}{' '}
+      {rates}
+    </p>
   );
 }
 
