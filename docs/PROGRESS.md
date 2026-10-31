@@ -33,6 +33,62 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the F-017 PR. F-018 (quick add) is next in M3.
 
+## 2026-10-31 (F-015 build)
+
+**Done**
+- F-015 categories view built on `feature/F-015-categories-view`. The owner approved variant 7 on 2026-10-31
+  (recorded in the description file and DESIGN_RULES "Screen decisions" before any code):
+  - API: `GET /api/categories`, the person's groups and categories in the report's order, archived categories left
+    out. No migration.
+  - Menu: Categories after Reports (under More on the phone).
+  - Page: below 1200 px every group as tags, with Collapse all / Expand all. From 1200 px the list of groups and the
+    picked group's tags. Loading, Couldn't load and Empty states.
+  - Owner's review after trying it locally: on the phone and tablet every group starts folded except the one open on
+    the desktop (Income at first), and several can be open; the desktop shows one. Both layouts share the open
+    groups, remembered on the device. The E2E specs now find the More button by its exact name ("… and 6 more" in a
+    folded group matched it too).
+  - Decision: the wide layout starts at Mantine's `lg` (1200 px) and not the prototype's 1100 px, to keep to the
+    theme's breakpoints.
+  - New theme tokens for income and tags.
+- Checked after the review change: backend 209 tests, frontend 121 unit tests, lint, format, build and 44 E2E tests
+  (phone and desktop) pass. The screenshots at 375, 834 and 1440 px, light and dark, were looked at, including the
+  phone after a group was picked on the desktop. Folding was tried in the Browser pane.
+- Test data: the E2E runs and the two screenshot runs made `e2e-…@example.com` people on the `dev` database; the
+  cleanup teardown deleted them all, the screenshot people included. Nothing was made by hand.
+
+**Next**
+- Owner: review the F-015 PR.
+- Then F-016 (user settings) or F-017 (NBU rates).
+
+## 2026-10-31 (F-015 design round 1)
+
+**Done**
+- F-015 categories view started on `feature/F-015-categories-view`, design only (not approved, no code):
+  - References: Actual Budget, Lunch Money, Copilot Money, YNAB, Money Lover, and the owners' own sheet. Mobbin needs
+    a sign-in.
+  - 3 prototypes in `prototypes/`:
+    - 1, the sheet's first column, as its own menu item;
+    - 2, folded groups inside Settings;
+    - 3, an index of tags, as its own menu item.
+  - The design check passes on all three, and the screenshots and key states were looked at (details in the
+    description file).
+- Round 2: the owner liked variant 2 (in Settings) but not its folding groups on the phone and tablet or its
+  two-column list on the desktop. Variants 4–6 keep variant 2's place and desktop list of groups:
+  - 4, a group opens on its own screen; a panel on the desktop;
+  - 5, every group with tags on the phone; tags on the desktop;
+  - 6, one list with a sticky index of groups.
+
+  The design check passes on all three, and the screenshots and the tablet were looked at.
+
+- Round 3: the owner liked variant 5 and asked for groups that collapse and expand, and Categories in the main menu.
+  Variant 7 does both (folding on the phone and tablet; the desktop keeps variant 5's list and tags). The design
+  check passes, and the screenshots and the folding were looked at. Then, at the owner's request, no + or − next to
+  groups (they look like list markers); the words say the kind.
+- Test data: none; nothing was run against the database.
+
+**Next**
+- Owner: approve variant 7 for implementation, or ask for changes (approved the same day, see "F-015 build").
+
 ## 2026-10-31 (I-014)
 
 **Done**

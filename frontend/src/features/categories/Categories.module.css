@@ -1,0 +1,324 @@
+/* The Categories page (F-015, final prototype variant 7): groups of tags that fold on the phone and tablet; on the
+   desktop the list of groups and the picked group's tags */
+
+.head {
+  padding: 8px 0 18px;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dim {
+  margin: 8px 0 0;
+  color: var(--mantine-color-dimmed);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.textLink {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  color: var(--pup-color-accent);
+  font-weight: 500;
+}
+
+.textLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Tags: not buttons (no border, no pointer); income ones carry the income color */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--pup-color-tag);
+  font-size: 14px;
+}
+
+[data-kind='Income'] .tags li {
+  background: var(--pup-color-income-bg);
+  color: var(--pup-color-income);
+}
+
+/* Phone and tablet: the count and Collapse all, then the groups */
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin: -8px 0 8px;
+  color: var(--mantine-color-dimmed);
+}
+
+.kindLabel {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin: 20px 0 0;
+  padding: 4px 0 8px;
+  border-bottom: 1px solid var(--pup-color-rule);
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.group {
+  padding: 8px 0 16px;
+}
+
+.group[data-folded] {
+  padding-bottom: 8px;
+}
+
+.group + .group {
+  border-top: 1px solid var(--pup-color-rule);
+}
+
+.groupHeading {
+  margin: 0;
+  font: inherit;
+}
+
+/* The group's row is the button (name, count, arrow); its text lines up with the tags under it */
+.groupButton {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: calc(100% + 16px);
+  min-height: 52px;
+  margin: 0 -8px;
+  padding: 6px 8px;
+  border-radius: var(--mantine-radius-md);
+  text-align: left;
+}
+
+.groupButton:hover {
+  background: var(--pup-color-hover);
+}
+
+.groupText {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.groupName {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.preview {
+  overflow: hidden;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.chevron {
+  flex: none;
+  color: var(--mantine-color-dimmed);
+  transition: transform 160ms ease-out;
+}
+
+.groupButton[aria-expanded='false'] .chevron {
+  transform: rotate(-90deg);
+}
+
+.group .tags {
+  margin-top: 6px;
+}
+
+/* The one moment: a group's tags come out of its row when it opens */
+@keyframes tags-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.tagsIn {
+  animation: tags-in 160ms ease-out;
+}
+
+/* Desktop: the list of groups, the picked one marked like the menu, and its tags beside it */
+.intro {
+  margin: -8px 0 20px;
+  color: var(--mantine-color-dimmed);
+}
+
+.beside {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.beside .list li + li {
+  margin-top: 2px;
+}
+
+.indexLabel {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin: 0;
+  padding: 20px 12px 6px;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.indexButton {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 8px 10px 12px;
+  border-radius: var(--mantine-radius-md);
+  text-align: left;
+}
+
+.indexButton:hover {
+  background: var(--pup-color-hover);
+}
+
+.indexButton[aria-current='true'] {
+  background: var(--pup-color-active-bg);
+}
+
+.indexButton[aria-current='true'] .groupName {
+  color: var(--pup-color-accent);
+}
+
+.indexButton[aria-current='true']::before {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--pup-color-accent);
+  content: '';
+}
+
+.kindLine {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.detailTitle {
+  margin-top: 4px;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.detail .tags {
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.detail .tags li {
+  min-height: 44px;
+  padding: 0 18px;
+  font-size: 16px;
+}
+
+/* What was picked comes in from the right */
+@keyframes detail-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+}
+
+.detailIn {
+  animation: detail-in 180ms ease-out;
+}
+
+/* Comes later: a quiet line with an info icon, no box */
+.later {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 32px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.later > svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* States */
+.emptyBox {
+  max-width: 460px;
+  padding: 32px 0 8px;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-family: var(--pup-font-display);
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.3;
+}
+
+.errorBanner {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-error-bg);
+  color: var(--pup-color-error-text);
+}
+
+.errorBanner > svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.errorBanner p {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tagsIn,
+  .detailIn {
+    animation: none;
+  }
+
+  .chevron {
+    transition: none;
+  }
+}

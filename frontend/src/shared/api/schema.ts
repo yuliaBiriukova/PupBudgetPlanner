@@ -975,6 +975,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The groups in the report's order, each with the categories in use. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CategoriesOverview"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -1139,6 +1175,32 @@ export interface components {
          * @enum {unknown}
          */
         CardStyle: "Solid" | "Tinted" | "Envelope" | "Plain";
+        /**
+         * @description Everything the Categories page shows (F-015): the person's groups in the report's order, each with the categories
+         *     in use. Archived categories are left out: they stay only for the transactions and reports that use them.
+         */
+        CategoriesOverview: {
+            groups: components["schemas"]["CategoryGroupItem"][];
+        };
+        /** @description One of the person's category groups with its categories in the report's order. */
+        CategoryGroupItem: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            kind: components["schemas"]["CategoryKind"];
+            categories: components["schemas"]["CategoryItem"][];
+        };
+        /** @description One category in a group. */
+        CategoryItem: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        /**
+         * @description The report section of a group, and which form (expense or income) offers its categories.
+         * @enum {unknown}
+         */
+        CategoryKind: "Income" | "Expense";
         /**
          * @description The link just made. Token goes into `/invite/{token}`; it is never shown again, because
          *     only its hash is stored.

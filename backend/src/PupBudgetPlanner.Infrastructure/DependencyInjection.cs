@@ -7,9 +7,11 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using PupBudgetPlanner.Application.Access;
 using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.Auth;
+using PupBudgetPlanner.Application.Categories;
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Infrastructure.Access;
 using PupBudgetPlanner.Infrastructure.Accounts;
+using PupBudgetPlanner.Infrastructure.Categories;
 using PupBudgetPlanner.Infrastructure.ExchangeRates;
 using PupBudgetPlanner.Infrastructure.Identity;
 using PupBudgetPlanner.Infrastructure.Persistence;
@@ -42,6 +44,7 @@ public static class DependencyInjection
         services.AddAccess(configuration);
         services.AddExchangeRates(configuration);
         services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<ICategoryService, CategoryService>();
 
         return services;
     }

@@ -11,6 +11,7 @@
     "transactions": "Transactions",
     "accounts": "Accounts",
     "reports": "Reports",
+    "categories": "Categories",
     "family": "Family",
     "settings": "Settings",
     "more": "More",
@@ -256,6 +257,36 @@
       "none": "None yet."
     },
     "metaBlocked": "Blocked {{date}}, {{invitedWith}}"
+  },
+  "categories": {
+    "count_one": "{{count}} category",
+    "count_other": "{{count}} categories",
+    "groupCount_one": "{{count}} group",
+    "groupCount_other": "{{count}} groups",
+    "summary": "{{categories}} in {{groups}}",
+    "intro": "{{summary}}, in the order of your report.",
+    "kind": {
+      "Income": "Income",
+      "Expense": "Expenses"
+    },
+    "kindLine": "{{kind}}, {{count}}",
+    "groups": "Category groups",
+    "expenses": "Expenses",
+    "previewAll": "{{first}} and {{last}}",
+    "previewMore": "{{first}} and {{count}} more",
+    "none": "No categories",
+    "collapseAll": "Collapse all",
+    "expandAll": "Expand all",
+    "later": "Adding your own categories, renaming and removing them come after the first release.",
+    "loading": "Loading categories",
+    "errors": {
+      "load": "Couldn’t load your categories. Check the connection and try again.",
+      "retry": "Try again"
+    },
+    "empty": {
+      "title": "No categories here",
+      "text": "Every account starts with the default set, so this shouldn’t happen. Try again; if they’re still missing, tell Yulia."
+    }
   },
   "accounts": {
     "add": "Add account",

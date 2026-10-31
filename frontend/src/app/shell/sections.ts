@@ -1,5 +1,6 @@
 import {
   IconChartBar,
+  IconListTree,
   IconReceipt,
   IconSettings,
   IconUserShield,
@@ -8,7 +9,8 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 
-export type SectionId = 'transactions' | 'accounts' | 'reports' | 'family' | 'settings' | 'people';
+export type SectionId =
+  'transactions' | 'accounts' | 'reports' | 'categories' | 'family' | 'settings' | 'people';
 
 export interface Section {
   id: SectionId;
@@ -21,6 +23,7 @@ export const SECTIONS: readonly Section[] = [
   { id: 'transactions', path: '/transactions', icon: IconReceipt },
   { id: 'accounts', path: '/accounts', icon: IconWallet },
   { id: 'reports', path: '/reports', icon: IconChartBar },
+  { id: 'categories', path: '/categories', icon: IconListTree },
   { id: 'family', path: '/family', icon: IconUsers },
   { id: 'settings', path: '/settings', icon: IconSettings },
 ];
