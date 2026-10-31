@@ -101,6 +101,7 @@ owner asks for one.
 | [I-012](changes/improvements/I-012-dialog-title-spacing/I-012-dialog-title-spacing.md) | Less space between a pop-up's title and its content (all pop-ups) | Medium | Done |
 | [I-013](changes/improvements/I-013-banks-from-nbu/I-013-banks-from-nbu.md) | Suggest banks from the NBU's list instead of a list in the app (after F-017) | Low | Todo |
 | [I-014](changes/improvements/I-014-faster-local-tests/I-014-faster-local-tests.md) | Faster, steadier tests on the owner's laptop: no timeouts in unit and cold-start E2E runs | High | Done |
+| [I-015](changes/improvements/I-015-sheet-swipe-and-back/I-015-sheet-swipe-and-back.md) | Phone pop-ups close with a swipe down and with Back | Medium | Todo |
 
 ## Bugfixes
 
