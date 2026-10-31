@@ -2,6 +2,7 @@ import { Navigate, type RouteObject } from 'react-router';
 import { AccountsPage } from '../features/accounts/AccountsPage';
 import { GuestOnly, SignInPage, SignUpPage } from '../features/auth/AuthPages';
 import { InvitePage } from '../features/auth/InvitePage';
+import { CategoriesPage } from '../features/categories/CategoriesPage';
 import { FamilyPage } from '../features/family/FamilyPage';
 import { PeoplePage } from '../features/people/PeoplePage';
 import { ReportsPage } from '../features/reports/ReportsPage';
@@ -16,6 +17,7 @@ export const sectionRoutes: RouteObject[] = [
   { path: 'transactions', element: <TransactionsPage /> },
   { path: 'accounts', element: <AccountsPage /> },
   { path: 'reports', element: <ReportsPage /> },
+  { path: 'categories', element: <CategoriesPage /> },
   { path: 'family', element: <FamilyPage /> },
   { path: 'settings', element: <SettingsPage /> },
   // The admin's page (F-028); anyone else gets Page not found

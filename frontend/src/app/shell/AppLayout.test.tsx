@@ -75,7 +75,7 @@ describe('app shell on the desktop', () => {
       within(nav)
         .getAllByRole('link')
         .map((link) => link.textContent),
-    ).toEqual(['Transactions', 'Accounts', 'Reports', 'Family', 'Settings']);
+    ).toEqual(['Transactions', 'Accounts', 'Reports', 'Categories', 'Family', 'Settings']);
     expect(within(nav).getByRole('link', { name: 'Settings' })).toHaveAttribute(
       'aria-current',
       'page',
