@@ -200,7 +200,9 @@ body { display: flex; flex-direction: column; height: 100dvh; background: #d7dad
 /* Desktop: the list floats under the field over the page (the page doesn't move); phone: a sheet (see below) */
 .pick-wrap { position: relative; }
 .picker { position: absolute; z-index: 15; top: calc(100% + 8px); left: 0; right: 0; display: flex; flex-direction: column; height: 344px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); box-shadow: var(--shadow-float); }
-.picker .sa { flex: 1; }
+/* As tall as its rows, up to 344 px; past that the list scrolls (owner, 2026-10-31) */
+.picker { height: auto; max-height: 344px; }
+.picker .sa, .picker .sa-vp { flex: 0 1 auto; }
 .pick-sheet .dialog { height: 80%; }
 /* The rows' highlight lines up with the search box and the title (16 px from the edge) */
 .pick-sheet .dlg-body { display: flex; flex-direction: column; padding: 8px 16px 0; }

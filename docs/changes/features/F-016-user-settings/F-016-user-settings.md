@@ -116,6 +116,8 @@ currency works as the report currency without new rates.
   the browser's bar. Now it doesn't move the page: on the desktop it is a dropdown floating under the field (a click
   outside or Escape closes it); on the phone a sheet titled "Report currency", so the search and the keyboard have
   room. It scrolls with I-004's fading scroll bar. The account form keeps its list inside the form (F-014).
+- Owner's review: the dropdown is as tall as its rows, up to 344 px, and only then scrolls (a search with two
+  matches makes it short). The phone's sheet keeps its height, so it doesn't jump while typing.
 
 If approved, the acceptance criterion becomes "Choose report currency: UAH (default), USD, EUR or any other NBU
 currency".
