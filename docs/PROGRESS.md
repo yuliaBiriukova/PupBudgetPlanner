@@ -2,6 +2,28 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-01 (I-015 build)
+
+**Done**
+- I-015 built on `improvement/I-015-sheet-swipe-and-back`, as approved on 2026-11-01 (the owner's "implement" for the
+  demo with its three points as proposed; recorded in the description file and DESIGN_RULES before any code):
+  - `useSheetSwipe` in `BottomSheet`: drag the handle, the title, or the content from its top; closes past a quarter of
+    the height or on a flick, otherwise slides back; Mantine's own transitions do the rest, so reduced motion snaps.
+  - `usePopupHistory` in `BottomSheet` and the desktop dialog: one history step per open pop-up; Back closes the top
+    one, other ways of closing take the step away, Forward onto a closed one does nothing. More's sections replace
+    the sheet's step.
+  - ADR 0021; a DESIGN_RULES custom rule and "Screen decisions" row; a `SwipeAndBack` story.
+  - Tests: unit tests for both hooks, `sheets.spec.ts` (phone and desktop) with a real touch drag on the currency list.
+- Checked: backend 267 tests; frontend lint, format, typecheck, 149 unit tests, build, Storybook build and 50 E2E tests
+  (6 skipped: the 2 from before, and the new ones meant only for the phone or only for the desktop);
+  screenshots of the real sheets (form, mid-swipe, currency list over the form, More, desktop dialog) at 375 and
+  1440 px, light and dark; the story swiped and closed with Back in the Browser pane. Not checked: a real phone.
+- Test data: the E2E runs and one screenshot run made `e2e-…@example.com` people on the `dev` database; the cleanup
+  teardown deleted them after each run. Nothing was made by hand.
+
+**Next**
+- Owner: review the I-015 PR and try it on a phone. Then F-018 (quick add).
+
 ## 2026-11-01 (I-015 demo)
 
 **Done**

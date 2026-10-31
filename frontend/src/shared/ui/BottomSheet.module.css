@@ -23,13 +23,30 @@
   padding: 8px 16px 0;
 }
 
-.grab {
+/* The handle's row: a bigger place to start a swipe than the 4 px handle itself (I-015) */
+.grabZone {
   flex: none;
+  padding: 10px 0 2px;
+}
+
+.grab {
   width: 36px;
   height: 4px;
-  margin: 10px auto 2px;
+  margin: 0 auto;
   border-radius: 4px;
   background: var(--pup-color-rule);
+}
+
+/* Where a swipe starts the browser doesn't pan or zoom, so every move goes to the sheet (I-015) */
+.content [data-sheet-drag] {
+  touch-action: none;
+  cursor: grab;
+}
+
+.content[data-dragging],
+.content[data-dragging] [data-sheet-drag] {
+  cursor: grabbing;
+  user-select: none;
 }
 
 /* The space between the title and the content equals the one between the content and the buttons and the outer

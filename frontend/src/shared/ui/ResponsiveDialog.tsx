@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { DESKTOP_QUERY } from '../../app/shell/sections';
 import { BottomSheet } from './BottomSheet';
 import { FadingScrollArea } from './FadingScrollArea';
+import { usePopupHistory } from './popupHistory';
 import classes from './ResponsiveDialog.module.css';
 
 interface ResponsiveDialogProps {
@@ -18,7 +19,8 @@ interface ResponsiveDialogProps {
 
 /**
  * A dialog in the middle of the desktop screen and a sheet from the bottom on the phone (DESIGN_RULES corners:
- * 24 px). The title, the close button and the footer stay put; only the content scrolls (I-004).
+ * 24 px). The title, the close button and the footer stay put; only the content scrolls (I-004). Back closes it on
+ * both (I-015); the phone's sheet also closes with a swipe down.
  */
 export function ResponsiveDialog({
   opened,
@@ -29,6 +31,8 @@ export function ResponsiveDialog({
 }: ResponsiveDialogProps) {
   const { t } = useTranslation();
   const isDesktop = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
+  // The phone's BottomSheet takes its own history step
+  usePopupHistory(opened && isDesktop, onClose);
 
   if (!isDesktop) {
     return (

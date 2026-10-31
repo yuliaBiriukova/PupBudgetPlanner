@@ -99,7 +99,8 @@ export function MoreSheet({ opened, onClose, user, onSignOut }: MoreSheetProps) 
   return (
     <BottomSheet opened={opened} onClose={onClose} title={t('nav.more')} hideTitle>
       {moreSectionsFor(user).map(({ id, path, icon: Icon }) => (
-        <NavLink key={id} to={path} className={classes.menuItem} onClick={onClose}>
+        // replace: the section takes the sheet's history step, so Back from it goes to the page under the sheet (I-015)
+        <NavLink key={id} to={path} replace className={classes.menuItem} onClick={onClose}>
           <Icon size={20} stroke={1.6} />
           {t(`nav.${id}`)}
         </NavLink>
