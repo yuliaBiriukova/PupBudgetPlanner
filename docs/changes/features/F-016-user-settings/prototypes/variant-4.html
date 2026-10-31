@@ -203,6 +203,9 @@ body { display: flex; flex-direction: column; height: 100dvh; background: #d7dad
 /* As tall as its rows, up to 344 px; past that the list scrolls (owner, 2026-10-31) */
 .picker { height: auto; max-height: 344px; }
 .picker .sa, .picker .sa-vp { flex: 0 1 auto; }
+/* In the account form: placed by script under the field and over the dialog, so the dialog's edge doesn't cut it */
+.picker.floating { z-index: 25; right: auto; }
+.af-fields { display: grid; gap: 16px; }
 .pick-sheet .dialog { height: 80%; }
 /* The rows' highlight lines up with the search box and the title (16 px from the edge) */
 .pick-sheet .dlg-body { display: flex; flex-direction: column; padding: 8px 16px 0; }
@@ -318,14 +321,17 @@ mq.addEventListener('change', applyScheme);
 const NAV = [['receipt', 'Transactions'], ['wallet', 'Accounts'], ['chart', 'Reports'], ['tree', 'Categories'], ['users', 'Family'], ['settings', 'Settings']];
 
 // ---------- Shell ----------
+/** The section the page belongs to; a variant may say another (the account form is on Accounts). */
+const current = () => (typeof V !== 'undefined' && V.current?.()) || 'Settings';
 function shell(inner) {
+  const cur = current();
   const tabs = NAV.slice(0, 3);
   return `<div class="shell">
     <aside class="side" aria-label="Sections">
       <div class="side-head"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div>
       <button class="side-add" type="button" data-action="add-tx">${icon('plus')}Add transaction</button>
       <nav class="nav" aria-label="Main">
-        ${NAV.map(([i, l]) => `<a class="nav-link" href="#${l.toLowerCase()}"${l === 'Settings' ? ' aria-current="page"' : ''} data-action="nav" data-to="${l}">${icon(i)}${l}</a>`).join('')}
+        ${NAV.map(([i, l]) => `<a class="nav-link" href="#${l.toLowerCase()}"${l === cur ? ' aria-current="page"' : ''} data-action="nav" data-to="${l}">${icon(i)}${l}</a>`).join('')}
         <div class="nav-sep" role="presentation"></div>
         <a class="nav-link" href="#people" data-action="nav" data-to="People">${icon('people')}People</a>
       </nav>
@@ -336,11 +342,11 @@ function shell(inner) {
     <div class="column">
       <header class="top"><div class="brand"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div>
         <button class="icon-btn" type="button" data-action="flip-scheme" aria-label="Switch to ${app.dataset.scheme === 'dark' ? 'light' : 'dark'} mode">${icon(app.dataset.scheme === 'dark' ? 'sun' : 'moon')}</button>
-        <a class="avatar-link" href="#settings" aria-label="Settings" aria-current="page"><span class="avatar" data-initials="${esc(initials(state.name))}"></span></a></header>
+        <a class="avatar-link" href="#settings" aria-label="Settings"${cur === 'Settings' ? ' aria-current="page"' : ''}><span class="avatar" data-initials="${esc(initials(state.name))}"></span></a></header>
       <main class="main" tabindex="0"><div class="content">${inner}</div></main>
       <nav class="tabs" aria-label="Main">
-        ${tabs.map(([i, l]) => `<a class="tab" href="#${l.toLowerCase()}" data-action="nav" data-to="${l}">${icon(i)}<span class="tab-label">${l}</span></a>`).join('')}
-        <button class="tab" type="button" data-action="more" aria-expanded="${state.more}" data-active>${icon('dots')}<span class="tab-label">More</span></button>
+        ${tabs.map(([i, l]) => `<a class="tab" href="#${l.toLowerCase()}"${l === cur ? ' data-active aria-current="page"' : ''} data-action="nav" data-to="${l}">${icon(i)}<span class="tab-label">${l}</span></a>`).join('')}
+        <button class="tab" type="button" data-action="more" aria-expanded="${state.more}"${tabs.some(([, l]) => l === cur) ? '' : ' data-active'}>${icon('dots')}<span class="tab-label">More</span></button>
         <button class="tab-add" type="button" data-action="add-tx" aria-label="Add transaction">${icon('plus', 24)}</button>
       </nav>
     </div>
@@ -350,7 +356,7 @@ function moreSheet() {
   if (!state.more) return '';
   const items = [...NAV.slice(3), ['people', 'People']];
   return `<div class="scrim" data-action="close-more"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="more-title" data-stop><div class="dlg-head"><button class="icon-btn dlg-x" type="button" data-action="close-more" aria-label="Close">${icon('x')}</button><h2 id="more-title">More</h2></div><div class="dlg-body" style="padding-bottom:16px">
-    <ul class="list">${items.map(([i, l]) => `<li><a class="more-link" href="#${l.toLowerCase()}" data-action="nav" data-to="${l}"${l === 'Settings' ? ' aria-current="page"' : ''}>${icon(i)}${l}</a></li>`).join('')}
+    <ul class="list">${items.map(([i, l]) => `<li><a class="more-link" href="#${l.toLowerCase()}" data-action="nav" data-to="${l}"${l === current() ? ' aria-current="page"' : ''}>${icon(i)}${l}</a></li>`).join('')}
     <li><button class="more-link" type="button" data-action="nav" data-to="Sign out">${icon('logout')}Sign out</button></li></ul></div></div></div>`;
 }
 /** A pop-up: a sheet on the phone, a dialog on the desktop (I-012); buttons in the footer. */
@@ -403,14 +409,18 @@ const ratesLine = (report) => {
   const codes = [...new Set([...ACCOUNTS.map(([c]) => c), report])].filter((c) => c !== 'UAH');
   return `At the NBU rates of 31 Oct 2026: ${codes.map(rateText).join(', ')}.`;
 };
-const R = { draft: NAME, error: '', saveError: false, fresh: false, open: false, query: '' };
+/** `pickFor`: whose list is open, the report currency's or the account form's (the same list, owner 2026-10-31). */
+const R = { draft: NAME, error: '', saveError: false, fresh: false, open: false, query: '', pickFor: 'report' };
+/** The account form (F-014), here only to show its currency field with the same list. */
+const F = { open: false, cur: 'UAH' };
+const pickedFor = () => (R.pickFor === 'account' ? F.cur : state.currency);
 /** From 768 px the list is a dropdown under the field; below, a sheet. */
 const isWide = () => app.clientWidth >= 768;
 let wasWide = null;
 new ResizeObserver(() => { const w = isWide(); if (wasWide !== null && w !== wasWide && R.open) render(); wasWide = w; }).observe(app);
 // The dropdown closes on a click anywhere outside it and its field
 document.addEventListener('pointerdown', (e) => {
-  if (R.open && isWide() && !e.target.closest('.pick-wrap')) { R.open = false; R.query = ''; render(); }
+  if (R.open && isWide() && !e.target.closest('.pick-wrap, .picker')) { R.open = false; R.query = ''; render(); }
 });
 
 // ---------- I-004's scroll area: the thumb's size and place, and the edges with more behind them ----------
@@ -466,9 +476,11 @@ const V = {
       'Either way it saves at once, with a short notification, and your total right under it comes in in the new currency (the one moment). The rates line lists the rates the total uses.',
       'Here the person has 12 000 ₴, $500 and 1 000 PLN, so PLN is under “Yours” in the list.',
       'Everything else is variant 1: the name with its own Save, the email shown but not changeable, the theme (Light, Dark, System) kept on this device, the sun / moon button in the menu.',
+      'The account form’s Currency (F-014) gets the same list: a dropdown over the form on the desktop (it may reach past the form’s edge), a sheet over the form on the phone; your currencies first, then every NBU currency. See “Account form: currency”.',
       'The rates in this prototype are examples.',
     ],
   },
+  current: () => (F.open ? 'Accounts' : 'Settings'),
   PAGES: [
     { id: 'settings', label: 'Settings' },
     { id: 'name-edit', label: 'Changing the name' },
@@ -478,9 +490,13 @@ const V = {
     { id: 'other-picked', label: 'Picked PLN' },
     { id: 'save-error', label: 'Couldn’t save' },
     { id: 'loading', label: 'Loading' },
+    { id: 'form-list', label: 'Account form: currency' },
+    { id: 'form-search', label: 'Account form: searching' },
   ],
   go(id) {
-    Object.assign(R, { draft: NAME, error: '', saveError: id === 'save-error', fresh: false, open: id.startsWith('list-'), query: id === 'list-search' ? 'kr' : '' });
+    const form = id.startsWith('form-');
+    Object.assign(R, { draft: NAME, error: '', saveError: id === 'save-error', fresh: false, open: id.startsWith('list-') || form, query: id.endsWith('-search') ? (form ? 'pou' : 'kr') : '', pickFor: form ? 'account' : 'report' });
+    Object.assign(F, { open: form, cur: 'UAH' });
     if (id === 'name-edit') R.draft = 'Yulia B.';
     if (id === 'name-error') Object.assign(R, { draft: '', error: 'Enter your name.' });
     if (id === 'other-picked') state.currency = 'PLN';
@@ -490,12 +506,13 @@ const V = {
     const matches = (c) => !q || c.toLocaleLowerCase().includes(q) || NAMES[c].toLocaleLowerCase().includes(q);
     const mine = YOURS.filter(matches);
     const rest = Object.keys(NAMES).filter((c) => !YOURS.includes(c) && matches(c)).sort();
-    const item = (c) => `<li><button class="pick-item" type="button" aria-pressed="${c === state.currency}" data-action="pick-other" data-id="${c}"><b>${c}</b><span>${NAMES[c]}</span></button></li>`;
+    const item = (c) => `<li><button class="pick-item" type="button" aria-pressed="${c === pickedFor()}" data-action="pick-other" data-id="${c}"><b>${c}</b><span>${NAMES[c]}</span></button></li>`;
     if (!mine.length && !rest.length) return `<p class="pick-none">No currency matches “${esc(R.query.trim())}”. NBU publishes rates for about 40 currencies.</p>`;
     return `${mine.length ? `<h3 class="pick-h" id="pk-yours">Yours</h3><ul class="list" aria-labelledby="pk-yours">${mine.map(item).join('')}</ul>` : ''}
       ${rest.length ? `<h3 class="pick-h" id="pk-all">All NBU currencies</h3><ul class="list" aria-labelledby="pk-all">${rest.map(item).join('')}</ul>` : ''}`;
   },
   body(p) {
+    if (F.open) return '<div class="page-head"><h1>Accounts</h1></div><p class="muted">The Accounts page (F-014) behind the form.</p>';
     const head = '<div class="page-head"><h1>Settings</h1></div>';
     if (p === 'loading') {
       return head + skeleton([0, 1, 2].map((i) => `<div class="v1-sec"><div><span class="sk" style="width:${[120, 140, 80][i]}px;height:18px"></span><span class="sk" style="width:200px;margin-top:10px"></span></div><div><span class="sk" style="height:${i ? 52 : 48}px;border-radius:${i ? 999 : 12}px;max-width:480px"></span></div></div>`).join(''));
@@ -503,7 +520,7 @@ const V = {
     const dirty = R.draft.trim() !== state.name;
     const other = !QUICK.some((x) => x.id === state.currency);
     const seg = (name, items, picked, action) => `<div class="seg" role="radiogroup" aria-labelledby="${name}">${items.map((it) => `<button type="button" role="radio" aria-checked="${it.id === picked}" data-action="${action}" data-id="${it.id}">${it.ic ? icon(it.ic) : ''}${it.label}</button>`).join('')}</div>`;
-    const pickBtn = `<button class="pick-btn" type="button" data-action="toggle-list" aria-expanded="${R.open}"${R.open ? ' aria-controls="pk"' : ''}${other ? ' data-picked' : ''}>
+    const pickBtn = `<button class="pick-btn" id="rep-cur" type="button" data-action="toggle-list" data-for="report" aria-expanded="${R.open}"${R.open ? ' aria-controls="pk"' : ''}${other ? ' data-picked' : ''}>
       ${other ? `<span class="sr">Another currency: </span><b>${state.currency}</b><span class="what">${NAMES[state.currency]}</span>${icon('check').replace('class="ic"', 'class="ic ok"')}` : '<span class="ph">Another currency</span>'}${icon('selector')}</button>`;
     const picker = R.open && isWide() ? `<div class="picker" id="pk">${V.panel()}</div>` : '';
     return `${head}<div class="v1">
@@ -538,15 +555,44 @@ const V = {
     return `<div class="pick-search">${icon('search')}<input class="input" id="pk-q" type="search" aria-label="Search currencies" placeholder="Search: zloty, GBP" value="${esc(R.query)}" autocomplete="off"><button class="icon-btn" type="button" data-action="toggle-list" aria-label="Close the list">${icon('x')}</button></div>
       <div class="sa" data-sa><div class="sa-vp pick-scroll" id="pk-list">${V.list()}</div><div class="sa-track" aria-hidden="true"><div class="sa-thumb"></div></div></div>`;
   },
-  /** The phone: the list in a sheet, so the search and the keyboard have room. */
+  /** The account form (F-014, cut to the fields around Currency) and, for it, the list floating over the form. */
+  form() {
+    const open = R.open && R.pickFor === 'account';
+    return popup({ id: 'af', title: 'New account', body: `<div class="af-fields">
+        <div class="field"><label for="af-name">Name</label><input class="input" id="af-name" value="Pounds for London" maxlength="40"></div>
+        <div class="field"><label for="acc-cur">Currency</label>
+          <button class="pick-btn" id="acc-cur" type="button" data-action="toggle-list" data-for="account" aria-expanded="${open}"${open ? ' aria-controls="pk"' : ''}><b>${F.cur}</b><span class="what">${NAMES[F.cur]}</span>${icon('selector')}</button></div>
+        <div class="field"><label for="af-open">Opening balance</label><input class="input" id="af-open" inputmode="decimal" value="0"></div>
+        <p class="later">${icon('info', 16)}Source, bank, card style and date as in F-014.</p></div>`,
+      foot: '<button class="btn btn-default" type="button" data-action="close-form">Cancel</button><button class="btn btn-primary" type="button" data-action="close-form">Add account</button>' })
+      .replace('data-action="close-pop"', 'data-action="close-form"').replaceAll('data-action="close-pop"', 'data-action="close-form"')
+      + (open && isWide() ? `<div class="picker floating" id="pk">${V.panel()}</div>` : '');
+  },
+  /** The phone: the list in a sheet (over the form's sheet for an account), so the search and the keyboard have room. */
   overlay() {
-    if (!R.open || isWide()) return '';
-    return `<div class="scrim pick-sheet" data-action="toggle-list"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="pk-title" data-stop>
-      <div class="dlg-head"><button class="icon-btn dlg-x" type="button" data-action="toggle-list" aria-label="Close">${icon('x')}</button><h2 id="pk-title">Report currency</h2></div>
+    const form = F.open ? V.form() : '';
+    if (!R.open || isWide()) return form;
+    return `${form}<div class="scrim pick-sheet" data-action="toggle-list"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="pk-title" data-stop>
+      <div class="dlg-head"><button class="icon-btn dlg-x" type="button" data-action="toggle-list" aria-label="Close">${icon('x')}</button><h2 id="pk-title">${R.pickFor === 'account' ? 'Currency' : 'Report currency'}</h2></div>
       <div class="dlg-body" id="pk">${V.panel().replace(/<button class="icon-btn" type="button" data-action="toggle-list" aria-label="Close the list">.*?<\/button>/, '')}</div></div></div>`;
   },
-  escape() { if (R.open) V.actions['toggle-list'](); },
+  escape() { if (R.open) V.actions['toggle-list'](); else if (F.open) V.actions['close-form'](); },
+  /** Like Mantine's dropdown in a portal: under the field, over everything, never cut by the dialog. */
+  place() {
+    const el = document.querySelector('.picker.floating');
+    if (!el) return;
+    const b = document.getElementById('acc-cur').getBoundingClientRect();
+    const a = app.getBoundingClientRect();
+    Object.assign(el.style, { top: `${b.bottom - a.top + 8}px`, left: `${b.left - a.left}px`, width: `${b.width}px`, maxHeight: `${Math.min(344, a.bottom - b.bottom - 16)}px` });
+  },
   afterRender() {
+    // Placed now, once the layout has settled, and again whenever the dialog moves or its body scrolls
+    V.place(); requestAnimationFrame(V.place);
+    const dialog = document.querySelector('#af-title')?.closest('.dialog');
+    if (dialog && document.querySelector('.picker.floating')) {
+      new ResizeObserver(V.place).observe(dialog);
+      dialog.querySelector('.dlg-body').addEventListener('scroll', V.place, { passive: true });
+    }
     wireScrollAreas();
     const input = document.getElementById('name');
     input?.addEventListener('input', () => {
@@ -572,11 +618,16 @@ const V = {
   },
   actions: {
     'pick-cur': (a) => { V.save(a.dataset.id); document.querySelector(`[data-action="pick-cur"][data-id="${a.dataset.id}"]`)?.focus(); },
-    'pick-other': (a) => { V.save(a.dataset.id); document.querySelector('.pick-btn')?.focus(); },
-    'toggle-list': () => {
-      Object.assign(R, { open: !R.open, query: '' }); render();
-      (R.open ? document.getElementById('pk-q') : document.querySelector('.pick-btn'))?.focus();
+    'pick-other': (a) => {
+      if (R.pickFor === 'account') { Object.assign(R, { open: false, query: '' }); F.cur = a.dataset.id; render(); document.getElementById('acc-cur')?.focus(); return; }
+      V.save(a.dataset.id); document.getElementById('rep-cur')?.focus();
     },
+    'toggle-list': (a) => {
+      if (!R.open && a?.dataset.for) R.pickFor = a.dataset.for;
+      Object.assign(R, { open: !R.open, query: '' }); render();
+      (R.open ? document.getElementById('pk-q') : document.getElementById(R.pickFor === 'account' ? 'acc-cur' : 'rep-cur'))?.focus();
+    },
+    'close-form': () => { Object.assign(F, { open: false }); Object.assign(R, { open: false, pickFor: 'report' }); render(); },
     'retry-cur': () => { R.saveError = false; const code = R.pending ?? 'USD'; R.pending = null; state.page = 'settings'; V.save(code); },
     'pick-theme': (a) => { setScheme(a.dataset.id); render(); document.querySelector(`[data-action="pick-theme"][data-id="${a.dataset.id}"]`)?.focus(); },
     'name-cancel': () => { Object.assign(R, { draft: state.name, error: '' }); render(); },

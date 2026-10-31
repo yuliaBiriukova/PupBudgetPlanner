@@ -18,6 +18,9 @@ Personal preferences.
 - [ ] Change display name
 - [ ] Choose report currency (UAH default, USD, EUR)
 - [ ] Choose light/dark/system theme
+- [ ] (Round 2, owner) Every currency field — the report currency's "Another currency" and the account form's
+      Currency — opens the same list: a dropdown on the desktop, a sheet on the phone; the person's currencies
+      first, then the other NBU currencies, with a search
 
 ## Tasks
 
@@ -118,6 +121,11 @@ currency works as the report currency without new rates.
   room. It scrolls with I-004's fading scroll bar. The account form keeps its list inside the form (F-014).
 - Owner's review: the dropdown is as tall as its rows, up to 344 px, and only then scrolls (a search with two
   matches makes it short). The phone's sheet keeps its height, so it doesn't jump while typing.
+- Owner's review: **every currency field uses the same list**, the person's own currencies first, then the other NBU
+  currencies. Today that is also the account form's Currency (F-014's `CurrencyField`, which opens its list inside
+  the form): it becomes the same dropdown, over the dialog and not cut by its edge (Mantine's dropdown in a portal),
+  and on the phone a "Currency" sheet over the form's sheet. Built in F-016 as one shared component, so both fields
+  stay the same. See "Account form: currency" in the prototype.
 
 If approved, the acceptance criterion becomes "Choose report currency: UAH (default), USD, EUR or any other NBU
 currency".
