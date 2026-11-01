@@ -338,6 +338,9 @@ months too faint: now hidden, as in the prototype); every state at 375 and 1440 
 the display, keys and switch in the page's own color in dark mode; the phone's calendar not filling its sheet; the
 amount not in focus on the desktop when the form's data came after it opened).
 
+Owner's review of the PR (2026-11-01): the Note was Mantine's small default input; it is now the app's field, as the
+account form's Name (52 px, 16 px text, the fields' border).
+
 ## Tests
 
 - Unit (backend): `TransactionTests`, `BalanceSheetTests` (movements), `TransactionValidatorTests`,

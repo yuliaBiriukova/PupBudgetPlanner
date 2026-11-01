@@ -2,6 +2,15 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-01 (F-018 review: the note field)
+
+**Done**
+- Owner's review: the Note was Mantine's small default input, unlike the app's other fields. It is now the account
+  form's field: 52 px, 16 px text, the fields' border and surface. Screenshots at 375 and 1440 px, light and dark,
+  looked at; the form's unit tests, lint and typecheck pass.
+- Test data: one `e2e-manual-…@example.com` person with four accounts and seven transactions for the screenshots,
+  deleted through the admin API afterwards (checked).
+
 ## 2026-11-01 (F-018 built)
 
 **Done**

@@ -499,6 +499,7 @@ function TransactionForm({
             maxLength={NOTE_MAX_LENGTH}
             placeholder={t('transactions.form.notePlaceholder')}
             autoComplete="off"
+            classNames={{ input: classes.noteInput }}
             onChange={(event) => {
               change({ note: event.currentTarget.value });
             }}

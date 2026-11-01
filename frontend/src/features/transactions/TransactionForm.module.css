@@ -445,6 +445,15 @@
   outline-offset: 2px;
 }
 
+/* The note: the same field as the app's other forms (the account form's Name), not Mantine's small default */
+.noteInput {
+  height: 52px;
+  min-height: 52px;
+  border-color: var(--pup-color-field-border);
+  background: var(--pup-color-surface);
+  font-size: 16px;
+}
+
 /* The lists in a dropdown or a sheet: accounts and categories, as the app's other dropdowns (the currency list) */
 .dropdown {
   display: flex;
