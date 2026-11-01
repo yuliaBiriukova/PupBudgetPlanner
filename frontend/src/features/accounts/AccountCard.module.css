@@ -194,7 +194,7 @@ button.card:is([data-style='Plain'], [data-style='Envelope']):hover {
 }
 
 /* The split edge (F-018, variant 9): a column on the card's right after a thin rule in the card's colors; the whole
-   column is the + that adds a transaction from the account. 52 px on the phone; the Accounts page makes it 48 px from a
+   column is the + that adds a transaction from the account. 52 px on the phone; the Accounts page makes it 44 px from a
    tablet's list width (--card-edge) */
 .withEdge {
   display: grid;
@@ -206,12 +206,13 @@ button.card:is([data-style='Plain'], [data-style='Envelope']):hover {
 }
 
 .card[data-edge] {
-  padding-right: calc(var(--card-edge, 52px) + 18px);
+  padding-right: calc(var(--card-edge, 52px) + 16px);
 }
 
-/* The column takes the card's width away: the balance is sized from what is left, so it keeps its size */
+/* The column takes the card's width away: the balance is sized from the room left, and from its own length (--chars)
+   so a long amount still fits on one line (B-003) */
 .card[data-edge] .balance {
-  font-size: min(24px, 13.5cqi);
+  font-size: min(24px, 17cqi, calc(160cqi / var(--chars, 9)));
 }
 
 .edge {

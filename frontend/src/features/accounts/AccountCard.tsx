@@ -1,6 +1,6 @@
 import { UnstyledButton } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { formatMoney } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
 import classes from './AccountCard.module.css';
@@ -42,6 +42,7 @@ export function AccountCard({
   addLabel,
   className,
 }: AccountCardProps) {
+  const amount = formatMoney(balance, currency);
   const content = (
     <>
       <span className={classes.top}>
@@ -49,8 +50,12 @@ export function AccountCard({
         {code && <span className={classes.code}>{code}</span>}
         {meta && <span className={classes.meta}>{meta}</span>}
       </span>
-      <span className={cx(classes.balance, balance < 0 && classes.debt)}>
-        {formatMoney(balance, currency)}
+      <span
+        className={cx(classes.balance, balance < 0 && classes.debt)}
+        // Its length sizes it next to the split edge (B-003)
+        style={{ '--chars': amount.length } as CSSProperties}
+      >
+        {amount}
       </span>
     </>
   );

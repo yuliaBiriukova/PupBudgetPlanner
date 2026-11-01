@@ -2,6 +2,21 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-02 (B-003: smaller account cards, in the F-018 PR)
+
+**Done**
+- The owner found the account cards bigger than in the prototype. Root cause: the app shell caps pages at 880 px
+  (F-010) while the prototypes since F-014 drew 1040 px, so three cards fit per row instead of four. The owner chose
+  smaller cards over wider pages. Planned as B-003 (Medium) and fixed in the F-018 PR: cards from 180 px, four per row
+  on the desktop (190 × 119 px); the split edge 44 px there; the balance sized from the room left and its own length.
+- Checked: lint, format, typecheck, unit tests (185), build, Storybook build, E2E (52); screenshots at 375, 768 and
+  1440 px, light and dark, measured and looked at.
+- Test data: one `e2e-manual-…@example.com` person, removed by the E2E clean-up (checked).
+
+**Next**
+- Owner: review and merge PR #44.
+- The other pages are also narrower than their prototypes (880 px against 1040 px); not changed, as the owner chose.
+
 ## 2026-11-01 (F-018 review: split edge built)
 
 **Done**
