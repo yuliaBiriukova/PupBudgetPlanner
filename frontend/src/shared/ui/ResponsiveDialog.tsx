@@ -1,4 +1,4 @@
-import { Modal } from '@mantine/core';
+import { Modal, VisuallyHidden } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +15,14 @@ interface ResponsiveDialogProps {
   children: ReactNode;
   /** Buttons pinned under the content; a long content scrolls between the title and them (I-004). */
   footer?: ReactNode;
+  /** Shown in the title row in place of the title, which screen readers still hear as the name (F-018). */
+  heading?: ReactNode;
+  /** Buttons in the title row before the close button (F-018). */
+  actions?: ReactNode;
+  /** The desktop dialog's width; 480 px unless a form needs more room (F-018: 520 px). */
+  size?: number;
+  /** On the phone, as tall as a sheet goes: a form with its own keys under it (F-018). */
+  full?: boolean;
 }
 
 /**
@@ -28,6 +36,10 @@ export function ResponsiveDialog({
   title,
   children,
   footer,
+  heading,
+  actions,
+  size = 480,
+  full,
 }: ResponsiveDialogProps) {
   const { t } = useTranslation();
   const isDesktop = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
@@ -36,7 +48,15 @@ export function ResponsiveDialog({
 
   if (!isDesktop) {
     return (
-      <BottomSheet opened={opened} onClose={onClose} title={title} footer={footer}>
+      <BottomSheet
+        opened={opened}
+        onClose={onClose}
+        title={title}
+        footer={footer}
+        heading={heading}
+        actions={actions}
+        full={full}
+      >
         {children}
       </BottomSheet>
     );
@@ -48,14 +68,24 @@ export function ResponsiveDialog({
       onClose={onClose}
       centered
       radius="xl"
-      size={480}
+      size={size}
       padding="lg"
       classNames={{ content: classes.content }}
     >
       <Modal.Overlay />
       <Modal.Content>
-        <Modal.Header className={classes.header}>
-          <Modal.Title className={classes.title}>{title}</Modal.Title>
+        <Modal.Header className={classes.header} data-with-heading={heading ? true : undefined}>
+          {heading ? (
+            <>
+              <VisuallyHidden>
+                <Modal.Title>{title}</Modal.Title>
+              </VisuallyHidden>
+              <div className={classes.heading}>{heading}</div>
+            </>
+          ) : (
+            <Modal.Title className={classes.title}>{title}</Modal.Title>
+          )}
+          {actions}
           <Modal.CloseButton aria-label={t('common.close')} size="xl" radius="xl" />
         </Modal.Header>
         <FadingScrollArea autosize className={classes.scroll}>

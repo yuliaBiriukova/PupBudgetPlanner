@@ -75,6 +75,11 @@ button.card:is([data-style='Plain'], [data-style='Envelope']):hover {
   align-items: baseline;
 }
 
+/* The + in the top right corner (F-018) covers 44 px of the top row */
+.card[data-corner] .top {
+  padding-right: 40px;
+}
+
 .name {
   overflow: hidden;
   font-weight: 500;

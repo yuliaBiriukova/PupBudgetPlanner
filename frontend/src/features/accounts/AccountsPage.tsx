@@ -1,4 +1,11 @@
-import { Button, SegmentedControl, Skeleton, Title, UnstyledButton } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  SegmentedControl,
+  Skeleton,
+  Title,
+  UnstyledButton,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
@@ -35,13 +42,15 @@ import {
   type AccountsOverview,
   type AccountsTotal,
 } from './accountsApi';
-import { CountUp } from './CountUp';
+import { CountUp } from '../../shared/ui/CountUp';
+import { useTransactionForm, type LastChange } from '../transactions/transactionForm';
 import { DeleteAccountDialog } from './DeleteAccountDialog';
 import { TotalRates } from './TotalRates';
 
 /**
  * The account just added or restored: its card gets a ring and its currency's total counts up by `amount`. After a
- * delete (I-011) `amount` is minus the deleted balance, so the total counts down.
+ * delete (I-011) `amount` is minus the deleted balance, so the total counts down; after a transaction (F-018) it is
+ * what the transaction changed.
  */
 interface Fresh {
   id: string;
@@ -66,6 +75,8 @@ export function AccountsPage() {
   const [dialog, setDialog] = useState<{ mode: AccountDialogMode; opened: boolean; key: number }>();
   const [fresh, setFresh] = useState<Fresh>();
   const [deleting, setDeleting] = useState<Account>();
+  const transactionForm = useTransactionForm();
+  useFreshAfterTransaction(transactionForm.lastChange, accounts.data, setFresh);
 
   useEffect(() => {
     if (!fresh) return;
@@ -216,6 +227,9 @@ export function AccountsPage() {
                 onAdd={(preset) => {
                   openForm({ kind: 'new', preset });
                 }}
+                onAddTransaction={(account) => {
+                  transactionForm.add({ accountId: account.id });
+                }}
               />
             ))}
           </div>
@@ -270,6 +284,34 @@ export function AccountsPage() {
       )}
     </>
   );
+}
+
+/**
+ * After a transaction was saved or deleted (F-018): once the page has the new balance, the account's card gets its ring
+ * and the totals count by what changed. A change made before the page opened lights nothing.
+ */
+function useFreshAfterTransaction(
+  change: LastChange | undefined,
+  overview: AccountsOverview | undefined,
+  setFresh: (fresh: Fresh) => void,
+) {
+  const [waiting, setWaiting] = useState<LastChange>();
+  const [seen, setSeen] = useState(change?.key);
+  if (change && change.key !== seen) {
+    setSeen(change.key);
+    setWaiting(change);
+  }
+
+  const balance = waiting?.balances.at(-1);
+  const account = overview?.accounts.find((item) => item.id === balance?.accountId);
+  if (balance && account?.balance === balance.after) {
+    setWaiting(undefined);
+    setFresh({
+      id: account.id,
+      currency: account.currency,
+      amount: balance.after - balance.before,
+    });
+  }
 }
 
 /**
@@ -357,10 +399,12 @@ interface GroupProps {
   fresh?: Fresh;
   onOpen: (account: Account) => void;
   onAdd: (preset: FormPreset) => void;
+  /** The + on a card: a transaction from that account (F-018). */
+  onAddTransaction: (account: Account) => void;
 }
 
 /** One group of cards: its heading (and total, by currency), the cards, and the ghost card that adds to it. */
-function Group({ group, groupBy, fresh, onOpen, onAdd }: GroupProps) {
+function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: GroupProps) {
   const { t } = useTranslation();
   const currencyTitle = useCurrencyTitle();
   const headingId = useId();
@@ -412,7 +456,7 @@ function Group({ group, groupBy, fresh, onOpen, onAdd }: GroupProps) {
       </div>
       <ul className={classes.cards}>
         {accounts.map((account) => (
-          <li key={account.id}>
+          <li key={account.id} className={classes.cardWithAdd}>
             <AccountCard
               name={account.name}
               meta={groupBy === 'currency' ? sourceOf(account) : undefined}
@@ -421,11 +465,23 @@ function Group({ group, groupBy, fresh, onOpen, onAdd }: GroupProps) {
               currency={account.currency}
               cardStyle={account.cardStyle}
               isNew={fresh?.id === account.id}
+              withCorner
               className={classes.card}
               onClick={() => {
                 onOpen(account);
               }}
             />
+            <ActionIcon
+              variant="default"
+              radius="xl"
+              className={classes.cardAdd}
+              aria-label={t('accounts.addTransaction', { name: account.name })}
+              onClick={() => {
+                onAddTransaction(account);
+              }}
+            >
+              <IconPlus size={20} stroke={1.7} />
+            </ActionIcon>
           </li>
         ))}
         <li>
@@ -528,18 +584,21 @@ function Archived({
                 >
                   {t('accounts.archived.restore')}
                 </Button>
-                <Button
-                  radius="xl"
-                  variant="subtle"
-                  color="var(--mantine-color-error)"
-                  leftSection={<IconTrash size={20} stroke={1.7} />}
-                  aria-label={t('accounts.archived.deleteLabel', { name: account.name })}
-                  onClick={() => {
-                    onDelete(account);
-                  }}
-                >
-                  {t('accounts.archived.delete')}
-                </Button>
+                {/* An archived account with transactions keeps only Restore (I-011) */}
+                {account.transactionCount === 0 && (
+                  <Button
+                    radius="xl"
+                    variant="subtle"
+                    color="var(--mantine-color-error)"
+                    leftSection={<IconTrash size={20} stroke={1.7} />}
+                    aria-label={t('accounts.archived.deleteLabel', { name: account.name })}
+                    onClick={() => {
+                      onDelete(account);
+                    }}
+                  >
+                    {t('accounts.archived.delete')}
+                  </Button>
+                )}
               </span>
             </li>
           ))}

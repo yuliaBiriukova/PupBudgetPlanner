@@ -211,6 +211,33 @@
   white-space: nowrap;
 }
 
+/* A card with the + that adds a transaction from it in its top right corner (F-018): both share the grid cell, so
+   the + scrolls with the card */
+.cardWithAdd {
+  display: grid;
+}
+
+.cardWithAdd > * {
+  grid-area: 1 / 1;
+}
+
+.cardAdd {
+  align-self: start;
+  justify-self: end;
+  width: 44px;
+  height: 44px;
+  margin: 8px;
+  border: 1px solid var(--pup-color-rule);
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+}
+
+.cardAdd:hover {
+  border-color: var(--mantine-primary-color-filled);
+  background: var(--mantine-primary-color-filled);
+  color: var(--pup-color-on-primary);
+}
+
 .cards {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

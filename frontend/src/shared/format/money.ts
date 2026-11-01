@@ -6,6 +6,11 @@ const SIGN_BEFORE: Record<string, string> = { USD: '$', EUR: '€', GBP: '£' };
 
 const TRUE_MINUS = '−';
 
+/** Whether the currency's sign goes before the number (`$1 240`) rather than after it (`1 250 ₴`). */
+export function signBefore(currency: string): boolean {
+  return currency in SIGN_BEFORE;
+}
+
 /** The currency's sign: `$`, `€`, `£`, `₴`, or its code (`PLN`). */
 export function currencySign(currency: string): string {
   return SIGN_BEFORE[currency] ?? (currency === 'UAH' ? '₴' : currency);

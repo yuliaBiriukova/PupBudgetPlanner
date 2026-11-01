@@ -17,8 +17,10 @@ interface AccountCardProps {
   cardStyle: CardStyle;
   /** Opens the account; without it the card is a picture (the form's preview). */
   onClick?: () => void;
-  /** Just added or restored: a short accent ring. */
+  /** Just added or restored, or its balance just changed: a short accent ring. */
   isNew?: boolean;
+  /** A button sits in its top right corner (the + that adds a transaction, F-018): the name keeps clear of it. */
+  withCorner?: boolean;
   className?: string;
 }
 
@@ -32,6 +34,7 @@ export function AccountCard({
   cardStyle,
   onClick,
   isNew,
+  withCorner,
   className,
 }: AccountCardProps) {
   const content = (
@@ -50,6 +53,7 @@ export function AccountCard({
     className: cx(classes.card, className),
     'data-style': cardStyle,
     'data-new': isNew ? true : undefined,
+    'data-corner': withCorner ? true : undefined,
   };
 
   return onClick ? (

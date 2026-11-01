@@ -84,7 +84,7 @@ export const PhoneAddOpen: Story = {
     await userEvent.click(await canvas.findByRole('button', { name: 'Add transaction' }));
 
     await expect(
-      await within(document.body).findByRole('dialog', { name: 'Add transaction' }),
+      await within(document.body).findByRole('dialog', { name: 'Add expense' }),
     ).toBeInTheDocument();
   },
 };

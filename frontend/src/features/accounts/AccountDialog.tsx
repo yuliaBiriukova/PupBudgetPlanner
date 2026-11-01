@@ -89,6 +89,8 @@ export function AccountDialog({
     onDeleted,
   });
   const endId = useId();
+  const deleteTextId = useId();
+  const hasTransactions = (account?.transactionCount ?? 0) > 0;
   const [values, setValues] = useState<AccountFormValues>(() =>
     account ? formFor(account) : blankForm(overview, mode.kind === 'new' ? mode.preset : {}),
   );
@@ -304,6 +306,8 @@ export function AccountDialog({
           currencies={overview.currencies}
           yours={yourCurrencies(overview)}
           hint={account ? t('accounts.form.currencyFixed') : undefined}
+          // Its transactions are in its currency (F-018)
+          disabled={hasTransactions}
         />
 
         <SourceField
@@ -396,8 +400,15 @@ export function AccountDialog({
           </div>
           <div className={classes.endRow}>
             <span className={classes.endName}>{t('accounts.form.end.delete')}</span>
-            <span className={classes.endText}>{t('accounts.form.end.deleteText')}</span>
+            <span className={classes.endText} id={deleteTextId}>
+              {hasTransactions
+                ? t('accounts.form.end.deleteOff', { count: account.transactionCount })
+                : t('accounts.form.end.deleteText')}
+            </span>
             <Button
+              // Only an account without transactions can be deleted; one with them can be archived (I-011)
+              disabled={hasTransactions}
+              aria-describedby={hasTransactions ? deleteTextId : undefined}
               radius="xl"
               variant="outline"
               color="var(--mantine-color-error)"

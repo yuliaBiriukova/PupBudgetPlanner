@@ -1,0 +1,102 @@
+import { Popover, type PopoverProps } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
+import type { ReactElement, ReactNode } from 'react';
+import { DESKTOP_QUERY } from '../../app/shell/sections';
+import { BottomSheet } from '../../shared/ui/BottomSheet';
+import { FadingScrollArea } from '../../shared/ui/FadingScrollArea';
+import classes from './TransactionForm.module.css';
+
+interface PickerProps {
+  opened: boolean;
+  onClose: () => void;
+  /** The sheet's title on the phone, the dropdown's name on the desktop. */
+  title: string;
+  /** The button that opens it; the dropdown hangs under it. */
+  target: ReactElement;
+  children: ReactNode;
+  /** Pinned over the list: a search. */
+  top?: ReactNode;
+  /** The dropdown's width: the target's, or at least this many pixels. */
+  width?: number | 'target';
+  position?: PopoverProps['position'];
+  /** Turns up above the target when there is no room under it (the calendar is never cut off). */
+  flip?: boolean;
+  /** A sheet that keeps its height while its list is searched. */
+  tall?: boolean;
+  /**
+   * A list: on the desktop it scrolls in the dropdown, as tall as its rows up to this height (the sheet scrolls by
+   * itself on the phone).
+   */
+  listHeight?: number;
+}
+
+/**
+ * A list or the calendar the form opens (F-018): a dropdown under its button on the desktop, over the dialog, as the
+ * app's other dropdowns (the currency list, F-016); a sheet over the form on the phone.
+ */
+export function Picker({
+  opened,
+  onClose,
+  title,
+  target,
+  children,
+  top,
+  width = 'target',
+  position = 'bottom-start',
+  flip = false,
+  tall,
+  listHeight,
+}: PickerProps) {
+  const isDesktop = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
+
+  if (!isDesktop) {
+    return (
+      <>
+        {target}
+        <BottomSheet opened={opened} onClose={onClose} title={title} top={top} tall={tall}>
+          {children}
+        </BottomSheet>
+      </>
+    );
+  }
+
+  return (
+    <Popover
+      opened={opened}
+      onChange={(next) => {
+        if (!next) onClose();
+      }}
+      position={position}
+      offset={8}
+      middlewares={{ flip, shift: true, size: flip ? false : { padding: 16 } }}
+      width={width}
+      withinPortal
+      // Its roles would give the button another id; the button says aria-expanded itself
+      withRoles={false}
+      returnFocus
+      closeOnEscape
+      classNames={{ dropdown: classes.dropdown }}
+    >
+      <Popover.Target>{target}</Popover.Target>
+      <Popover.Dropdown
+        aria-label={title}
+        role="dialog"
+        miw={typeof width === 'number' ? width : 320}
+      >
+        {top && <div className={classes.dropdownSearch}>{top}</div>}
+        {listHeight ? (
+          <FadingScrollArea
+            autosize
+            mah={listHeight}
+            className={classes.listScroll}
+            data-first={top ? undefined : true}
+          >
+            {children}
+          </FadingScrollArea>
+        ) : (
+          children
+        )}
+      </Popover.Dropdown>
+    </Popover>
+  );
+}

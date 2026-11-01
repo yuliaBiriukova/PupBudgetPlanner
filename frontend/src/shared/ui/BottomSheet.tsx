@@ -19,6 +19,15 @@ interface BottomSheetProps {
   top?: ReactNode;
   /** A set height (80 % of the screen) instead of the content's, so a list being searched doesn't jump. */
   tall?: boolean;
+  /** As tall as a sheet goes (90 % of the screen): a form with its own keys under it (F-018). */
+  full?: boolean;
+  /**
+   * Shown in the title row in place of the title, which screen readers still hear as the sheet's name (the
+   * transaction form's Expense / Income switch, F-018).
+   */
+  heading?: ReactNode;
+  /** Buttons in the title row before the close button (the transaction form's Delete, F-018). */
+  actions?: ReactNode;
 }
 
 /**
@@ -34,6 +43,9 @@ export function BottomSheet({
   footer,
   top,
   tall,
+  full,
+  heading,
+  actions,
 }: BottomSheetProps) {
   const { t } = useTranslation();
   usePopupHistory(opened, onClose);
@@ -48,7 +60,11 @@ export function BottomSheet({
       classNames={{ content: classes.content }}
     >
       <Drawer.Overlay ref={setOverlay} />
-      <Drawer.Content ref={setContent} data-tall={tall ? true : undefined}>
+      <Drawer.Content
+        ref={setContent}
+        data-tall={tall ? true : undefined}
+        data-full={full ? true : undefined}
+      >
         {/* The handle and the title are where a swipe starts (data-sheet-drag) */}
         <div className={classes.grabZone} data-sheet-drag aria-hidden="true">
           <div className={classes.grab} />
@@ -58,8 +74,22 @@ export function BottomSheet({
             <VisuallyHidden>{title}</VisuallyHidden>
           </Drawer.Title>
         ) : (
-          <Drawer.Header className={classes.header} data-sheet-drag>
-            <Drawer.Title className={classes.title}>{title}</Drawer.Title>
+          <Drawer.Header
+            className={classes.header}
+            data-sheet-drag
+            data-with-heading={heading ? true : undefined}
+          >
+            {heading ? (
+              <>
+                <VisuallyHidden>
+                  <Drawer.Title>{title}</Drawer.Title>
+                </VisuallyHidden>
+                <div className={classes.heading}>{heading}</div>
+              </>
+            ) : (
+              <Drawer.Title className={classes.title}>{title}</Drawer.Title>
+            )}
+            {actions}
             <Drawer.CloseButton size="xl" aria-label={t('common.close')} />
           </Drawer.Header>
         )}

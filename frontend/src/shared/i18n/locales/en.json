@@ -28,16 +28,12 @@
     "addTransaction": "Add transaction",
     "signOut": "Sign out"
   },
-  "add": {
-    "comingSoon": "Adding expenses, income and transfers is coming soon."
-  },
   "wake": {
     "message": "Waking up the server…",
     "seconds": "{{seconds}} s",
     "connected": "Connected"
   },
   "placeholder": {
-    "transactions": "Your expenses, income and transfers will be listed here.",
     "reports": "Monthly and yearly reports, like your spreadsheet, will be here.",
     "family": "Invite your family and see your money together here."
   },
@@ -372,7 +368,9 @@
         "archiveText": "Hide it from the list and the totals, keep its history. You can restore it.",
         "delete": "Delete for good",
         "deleteText": "Remove it for good. This can’t be undone.",
-        "deleteButton": "Delete"
+        "deleteButton": "Delete",
+        "deleteOff_one": "It has {{count}} transaction, so it can only be archived. Only an account without transactions can be deleted.",
+        "deleteOff_other": "It has {{count}} transactions, so it can only be archived. Only an account without transactions can be deleted."
       }
     },
     "validation": {
@@ -399,7 +397,8 @@
       "keep": "Keep it",
       "confirm": "Delete for good",
       "done": "{{name}} deleted"
-    }
+    },
+    "addTransaction": "Add a transaction from {{name}}"
   },
   "settings": {
     "loading": "Loading your settings",
@@ -485,5 +484,102 @@
     "yours": "Yours",
     "all": "All NBU currencies",
     "none": "No currency matches “{{query}}”. NBU publishes rates for about 40 currencies."
+  },
+  "transactions": {
+    "types": {
+      "Expense": "Expense",
+      "Income": "Income"
+    },
+    "add": {
+      "Expense": "Add expense",
+      "Income": "Add income"
+    },
+    "edit": {
+      "Expense": "Edit expense",
+      "Income": "Edit income"
+    },
+    "form": {
+      "type": "Type",
+      "dateLabel": "Date: ",
+      "thisWeek": "This week",
+      "weekBefore": "The week before",
+      "weekAfter": "The week after",
+      "pickDay": "Pick a day in the calendar",
+      "calendar": "Date",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "account": "Account",
+      "accountLabel": "Account: ",
+      "accounts": "Your accounts",
+      "amount": "Amount",
+      "keys": "Amount keys",
+      "key": {
+        "back": "Delete the last digit",
+        "minus": "Minus",
+        "plus": "Plus",
+        "equals": "Work out the sum"
+      },
+      "category": "Category",
+      "allCategories": "All categories",
+      "searchCategories": "Search categories",
+      "searchPlaceholder": "Search: taxi, rent",
+      "closeList": "Close the list",
+      "often": "Often",
+      "noCategory": "No category matches “{{query}}”.",
+      "note": "Note",
+      "notePlaceholder": "Silpo, lunch with Vlad",
+      "save": "Save",
+      "saveExpense": "Save expense",
+      "saveIncome": "Save income",
+      "saveChanges": "Save changes",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteLabel": {
+        "Expense": "Delete this expense",
+        "Income": "Delete this income"
+      },
+      "loading": "Loading the form",
+      "loadError": "Couldn’t load your accounts and categories.",
+      "retry": "Try again",
+      "noAccounts": "Add an account first: the money has to come from somewhere, or go somewhere.",
+      "goToAccounts": "Go to Accounts"
+    },
+    "errors": {
+      "amount": "Enter the amount.",
+      "amountZero": "The amount must be more than zero.",
+      "sumZero": "The sum must be more than zero.",
+      "category": "Pick a category.",
+      "save": "Couldn’t save. Check the connection and try again: nothing you typed is lost."
+    },
+    "saved": {
+      "Expense": "Expense saved",
+      "Income": "Income saved",
+      "changes": "Changes saved",
+      "deleted": "Deleted",
+      "balance": "{{what}}. {{account}}:"
+    },
+    "delete": {
+      "title": {
+        "Expense": "Delete this expense?",
+        "Income": "Delete this income?"
+      },
+      "where": "{{category}}, {{account}}",
+      "after": "{{account}} goes back to {{amount}}. This can’t be undone.",
+      "keep": "Keep it",
+      "confirm": "Delete",
+      "error": "Couldn’t delete it. Check the connection and try again."
+    },
+    "list": {
+      "note": "Your latest transactions. Open one to change or delete it. The full list with filters comes later.",
+      "today": "Today, {{date}}",
+      "yesterday": "Yesterday, {{date}}",
+      "loading": "Loading transactions",
+      "error": "Couldn’t load your transactions.",
+      "retry": "Try again",
+      "emptyTitle": "No transactions yet",
+      "emptyText": "Add an expense or an income: the + is always at hand."
+    }
   }
 }

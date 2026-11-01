@@ -1,7 +1,8 @@
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import type { CSSProperties } from 'react';
 import { Outlet } from 'react-router';
-import { AddTransactionSheet } from './AddTransactionSheet';
+import { TransactionFormProvider } from '../../features/transactions/TransactionFormProvider';
+import { useTransactionForm } from '../../features/transactions/transactionForm';
 import classes from './AppLayout.module.css';
 import { MoreSheet, TabBar, TopBar } from './PhoneBars';
 import { DESKTOP_QUERY, type ShellUser } from './sections';
@@ -16,12 +17,26 @@ interface AppLayoutProps {
   onSignOut?: () => void;
 }
 
-/** The frame around every page: sidebar on desktop; top bar, tab bar and More on the phone. */
-export function AppLayout({ user, onSignOut }: AppLayoutProps) {
+/**
+ * The frame around every page: sidebar on desktop; top bar, tab bar and More on the phone. The + in the sidebar and the
+ * tab bar opens the quick-add form (F-018), which every page inside can open too.
+ */
+export function AppLayout(props: AppLayoutProps) {
+  return (
+    <TransactionFormProvider>
+      <Shell {...props} />
+    </TransactionFormProvider>
+  );
+}
+
+function Shell({ user, onSignOut }: AppLayoutProps) {
   const isDesktop = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
   const sidebar = useSidebar();
   const wake = useServerWake();
-  const [addOpened, add] = useDisclosure(false);
+  const form = useTransactionForm();
+  const add = () => {
+    form.add();
+  };
   const [moreOpened, more] = useDisclosure(false);
 
   return (
@@ -30,7 +45,7 @@ export function AppLayout({ user, onSignOut }: AppLayoutProps) {
       data-resizing={sidebar.resizing || undefined}
       style={{ '--sidebar-width': `${String(sidebar.columnWidth)}px` } as CSSProperties}
     >
-      {isDesktop && <Sidebar state={sidebar} user={user} onAdd={add.open} onSignOut={onSignOut} />}
+      {isDesktop && <Sidebar state={sidebar} user={user} onAdd={add} onSignOut={onSignOut} />}
       <div className={classes.column}>
         {!isDesktop && <TopBar user={user} />}
         <WakePill waking={wake.waking} seconds={wake.seconds} />
@@ -39,12 +54,11 @@ export function AppLayout({ user, onSignOut }: AppLayoutProps) {
             <Outlet />
           </div>
         </main>
-        {!isDesktop && <TabBar onAdd={add.open} onMore={more.open} user={user} />}
+        {!isDesktop && <TabBar onAdd={add} onMore={more.open} user={user} />}
       </div>
       {!isDesktop && (
         <MoreSheet opened={moreOpened} onClose={more.close} user={user} onSignOut={onSignOut} />
       )}
-      <AddTransactionSheet opened={addOpened} onClose={add.close} />
     </div>
   );
 }
