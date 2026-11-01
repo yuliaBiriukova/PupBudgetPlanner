@@ -366,6 +366,14 @@ form. Checked: the design check passes with 0 issues for every option (it found 
 the prototype's cards, fixed); close-ups of each option at 375 and 1440 px, light and dark, looked at (the + was first
 drawn in the page's colors next to a Solid card, nearly invisible: the card's colors now cover the + too).
 
+The owner chose **D · Split edge** (2026-11-01). [Variant 9 (final)](prototypes/variant-9.html) is the Accounts page
+with only it: a column on each card's right after a thin rule in the card's colors (dashed on an envelope card), 52 px
+on the phone and 48 px from a tablet's width, the plus centred in the card's muted color, a soft tint of the card's own
+color under the pointer. The balance is sized from the narrower content so it keeps today's size. Waiting for the
+owner's approval before the app changes. Checked: the design check passes with 0 issues; close-ups of every screen
+(Accounts, Hover on +, After a save) at 375 and 1440 px, light and dark, looked at (the desktop balance had shrunk to
+14 px next to the column, fixed).
+
 ## Tests
 
 - Unit (backend): `TransactionTests`, `BalanceSheetTests` (movements), `TransactionValidatorTests`,

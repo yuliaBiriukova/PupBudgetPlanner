@@ -2,6 +2,16 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-01 (F-018 review: split edge chosen, final prototype)
+
+**Done**
+- The owner chose option D (split edge). Variant 9 (final) has only it, with the balance kept at today's size next to
+  the column. Design check 0 issues; close-ups at 375 and 1440 px, light and dark, looked at.
+- Test data: none.
+
+**Next**
+- Owner: approve variant 9 for implementation, or ask for changes.
+
 ## 2026-11-01 (F-018 review: the + on account cards, round 6)
 
 **Done**
