@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import en from '../src/shared/i18n/locales/en.json' with { type: 'json' };
 import { antiforgery, newPerson, signUpThroughApi } from './auth.ts';
+import { NBU_STUB, STUB_RATES } from './nbu.ts';
 
 // Each run starts with a person of its own, so the first visit has no accounts; cleanup.teardown.ts deletes them
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -33,8 +34,9 @@ test('a person adds accounts and sees their balances and totals, then archives o
   form = page.getByRole('dialog', { name: en.accounts.form.newTitle });
   await form.getByLabel(en.accounts.form.name, { exact: true }).fill('Dollars at home');
   await form.getByRole('button', { name: en.accounts.form.currency }).click();
-  await form.getByLabel(en.accounts.picker.search).fill('dollar');
-  await form.getByRole('button', { name: /USD\s*US dollar/ }).click();
+  // The list opens over the form (a dropdown on the desktop, a sheet on the phone, F-016), not inside it
+  await page.getByLabel(en.currencyPicker.search).fill('dollar');
+  await page.getByRole('button', { name: /USD\s*US dollar/ }).click();
   await form.getByRole('radio', { name: en.accounts.cash }).click();
   await expect(form.getByRole('radio', { name: en.accounts.form.styles.Envelope })).toBeChecked();
   await form.getByLabel(en.accounts.form.opening).fill('500');
@@ -43,6 +45,17 @@ test('a person adds accounts and sees their balances and totals, then archives o
 
   await expect(totals).toContainText('$500');
   await expect(page.getByRole('region', { name: 'US dollar' })).toContainText('Dollars at home');
+
+  // In total, in UAH at today's NBU rates (F-017): the stub's in CI, the real NBU's locally
+  await expect(totals).toContainText('In total, in UAH');
+  if (NBU_STUB) {
+    // 21 501 + 500 × 41.35 (STUB_RATES)
+    expect(STUB_RATES.USD).toBe(41.35);
+    await expect(totals).toContainText(/42\s176\s₴/);
+    await expect(totals).toContainText(/At NBU rates of \d{1,2} \w{3} \d{4}: \$1 = 41\.35\s₴/);
+  } else {
+    await expect(totals).toContainText(/At NBU rates of \d{1,2} \w{3} \d{4}: \$1 = \d+\.\d{2}\s₴/);
+  }
 
   // By source: cash and the bank (the switch's radio buttons are hidden behind their labels)
   await page

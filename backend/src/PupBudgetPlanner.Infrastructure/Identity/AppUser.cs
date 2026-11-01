@@ -13,4 +13,7 @@ public sealed class AppUser : IdentityUser<Guid>
 
     /// <summary>When the admin took the person's access away; empty while they can sign in (F-028).</summary>
     public DateTimeOffset? BlockedAt { get; set; }
+
+    /// <summary>The currency totals and reports are shown in, picked in Settings (F-016); the hryvnia at first.</summary>
+    public string ReportCurrency { get; set; } = Application.ExchangeRates.ReportCurrency.Default;
 }

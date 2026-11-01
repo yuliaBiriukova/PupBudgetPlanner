@@ -1,4 +1,4 @@
-import type { Account, AccountsOverview } from './accountsApi';
+import type { Account, AccountsOverview, AccountsTotal } from './accountsApi';
 
 /** The final prototype's accounts (F-014), for tests and stories. */
 export const account = (id: string, name: string, extra: Partial<Account> = {}): Account => ({
@@ -133,4 +133,17 @@ export const EMPTY: AccountsOverview = {
   sources: [],
   banks: [],
   currencies: CURRENCIES,
+};
+
+/** "In total, in UAH" for these accounts at the prototype's rates (F-017). */
+export const TOTAL: AccountsTotal = {
+  currency: 'UAH',
+  total: 310133 + 1740 * 41.35 + 300 * 48.1 + 640 * 11.3,
+  ratesDate: '2026-10-30',
+  status: 'Current',
+  rates: [
+    { currency: 'USD', rate: 41.35 },
+    { currency: 'EUR', rate: 48.1 },
+    { currency: 'PLN', rate: 11.3 },
+  ],
 };

@@ -409,6 +409,35 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.ToTable("category_groups", (string)null);
                 });
 
+            modelBuilder.Entity("PupBudgetPlanner.Domain.ExchangeRates.ExchangeRate", b =>
+                {
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<string>("Currency")
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("currency")
+                        .IsFixedLength();
+
+                    b.Property<decimal>("RateToUah")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)")
+                        .HasColumnName("rate_to_uah");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("source");
+
+                    b.HasKey("Date", "Currency")
+                        .HasName("pk_exchange_rates");
+
+                    b.ToTable("exchange_rates", (string)null);
+                });
+
             modelBuilder.Entity("PupBudgetPlanner.Domain.Invitations.Invitation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -538,6 +567,14 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean")
                         .HasColumnName("phone_number_confirmed");
+
+                    b.Property<string>("ReportCurrency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)")
+                        .HasDefaultValue("UAH")
+                        .HasColumnName("report_currency");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")

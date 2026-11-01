@@ -18,7 +18,7 @@ async function signIn(page: Page, person: Pick<Person, 'email' | 'password'>) {
 
 async function signOut(page: Page, isMobile: boolean) {
   if (isMobile) {
-    await page.getByRole('button', { name: en.nav.more }).click();
+    await page.getByRole('button', { name: en.nav.more, exact: true }).click();
     await page
       .getByRole('dialog', { name: en.nav.more })
       .getByRole('button', { name: en.shell.signOut })

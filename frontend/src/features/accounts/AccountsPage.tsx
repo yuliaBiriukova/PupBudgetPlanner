@@ -3,6 +3,7 @@ import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
   IconChevronDown,
+  IconInfoCircle,
   IconPlus,
   IconRefresh,
   IconRestore,
@@ -13,6 +14,7 @@ import { useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../shared/format/date';
 import { formatMoney } from '../../shared/format/money';
+import { useCurrencyTitle } from '../../shared/i18n/currencyNames';
 import { cx } from '../../shared/ui/cx';
 import { AccountCard, AddCard } from './AccountCard';
 import { AccountDialog, type AccountDialogMode } from './AccountDialog';
@@ -27,13 +29,15 @@ import {
 import classes from './Accounts.module.css';
 import {
   accountsQuery,
+  accountsTotalQuery,
   useArchiveAccount,
   type Account,
   type AccountsOverview,
+  type AccountsTotal,
 } from './accountsApi';
 import { CountUp } from './CountUp';
 import { DeleteAccountDialog } from './DeleteAccountDialog';
-import { useCurrencyTitle } from './currencyNames';
+import { TotalRates } from './TotalRates';
 
 /**
  * The account just added or restored: its card gets a ring and its currency's total counts up by `amount`. After a
@@ -44,6 +48,9 @@ interface Fresh {
   currency: string;
   amount: number;
 }
+
+/** The currency "In total" starts with until the API names the person's own (F-016): the hryvnia. */
+const REPORT_CURRENCY = 'UAH';
 
 /** How long the ring shows (AccountCard.module.css). */
 const FRESH_MS = 1700;
@@ -265,30 +272,83 @@ export function AccountsPage() {
   );
 }
 
-/** "In total": each currency's total over the accounts in use. */
+/**
+ * "In total": everything in the report currency at today's NBU rates first, with the rates and their date (F-017),
+ * then each currency's total over the accounts in use. With the report currency only, its total is all there is.
+ */
 function Totals({ overview, fresh }: { overview: AccountsOverview; fresh?: Fresh }) {
   const { t } = useTranslation();
   const title = useCurrencyTitle();
+  const grand = useQuery(accountsTotalQuery);
+  const currency = grand.data?.currency ?? REPORT_CURRENCY;
+  const others = overview.totals.some((total) => total.currency !== currency);
 
   return (
     <div className={classes.totals} role="group" aria-label={t('accounts.totalsLabel')}>
-      <p className={classes.totalsLabel}>{t('accounts.inTotal')}</p>
-      <div className={classes.totalItems}>
-        {overview.totals.map((total) => (
-          <div key={total.currency} className={classes.totalItem}>
-            <span className={classes.totalWhat}>{title(total.currency)}</span>
-            <span className={cx(classes.totalAmount, total.total < 0 && classes.debt)}>
+      <div className={classes.grand}>
+        <p className={classes.totalsLabel}>{t('accounts.inTotalIn', { currency })}</p>
+        {grand.isPending ? (
+          <Skeleton
+            height={40}
+            width={240}
+            radius="sm"
+            role="status"
+            aria-label={t('accounts.rates.loading')}
+          />
+        ) : grand.data?.total == null ? (
+          <p className={cx(classes.rates, classes.stale)}>
+            <IconInfoCircle size={16} stroke={1.7} aria-hidden />
+            {t('accounts.rates.missing')}
+          </p>
+        ) : (
+          <>
+            <span className={cx(classes.grandAmount, grand.data.total < 0 && classes.debt)}>
               <CountUp
-                value={total.total}
-                currency={total.currency}
-                from={fresh?.currency === total.currency ? total.total - fresh.amount : undefined}
+                value={grand.data.total}
+                currency={currency}
+                from={freshFrom(grand.data, fresh)}
               />
             </span>
-          </div>
-        ))}
+            <TotalRates total={grand.data} />
+          </>
+        )}
       </div>
+      {others && (
+        <div className={cx(classes.totalItems, classes.perCurrency)}>
+          {overview.totals.map((total) => (
+            <div key={total.currency} className={classes.totalItem}>
+              <span className={classes.totalWhat}>{title(total.currency)}</span>
+              <span className={cx(classes.totalAmount, total.total < 0 && classes.debt)}>
+                <CountUp
+                  value={total.total}
+                  currency={total.currency}
+                  from={fresh?.currency === total.currency ? total.total - fresh.amount : undefined}
+                />
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
+}
+
+/**
+ * Where the grand total counts from after an account is added, restored or deleted: less the fresh account's balance
+ * at its rate. Nothing when its rate isn't there.
+ */
+function freshFrom(grand: AccountsTotal, fresh?: Fresh): number | undefined {
+  if (!fresh || grand.total === null) return undefined;
+  const from = hryvniasFor(grand, fresh.currency);
+  const to = hryvniasFor(grand, grand.currency);
+  return from === undefined || to === undefined
+    ? undefined
+    : grand.total - (fresh.amount * from) / to;
+}
+
+/** Hryvnias for one unit, as the NBU gives the rates (F-016); the hryvnia's own is 1. */
+function hryvniasFor(grand: AccountsTotal, currency: string): number | undefined {
+  return currency === 'UAH' ? 1 : grand.rates.find((item) => item.currency === currency)?.rate;
 }
 
 interface GroupProps {

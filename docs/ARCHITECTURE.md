@@ -146,6 +146,7 @@ erDiagram
 | `CardStyle` | `Solid`, `Tinted`, `Envelope`, `Plain` | `Account.CardStyle` | How the account's card looks; a new account starts with its source's style (F-014) |
 | `FamilyRole` | `Owner`, `Member` | `FamilyMember.Role` | The owner can invite and remove members |
 | `RateSource` | `Nbu` | `ExchangeRate.Source` | Where the rate came from; leaves room for other sources |
+| `RatesStatus` | `Current`, `NotPublished`, `Unavailable`, `Missing` | API only (`AccountsTotal.Status`) | Whether the rates are the asked day's, and if not, why (F-017) |
 
 **Storage:** enums are C# `enum` types in the Domain layer and are stored in PostgreSQL **as text**
 (`"Expense"`, `"Solid"`) with EF Core `HasConversion<string>()`, in a `varchar` column with a maximum length.
@@ -166,10 +167,19 @@ erDiagram
 
 ### Exchange rates
 
-- Source: NBU open API (`bank.gov.ua/NBUStatService/v1/statdirectory/exchange`), which has history.
-- Rates are fetched **on demand** for a date that is missing and cached in the `ExchangeRate` table.
+- Source: NBU open API (`bank.gov.ua/NBUStatService/v1/statdirectory/exchange`), which has history. Rates are
+  hryvnias for one unit.
+- Rates are fetched **on demand** for a date that is missing and cached in the `exchange_rates` table: one NBU call
+  brings the whole day, all currencies (F-017, [ADR 0019](decisions/0019-exchange-rate-cache.md)).
   (No background timer: the free API service sleeps, so timers are unreliable.)
-- If the NBU API is unavailable, the latest known earlier rate is used and the UI marks it.
+- If the NBU hasn't published the day or can't be reached, the latest earlier kept rates are used and marked
+  (`RatesStatus`: `NotPublished`, `Unavailable`; `Missing` when there are none); they are never stored under the
+  later date. After a failed call the NBU is left alone for 5 minutes.
+- "Today" is Kyiv's date. `Conversion` (Domain, pure) converts through the hryvnia, so any report currency works.
+- Each person picks their report currency in Settings (F-016): the hryvnia or any other NBU currency, kept on the
+  account (`users.report_currency`). Totals give the rates they used in hryvnias, as the NBU publishes them
+  ([ADR 0020](decisions/0020-user-settings.md)).
+- The NBU's address is configuration (`Nbu:BaseAddress`); the E2E run in CI points it at a stub.
 
 ## Authentication
 

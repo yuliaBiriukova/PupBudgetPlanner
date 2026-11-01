@@ -11,6 +11,7 @@ import {
 import { useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { currencySign, formatMoney } from '../../shared/format/money';
+import { CurrencyPicker } from '../../shared/ui/CurrencyPicker';
 import { cx } from '../../shared/ui/cx';
 import { ResponsiveDialog } from '../../shared/ui/ResponsiveDialog';
 import { AccountCard, CardStyleMini } from './AccountCard';
@@ -37,7 +38,6 @@ import {
   type SourceChoice,
 } from './accountForm';
 import { yourCurrencies } from './accountGroups';
-import { CurrencyField } from './CurrencyField';
 import { useDeleteQuestion } from './useDeleteQuestion';
 import {
   CARD_STYLES,
@@ -294,7 +294,9 @@ export function AccountDialog({
           data-autofocus={account ? undefined : true}
         />
 
-        <CurrencyField
+        <CurrencyPicker
+          label={t('accounts.form.currency')}
+          sheetTitle={t('accounts.form.currency')}
           value={values.currency}
           onChange={(currency) => {
             change({ ...values, currency });

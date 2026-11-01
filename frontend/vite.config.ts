@@ -44,5 +44,8 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
     restoreMocks: true,
+    // Half the owner's 8 threads: as fast as the default 7 workers there (about 24 s), and the laptop stays usable
+    // (I-014). `isolate: false` was 7 s faster but lets one file's state leak into the next.
+    maxWorkers: 4,
   },
 });

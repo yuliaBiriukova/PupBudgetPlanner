@@ -1,7 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { amountText, currencySign, formatMoney, parseAmount, wholeAmount } from './money';
+import {
+  amountText,
+  currencySign,
+  formatMoney,
+  formatRate,
+  parseAmount,
+  wholeAmount,
+} from './money';
 
 const NBSP = ' ';
+
+describe('formatRate', () => {
+  it('shows one unit with its sign or code, and the rate with two decimals', () => {
+    expect(formatRate('USD', 41.3523, 'UAH')).toBe(`$1 = 41.35${NBSP}₴`);
+    expect(formatRate('EUR', 48.1, 'UAH')).toBe(`€1 = 48.10${NBSP}₴`);
+    expect(formatRate('PLN', 11.3, 'UAH')).toBe(`1${NBSP}PLN = 11.30${NBSP}₴`);
+  });
+
+  it('keeps three significant digits below one, and splits thousands', () => {
+    expect(formatRate('JPY', 0.27118, 'UAH')).toBe(`1${NBSP}JPY = 0.271${NBSP}₴`);
+    expect(formatRate('VND', 0.0015743, 'UAH')).toBe(`1${NBSP}VND = 0.00157${NBSP}₴`);
+    expect(formatRate('KWD', 1350.5, 'UAH')).toBe(`1${NBSP}KWD = 1${NBSP}350.50${NBSP}₴`);
+    expect(formatRate('UAH', 0.0242, 'USD')).toBe(`1${NBSP}UAH = $0.0242`);
+  });
+});
 
 describe('formatMoney', () => {
   it('puts $, € and £ before the number and the hryvnia sign or the code after it, without cents', () => {

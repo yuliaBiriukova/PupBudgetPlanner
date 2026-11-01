@@ -1,5 +1,6 @@
-import { Text } from '@mantine/core';
+import { Button, Text } from '@mantine/core';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useState } from 'react';
 import { fn } from 'storybook/test';
 import { BottomSheet } from './BottomSheet';
 import { LongCategoryList, SaveButtons } from './storyContent';
@@ -52,4 +53,39 @@ export const LongWithButtons: Story = {
 export const LongWithButtonsDark: Story = {
   ...LongWithButtons,
   globals: { colorScheme: 'dark' },
+};
+
+/**
+ * Try it (I-015): drag the handle or the title down, or the list from its top; let go past a quarter of the height or
+ * flick, and it closes; Back closes it too. "Open the sheet" brings it back.
+ */
+export const SwipeAndBack: Story = {
+  args: {
+    title: 'Categories to show',
+    children: <LongCategoryList />,
+    footer: <SaveButtons />,
+  },
+  render: function SwipeAndBackStory(args) {
+    const [opened, setOpened] = useState(true);
+    return (
+      <>
+        <Button
+          m="md"
+          onClick={() => {
+            setOpened(true);
+          }}
+        >
+          Open the sheet
+        </Button>
+        <BottomSheet
+          {...args}
+          opened={opened}
+          onClose={() => {
+            setOpened(false);
+            args.onClose();
+          }}
+        />
+      </>
+    );
+  },
 };

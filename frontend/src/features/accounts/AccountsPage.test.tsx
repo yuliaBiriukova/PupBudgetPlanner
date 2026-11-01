@@ -5,18 +5,43 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
-import type { AccountsOverview } from './accountsApi';
+import type { AccountsOverview, AccountsTotal, RatesStatus } from './accountsApi';
 import { account, EMPTY, OVERVIEW } from './accountsTestData';
 
 /** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
 const LOADED = { timeout: 4000 };
 
-/** The API with these accounts; returns what the page sent. */
-function accountsServer(first: AccountsOverview = OVERVIEW, after: AccountsOverview = first) {
+/** The prototype's NBU rates (F-017). */
+const RATES: Record<string, number> = { USD: 41.35, EUR: 48.1, PLN: 11.3 };
+
+/** "In total, in UAH" as the API answers it for these accounts; earlier rates are of Friday. */
+function totalFor(overview: AccountsOverview, status: RatesStatus = 'Current'): AccountsTotal {
+  const others = overview.totals.filter((total) => total.currency !== 'UAH');
+  if (status === 'Missing')
+    return { currency: 'UAH', total: null, ratesDate: null, status, rates: [] };
+  return {
+    currency: 'UAH',
+    total: overview.totals.reduce(
+      (sum, total) => sum + total.total * (RATES[total.currency] ?? 1),
+      0,
+    ),
+    ratesDate: others.length === 0 ? null : status === 'Current' ? '2026-11-02' : '2026-10-30',
+    status,
+    rates: others.map((total) => ({ currency: total.currency, rate: RATES[total.currency] ?? 0 })),
+  };
+}
+
+/** The API with these accounts and NBU rates; returns what the page sent. */
+function accountsServer(
+  first: AccountsOverview = OVERVIEW,
+  after: AccountsOverview = first,
+  rates: RatesStatus = 'Current',
+) {
   const sent: { url: string; body: unknown }[] = [];
   let overview = first;
   server.use(
     http.get('/api/accounts', () => HttpResponse.json(overview)),
+    http.get('/api/accounts/total', () => HttpResponse.json(totalFor(overview, rates))),
     http.post('/api/accounts', async ({ request }) => {
       const body = await request.json();
       sent.push({ url: '/api/accounts', body });
@@ -284,4 +309,101 @@ describe('the Accounts page', () => {
     );
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
   });
+});
+
+describe('In total, in UAH (F-017)', () => {
+  it('starts with everything in hryvnias at today’s NBU rates, with the rates and their date', async () => {
+    accountsServer();
+    renderApp('/accounts');
+
+    const totals = await screen.findByRole('group', { name: 'Totals' }, LOADED);
+    expect(totals).toHaveTextContent('In total, in UAH');
+    expect(await within(totals).findByText('403 744 ₴')).toBeInTheDocument();
+    expect(totals).toHaveTextContent(
+      'At NBU rates of 2 Nov 2026: $1 = 41.35 ₴, €1 = 48.10 ₴, 1 PLN = 11.30 ₴',
+    );
+    // Then each currency on its own
+    expect(totals).toHaveTextContent('310 133 ₴');
+    expect(totals).toHaveTextContent('$1 740');
+  });
+
+  it('says when today’s rates aren’t published yet and uses the earlier ones', async () => {
+    accountsServer(OVERVIEW, OVERVIEW, 'NotPublished');
+    renderApp('/accounts');
+
+    const totals = await screen.findByRole('group', { name: 'Totals' }, LOADED);
+    expect(
+      await within(totals).findByText(
+        'NBU hasn’t published today’s rates yet. At the rates of 30 Oct 2026:',
+      ),
+    ).toBeInTheDocument();
+    expect(totals).toHaveTextContent('403 744 ₴');
+  });
+
+  it('says when the NBU can’t be reached and uses the earlier rates', async () => {
+    accountsServer(OVERVIEW, OVERVIEW, 'Unavailable');
+    renderApp('/accounts');
+
+    const totals = await screen.findByRole('group', { name: 'Totals' }, LOADED);
+    expect(
+      await within(totals).findByText(
+        'Can’t reach the NBU right now. At the rates of 30 Oct 2026:',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('without any rates says so and still shows each currency’s total', async () => {
+    accountsServer(OVERVIEW, OVERVIEW, 'Missing');
+    renderApp('/accounts');
+
+    const totals = await screen.findByRole('group', { name: 'Totals' }, LOADED);
+    expect(
+      await within(totals).findByText('NBU rates aren’t available right now. Try again later.'),
+    ).toBeInTheDocument();
+    expect(totals).toHaveTextContent('310 133 ₴');
+    expect(totals).not.toHaveTextContent('403 744 ₴');
+  });
+
+  it('with hryvnias only shows one total and no rates', async () => {
+    const hryvnias: AccountsOverview = {
+      ...OVERVIEW,
+      accounts: OVERVIEW.accounts.filter((a) => a.currency === 'UAH'),
+      totals: OVERVIEW.totals.filter((total) => total.currency === 'UAH'),
+    };
+    accountsServer(hryvnias);
+    renderApp('/accounts');
+
+    const totals = await screen.findByRole('group', { name: 'Totals' }, LOADED);
+    expect(await within(totals).findByText('310 133 ₴')).toBeInTheDocument();
+    expect(within(totals).getAllByText(/₴/)).toHaveLength(1);
+    expect(totals).not.toHaveTextContent('NBU');
+  });
+
+  it('counts up after a dollar account is added', async () => {
+    const added = account('new', 'Dollars in the drawer', { currency: 'USD', balance: 100 });
+    accountsServer(OVERVIEW, {
+      ...OVERVIEW,
+      accounts: [...OVERVIEW.accounts, added],
+      totals: OVERVIEW.totals.map((total) =>
+        total.currency === 'USD' ? { ...total, accounts: 3, total: 1840 } : total,
+      ),
+    });
+    renderApp('/accounts');
+
+    const totals = await screen.findByRole('group', { name: 'Totals' }, LOADED);
+    await within(totals).findByText('403 744 ₴');
+    await userEvent.click(screen.getByRole('button', { name: 'Add USD account' }));
+    const form = await screen.findByRole('dialog', { name: 'New account' });
+    await userEvent.type(within(form).getByLabelText('Name'), 'Dollars in the drawer');
+    await userEvent.click(within(form).getByRole('radio', { name: 'Cash' }));
+    const opening = within(form).getByLabelText('Opening balance');
+    await userEvent.clear(opening);
+    await userEvent.type(opening, '100');
+    await userEvent.click(within(form).getByRole('button', { name: 'Add account' }));
+
+    // 403 744 + 100 × 41.35
+    expect(
+      await within(totals).findByText('407 879 ₴', undefined, { timeout: 3000 }),
+    ).toBeInTheDocument();
+  }, 10_000);
 });

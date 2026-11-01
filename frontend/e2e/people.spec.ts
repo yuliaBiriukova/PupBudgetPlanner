@@ -14,7 +14,7 @@ async function signIn(page: Page, person: Pick<Person, 'email' | 'password'>) {
 
 async function openPeople(page: Page, isMobile: boolean) {
   if (isMobile) {
-    await page.getByRole('button', { name: en.nav.more }).click();
+    await page.getByRole('button', { name: en.nav.more, exact: true }).click();
     await page
       .getByRole('dialog', { name: en.nav.more })
       .getByRole('link', { name: en.nav.people })

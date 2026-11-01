@@ -11,6 +11,7 @@
     "transactions": "Transactions",
     "accounts": "Accounts",
     "reports": "Reports",
+    "categories": "Categories",
     "family": "Family",
     "settings": "Settings",
     "more": "More",
@@ -38,8 +39,7 @@
   "placeholder": {
     "transactions": "Your expenses, income and transfers will be listed here.",
     "reports": "Monthly and yearly reports, like your spreadsheet, will be here.",
-    "family": "Invite your family and see your money together here.",
-    "settings": "Your name and report currency will be set here."
+    "family": "Invite your family and see your money together here."
   },
   "colorScheme": {
     "switchToDark": "Switch to dark mode",
@@ -257,6 +257,36 @@
     },
     "metaBlocked": "Blocked {{date}}, {{invitedWith}}"
   },
+  "categories": {
+    "count_one": "{{count}} category",
+    "count_other": "{{count}} categories",
+    "groupCount_one": "{{count}} group",
+    "groupCount_other": "{{count}} groups",
+    "summary": "{{categories}} in {{groups}}",
+    "intro": "{{summary}}, in the order of your report.",
+    "kind": {
+      "Income": "Income",
+      "Expense": "Expenses"
+    },
+    "kindLine": "{{kind}}, {{count}}",
+    "groups": "Category groups",
+    "expenses": "Expenses",
+    "previewAll": "{{first}} and {{last}}",
+    "previewMore": "{{first}} and {{count}} more",
+    "none": "No categories",
+    "collapseAll": "Collapse all",
+    "expandAll": "Expand all",
+    "later": "Adding your own categories, renaming and removing them come after the first release.",
+    "loading": "Loading categories",
+    "errors": {
+      "load": "Couldn’t load your categories. Check the connection and try again.",
+      "retry": "Try again"
+    },
+    "empty": {
+      "title": "No categories here",
+      "text": "Every account starts with the default set, so this shouldn’t happen. Try again; if they’re still missing, tell Yulia."
+    }
+  },
   "accounts": {
     "add": "Add account",
     "groupBy": "Group by",
@@ -264,6 +294,14 @@
     "byCurrency": "Currency",
     "bySource": "Source",
     "inTotal": "In total",
+    "inTotalIn": "In total, in {{currency}}",
+    "rates": {
+      "current": "At NBU rates of {{date}}:",
+      "notPublished": "NBU hasn’t published today’s rates yet. At the rates of {{date}}:",
+      "unavailable": "Can’t reach the NBU right now. At the rates of {{date}}:",
+      "missing": "NBU rates aren’t available right now. Try again later.",
+      "loading": "Loading NBU rates"
+    },
     "totalsLabel": "Totals",
     "count_one": "{{count}} account",
     "count_other": "{{count}} accounts",
@@ -345,14 +383,6 @@
       "amount": "Enter an amount like 1240 or −300.",
       "date": "Pick the opening date."
     },
-    "picker": {
-      "search": "Search currencies",
-      "placeholder": "Search: zloty, GBP",
-      "close": "Close the list",
-      "yours": "Yours",
-      "all": "All NBU currencies",
-      "none": "No currency matches “{{query}}”. NBU publishes rates for about 40 currencies."
-    },
     "archive": {
       "title": "Archive {{name}}?",
       "text": "It leaves the list, the totals and the account pickers. Its transactions stay in the lists and reports, and you can restore it from Archived.",
@@ -369,6 +399,41 @@
       "keep": "Keep it",
       "confirm": "Delete for good",
       "done": "{{name}} deleted"
+    }
+  },
+  "settings": {
+    "loading": "Loading your settings",
+    "nameTitle": "Name and email",
+    "nameText": "Your name is shown in the menu, and to your family once families come.",
+    "name": "Name",
+    "saveName": "Save name",
+    "cancel": "Cancel",
+    "nameSaved": "Name saved",
+    "email": "Email",
+    "emailFixed": "Can’t be changed yet.",
+    "currencyTitle": "Report currency",
+    "currencyText": "Totals on Accounts and the reports are shown in it.",
+    "quick": {
+      "UAH": "Hryvnia",
+      "USD": "US dollar",
+      "EUR": "Euro"
+    },
+    "anotherCurrency": "Another currency",
+    "currencySaved": "Totals are now in {{currency}}",
+    "total": "Your accounts in total",
+    "themeTitle": "Theme",
+    "themeText": "Kept on this device. System follows your phone or computer.",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "System"
+    },
+    "errors": {
+      "load": "Couldn’t load your settings. Check the connection and try again.",
+      "nameRequired": "Enter your name.",
+      "save": "That didn’t go through. Try again in a moment.",
+      "currency": "Couldn’t save the currency. Check the connection and try again.",
+      "retry": "Try again"
     }
   },
   "currencies": {
@@ -412,5 +477,13 @@
     "USD": "US dollar",
     "VND": "Vietnamese dong",
     "ZAR": "South African rand"
+  },
+  "currencyPicker": {
+    "search": "Search currencies",
+    "placeholder": "Search: zloty, GBP",
+    "close": "Close the list",
+    "yours": "Yours",
+    "all": "All NBU currencies",
+    "none": "No currency matches “{{query}}”. NBU publishes rates for about 40 currencies."
   }
 }

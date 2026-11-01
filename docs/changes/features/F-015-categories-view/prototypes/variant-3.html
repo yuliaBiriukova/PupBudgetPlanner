@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>F-015 · Variant 3 · An index of tags</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(480px, calc(100vw - 32px)); background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.pv-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.pv-notes li + li { margin-top: 4px; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='tablet'] .frame { width: 834px; height: min(1050px, 100%); border: 12px solid #16181d; border-radius: 28px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+@media (max-width: 600px) {
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+}
+
+/* ---------- Tokens: the app's theme (F-010, F-011, F-028, F-014) ---------- */
+.app {
+  --bg: #f5f6f7; --surface: #fcfcfd; --sidebar: #ebedf0; --seg-bg: #ebedf0; --text: #1c1e21; --muted: #57585b;
+  --rule: #d7d8d9; --hover: #e8e9ea; --field-border: #7c828a;
+  --primary: #26292e; --primary-hover: #363a40; --on-primary: #f5f6f7;
+  --accent: #2a62a3; --active-bg: #e7ecf1; --tint: #e7ecf1; --logo: #8ec1ec; --logo-mark: #1c1e21;
+  --error: #b3261e; --error-bg: #fbeceb; --error-text: #8c1d18;
+  --expense: #b3261e; --income: #1f7a4d; --income-bg: #e4f1ea; --expense-bg: #fbeceb;
+  --pill: #1c1e21; --on-pill: #f5f6f7; --focus: #26292e; --scrim: rgba(18, 19, 21, .45);
+  --shadow-float: 0 8px 24px rgba(15, 17, 20, .1);
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+  --r-sm: 12px; --r-lg: 24px;
+}
+.app[data-scheme='dark'] {
+  --bg: #121315; --surface: #1b1c1e; --sidebar: #18191b; --seg-bg: #121315; --text: #e9eaec; --muted: #a4a5a7;
+  --rule: #37383a; --hover: #26272a; --field-border: #71747b;
+  --primary: #e9eaec; --primary-hover: #d3d6da; --on-primary: #121315;
+  --accent: #8ec1ec; --active-bg: #262f37; --tint: #262f37; --logo: #8ec1ec; --logo-mark: #121315;
+  --error: #f2958c; --error-bg: #3a1d1b; --error-text: #f6b8b2;
+  --expense: #f2958c; --income: #7fd1a4; --income-bg: #1b2d23; --expense-bg: #3a1d1b;
+  --pill: #e9eaec; --on-pill: #121315; --focus: #e9eaec; --scrim: rgba(0, 0, 0, .6);
+  --shadow-float: 0 10px 28px rgba(0, 0, 0, .45);
+}
+
+/* ---------- Base ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; color-scheme: light; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+:where(.app) :where(button, input) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, h3, p, ul, ol, dl, dd) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted { color: var(--muted); }
+.list { list-style: none; padding: 0; margin: 0; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; font-weight: 500; font-size: 15px; text-decoration: none; white-space: nowrap; background: none; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+.text-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--accent); font-weight: 500; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: none; }
+.text-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.toast { position: absolute; bottom: 88px; left: 50%; transform: translateX(-50%); padding: 10px 16px; border-radius: 999px; background: var(--pill); color: var(--on-pill); font-size: 14px; z-index: 30; white-space: nowrap; }
+.banner { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-sm); background: var(--tint); color: var(--text); }
+.banner .ic { margin-top: 2px; color: var(--accent); }
+.banner-error { background: var(--error-bg); color: var(--error-text); }
+.banner-error .ic { color: var(--error-text); }
+/* "Comes later": a quiet line with an info icon, no box */
+.later { display: flex; gap: 8px; align-items: flex-start; color: var(--muted); font-size: 14px; }
+.later .ic { margin-top: 2px; }
+
+/* ---------- App shell (F-010): top bar and tab bar on the phone, sidebar from 768 px ---------- */
+.logo { width: 44px; height: 44px; display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--logo); color: var(--logo-mark); }
+.shell { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); }
+.side { display: none; }
+.column { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+.top { display: flex; flex: none; align-items: center; gap: 10px; height: 56px; padding: 0 8px 0 16px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; margin-right: auto; }
+.brand .logo { width: 32px; height: 32px; }
+.brand-name { font-family: var(--font-display); font-size: 15px; font-weight: 300; letter-spacing: .02em; white-space: nowrap; }
+.main { flex: 1; min-height: 0; overflow: hidden auto; position: relative; }
+.content { max-width: 1040px; margin: 0 auto; padding: 8px 16px 32px; }
+.tabs { display: flex; flex: none; align-items: center; gap: 2px; padding: 8px 8px 10px; border-top: 1px solid var(--rule); background: var(--bg); }
+.tab { display: flex; flex: none; align-items: center; justify-content: center; gap: 8px; width: 44px; min-height: 48px; border-radius: 999px; color: var(--muted); font-size: 13px; text-decoration: none; background: none; border: 0; cursor: pointer; }
+.tab[data-active] { width: auto; padding: 0 14px 0 12px; background: var(--active-bg); color: var(--accent); font-weight: 500; }
+.tab:not([data-active]) .tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.tab-add { display: grid; place-items: center; width: 52px; height: 52px; margin-left: auto; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); cursor: pointer; }
+.avatar { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 50%; background: var(--active-bg); color: var(--accent); font-size: 13px; font-weight: 500; }
+@container app (min-width: 768px) {
+  .shell { grid-template-columns: 248px minmax(0, 1fr); }
+  .side { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-right: 1px solid var(--rule); background: var(--sidebar); min-width: 0; }
+  .side-head { display: flex; align-items: center; gap: 10px; height: 44px; margin-bottom: 12px; padding: 0 2px; }
+  .side-head .logo { width: 32px; height: 32px; margin: 0 6px; }
+  .side-add { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; margin-bottom: 14px; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 500; cursor: pointer; }
+  .nav-link { position: relative; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-radius: 999px; color: var(--text); font-size: 14px; line-height: 1; text-decoration: none; white-space: nowrap; }
+  .nav-link:hover { background: var(--hover); }
+  .nav-link[aria-current='page'] { font-weight: 500; }
+  .nav-link[aria-current='page'] > svg { color: var(--accent); }
+  .nav-link[aria-current='page']::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: -12px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+  .nav-sep { height: 1px; margin: 10px 14px; background: var(--rule); }
+  .side-foot { display: flex; align-items: center; gap: 12px; min-height: 40px; margin-top: auto; padding: 0 8px; font-size: 14px; }
+  .top, .tabs { display: none; }
+  .content { padding: 32px 40px 48px; }
+  .toast { bottom: 24px; }
+}
+
+/* ---------- Page head ---------- */
+.page-head { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 8px 0 18px; }
+.page-head h1 { font-family: var(--font-display); font-weight: 300; font-size: 28px; line-height: 1.15; letter-spacing: -.01em; margin-right: auto; }
+
+/* ---------- The More sheet on the phone (F-010, I-012 spacing) ---------- */
+.scrim { position: absolute; inset: 0; z-index: 20; display: flex; align-items: flex-end; background: var(--scrim); }
+.dialog { display: flex; flex-direction: column; width: 100%; max-height: 92%; border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--surface); box-shadow: var(--shadow-float); overflow: hidden; }
+.dlg-head { position: relative; padding: 16px 64px 0 16px; }
+.dlg-x { position: absolute; top: 8px; right: 8px; }
+.dlg-head h2 { font-family: var(--font-display); font-weight: 300; font-size: 20px; line-height: 28px; }
+.dlg-body { flex: 1; min-height: 0; overflow: auto; padding: 8px 16px 16px; }
+.more-link { display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 12px; border-radius: 12px; color: var(--text); text-decoration: none; }
+.more-link:hover { background: var(--hover); }
+.more-link[aria-current='page'] { background: var(--active-bg); color: var(--accent); font-weight: 500; }
+
+/* ---------- States shared by all variants ---------- */
+.sk { display: block; height: 14px; border-radius: 6px; background: var(--hover); }
+.state-box { max-width: 460px; padding: 32px 0 8px; }
+.state-box h2 { font-family: var(--font-display); font-weight: 300; font-size: 20px; line-height: 1.3; }
+.state-box p { margin-top: 8px; color: var(--muted); }
+.state-box .btn { margin-top: 18px; }
+/* ====================================================================================================== */
+/* ---------- Variant 3 · An index of tags: the group's name big on the left, its categories as tags on the right ---------- */
+.v3-intro { display: grid; gap: 8px; margin: -8px 0 24px; }
+.v3-intro .sum { color: var(--muted); }
+.v3-index { border-top: 1px solid var(--text); }
+.v3-row { display: grid; gap: 12px; padding: 18px 0 20px; border-bottom: 1px solid var(--rule); }
+.v3-name { display: flex; align-items: baseline; gap: 10px; }
+.v3-name h2 { display: flex; align-items: baseline; gap: 8px; font-family: var(--font-display); font-weight: 300; font-size: 20px; line-height: 1.3; letter-spacing: -.01em; }
+.v3-name .sign { width: 14px; text-align: center; }
+[data-kind='income'] .v3-name .sign { color: var(--income); }
+[data-kind='expense'] .v3-name .sign { color: var(--expense); }
+.v3-name .n { margin-left: auto; color: var(--muted); font-size: 14px; }
+.v3-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Tags, not buttons: no border, no pointer, no hover; income tags carry the income color */
+.v3-tags li { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--seg-bg); color: var(--text); font-size: 14px; }
+.app[data-scheme='dark'] .v3-tags li { background: #26272a; }
+[data-kind='income'] .v3-tags li { background: var(--income-bg); color: var(--income); font-weight: 500; }
+.app[data-scheme='dark'] [data-kind='income'] .v3-tags li { background: var(--income-bg); }
+/* The one moment: on the first visit the tags arrive one group after another */
+@keyframes v3-in { from { opacity: 0; } }
+.v3-first .v3-tags { animation: v3-in 240ms ease-out backwards; animation-delay: calc(var(--i) * 40ms); }
+@media (prefers-reduced-motion: reduce) { .v3-first .v3-tags { animation: none; } }
+@container app (min-width: 768px) {
+  .v3-row { grid-template-columns: 240px minmax(0, 1fr); gap: 24px; align-items: start; padding: 20px 0; }
+  .v3-name { flex-direction: column; gap: 2px; padding-top: 2px; }
+  .v3-name .n { margin-left: 24px; }
+  .v3-name h2 { font-size: 22px; }
+}
+@container app (min-width: 1100px) {
+  .v3-row { grid-template-columns: 300px minmax(0, 1fr); }
+  .v3-name h2 { font-size: 24px; }
+  .v3-tags li { min-height: 40px; padding: 0 16px; font-size: 15px; }
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="frame">
+    <div class="app" id="app" data-scheme="light"></div>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  stack: ['M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z', 'M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4', 'M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z', 'M3 6v10c0 .888 .772 1.45 2 2', 'M3 11c0 .888 .772 1.45 2 2'],
+  receipt: ['M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2', 'M9 7h6', 'M9 11h6', 'M13 15h2'],
+  wallet: ['M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12', 'M20 12v4h-4a2 2 0 0 1 0 -4h4'],
+  chart: ['M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M4 20h14'],
+  tree: ['M9 6h11', 'M12 12h8', 'M15 18h5', 'M5 6v.01', 'M8 12v.01', 'M11 18v.01'],
+  users: ['M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2', 'M16 3.13a4 4 0 0 1 0 7.75', 'M21 21v-2a4 4 0 0 0 -3 -3.85'],
+  settings: ['M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z', 'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0'],
+  people: ['M6 21v-2a4 4 0 0 1 4 -4h2', 'M22 16c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5z', 'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0'],
+  plus: ['M12 5l0 14', 'M5 12l14 0'],
+  dots: ['M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  chevDown: ['M6 9l6 6l6 -6'],
+  chevLeft: ['M15 6l-6 6l6 6'],
+  chevRight: ['M9 6l6 6l-6 6'],
+  alert: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 8v4', 'M12 16h.01'],
+  info: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 9h.01', 'M11 12h1v4h1'],
+  x: ['M18 6l-12 12', 'M6 6l12 12'],
+  refresh: ['M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4', 'M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4'],
+  user: ['M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0', 'M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2'],
+  coins: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1', 'M12 7v10'],
+  moon: ['M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z'],
+};
+const icon = (n, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n].map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+// ---------- Data: the default set every person gets (F-013, PRODUCT.md "Default categories"), in report order ----------
+const GROUPS = [
+  { id: 'income', name: 'Income', kind: 'income', cats: ['Salary', 'Gifts', 'Other'] },
+  { id: 'home', name: 'Home expenses', kind: 'expense', cats: ['Rent', 'Bills', 'Home supplies', 'Electronics', 'Bank commission', 'Gifts', 'Tax', 'Delivery', 'Other'] },
+  { id: 'daily', name: 'Daily living', kind: 'expense', cats: ['Groceries', 'Clothing', 'Eating out', 'Transportation', 'Salon/Barber', 'Sport'] },
+  { id: 'health', name: 'Health', kind: 'expense', cats: ['Doctor/Dentist', 'Medicine/Drugs/Skincare', 'Emergency', 'Therapy'] },
+  { id: 'education', name: 'Education', kind: 'expense', cats: ['English lessons', 'Piano lessons', 'Driving'] },
+  { id: 'fun', name: 'Entertainment', kind: 'expense', cats: ['Activities', 'Books', 'Games', 'Hobbies', 'Vacation'] },
+  { id: 'subs', name: 'Subscriptions', kind: 'expense', cats: ['Spotify', 'Phone', 'Subscriptions'] },
+];
+const ALL = GROUPS.reduce((n, g) => n + g.cats.length, 0);
+const cats = (n) => (n === 1 ? '1 category' : `${n} categories`);
+const groupsOf = (kind) => GROUPS.filter((g) => g.kind === kind);
+const countOf = (kind) => groupsOf(kind).reduce((n, g) => n + g.cats.length, 0);
+const LATER = 'Adding your own categories, renaming and removing them come after the first release.';
+
+const app = document.getElementById('app');
+const stage = document.getElementById('stage');
+const mq = matchMedia('(prefers-color-scheme: dark)');
+const state = { page: 'categories', schemePref: 'light', more: false };
+
+function applyScheme() {
+  const scheme = state.schemePref === 'system' ? (mq.matches ? 'dark' : 'light') : state.schemePref;
+  app.dataset.scheme = scheme;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+}
+mq.addEventListener('change', applyScheme);
+
+// ---------- Shell ----------
+function shell(inner) {
+  const nav = V.NAV;
+  const cur = V.current();
+  const tabs = nav.slice(0, 3);
+  const moreActive = !tabs.some(([, l]) => l === cur);
+  return `<div class="shell">
+    <aside class="side" aria-label="Sections">
+      <div class="side-head"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div>
+      <button class="side-add" type="button" data-action="add-tx">${icon('plus')}Add transaction</button>
+      <nav class="nav" aria-label="Main">
+        ${nav.map(([i, l]) => `<a class="nav-link" href="#${l.toLowerCase()}"${l === cur ? ' aria-current="page"' : ''} data-action="nav" data-to="${l}">${icon(i)}${l}</a>`).join('')}
+        <div class="nav-sep" role="presentation"></div>
+        <a class="nav-link" href="#people" data-action="nav" data-to="People">${icon('people')}People</a>
+      </nav>
+      <div class="side-foot"><span class="avatar" aria-hidden="true">YB</span><span>Yulia Biriukova</span></div>
+    </aside>
+    <div class="column">
+      <header class="top"><div class="brand"><span class="logo" aria-hidden="true">${icon('stack', 20)}</span><span class="brand-name">Pup Budget</span></div><span class="avatar" aria-hidden="true">YB</span></header>
+      <main class="main" tabindex="0"><div class="content">${inner}</div></main>
+      <nav class="tabs" aria-label="Main">
+        ${tabs.map(([i, l]) => `<a class="tab" href="#${l.toLowerCase()}"${l === cur ? ' data-active aria-current="page"' : ''} data-action="nav" data-to="${l}">${icon(i)}<span class="tab-label">${l}</span></a>`).join('')}
+        <button class="tab" type="button" data-action="more" aria-expanded="${state.more}"${moreActive ? ' data-active' : ''}>${icon('dots')}<span class="tab-label">More</span></button>
+        <button class="tab-add" type="button" data-action="add-tx" aria-label="Add transaction">${icon('plus', 24)}</button>
+      </nav>
+    </div>
+  </div>`;
+}
+function moreSheet() {
+  if (!state.more) return '';
+  const cur = V.current();
+  const items = [...V.NAV.slice(3), ['people', 'People']];
+  return `<div class="scrim" data-action="close-more"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="more-title" data-stop><div class="dlg-head"><button class="icon-btn dlg-x" type="button" data-action="close-more" aria-label="Close">${icon('x')}</button><h2 id="more-title">More</h2></div><div class="dlg-body">
+    <ul class="list">${items.map(([i, l]) => `<li><a class="more-link" href="#${l.toLowerCase()}" data-action="nav" data-to="${l}"${l === cur ? ' aria-current="page"' : ''}>${icon(i)}${l}</a></li>`).join('')}</ul></div></div></div>`;
+}
+
+// ---------- Shared states ----------
+const errorState = (head) => `${head}<div class="banner banner-error" role="alert">${icon('alert')}<div><p>Couldn’t load your categories. Check the connection and try again.</p>
+  <button class="text-link" type="button" data-action="retry" style="color:inherit">${icon('refresh')}Try again</button></div></div>`;
+const emptyState = (head) => `${head}<div class="state-box">
+    <h2>No categories here</h2>
+    <p>Every account starts with the default set, so this shouldn’t happen. Try again; if they’re still missing, tell Yulia.</p>
+    <button class="btn btn-primary" type="button" data-action="retry">${icon('refresh')}Try again</button>
+  </div>`;
+
+function render() {
+  const scroll = document.querySelector('.main')?.scrollTop ?? 0;
+  app.innerHTML = shell(V.body(state.page)) + moreSheet();
+  document.querySelector('.main').scrollTop = scroll;
+  document.querySelectorAll('[data-page-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pageSet === state.page)));
+  V.afterRender?.();
+}
+function go(id) {
+  Object.assign(state, { page: id, more: false });
+  V.go?.(id);
+  render();
+  document.querySelector('.main').scrollTop = 0;
+  V.afterGo?.(id);
+}
+function toast(text) {
+  document.querySelector('.toast')?.remove();
+  const t = document.createElement('div');
+  t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = text;
+  app.appendChild(t); setTimeout(() => t.remove(), 2200);
+}
+const V = {
+  DIRECTION: {
+    name: 'Variant 3 · An index of tags',
+    thesis: 'An index: each group’s name set big on the left, its categories as tags on the right. Takes a risk on looks: the tags could become the same ones you tap to pick a category in Add transaction (F-018).',
+    notes: [
+      'Its own section, Categories, in the menu after Reports (under More on the phone), as in variant 1.',
+      'One row per group: the name in the heading font with a + (income, green) or − (expense, red) and how many categories; the categories as tags next to it.',
+      'Income tags are green; expense tags are neutral, so 30 tags aren’t all red.',
+      'The tags aren’t buttons: no border, no pointer, nothing happens on a click (read-only).',
+      'Phone: the name over the tags. Tablet and desktop: the name on the left, the tags on the right. On the desktop almost the whole set is on the first screen.',
+      'The one moment: on the first visit the tags arrive group by group.',
+    ],
+  },
+  NAV: [['receipt', 'Transactions'], ['wallet', 'Accounts'], ['chart', 'Reports'], ['tree', 'Categories'], ['users', 'Family'], ['settings', 'Settings']],
+  current: () => 'Categories',
+  navTo: (l) => (l === 'Categories' ? 'categories' : null),
+  PAGES: [
+    { id: 'categories', label: 'Categories' },
+    { id: 'categories-first', label: 'First visit' },
+    { id: 'categories-loading', label: 'Loading' },
+    { id: 'categories-error', label: 'Couldn’t load' },
+    { id: 'categories-empty', label: 'Empty' },
+  ],
+  body(p) {
+    const head = '<div class="page-head"><h1>Categories</h1></div>';
+    if (p === 'categories-error') return errorState(head);
+    if (p === 'categories-empty') return emptyState(head);
+    if (p === 'categories-loading') return `${head}<div class="v3-intro"><span class="sk" style="width:240px"></span></div><div class="v3-index" role="status" aria-busy="true"><span class="sr">Loading categories</span>${[3, 6, 4].map((n, i) => `<div class="v3-row"><span class="sk" style="width:${[90, 160, 120][i]}px;height:20px"></span><div class="v3-tags">${Array.from({ length: n }, (_, k) => `<span class="sk" style="width:${[72, 96, 64, 110, 80, 70][k]}px;height:36px;border-radius:999px"></span>`).join('')}</div></div>`).join('')}</div>`;
+    return `${head}
+      <div class="v3-intro"><p class="sum">${ALL} categories in ${GROUPS.length} groups, in the order of your report.</p><p class="later">${icon('info', 16)}${LATER}</p></div>
+      <div class="v3-index${p === 'categories-first' ? ' v3-first' : ''}">
+        ${GROUPS.map((g, i) => `<section class="v3-row" data-kind="${g.kind}" aria-labelledby="g-${g.id}">
+          <div class="v3-name"><h2 id="g-${g.id}"><span class="sign" aria-hidden="true">${g.kind === 'income' ? '+' : '−'}</span>${esc(g.name)}</h2><span class="n num">${cats(g.cats.length)}<span class="sr">, ${g.kind === 'income' ? 'income' : 'expenses'}</span></span></div>
+          <ul class="list v3-tags" style="--i:${i}">${g.cats.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
+        </section>`).join('')}
+      </div>`;
+  },
+};
+const PAGES = V.PAGES;
+
+// Preview bar (review aid)
+document.body.insertAdjacentHTML('afterbegin', `<div class="pv-bar"><b>F-015 · ${V.DIRECTION.name}</b>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="tablet">Tablet</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>Screen</span>${PAGES.map((p) => `<button data-page-set="${p.id}">${p.label}</button>`).join('')}</div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <button data-action="notes" aria-expanded="false">About this direction</button>
+  <div class="pv-notes" id="notes" hidden><b>${V.DIRECTION.name}</b><p style="margin:4px 0 0">${V.DIRECTION.thesis}</p><ul>${V.DIRECTION.notes.map((n) => `<li>${n}</li>`).join('')}</ul></div></div>`);
+function setView(v) { stage.dataset.view = v; document.querySelectorAll('button[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); }
+setView(innerWidth >= 1200 ? 'desktop' : 'phone');
+
+document.addEventListener('click', (e) => {
+  const p = e.target.closest('[data-page-set]');
+  if (p) { go(p.dataset.pageSet); return; }
+  const s = e.target.closest('[data-scheme-set]');
+  if (s) { state.schemePref = s.dataset.schemeSet; applyScheme(); return; }
+  const v = e.target.closest('button[data-view]');
+  if (v) { setView(v.dataset.view); return; }
+  const a = e.target.closest('[data-action]');
+  if (!a) return;
+  if (a.classList.contains('scrim') && e.target.closest('[data-stop]')) return;
+  e.preventDefault();
+  ({
+    nav: () => {
+      const to = V.navTo?.(a.dataset.to);
+      if (to) { go(to); return; }
+      state.more = false; render(); toast(`${a.dataset.to} isn’t part of this prototype`);
+    },
+    retry: () => go(V.PAGES[0].id),
+    'add-tx': () => toast('Add transaction (F-018)'),
+    more: () => { state.more = !state.more; render(); },
+    'close-more': () => { state.more = false; render(); },
+    ...(V.actions ?? {}),
+    notes: () => { const n = document.getElementById('notes'); n.hidden = !n.hidden; a.setAttribute('aria-expanded', String(!n.hidden)); },
+  })[a.dataset.action]?.(a);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  document.getElementById('notes').hidden = true;
+  if (state.more) { state.more = false; render(); }
+});
+applyScheme();
+go(PAGES[0].id);
+</script>
+</body>
+</html>

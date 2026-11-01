@@ -63,6 +63,34 @@ export const accountsQuery = queryOptions({
   },
 });
 
+export type RatesStatus = Schemas['RatesStatus'];
+/** One NBU rate: hryvnias for one unit of the currency, as the NBU publishes it (F-016). */
+export type RateItem = Omit<Schemas['RateItem'], 'rate'> & { rate: number };
+
+/** "In total, in UAH" (F-017); `total` is null when there are no rates for it (`Missing`). */
+export type AccountsTotal = Omit<Schemas['AccountsTotal'], 'total' | 'rates'> & {
+  total: number | null;
+  rates: RateItem[];
+};
+
+/**
+ * The accounts together in the report currency at today's NBU rates (F-017). Its own request, so the page doesn't
+ * wait for the NBU; its key starts with the accounts', so every change to an account fetches it again too.
+ */
+export const accountsTotalQuery = queryOptions({
+  queryKey: [...accountsQuery.queryKey, 'total'],
+  queryFn: async ({ signal }): Promise<AccountsTotal> => {
+    const { data, response } = await apiClient.GET('/api/accounts/total', { signal });
+    if (!response.ok || !data)
+      throw new Error(`Couldn't load the total: ${String(response.status)}`);
+    return {
+      ...data,
+      total: data.total === null ? null : Number(data.total),
+      rates: data.rates.map((item) => ({ ...item, rate: Number(item.rate) })),
+    };
+  },
+});
+
 /** Adds an account (no `id`) or saves the edited one; the page is fetched again afterwards. */
 export function useSaveAccount() {
   const queryClient = useQueryClient();

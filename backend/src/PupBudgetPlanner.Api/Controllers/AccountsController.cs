@@ -19,6 +19,15 @@ public sealed class AccountsController(IAccountService accounts) : ControllerBas
     public async Task<ActionResult<AccountsOverview>> Overview(CancellationToken cancellationToken) =>
         Ok(await accounts.OverviewAsync(UserId, cancellationToken));
 
+    /// <summary>
+    /// "In total, in UAH": the accounts in use together in the report currency at today's NBU rates (F-017), or the
+    /// latest earlier ones, marked.
+    /// </summary>
+    [HttpGet("total")]
+    [ProducesResponseType<AccountsTotal>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<AccountsTotal>> Total(CancellationToken cancellationToken) =>
+        Ok(await accounts.TotalAsync(UserId, cancellationToken));
+
     [HttpPost]
     [ProducesResponseType<AccountItem>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]

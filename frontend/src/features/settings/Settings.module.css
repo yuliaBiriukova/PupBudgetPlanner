@@ -1,0 +1,233 @@
+/* Settings (F-016, final prototype variant 4): sections one under the other, from 1024 px the title on the left and
+   the control on the right */
+
+.head {
+  padding: 8px 0 20px;
+}
+
+.page {
+  max-width: 880px;
+}
+
+.section {
+  display: grid;
+  gap: 12px;
+  padding: 20px 0 24px;
+  border-top: 1px solid var(--pup-color-rule);
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.text {
+  margin: 4px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.control {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+@media (min-width: 64em) {
+  .section {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 32px;
+    padding: 24px 0 28px;
+  }
+
+  .control {
+    max-width: 480px;
+  }
+}
+
+/* The name: the account form's field (F-014), 52 px with the fields' border */
+.label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.input {
+  height: 52px;
+  border-color: var(--pup-color-field-border);
+  font-size: 16px;
+}
+
+.error {
+  margin-top: 6px;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.email {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+
+.email dt {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.email dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+/* A segmented choice: the sign-in switch's look (F-011) with its own tokens, which show on the page in dark mode too;
+   the picked pill raised in the accent */
+.choice {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--pup-color-choice);
+}
+
+.option {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--mantine-color-dimmed);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.option:hover {
+  color: var(--mantine-color-text);
+}
+
+.option[data-checked] {
+  background: var(--pup-color-choice-active);
+  box-shadow: var(--pup-shadow-switch);
+  color: var(--pup-color-accent);
+}
+
+.option:has(.radio:focus-visible) {
+  outline: 2px solid var(--mantine-color-text);
+  outline-offset: 2px;
+}
+
+/* The radio itself is only for the keyboard and screen readers; the pill shows it */
+.radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  opacity: 0;
+}
+
+/* Your accounts in total, in the report currency */
+.total {
+  display: grid;
+  gap: 2px;
+  padding-top: 4px;
+}
+
+.totalLabel {
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.amount {
+  overflow: hidden;
+  font-family: var(--pup-font-display);
+  font-size: 28px;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 36px;
+  white-space: nowrap;
+}
+
+/* The one moment: after the report currency changes, the total in it comes in from below */
+.swapIn {
+  display: inline-block;
+  animation: swap-in 200ms ease-out;
+}
+
+@keyframes swap-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.missing {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.missing svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.errorBanner {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-error-bg);
+  color: var(--pup-color-error-text);
+}
+
+.errorBanner > svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.errorBanner p {
+  margin: 0;
+}
+
+.retry {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  margin: -6px 0 -10px;
+  color: inherit;
+  font-weight: 500;
+}
+
+.retry:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swapIn {
+    animation: none;
+  }
+}

@@ -2,6 +2,255 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-01 (I-015 build)
+
+**Done**
+- I-015 built on `improvement/I-015-sheet-swipe-and-back`, as approved on 2026-11-01 (the owner's "implement" for the
+  demo with its three points as proposed; recorded in the description file and DESIGN_RULES before any code):
+  - `useSheetSwipe` in `BottomSheet`: drag the handle, the title, or the content from its top; closes past a quarter of
+    the height or on a flick, otherwise slides back; Mantine's own transitions do the rest, so reduced motion snaps.
+  - `usePopupHistory` in `BottomSheet` and the desktop dialog: one history step per open pop-up; Back closes the top
+    one, other ways of closing take the step away, Forward onto a closed one does nothing. More's sections replace
+    the sheet's step.
+  - ADR 0021; a DESIGN_RULES custom rule and "Screen decisions" row; a `SwipeAndBack` story.
+  - Tests: unit tests for both hooks, `sheets.spec.ts` (phone and desktop) with a real touch drag on the currency list.
+- Checked: backend 267 tests; frontend lint, format, typecheck, 149 unit tests, build, Storybook build and 50 E2E tests
+  (6 skipped: the 2 from before, and the new ones meant only for the phone or only for the desktop);
+  screenshots of the real sheets (form, mid-swipe, currency list over the form, More, desktop dialog) at 375 and
+  1440 px, light and dark; the story swiped and closed with Back in the Browser pane. Not checked: a real phone.
+- Test data: the E2E runs and one screenshot run made `e2e-…@example.com` people on the `dev` database; the cleanup
+  teardown deleted them after each run. Nothing was made by hand.
+
+**Next**
+- Owner: review the I-015 PR and try it on a phone. Then F-018 (quick add).
+
+## 2026-11-01 (I-015 demo)
+
+**Done**
+- I-015 (phone pop-ups close with a swipe down and with Back) started on `improvement/I-015-sheet-swipe-and-back`.
+  Demo only, not approved, no code:
+  - References: Vaul's numbers taken as they are (close past 25 % of the height or on a 0.4 px/ms flick; 100 ms after
+    a scroll before the content can be dragged), Material and Android for Back.
+  - `prototypes/demo.html`: Accounts with the account form, the currency list over it, More and Add transaction, the
+    swipe and Back working as they would in `BottomSheet` / `ResponsiveDialog`.
+  - Three points for the owner: a quarter instead of a third, Forward onto a closed pop-up is skipped, the desktop
+    currency dropdown isn't closed by Back.
+- Checked: the design check passes (0 issues), scripted drags, Back, Forward, the More link, the desktop dialog and
+  reduced motion behave as planned, and screenshots at 375 and 1440 px, light and dark, were looked at (one fix: the
+  sheet's own focus ring). A real phone's touch isn't checked yet.
+- Test data: none; nothing was run against the database.
+
+**Next**
+- Owner: try the demo on a phone and approve I-015 for implementation, or ask for changes.
+
+## 2026-10-31 (F-016 build)
+
+**Done**
+- F-016 user settings built on `feature/F-016-user-settings`, as approved on 2026-10-31 (variant 4 with the shared
+  currency list; recorded in the description file and DESIGN_RULES "Screen decisions" before any code). M2 is done.
+  - Backend: the report currency is kept on the account (`users.report_currency`, migration `AddReportCurrency`, UAH
+    for everyone before); `GET /api/settings`, `PUT /api/settings/name`, `PUT /api/settings/report-currency` (any
+    NBU currency); "In total" on Accounts in the person's report currency, its rates in hryvnias as the NBU publishes
+    them (ADR 0020).
+  - Settings page: Name and email (Cancel / Save name once it differs), Report currency (Hryvnia / US dollar / Euro
+    saved at once, plus Another currency from the list, the total in it right under it), Theme (Light / Dark /
+    System, kept on the device).
+  - `CurrencyPicker` (shared): the account form's currency field uses it too. A dropdown under the field on the
+    desktop, over the page or the dialog; a sheet on the phone; your currencies first. New custom rule in
+    DESIGN_RULES.
+  - Tests: backend 267, frontend unit 137, E2E 46 (2 skipped) on desktop and phone, including the new
+    `settings.spec.ts`. Lint, format, typecheck, the build and the Storybook build pass. Storybook stories for the
+    page and the picker.
+- Checked: the design check passes on the real Settings and Accounts pages. Screenshots at 375 and 1440 px, light and
+  dark, of the list open, a search, a picked zloty, a name being changed and the account form's list were looked at.
+  They found two things, both fixed: the account form's dropdown turned up over the field's label when there was
+  little room below it (now it stays under it and gets shorter), and in dark mode the switch's track had the page's
+  colour. The flow was also tried in the Browser pane.
+- Test data: the E2E runs made `e2e-…` people on the `dev` database, removed by the cleanup teardown after each run.
+  For the screenshots and the Browser-pane check one more test person (`e2e-shots-…@example.com`, with three accounts)
+  was made through the API; the cleanup teardown deleted it in the same session. The migration added the
+  `report_currency` column on the `dev` database.
+
+**Next**
+- Owner: review the F-016 PR. M3 continues with F-018 (quick add).
+
+## 2026-10-31 (plan: I-015)
+
+**Done**
+- I-015 (phone pop-ups close with a swipe down and with Back) planned on `plan/i015-sheet-swipe-and-back`, proposed
+  priority Medium. Found by the owner while reviewing F-016's prototype: the sheets have a grab handle that can't be
+  dragged, and Back leaves the page instead of closing the sheet.
+- The owner confirmed the priority and decided the open points: own swipe code in `BottomSheet` (no library), Back
+  closes the desktop dialog too, no "Discard changes?" question, built after F-016.
+- Test data: none.
+
+**Next**
+- Owner: review the planning PR. F-016 is still waiting for the final prototype's approval.
+
+## 2026-10-31 (F-016 final prototype)
+
+**Done**
+- The owner chose variant 1 and asked about people whose money is in other currencies. Variant 4 (final) is
+  variant 1 with "Another currency" under Hryvnia / US dollar / Euro: the account form's searchable list of NBU
+  currencies, the person's own first. Any NBU currency works as the report currency because the total converts
+  through the hryvnia (F-017).
+- Owner's review: the currency list opened inside the page and used the browser's scroll bar. Now a dropdown over
+  the page on the desktop and a sheet on the phone, with I-004's fading scroll bar. The dropdown is as tall as its
+  rows, up to 344 px.
+- Owner's review: every currency field uses the same list, own currencies first. The account form's Currency
+  (F-014) gets the same dropdown and phone sheet; added to the prototype as "Account form: currency", and to F-016's
+  scope as one shared component.
+- The design check passes; the list, a search, a picked PLN and Couldn't save were looked at at 375 and 1440 px,
+  light and dark, and tried in the Browser pane.
+- Test data: none.
+
+**Next**
+- Owner: approve variant 4 for implementation (and the open points 1, 2 and 4), or ask for changes.
+
+## 2026-10-31 (F-016 design round 1)
+
+**Done**
+- F-016 user settings started on `feature/F-016-user-settings`, design only (not approved, no code). It is the last
+  M2 item: F-014 and F-015 are done.
+  - References: GitHub's theme settings, Actual Budget's settings page, Lunch Money's primary currency, Apple's HIG
+    for settings. Mobbin needs a sign-in.
+  - 3 prototypes in `prototypes/`:
+    - 1, one page with everything in place: currency and theme as segmented choices that save at once, the name
+      with its own Save, your total right under the currency;
+    - 2, rows with their values that open a sheet (phone) or a dialog (desktop) with Save; the currency choices
+      show your total in each;
+    - 3, pick by seeing: three cards with your total in each currency, the theme as small pictures of the app.
+  - Open points with Claude's proposals in the description file: the theme kept on the device (name and currency on
+    the account); the sun / moon button stays; only UAH, USD and EUR; email shown but not changeable.
+  - The design check passes on all three (it first found the layouts too tight at 768 px, a small Try again and the
+    field's focus ring; all fixed). The screenshots at 375 and 1440 px, light and dark, were looked at, and the
+    pop-ups, errors and name editing were tried in the Browser pane.
+- Test data: none; nothing was run against the database.
+
+**Next**
+- Owner: pick a variant (or a mix) and answer the open points; then the final prototype for approval.
+
+## 2026-10-31 (F-017)
+
+**Done**
+- F-017 NBU exchange rates, built on `feature/F-017-exchange-rates` (approved 2026-10-31):
+  - Backend:
+    - one NBU call brings a day's rates of every account currency, kept in the new `exchange_rates` table;
+    - if the day isn't published or the NBU can't be reached, the latest earlier rates are used and marked, and
+      never stored under the later day;
+    - one call at a time, and a 5-minute pause after a failure;
+    - "today" is Kyiv's date;
+    - `GET /api/accounts/total` gives the total.
+  - Accounts page: "In total, in UAH" as in F-014's final prototype, with the rates and their date, notes for
+    earlier rates and no rates, a skeleton while loading, and the count up or down after a change.
+  - Tests: backend unit tests (conversion, the total, the NBU client, the service with the NBU faked, Kyiv's date),
+    frontend unit tests, Storybook stories for every state, and the accounts E2E test.
+  - CI's E2E run asks an NBU stub with fixed rates. Locally the real NBU is asked, so stub rates never land in the
+    `dev` database.
+  - ADR 0019; ARCHITECTURE "Exchange rates" updated.
+- Checked:
+  - Storybook screenshots of every state at 375 and 1440 px, light and dark. They turned up one fix: the info icon
+    now stays on the first line when the note wraps on the phone.
+  - The real app in the Browser pane with the real NBU: 12 000 ₴ + $500 gave 34 765 ₴ at $1 = 45.53 ₴, matching the
+    NBU's 45.5293 for 31 Oct.
+- Test data:
+  - The E2E runs made `e2e-…` accounts on the `dev` database; the cleanup teardown removed them.
+  - The Browser-pane check added two accounts to the tests' admin; both were deleted in the same session.
+  - The `dev` database keeps the real NBU rates it fetched; they are a cache, not test data.
+
+**Next**
+- Owner: review the F-017 PR. F-018 (quick add) is next in M3.
+
+## 2026-10-31 (F-015 build)
+
+**Done**
+- F-015 categories view built on `feature/F-015-categories-view`. The owner approved variant 7 on 2026-10-31
+  (recorded in the description file and DESIGN_RULES "Screen decisions" before any code):
+  - API: `GET /api/categories`, the person's groups and categories in the report's order, archived categories left
+    out. No migration.
+  - Menu: Categories after Reports (under More on the phone).
+  - Page: below 1200 px every group as tags, with Collapse all / Expand all. From 1200 px the list of groups and the
+    picked group's tags. Loading, Couldn't load and Empty states.
+  - Owner's review after trying it locally: on the phone and tablet every group starts folded except the one open on
+    the desktop (Income at first), and several can be open; the desktop shows one. Both layouts share the open
+    groups, remembered on the device. The E2E specs now find the More button by its exact name ("… and 6 more" in a
+    folded group matched it too).
+  - Decision: the wide layout starts at Mantine's `lg` (1200 px) and not the prototype's 1100 px, to keep to the
+    theme's breakpoints.
+  - New theme tokens for income and tags.
+- Checked after the review change: backend 209 tests, frontend 121 unit tests, lint, format, build and 44 E2E tests
+  (phone and desktop) pass. The screenshots at 375, 834 and 1440 px, light and dark, were looked at, including the
+  phone after a group was picked on the desktop. Folding was tried in the Browser pane.
+- Test data: the E2E runs and the two screenshot runs made `e2e-…@example.com` people on the `dev` database; the
+  cleanup teardown deleted them all, the screenshot people included. Nothing was made by hand.
+
+**Next**
+- Owner: review the F-015 PR.
+- Then F-016 (user settings) or F-017 (NBU rates).
+
+## 2026-10-31 (F-015 design round 1)
+
+**Done**
+- F-015 categories view started on `feature/F-015-categories-view`, design only (not approved, no code):
+  - References: Actual Budget, Lunch Money, Copilot Money, YNAB, Money Lover, and the owners' own sheet. Mobbin needs
+    a sign-in.
+  - 3 prototypes in `prototypes/`:
+    - 1, the sheet's first column, as its own menu item;
+    - 2, folded groups inside Settings;
+    - 3, an index of tags, as its own menu item.
+  - The design check passes on all three, and the screenshots and key states were looked at (details in the
+    description file).
+- Round 2: the owner liked variant 2 (in Settings) but not its folding groups on the phone and tablet or its
+  two-column list on the desktop. Variants 4–6 keep variant 2's place and desktop list of groups:
+  - 4, a group opens on its own screen; a panel on the desktop;
+  - 5, every group with tags on the phone; tags on the desktop;
+  - 6, one list with a sticky index of groups.
+
+  The design check passes on all three, and the screenshots and the tablet were looked at.
+
+- Round 3: the owner liked variant 5 and asked for groups that collapse and expand, and Categories in the main menu.
+  Variant 7 does both (folding on the phone and tablet; the desktop keeps variant 5's list and tags). The design
+  check passes, and the screenshots and the folding were looked at. Then, at the owner's request, no + or − next to
+  groups (they look like list markers); the words say the kind.
+- Test data: none; nothing was run against the database.
+
+**Next**
+- Owner: approve variant 7 for implementation, or ask for changes (approved the same day, see "F-015 build").
+
+## 2026-10-31 (I-014)
+
+**Done**
+- I-014 faster, steadier tests on the owner's laptop, built on `improvement/I-014-faster-local-tests` (approved
+  2026-10-31):
+  - Unit tests: Vitest on 4 workers (was 7), isolation kept; the People "200 people" test queries by label and has a
+    15 s timeout. 3 runs in a row pass in 23–26 s; before, it timed out in about half the runs.
+  - E2E: `setup` opens the app once before the tests run in parallel, and 3 local workers (was 4). From a cold start
+    (Vite's cache cleared): 3 of 3 runs pass in 58–59 s at about 40% CPU; before, 1 min 50 s with 4 timeouts and the
+    CPU at 100%.
+  - `CLAUDE.md`: while working on a change, run only the affected tests; every suite once before the commit and
+    push; a suite longer than a minute runs in the background.
+  - The measurements behind each choice are in the description file. No ADR: the Vitest pool and isolation are
+    unchanged.
+- Test data: the E2E runs (6 to compare worker counts, 3 to check) made `e2e-…` accounts and `E2E` invite links on
+  the `dev` database; the cleanup teardown removed them after every run. Nothing was made by hand.
+
+**Next**
+- Owner: review the I-014 PR.
+
+## 2026-10-31 (plan: I-014)
+
+**Done**
+- I-014 (faster, steadier tests on the owner's laptop) planned on `plan/i014-faster-local-tests`, priority High.
+  Found by the owner: I-011 took almost an hour, looked stuck and loaded the computer.
+- Measured every suite on `develop`: backend 25 s; frontend unit 1 min 45 s, with the People "200 people" test
+  timing out at 5 s; E2E 1 min 50 s from a cold start with 4 `page.goto` timeouts, 52 s and all passing once warm.
+  Details and the likely causes are in the description file.
+- Test data: the two E2E runs made `e2e-…` accounts on the `dev` database; the cleanup teardown removed them after
+  each run. Nothing was made by hand.
+
+**Next**
+- Owner: confirm the priority, review the planning PR, and approve I-014 before it is built.
+
 ## 2026-10-30 (I-011)
 
 **Done**

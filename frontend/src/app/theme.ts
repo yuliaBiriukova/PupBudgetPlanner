@@ -154,6 +154,9 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-hero-rule': '#474c54',
     '--pup-color-switch': '#ebedf0',
     '--pup-color-switch-active': '#fcfcfd',
+    // A segmented choice on the page (Settings, F-016): the track and the picked pill
+    '--pup-color-choice': '#ebedf0',
+    '--pup-color-choice-active': '#fcfcfd',
     '--pup-shadow-switch': '0 1px 3px rgba(15, 17, 20, 0.14)',
     '--pup-color-field-border': '#7c828a',
     // Errors: field messages and the banner
@@ -167,6 +170,10 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     // Amounts below zero (a debt, an expense), and the tint of a picked or new thing
     '--pup-color-expense': '#b3261e',
     '--pup-color-tint': '#e7ecf1',
+    // Income, and the tags of the Categories page (F-015): neutral, income ones green
+    '--pup-color-income': '#1f7a4d',
+    '--pup-color-income-bg': '#e4f1ea',
+    '--pup-color-tag': '#ebedf0',
     // The Solid account card (F-014): charcoal here, light grey in dark mode
     '--pup-card-solid': '#26292e',
     '--pup-card-solid-hover': '#363a40',
@@ -196,6 +203,9 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-hero-rule': '#2e3035',
     '--pup-color-switch': '#121315',
     '--pup-color-switch-active': '#2e3035',
+    // On the page the switch's own track would be the page's colour: the tag's, and the picked pill in the accent's tint
+    '--pup-color-choice': '#26272a',
+    '--pup-color-choice-active': '#262f37',
     '--pup-shadow-switch': 'none',
     '--pup-color-field-border': '#71747b',
     '--mantine-color-error': '#f2958c',
@@ -206,6 +216,9 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-on-danger': '#121315',
     '--pup-color-expense': '#f2958c',
     '--pup-color-tint': '#262f37',
+    '--pup-color-income': '#7fd1a4',
+    '--pup-color-income-bg': '#1b2d23',
+    '--pup-color-tag': '#26272a',
     '--pup-card-solid': '#e9eaec',
     '--pup-card-solid-hover': '#d3d6da',
     '--pup-card-on-solid': '#1c1e21',

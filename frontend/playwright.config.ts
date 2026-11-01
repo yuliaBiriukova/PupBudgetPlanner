@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import { AUTH_FILE, BASE_URL, E2E_ADMIN } from './e2e/auth.ts';
+import { NBU_STUB, NBU_STUB_PORT } from './e2e/nbu.ts';
 
 const isCI = !!process.env.CI;
 
@@ -18,7 +19,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
-  workers: isCI ? 1 : undefined,
+  // Locally 3: the fastest from a cold start on the owner's 8-thread laptop, at about 40% CPU (4 took 100%, I-014)
+  workers: isCI ? 1 : 3,
   reporter: isCI
     ? [['github'], ['html', { open: 'never' }]]
     : [['list'], ['html', { open: 'never' }]],
@@ -49,6 +51,18 @@ export default defineConfig({
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : [
+        // In CI the API asks this stub instead of the NBU (e2e/nbu.ts says why not locally)
+        ...(NBU_STUB
+          ? [
+              {
+                name: 'NBU stub',
+                command: 'node e2e/nbu-stub.ts',
+                url: `http://localhost:${String(NBU_STUB_PORT)}/NBUStatService/v1/statdirectory/exchange?date=20261031&json`,
+                reuseExistingServer: false,
+                timeout: 30_000,
+              },
+            ]
+          : []),
         {
           name: 'API',
           command: apiCommand,
@@ -64,6 +78,7 @@ export default defineConfig({
             // Invite-only sign-up with the tests' admin (F-028); locally a reused API reads it from user-secrets
             Access__SignUp: 'InviteOnly',
             Access__AdminEmails__1: E2E_ADMIN.email,
+            ...(NBU_STUB ? { Nbu__BaseAddress: `http://localhost:${String(NBU_STUB_PORT)}/` } : {}),
           },
           reuseExistingServer: !isCI,
           timeout: 180_000,

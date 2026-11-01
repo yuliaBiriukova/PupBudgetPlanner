@@ -1,3 +1,4 @@
+using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Domain.Accounts;
 
 namespace PupBudgetPlanner.Application.Accounts;
@@ -54,3 +55,23 @@ public sealed record SaveAccountRequest(
     decimal OpeningBalance,
     DateOnly OpeningDate,
     CardStyle CardStyle);
+
+/// <summary>
+/// One currency's NBU rate: hryvnias for one unit of <paramref name="Currency"/>, as the NBU publishes it (F-016;
+/// F-017 gave it in the report currency, which was the hryvnia then).
+/// </summary>
+public sealed record RateItem(string Currency, decimal Rate);
+
+/// <summary>
+/// "In total, in UAH" on the Accounts page (F-017): every account in use together in <paramref name="Currency"/> (the
+/// person's report currency, F-016) at the NBU rates of <paramref name="RatesDate"/>, with the rates it used: the
+/// person's other currencies and the report currency's own when it isn't the hryvnia.
+/// <paramref name="Total"/> is empty when there are no rates for it (<see cref="RatesStatus.Missing"/>). With
+/// accounts in the report currency only, no rates are needed: no date and no rates.
+/// </summary>
+public sealed record AccountsTotal(
+    string Currency,
+    decimal? Total,
+    DateOnly? RatesDate,
+    RatesStatus Status,
+    IReadOnlyList<RateItem> Rates);
