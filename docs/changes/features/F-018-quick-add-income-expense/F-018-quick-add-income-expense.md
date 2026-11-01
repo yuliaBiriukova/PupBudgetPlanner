@@ -339,7 +339,32 @@ the display, keys and switch in the page's own color in dark mode; the phone's c
 amount not in focus on the desktop when the form's data came after it opened).
 
 Owner's review of the PR (2026-11-01): the Note was Mantine's small default input; it is now the app's field, as the
-account form's Name (52 px, 16 px text, the fields' border).
+account form's Name (52 px, 16 px text, the fields' border). The empty Transactions page's Add transaction button was
+Mantine's default size; it is now 48 px like the page buttons.
+
+### Round 6 (2026-11-01): the + on account cards
+
+The owner doesn't like the built + (a 44 px surface circle with a border in the card's corner, filled charcoal under
+the pointer) and asked for other variants in the Accounts page's current look. References: Toshl adds through one
+floating + and picks the account in the entry ([how it tracks expenses](https://toshl.com/blog/how-to-track-expenses-incomes-and-transfers-web-app/));
+Wallet by BudgetBakers treats each account as a card you tap ([App Store](https://apps.apple.com/gb/app/id1032467659)).
+Neither puts an add on each card, so the options come from the app's own card language. [Variant 8](prototypes/variant-8.html)
+is the Accounts page as built with the options in the preview bar (**The +**), a "Hover on +" screen and "After a
+save":
+
+- **A · Quiet corner:** only the plus, no circle or border, in the card's muted color; under the pointer a soft round
+  tint of the card's own color. The smallest change.
+- **B · Add by the balance:** "+ Add" on the balance's line, on the right: the word says what it does, where the eye
+  already is.
+- **C · Receipt edge:** the card's bottom torn off by a dashed rule (the ghost card's dashes) with "+ Add transaction";
+  the clearest, but the cards get taller and lose the bank-card proportions on the desktop.
+- **D · Split edge:** a narrow column on the card's right after a thin rule; the whole column is the +, easy for a thumb.
+- **As built today**, for comparison.
+
+In every option the hover is drawn in the card's own colors, never the charcoal fill; the card still opens the account
+form. Checked: the design check passes with 0 issues for every option (it found the Solid card's debt color missing from
+the prototype's cards, fixed); close-ups of each option at 375 and 1440 px, light and dark, looked at (the + was first
+drawn in the page's colors next to a Solid card, nearly invisible: the card's colors now cover the + too).
 
 ## Tests
 

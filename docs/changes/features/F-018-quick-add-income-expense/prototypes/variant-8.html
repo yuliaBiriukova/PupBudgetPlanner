@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>F-018 · Variant 8 · The + on account cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(560px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.pv-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.pv-notes li + li { margin-top: 6px; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+@media (max-width: 600px) {
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+}
+
+/* ---------- Tokens: the app's theme (theme.ts) ---------- */
+.app {
+  --bg: #f5f6f7; --surface: #fcfcfd; --sidebar: #ebedf0; --text: #1c1e21; --muted: #57585b; --rule: #d7d8d9;
+  --hover: #e8e9ea; --field-border: #7c828a; --choice: #ebedf0; --choice-active: #fcfcfd;
+  --primary: #26292e; --on-primary: #f5f6f7; --accent: #2a62a3; --active-bg: #e7ecf1; --tint: #e7ecf1;
+  --logo: #8ec1ec; --logo-mark: #1c1e21; --expense: #b3261e; --focus: #26292e;
+  --solid: #26292e; --solid-hover: #363a40; --on-solid: #f5f6f7; --solid-muted: #b4b9bf; --solid-rule: #474c54;
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+  --r-md: 12px; --shadow-switch: 0 1px 3px rgba(15, 17, 20, .14);
+}
+.app[data-scheme='dark'] {
+  --bg: #121315; --surface: #1b1c1e; --sidebar: #18191b; --text: #e9eaec; --muted: #a4a5a7; --rule: #37383a;
+  --hover: #212224; --field-border: #71747b; --choice: #26272a; --choice-active: #262f37;
+  --primary: #e9eaec; --on-primary: #121315; --accent: #8ec1ec; --active-bg: #262f37; --tint: #262f37;
+  --logo: #8ec1ec; --logo-mark: #121315; --expense: #f2958c; --focus: #e9eaec;
+  --solid: #e9eaec; --solid-hover: #d3d6da; --on-solid: #1c1e21; --solid-muted: #474c54; --solid-rule: #b4b9bf;
+  --shadow-switch: none;
+}
+
+/* ---------- Base and shell (F-010, cut down) ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+:where(.app) :where(button) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, p, ul) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.shell { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); }
+.side { display: none; }
+.column { display: flex; flex-direction: column; min-width: 0; height: 100%; }
+.top { display: flex; flex: none; align-items: center; gap: 10px; height: 56px; padding: 0 16px; }
+.logo { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--logo); color: var(--logo-mark); flex: none; }
+.brand-name { font-family: var(--font-display); font-weight: 300; font-size: 15px; letter-spacing: .02em; }
+.main { flex: 1; min-height: 0; overflow: hidden auto; }
+.content { max-width: 1040px; margin: 0 auto; padding: 8px 16px 32px; container: accounts / inline-size; }
+.tabs { display: flex; flex: none; align-items: center; gap: 2px; padding: 8px 8px 10px; border-top: 1px solid var(--rule); background: var(--bg); }
+.tab { display: grid; place-items: center; width: 44px; min-height: 48px; border: 0; border-radius: 999px; background: none; color: var(--muted); }
+.tab[data-active] { width: auto; display: flex; gap: 8px; padding: 0 14px 0 12px; background: var(--active-bg); color: var(--accent); font-weight: 500; font-size: 13px; }
+.tab-add { display: grid; place-items: center; width: 52px; height: 52px; margin-left: auto; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); }
+@container app (min-width: 768px) {
+  .shell { grid-template-columns: 248px minmax(0, 1fr); }
+  .side { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-right: 1px solid var(--rule); background: var(--sidebar); }
+  .side-head { display: flex; align-items: center; gap: 10px; height: 44px; margin-bottom: 12px; padding: 0 8px; }
+  .side-add { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; margin-bottom: 14px; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 500; }
+  .nav-link { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-radius: 999px; color: var(--text); font-size: 14px; text-decoration: none; }
+  .nav-link[aria-current='page'] { font-weight: 500; }
+  .nav-link[aria-current='page'] > svg { color: var(--accent); }
+  .top, .tabs { display: none; }
+  .content { padding: 32px 40px 48px; }
+}
+
+/* ---------- The Accounts page as built (F-014 variant 10) ---------- */
+.head { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 8px 0 18px; }
+.head h1 { margin-right: auto; font-family: var(--font-display); font-weight: 300; font-size: 28px; line-height: 1.2; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 22px; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 500; }
+.head .btn { order: 3; width: 100%; }
+.toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.toolbar > span { color: var(--muted); font-size: 14px; }
+.seg { display: flex; flex: 1; gap: 4px; padding: 4px; border-radius: 999px; background: var(--choice); }
+.seg span { flex: 1; display: grid; place-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; color: var(--muted); font-size: 14px; font-weight: 500; }
+.seg span[data-on] { background: var(--choice-active); color: var(--text); box-shadow: var(--shadow-switch); }
+.totals { display: grid; gap: 14px; padding: 16px 0; margin-bottom: 26px; border-block: 1px solid var(--rule); }
+.totals .lbl { color: var(--muted); font-size: 14px; }
+.grand { font-family: var(--font-display); font-weight: 300; font-size: 36px; line-height: 1.15; letter-spacing: -.01em; }
+.rates { color: var(--muted); font-size: 13px; }
+.per { display: flex; gap: 24px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.per div { display: grid; }
+.per .v { font-family: var(--font-display); font-weight: 300; font-size: 20px; }
+.group + .group { margin-top: 30px; }
+.g-head { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.g-title { display: flex; gap: 10px; align-items: baseline; min-width: 0; }
+.g-title h2 { font-family: var(--font-display); font-weight: 300; font-size: 18px; line-height: 1.3; }
+.g-title span { color: var(--muted); font-size: 14px; }
+.g-total { margin-left: auto; font-family: var(--font-display); font-weight: 300; font-size: 22px; letter-spacing: -.01em; }
+.cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 0; margin: 0; list-style: none; }
+.ghost { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; padding: 12px 20px; border: 1px dashed var(--accent); border-radius: var(--r-md); background: none; color: var(--accent); font-weight: 500; }
+@container app (min-width: 768px) {
+  .head .btn { order: 0; width: auto; min-height: 48px; }
+  .seg { flex: none; }
+  .grand { font-size: 40px; }
+}
+
+/* An account card in its style: Solid, Tinted, Envelope, Plain. The colors sit on the card's list item, so the +
+   next to the card takes them too */
+.cw {
+  --card-bg: var(--surface); --card-border: var(--rule); --card-text: var(--text); --card-muted: var(--muted);
+  --card-rule: var(--rule); --card-hover: var(--hover); --card-press: rgba(28, 30, 33, .1); --card-debt: var(--expense);
+}
+.card {
+  container: card / inline-size; position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 12px;
+  width: 100%; min-width: 0; min-height: 108px; padding: 16px 18px; border: 1px solid var(--card-border); border-radius: var(--r-md);
+  background: var(--card-bg); color: var(--card-text); text-align: left; cursor: pointer;
+}
+.app[data-scheme='dark'] .cw { --card-press: rgba(233, 234, 236, .12); }
+.cw[data-style='solid'] { --card-bg: var(--solid); --card-border: var(--solid); --card-text: var(--on-solid); --card-muted: var(--solid-muted); --card-rule: var(--solid-rule); --card-hover: var(--solid-hover); --card-press: rgba(245, 246, 247, .14); --card-debt: #f2958c; }
+.app[data-scheme='dark'] .cw[data-style='solid'] { --card-press: rgba(28, 30, 33, .1); --card-debt: #a1221b; }
+.cw[data-style='tinted'] { --card-bg: var(--tint); --card-border: var(--tint); --card-rule: color-mix(in srgb, var(--accent) 30%, var(--tint)); }
+.cw[data-style='envelope'] { --card-border: var(--field-border); }
+.card[data-style='envelope'] { border-style: dashed; }
+.c-top { display: grid; gap: 0 12px; min-width: 0; }
+.c-name { overflow: hidden; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.c-meta { overflow: hidden; color: var(--card-muted); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.c-bal { font-family: var(--font-display); font-size: min(24px, 10cqi); font-weight: 300; letter-spacing: -.01em; line-height: 1.2; white-space: nowrap; }
+.c-bal.neg { color: var(--card-debt); }
+/* The one moment after a save: a short accent ring (as built) */
+.card[data-new]::after { content: ''; position: absolute; inset: -4px; border: 2px solid var(--accent); border-radius: 15px; pointer-events: none; }
+@container accounts (min-width: 420px) {
+  .cards { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+  .card { aspect-ratio: 1.586; min-height: 0; padding: 18px 20px; }
+  .ghost { flex-direction: column; gap: 8px; height: 100%; min-height: 0; aspect-ratio: 1.586; }
+}
+
+/* ========== The + options. The card and the + share one grid cell: the + is its own button, not inside the card's ========== */
+.cw { position: relative; display: grid; min-width: 0; }
+.cw > * { grid-area: 1 / 1; }
+/* Above the card, which is positioned for its ring */
+.cw > .add { position: relative; z-index: 1; }
+
+/* Today (as built): a 44 px surface circle with a border; hover fills it charcoal. Shown for comparison */
+.now .add { align-self: start; justify-self: end; display: grid; place-items: center; width: 44px; height: 44px; margin: 8px; border: 1px solid var(--rule); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; }
+.now .add:hover, .now .add[data-hover] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.now .card .c-top { padding-right: 40px; }
+
+/* A · Quiet corner: only the plus, in the card's own muted color; hover is a soft round in the card's own tint */
+.corner .add { align-self: start; justify-self: end; display: grid; place-items: center; width: 44px; height: 44px; margin: 6px; border: 0; border-radius: 999px; background: none; color: var(--card-muted, var(--muted)); cursor: pointer; }
+.corner .add:hover, .corner .add[data-hover] { background: var(--card-press); color: var(--card-text); }
+.corner .card .c-top { padding-right: 32px; }
+
+/* B · Add next to the balance: the word says what it does; it sits where the eye already is, on the balance's line */
+.under .add { align-self: end; justify-self: end; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin: 0 8px 6px; padding: 0 12px; border: 0; border-radius: 999px; background: none; color: var(--card-text); font-size: 14px; font-weight: 500; cursor: pointer; }
+.under .add .ic { color: var(--card-muted); }
+.under .add:hover, .under .add[data-hover] { background: var(--card-press); }
+.under .card .c-bal { padding-right: 76px; }
+@container accounts (min-width: 420px) { .under .add { margin: 0 10px 8px; } }
+
+/* C · Receipt edge: the bottom of the card is torn off by a dashed rule (the ghost card's dashes); the strip adds */
+.strip .card { padding-bottom: 60px; }
+.strip .add { align-self: end; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; margin: 0 1px 1px; border: 0; border-top: 1px dashed var(--card-rule); border-radius: 0 0 11px 11px; background: none; color: var(--card-text); font-size: 14px; font-weight: 500; cursor: pointer; }
+.strip .add .ic { color: var(--card-muted); }
+.strip .add:hover, .strip .add[data-hover] { background: var(--card-press); }
+.strip .card[data-style='envelope'] + .add { margin: 0 1px 1px; }
+/* The strip makes the card taller than a bank card on the desktop */
+@container accounts (min-width: 420px) { .strip .card { aspect-ratio: auto; min-height: 168px; } }
+
+/* D · Split edge: a narrow column on the card's right, after a thin rule; the whole column is the + */
+.edge .add { justify-self: end; display: grid; place-items: center; width: 52px; margin: 1px; border: 0; border-left: 1px solid var(--card-rule); border-radius: 0 11px 11px 0; background: none; color: var(--card-muted); cursor: pointer; }
+.edge .add:hover, .edge .add[data-hover] { background: var(--card-press); color: var(--card-text); }
+.edge .card { padding-right: 70px; }
+.edge .card[data-style='envelope'] + .add { border-left-style: dashed; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"><div class="frame"><div class="app" id="app" data-scheme="light"></div></div></div>
+<script>
+const ICONS = {
+  stack: ['M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z', 'M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4', 'M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z', 'M3 6v10c0 .888 .772 1.45 2 2', 'M3 11c0 .888 .772 1.45 2 2'],
+  receipt: ['M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2', 'M9 7h6', 'M9 11h6', 'M13 15h2'],
+  wallet: ['M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12', 'M20 12v4h-4a2 2 0 0 1 0 -4h4'],
+  chart: ['M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M4 20h14'],
+  dots: ['M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  plus: ['M12 5l0 14', 'M5 12l14 0'],
+};
+const icon = (n, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n].map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+
+const ACCOUNTS = [
+  { id: 'mono', name: 'Mono black', meta: 'Monobank', cur: 'UAH', bal: 48211, style: 'solid' },
+  { id: 'privat', name: 'Privat card', meta: 'PrivatBank', cur: 'UAH', bal: 12784, style: 'tinted' },
+  { id: 'credit', name: 'Mono credit', meta: 'Monobank', cur: 'UAH', bal: -4312, style: 'solid' },
+  { id: 'cash', name: 'Wallet', meta: 'Cash', cur: 'UAH', bal: 3450, style: 'envelope' },
+  { id: 'deposit', name: 'Deposit for the new apartment', meta: 'Deposit', cur: 'UAH', bal: 250000, style: 'plain' },
+  { id: 'usd', name: 'Mono dollars', meta: 'Monobank', cur: 'USD', bal: 1240, style: 'solid' },
+  { id: 'cash-usd', name: 'Dollars at home', meta: 'Cash', cur: 'USD', bal: 500, style: 'envelope' },
+];
+const money = (v, cur) => {
+  const n = Math.abs(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const s = cur === 'USD' ? `$${n}` : `${n} ₴`;
+  return v < 0 ? `−${s}` : s;
+};
+
+/** The options, one block for the design check (BLOCKS / setBlock). */
+const BLOCKS = {
+  plus: {
+    label: 'The +',
+    options: {
+      corner: 'A · Quiet corner',
+      under: 'B · Add by the balance',
+      strip: 'C · Receipt edge',
+      edge: 'D · Split edge',
+      now: 'As built today',
+    },
+  },
+};
+const DEFAULTS = { plus: 'corner' };
+const picks = { ...DEFAULTS };
+function setBlock(id, key) { picks[id] = key; render(); }
+function resetBlocks() { Object.assign(picks, DEFAULTS); render(); }
+
+const PAGES = [
+  { id: 'accounts', label: 'Accounts' },
+  { id: 'hover', label: 'Hover on +' },
+  { id: 'saved', label: 'After a save' },
+];
+const state = { page: 'accounts', schemePref: 'system' };
+const app = document.getElementById('app');
+const stage = document.getElementById('stage');
+const mq = matchMedia('(prefers-color-scheme: dark)');
+function applyScheme() {
+  app.dataset.scheme = state.schemePref === 'system' ? (mq.matches ? 'dark' : 'light') : state.schemePref;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+}
+mq.addEventListener('change', applyScheme);
+
+/** A card and its own +, side by side in one grid cell (never a button inside a button). */
+function card(a, i) {
+  const hover = state.page === 'hover' && i < 2 ? ' data-hover' : '';
+  const fresh = state.page === 'saved' && a.id === 'privat' ? ' data-new' : '';
+  const bal = state.page === 'saved' && a.id === 'privat' ? a.bal - 500 : a.bal;
+  // The visible words start the spoken name (label in name)
+  const label = picks.plus === 'strip' ? `Add transaction from ${a.name}` : `Add a transaction from ${a.name}`;
+  const word = picks.plus === 'under' ? `${icon('plus')}<span>Add</span>` : picks.plus === 'strip' ? `${icon('plus')}<span>Add transaction</span>` : icon('plus');
+  return `<li class="cw" data-style="${a.style}"><button class="card" type="button" data-style="${a.style}"${fresh}>
+      <span class="c-top"><span class="c-name">${a.name}</span><span class="c-meta">${a.meta}</span></span>
+      <span class="c-bal num${bal < 0 ? ' neg' : ''}">${money(bal, a.cur)}</span></button>
+    <button class="add" type="button" aria-label="${label}"${hover}>${word}</button></li>`;
+}
+function group(title, cur, code) {
+  const list = ACCOUNTS.filter((a) => a.cur === cur);
+  const total = list.reduce((s, a) => s + a.bal - (state.page === 'saved' && a.id === 'privat' ? 500 : 0), 0);
+  return `<section class="group" aria-labelledby="g-${cur}"><div class="g-head"><div class="g-title"><h2 id="g-${cur}">${title}</h2><span>${code}, ${list.length} accounts</span></div><span class="g-total num">${money(total, cur)}</span></div>
+    <ul class="cards ${picks.plus}">${list.map((a, i) => card(a, i)).join('')}<li><button class="ghost" type="button">${icon('plus')}<span>Add to ${code}</span></button></li></ul></section>`;
+}
+function page() {
+  return `<header class="head"><h1>Accounts</h1><button class="btn" type="button">${icon('plus')}Add account</button></header>
+    <div class="toolbar"><span aria-hidden="true">Group by</span><div class="seg" role="radiogroup" aria-label="Group accounts by"><span data-on role="radio" aria-checked="true">Currency</span><span role="radio" aria-checked="false">Source</span></div></div>
+    <div class="totals" role="group" aria-label="Totals"><div><p class="lbl">In total, in UAH</p><p class="grand num">${money(state.page === 'saved' ? 365475 : 365975, 'UAH')}</p><p class="rates">At NBU rates of 1 Nov 2026: <span class="num">$1 = 45.53 ₴</span></p></div>
+      <div class="per"><div><span class="lbl">Hryvnia</span><span class="v num">${money(state.page === 'saved' ? 309633 : 310133, 'UAH')}</span></div><div><span class="lbl">US dollar</span><span class="v num">$1 740</span></div></div></div>
+    ${group('Hryvnia', 'UAH', 'UAH')}${group('US dollar', 'USD', 'USD')}`;
+}
+function render() {
+  const scroll = document.querySelector('.main')?.scrollTop ?? 0;
+  app.innerHTML = `<div class="shell"><aside class="side" aria-label="Sections"><div class="side-head"><span class="logo" aria-hidden="true">${icon('stack')}</span><span class="brand-name">Pup Budget</span></div>
+      <button class="side-add" type="button">${icon('plus')}Add transaction</button>
+      <nav aria-label="Main"><a class="nav-link" href="#t">${icon('receipt')}Transactions</a><a class="nav-link" href="#a" aria-current="page">${icon('wallet')}Accounts</a><a class="nav-link" href="#r">${icon('chart')}Reports</a></nav></aside>
+    <div class="column"><header class="top"><span class="logo" aria-hidden="true">${icon('stack')}</span><span class="brand-name">Pup Budget</span></header>
+      <main class="main" tabindex="0"><div class="content">${page()}</div></main>
+      <nav class="tabs" aria-label="Tabs"><a class="tab" href="#t" aria-label="Transactions">${icon('receipt')}</a><a class="tab" href="#a" data-active aria-current="page">${icon('wallet')}<span>Accounts</span></a><a class="tab" href="#r" aria-label="Reports">${icon('chart')}</a><button class="tab" type="button" aria-label="More">${icon('dots')}</button><button class="tab-add" type="button" aria-label="Add transaction">${icon('plus', 24)}</button></nav></div></div>`;
+  document.querySelector('.main').scrollTop = scroll;
+  document.querySelectorAll('[data-page-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pageSet === state.page)));
+  document.querySelectorAll('[data-pick]').forEach((b) => b.setAttribute('aria-pressed', String(picks.plus === b.dataset.pick)));
+}
+function go(id) { state.page = id; render(); document.querySelector('.main').scrollTop = 0; }
+function setView(v) { stage.dataset.view = v; document.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); }
+
+const NOTES = [
+  '<b>The same in every option:</b> the card still opens the account form (F-014); the + is its own button next to the card, never inside it. Its hover is drawn in the card’s own colors (a soft press tint), never the charcoal fill of today’s +.',
+  '<b>A · Quiet corner</b>: only the plus, no circle or border, in the card’s muted color; under the pointer a soft round tint of the card. The smallest change: the card looks almost as before F-018.',
+  '<b>B · Add by the balance</b>: “+ Add” on the balance’s line, at the right. The word says what it does; it sits where the eye already is after reading the balance. The balance keeps clear of it.',
+  '<b>C · Receipt edge</b>: the card’s bottom is torn off by a dashed rule (the dashes of the “Add to UAH” ghost card) and the strip says “+ Add transaction”. The clearest, and two plain targets; the cards get a bit taller and lose the bank-card proportions on the desktop.',
+  '<b>D · Split edge</b>: a narrow column on the card’s right after a thin rule; the whole column is the +, easy to hit with a thumb. The card reads as two parts, like a card with its tab.',
+  'Screens: “Hover on +” shows the + under the pointer on the first two cards of each group (Solid and Tinted); “After a save” shows the card’s ring after 500 ₴ was added from Privat card, as built.',
+];
+document.body.insertAdjacentHTML('afterbegin', `<div class="pv-bar"><b>F-018 · Variant 8 · The + on account cards</b>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>The +</span>${Object.entries(BLOCKS.plus.options).map(([k, l]) => `<button data-pick="${k}">${l}</button>`).join('')}</div>
+  <div class="pv-group"><span>Screen</span>${PAGES.map((p) => `<button data-page-set="${p.id}">${p.label}</button>`).join('')}</div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <button data-notes aria-expanded="false">About these options</button>
+  <div class="pv-notes" id="notes" hidden><ul>${NOTES.map((n) => `<li>${n}</li>`).join('')}</ul></div></div>`);
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('button, a');
+  if (!t) return;
+  if (t.matches('a')) e.preventDefault();
+  if (t.dataset.view) setView(t.dataset.view);
+  if (t.dataset.pick) setBlock('plus', t.dataset.pick);
+  if (t.dataset.pageSet) go(t.dataset.pageSet);
+  if (t.dataset.schemeSet) { state.schemePref = t.dataset.schemeSet; applyScheme(); }
+  if (t.hasAttribute('data-notes')) { const n = document.getElementById('notes'); n.hidden = !n.hidden; t.setAttribute('aria-expanded', String(!n.hidden)); }
+});
+setView(innerWidth >= 1200 ? 'desktop' : 'phone');
+applyScheme();
+render();
+</script>
+</body>
+</html>

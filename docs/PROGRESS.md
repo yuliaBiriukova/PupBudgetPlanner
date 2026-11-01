@@ -2,6 +2,19 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-01 (F-018 review: the + on account cards, round 6)
+
+**Done**
+- The empty Transactions page's Add transaction button is 48 px like the page buttons (it was Mantine's default size).
+- The owner asked for other variants of the + on account cards. Variant 8: the Accounts page as built with four options
+  (quiet corner, Add by the balance, receipt edge, split edge) and today's for comparison; hover in the card's own
+  colors in all of them. Design check 0 issues for every option; close-ups at 375 and 1440 px, light and dark, looked
+  at.
+- Test data: none.
+
+**Next**
+- Owner: pick an option (or a mix); then it becomes the final prototype for approval before the app changes.
+
 ## 2026-11-01 (F-018 review: the note field)
 
 **Done**

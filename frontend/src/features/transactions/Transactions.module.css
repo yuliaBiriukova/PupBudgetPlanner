@@ -148,6 +148,11 @@
   color: var(--mantine-color-dimmed);
 }
 
+/* As tall as the app's other page buttons (Add account) */
+.emptyButton {
+  min-height: 48px;
+}
+
 .errorBanner {
   display: flex;
   gap: 10px;

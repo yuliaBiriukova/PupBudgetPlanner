@@ -83,6 +83,7 @@ export function TransactionsPage() {
           <Button
             radius="xl"
             mt={18}
+            className={classes.emptyButton}
             leftSection={<IconPlus size={20} stroke={1.8} />}
             onClick={() => {
               form.add();
