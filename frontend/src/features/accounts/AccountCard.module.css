@@ -1,7 +1,8 @@
 /* An account card (F-014, final prototype variant 10): the name and what it is on top, the balance at the bottom.
    The card is a size container, so the balance shrinks with it and never wraps or overlaps */
 .card,
-.mini {
+.mini,
+.withEdge {
   --card-bg: var(--pup-color-surface);
   --card-border: var(--pup-color-rule);
   --card-text: var(--mantine-color-text);
@@ -36,7 +37,7 @@ button.card {
   outline-offset: 2px;
 }
 
-:is(.card, .mini)[data-style='Solid'] {
+:is(.card, .mini, .withEdge)[data-style='Solid'] {
   --card-bg: var(--pup-card-solid);
   --card-border: var(--pup-card-solid);
   --card-text: var(--pup-card-on-solid);
@@ -49,7 +50,7 @@ button.card[data-style='Solid']:hover {
   --card-border: var(--pup-card-solid-hover);
 }
 
-:is(.card, .mini)[data-style='Tinted'] {
+:is(.card, .mini, .withEdge)[data-style='Tinted'] {
   --card-bg: var(--pup-color-tint);
   --card-border: var(--pup-color-tint);
 }
@@ -58,9 +59,11 @@ button.card[data-style='Tinted']:hover {
   --card-border: var(--pup-color-accent);
 }
 
-:is(.card, .mini)[data-style='Envelope'] {
+:is(.card, .mini, .withEdge)[data-style='Envelope'] {
   --card-border: var(--pup-color-field-border);
+}
 
+:is(.card, .mini)[data-style='Envelope'] {
   border-style: dashed;
 }
 
@@ -73,11 +76,6 @@ button.card:is([data-style='Plain'], [data-style='Envelope']):hover {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0 12px;
   align-items: baseline;
-}
-
-/* The + in the top right corner (F-018) covers 44 px of the top row */
-.card[data-corner] .top {
-  padding-right: 40px;
 }
 
 .name {
@@ -193,4 +191,53 @@ button.card:is([data-style='Plain'], [data-style='Envelope']):hover {
   width: 80%;
   height: 3px;
   opacity: 1;
+}
+
+/* The split edge (F-018, variant 9): a column on the card's right after a thin rule in the card's colors; the whole
+   column is the + that adds a transaction from the account. 52 px on the phone; the Accounts page makes it 48 px from a
+   tablet's list width (--card-edge) */
+.withEdge {
+  display: grid;
+  min-width: 0;
+}
+
+.withEdge > * {
+  grid-area: 1 / 1;
+}
+
+.card[data-edge] {
+  padding-right: calc(var(--card-edge, 52px) + 18px);
+}
+
+/* The column takes the card's width away: the balance is sized from what is left, so it keeps its size */
+.card[data-edge] .balance {
+  font-size: min(24px, 13.5cqi);
+}
+
+.edge {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  justify-self: end;
+  width: var(--card-edge, 52px);
+  margin: 1px;
+  border-left: 1px solid color-mix(in srgb, var(--card-text) 20%, var(--card-bg));
+  border-radius: 0 11px 11px 0;
+  color: var(--card-muted);
+}
+
+.withEdge[data-style='Envelope'] .edge {
+  border-left-style: dashed;
+}
+
+/* Under the pointer: a soft tint of the card's own color, never the charcoal of a filled button */
+.edge:hover {
+  background: color-mix(in srgb, var(--card-text) 10%, var(--card-bg));
+  color: var(--card-text);
+}
+
+.edge:focus-visible {
+  outline: 2px solid var(--mantine-color-text);
+  outline-offset: 2px;
 }

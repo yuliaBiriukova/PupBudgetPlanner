@@ -1,6 +1,6 @@
 import { SimpleGrid } from '@mantine/core';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { expect, fn, within } from 'storybook/test';
 import { AccountCard, AddCard } from './AccountCard';
 import { CARD_STYLES } from './accountsApi';
 
@@ -59,5 +59,41 @@ export const Styles: Story = { render: () => <AllStyles /> };
 
 export const StylesDark: Story = {
   render: () => <AllStyles />,
+  globals: { colorScheme: 'dark' },
+};
+
+/** The split edge on every style (F-018, variant 9): the column on the right adds a transaction from the account. */
+function WithEdges() {
+  return (
+    <SimpleGrid cols={1} spacing={10}>
+      {CARD_STYLES.map((style) => (
+        <AccountCard
+          key={style}
+          name={`${style} card`}
+          meta="PrivatBank"
+          balance={style === 'Solid' ? -4312 : 12784}
+          currency="UAH"
+          cardStyle={style}
+          onClick={fn()}
+          onAdd={fn()}
+          addLabel={`Add a transaction from ${style} card`}
+        />
+      ))}
+    </SimpleGrid>
+  );
+}
+
+export const WithAddEdge: Story = {
+  render: () => <WithEdges />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole('button', { name: 'Add a transaction from Solid card' }),
+    ).toBeInTheDocument();
+  },
+};
+
+export const WithAddEdgeDark: Story = {
+  render: () => <WithEdges />,
   globals: { colorScheme: 'dark' },
 };

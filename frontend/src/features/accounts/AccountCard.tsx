@@ -19,8 +19,12 @@ interface AccountCardProps {
   onClick?: () => void;
   /** Just added or restored, or its balance just changed: a short accent ring. */
   isNew?: boolean;
-  /** A button sits in its top right corner (the + that adds a transaction, F-018): the name keeps clear of it. */
-  withCorner?: boolean;
+  /**
+   * Adds a transaction from this account (F-018): a column on the card's right after a thin rule, its own button next
+   * to the card's (variant 9, the split edge). `addLabel` names it for screen readers.
+   */
+  onAdd?: () => void;
+  addLabel?: string;
   className?: string;
 }
 
@@ -34,7 +38,8 @@ export function AccountCard({
   cardStyle,
   onClick,
   isNew,
-  withCorner,
+  onAdd,
+  addLabel,
   className,
 }: AccountCardProps) {
   const content = (
@@ -53,15 +58,27 @@ export function AccountCard({
     className: cx(classes.card, className),
     'data-style': cardStyle,
     'data-new': isNew ? true : undefined,
-    'data-corner': withCorner ? true : undefined,
+    'data-edge': onAdd ? true : undefined,
   };
 
-  return onClick ? (
+  const card = onClick ? (
     <UnstyledButton {...props} onClick={onClick}>
       {content}
     </UnstyledButton>
   ) : (
     <div {...props}>{content}</div>
+  );
+  if (!onAdd) return card;
+
+  // The card and its edge share one cell, side by side: never a button inside a button. The wrapper carries the card's
+  // colors, so the edge is drawn in them too
+  return (
+    <div className={classes.withEdge} data-style={cardStyle}>
+      {card}
+      <UnstyledButton className={classes.edge} aria-label={addLabel} onClick={onAdd}>
+        <IconPlus size={20} stroke={1.7} aria-hidden />
+      </UnstyledButton>
+    </div>
   );
 }
 

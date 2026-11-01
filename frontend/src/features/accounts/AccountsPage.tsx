@@ -1,11 +1,4 @@
-import {
-  ActionIcon,
-  Button,
-  SegmentedControl,
-  Skeleton,
-  Title,
-  UnstyledButton,
-} from '@mantine/core';
+import { Button, SegmentedControl, Skeleton, Title, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
@@ -456,7 +449,7 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
       </div>
       <ul className={classes.cards}>
         {accounts.map((account) => (
-          <li key={account.id} className={classes.cardWithAdd}>
+          <li key={account.id}>
             <AccountCard
               name={account.name}
               meta={groupBy === 'currency' ? sourceOf(account) : undefined}
@@ -465,23 +458,15 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
               currency={account.currency}
               cardStyle={account.cardStyle}
               isNew={fresh?.id === account.id}
-              withCorner
               className={classes.card}
               onClick={() => {
                 onOpen(account);
               }}
-            />
-            <ActionIcon
-              variant="default"
-              radius="xl"
-              className={classes.cardAdd}
-              aria-label={t('accounts.addTransaction', { name: account.name })}
-              onClick={() => {
+              addLabel={t('accounts.addTransaction', { name: account.name })}
+              onAdd={() => {
                 onAddTransaction(account);
               }}
-            >
-              <IconPlus size={20} stroke={1.7} />
-            </ActionIcon>
+            />
           </li>
         ))}
         <li>

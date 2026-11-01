@@ -2,6 +2,20 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-01 (F-018 review: split edge built)
+
+**Done**
+- The owner approved variant 9 ("Approved, build it"); recorded in the description file and the F-018 screen decision.
+- Built: the split edge on every account card (`AccountCard`'s `onAdd`), 52 px on the phone and 48 px wider, in the
+  card's own colors; the corner + is gone. New stories for it.
+- Checked: lint, format, typecheck, all unit tests (183), build, Storybook build, the full E2E suite (52); screenshots
+  of the Accounts page at 375 and 1440 px, light and dark, looked at.
+- Test data: one `e2e-manual-…@example.com` person with sample accounts and transactions for the screenshots, removed
+  by the E2E clean-up (checked: no `e2e-` people left).
+
+**Next**
+- Owner: review and merge PR #44.
+
 ## 2026-11-01 (F-018 review: split edge chosen, final prototype)
 
 **Done**

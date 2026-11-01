@@ -369,8 +369,13 @@ drawn in the page's colors next to a Solid card, nearly invisible: the card's co
 The owner chose **D · Split edge** (2026-11-01). [Variant 9 (final)](prototypes/variant-9.html) is the Accounts page
 with only it: a column on each card's right after a thin rule in the card's colors (dashed on an envelope card), 52 px
 on the phone and 48 px from a tablet's width, the plus centred in the card's muted color, a soft tint of the card's own
-color under the pointer. The balance is sized from the narrower content so it keeps today's size. Waiting for the
-owner's approval before the app changes. Checked: the design check passes with 0 issues; close-ups of every screen
+color under the pointer. The balance is sized from the narrower content so it keeps today's size. **Approved
+2026-11-01** by the owner in chat ("Approved, build it").
+
+Built the same day: `AccountCard` takes `onAdd` and `addLabel` and draws the edge as its own button next to the card,
+in a wrapper that carries the card's colors (the + built first is gone). Stories: "Account card / With add edge" (light
+and dark). Checked: lint, format, typecheck, all unit tests (183), build and Storybook build, the full E2E suite (52);
+the Accounts page at 375 and 1440 px, light and dark, with the pointer on an edge, looked at. Checked: the design check passes with 0 issues; close-ups of every screen
 (Accounts, Hover on +, After a save) at 375 and 1440 px, light and dark, looked at (the desktop balance had shrunk to
 14 px next to the column, fixed).
 
