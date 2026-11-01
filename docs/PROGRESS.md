@@ -2,6 +2,36 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-01 (F-018 built)
+
+**Done**
+- The owner approved variant 7 ("I approve variant 7 for the current feature, build it"); recorded in the description
+  file and DESIGN_RULES (screen decision, and the custom rule for the amount's error read out only).
+- Backend: `Transaction` (expense or income), the `transactions` table, `/api/transactions` (latest 50, add, change,
+  delete, with the balance before and after) and `/api/transactions/suggestions`; balances on the Accounts page include
+  the transactions; an account with transactions can't be deleted or change its currency (409). ADR 0022.
+- Frontend: the quick-add form as approved (week strip and Mantine's calendar, account field, calculator display with
+  the app's keys on the phone, category pills with All categories and a search, note), opened from the shell's +, a +
+  on every account card and a row of the new latest-transactions list; delete asks first; the notification counts the
+  balance. The account form turns Delete and the currency off once there are transactions (I-011's "Later" screens).
+  `ResponsiveDialog` / `BottomSheet` got a title-row control, title-row buttons, a width and a full-height sheet.
+- Found and fixed while checking: the Expense / Income switch didn't switch on the phone (a sheet's title row started a
+  swipe on labels); Escape in a list or the calendar closed the form too; dark-mode display and keys in the page's
+  color; the phone calendar not filling its sheet; faint days of other months in the calendar (axe).
+- Checked: backend tests (306), frontend lint, format, typecheck, unit tests, build, Storybook build; the full E2E suite
+  (52, the new `transactions.spec.ts` on the desktop and the phone); the design check on Transactions and Accounts (0
+  issues); axe on the open form and its lists; screenshots of every state at 375 and 1440 px, light and dark. Not run:
+  the Storybook stories themselves (too slow, owner 2026-10-30). The Browser pane didn't draw while the app window was
+  behind, so the screenshots were taken with headless Playwright.
+- Test data: two people `e2e-manual-…@example.com` with four accounts and seven transactions each, made through the API
+  for the screenshots; removed by the E2E clean-up (checked: no `e2e-` people left). The E2E runs cleaned up after
+  themselves.
+- Seen, not changed: axe reports a second banner landmark while any titled phone sheet is open (the account form too,
+  before F-018).
+
+**Next**
+- Owner: review and merge the F-018 PR. Then F-019 (transfers and exchange) or F-020 (the full list).
+
 ## 2026-11-01 (F-018 final prototype, variant 7)
 
 **Done**

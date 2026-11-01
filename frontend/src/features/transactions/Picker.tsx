@@ -32,7 +32,8 @@ interface PickerProps {
 
 /**
  * A list or the calendar the form opens (F-018): a dropdown under its button on the desktop, over the dialog, as the
- * app's other dropdowns (the currency list, F-016); a sheet over the form on the phone.
+ * app's other dropdowns (the currency list, F-016); a sheet over the form on the phone. Its first control marked
+ * `data-autofocus` (and `KEEP_FORM_OPEN`) takes the focus, so Escape closes the picker only.
  */
 export function Picker({
   opened,
@@ -48,13 +49,23 @@ export function Picker({
   listHeight,
 }: PickerProps) {
   const isDesktop = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
+  // Its controls are marked to keep the form open on Escape (KEEP_FORM_OPEN): the picker closes itself
+  const content = (
+    <div
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') onClose();
+      }}
+    >
+      {children}
+    </div>
+  );
 
   if (!isDesktop) {
     return (
       <>
         {target}
         <BottomSheet opened={opened} onClose={onClose} title={title} top={top} tall={tall}>
-          {children}
+          {content}
         </BottomSheet>
       </>
     );
@@ -73,6 +84,8 @@ export function Picker({
       withinPortal
       // Its roles would give the button another id; the button says aria-expanded itself
       withRoles={false}
+      // The focus goes into it (to its [data-autofocus]), so Escape closes the dropdown and not the form under it
+      trapFocus
       returnFocus
       closeOnEscape
       classNames={{ dropdown: classes.dropdown }}
@@ -91,10 +104,10 @@ export function Picker({
             className={classes.listScroll}
             data-first={top ? undefined : true}
           >
-            {children}
+            {content}
           </FadingScrollArea>
         ) : (
-          children
+          content
         )}
       </Popover.Dropdown>
     </Popover>

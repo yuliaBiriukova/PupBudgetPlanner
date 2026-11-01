@@ -154,6 +154,7 @@ function Calendar({ value, onPick }: { value: string; onPick: (day: string) => v
             className={classes.quickDay}
             data-picked={day === value || undefined}
             aria-pressed={day === value}
+            data-autofocus={day === now ? true : undefined}
             onClick={() => {
               onPick(day);
             }}
@@ -168,6 +169,7 @@ function Calendar({ value, onPick }: { value: string; onPick: (day: string) => v
         defaultDate={value}
         maxDate={now}
         highlightToday
+        hideOutsideDates
         size="md"
         onChange={(day) => {
           if (day) onPick(day);

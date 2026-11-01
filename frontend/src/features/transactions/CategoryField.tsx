@@ -84,6 +84,7 @@ export function CategoryField({ value, onChange, pills, all, often, error }: Cat
       rightSectionWidth={48}
       classNames={{ input: classes.searchInput }}
       autoComplete="off"
+      data-autofocus
       {...KEEP_FORM_OPEN}
     />
   );
@@ -205,9 +206,9 @@ function CategoryList({ value, all, often, query, onPick }: CategoryListProps) {
 
   return sections.map((section, index) => (
     <div key={section.group}>
-      <h4 className={classes.listHeading} id={`${id}-${String(index)}`}>
+      <h3 className={classes.listHeading} id={`${id}-${String(index)}`}>
         {section.group}
-      </h4>
+      </h3>
       <ul className={classes.list} aria-labelledby={`${id}-${String(index)}`}>
         {section.categories.map((category) => (
           <li key={category.id}>

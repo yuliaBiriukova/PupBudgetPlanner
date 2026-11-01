@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M3 — Transactions |
-| Status | In progress (building variant 7) |
+| Status | Done |
 | Branch | `feature/F-018-quick-add-income-expense` |
 | Design | 3 HTML prototypes required |
 | Approved | 2026-11-01, by the owner in chat ("I approve variant 7 for the current feature, build it"): the final prototype, [variant 7](prototypes/variant-7.html), with its three reviews; expense and income (transfer and exchange in it are F-019's) |
@@ -15,20 +15,20 @@ Entering an expense on the phone is as fast as in Monefy.
 
 ## Acceptance criteria
 
-- [ ] Add expense or income: amount, category, account, date (today by default), note
-- [ ] Last used account is preselected; numeric keyboard on mobile
-- [ ] The category last used with the picked account is preselected (owner, 2026-11-01)
-- [ ] A transaction can be added from an account on the Accounts page, with that account picked (owner,
+- [x] Add expense or income: amount, category, account, date (today by default), note
+- [x] Last used account is preselected; numeric keyboard on mobile (the app's own number keys, as approved)
+- [x] The category last used with the picked account is preselected (owner, 2026-11-01)
+- [x] A transaction can be added from an account on the Accounts page, with that account picked (owner,
       2026-11-01)
-- [ ] Edit and delete an existing transaction
-- [ ] Account balances update immediately
+- [x] Edit and delete an existing transaction
+- [x] Account balances update immediately
 
 ## Tasks
 
 - [x] 3 HTML prototypes (shared with F-019)
-- [ ] Domain + API
-- [ ] UI
-- [ ] Storybook stories
+- [x] Domain + API
+- [x] UI
+- [x] Storybook stories
 
 ## Design
 
@@ -299,10 +299,54 @@ light and dark, looked at.
 5. **Note suggestions** (asked by the owner with the answers): the notes already used, suggested while typing a
    note; planned as [I-017](../../improvements/I-017-note-suggestions/I-017-note-suggestions.md), not in F-018.
 
+## Build (2026-11-01)
+
+Built from [variant 7](prototypes/variant-7.html) after the owner's approval.
+
+- **API** ([ADR 0022](../../../decisions/0022-transactions-and-balances.md)): `/api/transactions` lists the latest 50
+  and adds, changes and deletes an expense or an income; `/api/transactions/suggestions` gives the form its picks.
+  Saving or deleting answers with the account's balance before and after. Balances on the Accounts page now include the
+  transactions. An account with transactions can't be deleted or change its currency (409); the accounts API gives
+  each account its number of transactions.
+- **The form** (`TransactionDialog`): Expense / Income in the title row; the week strip with ‹ › and Mantine's calendar
+  (Today and Yesterday, Monday first, nothing after today); the account field with its dropdown or sheet; the
+  calculator display (the app's own keys on the phone, typed on the desktop, Enter saves); the category pills (6 / 8)
+  with All categories and its search; the note. A missing amount turns the display red with its message read out only
+  (a new custom rule in DESIGN_RULES); "Pick a category." next to its label. A failed save keeps everything typed.
+- **Opened from** the + in the sidebar and the tab bar, the + on every account card (that account picked for both
+  types), and a row of the Transactions page (to change or delete it; Delete asks and says what the balance goes back
+  to). After a save the notification counts the balance to its new value, the row lights up on the Transactions page
+  and the card on the Accounts page.
+- **The account form** (I-011's "Later (F-018)" screens): Delete is off with the reason once the account has
+  transactions, the currency is fixed, and an archived account with transactions keeps only Restore.
+- **Shared pop-ups:** `ResponsiveDialog` / `BottomSheet` take a control in the title row (`heading`), buttons before
+  the close button (`actions`), a wider dialog (`size`) and a full-height sheet (`full`). A tap on a label or an input in
+  a sheet's title row no longer starts a swipe (the Expense / Income switch didn't switch on the phone).
+
+Decisions made while building, within the approved prototype:
+
+- Transfer and exchange are F-019's: the switch has Expense and Income for now.
+- Changing the type keeps the amount, the day and the note (the prototype kept the amount only).
+- "Last used" is the last added, whatever its day; the most used are counted over 90 days. With no history yet the
+  pills are the first categories in the report's order, and the first account in use is picked.
+- The list's line says "The full list with filters comes later" instead of naming F-020.
+- Escape closes only the open list or calendar, not the form under it.
+
+Checked: backend and frontend unit tests, the E2E test on the desktop and the phone, the design check on the
+Transactions and Accounts pages (0 issues), axe on the open form and its lists (it found the calendar's days of other
+months too faint: now hidden, as in the prototype); every state at 375 and 1440 px, light and dark, looked at (fixed:
+the display, keys and switch in the page's own color in dark mode; the phone's calendar not filling its sheet; the
+amount not in focus on the desktop when the form's data came after it opened).
+
 ## Tests
 
-- Unit: Validators, balance effects.
-- E2E (Playwright): Add expense and income; balances change.
+- Unit (backend): `TransactionTests`, `BalanceSheetTests` (movements), `TransactionValidatorTests`,
+  `TransactionSuggestionsTests`, `TransactionsControllerTests`, `AccountsControllerTests` (the 409s), the model test.
+- Unit (frontend): `amount.test.ts` (the calculator), `days.test.ts`, `formDefaults.test.ts`, `TransactionsPage.test.tsx`
+  (the list, adding on the desktop and with the phone keys, what is missing, a failed save, the category following the
+  account, income, the week strip, changing and deleting, the + on a card, Delete off).
+- E2E (Playwright): `transactions.spec.ts`: an expense from an account's card, changed and deleted, then an income;
+  the balance changes; Delete off on the account.
 
 ## Notes
 

@@ -71,6 +71,7 @@ export function AccountField({ value, accounts, onChange }: AccountFieldProps) {
               <UnstyledButton
                 className={classes.listItem}
                 aria-pressed={account.id === value.id}
+                data-autofocus={account.id === value.id ? true : undefined}
                 onClick={() => {
                   onChange(account.id);
                   setOpen(false);
