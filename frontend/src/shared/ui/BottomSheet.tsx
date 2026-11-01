@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import classes from './BottomSheet.module.css';
 import { FadingScrollArea } from './FadingScrollArea';
+import { usePopupHistory } from './popupHistory';
+import { useSheetSwipe } from './useSheetSwipe';
 
 interface BottomSheetProps {
   opened: boolean;
@@ -19,7 +21,10 @@ interface BottomSheetProps {
   tall?: boolean;
 }
 
-/** A sheet that slides up from the bottom of the phone screen; closes on the overlay, Escape or the button. */
+/**
+ * A sheet that slides up from the bottom of the phone screen. It closes on the overlay, Escape or the button, with a
+ * swipe down and with Back (I-015).
+ */
 export function BottomSheet({
   opened,
   onClose,
@@ -31,6 +36,8 @@ export function BottomSheet({
   tall,
 }: BottomSheetProps) {
   const { t } = useTranslation();
+  usePopupHistory(opened, onClose);
+  const { setContent, setOverlay, setScroller } = useSheetSwipe(onClose);
 
   // classNames, not className: Drawer.Content passes className to the full-screen inner box too
   return (
@@ -40,21 +47,24 @@ export function BottomSheet({
       position="bottom"
       classNames={{ content: classes.content }}
     >
-      <Drawer.Overlay />
-      <Drawer.Content data-tall={tall ? true : undefined}>
-        <div className={classes.grab} aria-hidden="true" />
+      <Drawer.Overlay ref={setOverlay} />
+      <Drawer.Content ref={setContent} data-tall={tall ? true : undefined}>
+        {/* The handle and the title are where a swipe starts (data-sheet-drag) */}
+        <div className={classes.grabZone} data-sheet-drag aria-hidden="true">
+          <div className={classes.grab} />
+        </div>
         {hideTitle ? (
           <Drawer.Title>
             <VisuallyHidden>{title}</VisuallyHidden>
           </Drawer.Title>
         ) : (
-          <Drawer.Header className={classes.header}>
+          <Drawer.Header className={classes.header} data-sheet-drag>
             <Drawer.Title className={classes.title}>{title}</Drawer.Title>
             <Drawer.CloseButton size="xl" aria-label={t('common.close')} />
           </Drawer.Header>
         )}
         {top && <div className={classes.top}>{top}</div>}
-        <FadingScrollArea autosize className={classes.scroll}>
+        <FadingScrollArea autosize className={classes.scroll} viewportRef={setScroller}>
           <Drawer.Body
             className={classes.body}
             data-with-footer={footer ? true : undefined}
@@ -63,7 +73,11 @@ export function BottomSheet({
             {children}
           </Drawer.Body>
         </FadingScrollArea>
-        {footer && <div className={classes.footer}>{footer}</div>}
+        {footer && (
+          <div className={classes.footer} data-sheet-footer>
+            {footer}
+          </div>
+        )}
       </Drawer.Content>
     </Drawer.Root>
   );

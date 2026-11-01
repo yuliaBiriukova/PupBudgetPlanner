@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>I-015 · Swipe and Back demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-log { flex-basis: 100%; color: #c4c9d0; min-height: 18px; }
+.pv-log::before { content: 'Last: '; color: #9aa1ab; }
+.pv-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(520px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.pv-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.pv-notes li + li { margin-top: 4px; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+/* On a real phone the demo fills the screen */
+@media (max-width: 600px) {
+  .pv-bar { padding: 6px 12px; gap: 6px 10px; }
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+}
+
+/* ---------- Tokens: the app's theme (F-010 … F-016) ---------- */
+.app {
+  --bg: #f5f6f7; --surface: #fcfcfd; --sidebar: #ebedf0; --text: #1c1e21; --muted: #57585b;
+  --rule: #d7d8d9; --hover: #e8e9ea; --field-border: #7c828a;
+  --primary: #26292e; --primary-hover: #363a40; --on-primary: #f5f6f7;
+  --accent: #2a62a3; --active-bg: #e7ecf1; --logo: #8ec1ec; --logo-mark: #1c1e21;
+  --focus: #26292e; --scrim: rgba(18, 19, 21, .45);
+  --shadow-float: 0 8px 24px rgba(15, 17, 20, .1);
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+  --r-sm: 12px; --r-lg: 24px;
+}
+.app[data-scheme='dark'] {
+  --bg: #121315; --surface: #1b1c1e; --sidebar: #18191b; --text: #e9eaec; --muted: #a4a5a7;
+  --rule: #37383a; --hover: #26272a; --field-border: #71747b;
+  --primary: #e9eaec; --primary-hover: #d3d6da; --on-primary: #121315;
+  --accent: #8ec1ec; --active-bg: #262f37; --logo: #8ec1ec; --logo-mark: #121315;
+  --focus: #e9eaec; --scrim: rgba(0, 0, 0, .6);
+  --shadow-float: 0 10px 28px rgba(0, 0, 0, .45);
+}
+
+/* ---------- Base ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; color-scheme: light; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+:where(.app) :where(button, input) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, p, ul) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted { color: var(--muted); }
+.list { list-style: none; padding: 0; margin: 0; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; font-weight: 500; font-size: 15px; white-space: nowrap; background: none; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-default { border-color: var(--rule); color: var(--text); }
+.btn-default:hover { background: var(--hover); }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+
+/* Fields (F-011: 48 px, a 2 px accent border in focus) */
+.field { display: grid; gap: 6px; }
+.field + .field { margin-top: 16px; }
+.field label, .field .label { font-weight: 500; font-size: 14px; }
+.input { width: 100%; height: 48px; padding: 0 14px; border: 1px solid var(--field-border); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font-size: 16px; }
+.input:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+.pick-btn { display: flex; align-items: center; gap: 12px; width: 100%; height: 48px; padding: 0 12px 0 14px; border: 1px solid var(--field-border); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font-size: 16px; text-align: left; cursor: pointer; }
+.pick-btn b { font-weight: 500; }
+.pick-btn .what { flex: 1; min-width: 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-btn > .ic { color: var(--muted); }
+.pick-btn[aria-expanded='true'] { border-color: var(--accent); outline: 1px solid var(--accent); }
+
+/* ---------- App shell (F-010): top bar and tab bar on the phone, sidebar from 768 px ---------- */
+.logo { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--logo); color: var(--logo-mark); }
+.shell { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr); }
+.side { display: none; }
+.column { display: flex; flex-direction: column; min-width: 0; min-height: 0; height: 100%; }
+.top { display: flex; flex: none; align-items: center; gap: 4px; height: 56px; padding: 0 8px 0 16px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; margin-right: auto; }
+.brand-name { font-family: var(--font-display); font-size: 15px; font-weight: 300; letter-spacing: .02em; white-space: nowrap; }
+.main { flex: 1; min-height: 0; overflow: hidden auto; }
+.content { max-width: 880px; margin: 0 auto; padding: 8px 16px 32px; }
+.tabs { display: flex; flex: none; align-items: center; gap: 2px; padding: 8px 8px 10px; border-top: 1px solid var(--rule); background: var(--bg); }
+.tab { display: flex; flex: none; align-items: center; justify-content: center; gap: 8px; width: 44px; min-height: 48px; border-radius: 999px; color: var(--muted); font-size: 13px; text-decoration: none; background: none; border: 0; cursor: pointer; }
+.tab[data-active] { width: auto; padding: 0 14px 0 12px; background: var(--active-bg); color: var(--accent); font-weight: 500; }
+.tab:not([data-active]) .tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.tab-add { display: grid; place-items: center; width: 52px; height: 52px; margin-left: auto; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); cursor: pointer; }
+@container app (min-width: 768px) {
+  .shell { grid-template-columns: 248px minmax(0, 1fr); }
+  .side { display: flex; flex-direction: column; gap: 2px; padding: 12px; border-right: 1px solid var(--rule); background: var(--sidebar); min-width: 0; }
+  .side-head { display: flex; align-items: center; gap: 10px; height: 44px; margin-bottom: 12px; padding: 0 8px; }
+  .side-add { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; margin-bottom: 14px; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 500; cursor: pointer; }
+  .nav-link { position: relative; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-radius: 999px; color: var(--text); font-size: 14px; line-height: 1; text-decoration: none; white-space: nowrap; }
+  .nav-link:hover { background: var(--hover); }
+  .nav-link[aria-current='page'] { font-weight: 500; }
+  .nav-link[aria-current='page'] > svg { color: var(--accent); }
+  .nav-link[aria-current='page']::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: -12px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+  .nav-sep { height: 1px; margin: 10px 14px; background: var(--rule); }
+  .top, .tabs { display: none; }
+  .content { padding: 32px 40px 48px; }
+}
+
+/* ---------- Pages ---------- */
+.page-head { padding: 8px 0 20px; }
+.page-head h1 { font-family: var(--font-display); font-weight: 300; font-size: 28px; line-height: 1.15; letter-spacing: -.01em; }
+.acc-row { display: flex; align-items: center; gap: 12px; width: calc(100% + 24px); min-height: 64px; padding: 10px 12px; margin: 0 -12px; border: 0; border-radius: var(--r-sm); background: none; text-align: left; cursor: pointer; }
+.acc-row:hover { background: var(--hover); }
+.acc-row .who { flex: 1; min-width: 0; display: grid; }
+.acc-row .who b { font-weight: 500; }
+.acc-row .who span { color: var(--muted); font-size: 14px; }
+.acc-row .num { font-size: 17px; }
+.acc-list li + li { border-top: 1px solid var(--rule); }
+
+/* ---------- Pop-ups: a sheet on the phone, a dialog from 768 px (I-004, I-012), as BottomSheet / ResponsiveDialog ---------- */
+.layer { position: absolute; inset: 0; z-index: 20; display: flex; align-items: flex-end; }
+.scrim { position: absolute; inset: 0; background: var(--scrim); }
+.sheet { position: relative; display: flex; flex-direction: column; width: 100%; max-height: 90%; padding-bottom: env(safe-area-inset-bottom); border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--surface); box-shadow: var(--shadow-float); overflow: hidden; outline: none; }
+/* The sheet takes the focus when it opens so the keyboard starts inside it; it needs no ring of its own */
+.sheet:focus-visible { outline: none; }
+.sheet[data-tall] { height: 80%; }
+.sheet[data-dragging] { user-select: none; -webkit-user-select: none; }
+/* The handle and the title are where a drag starts: the browser doesn't scroll or zoom there */
+.grab-zone { flex: none; padding: 10px 0 2px; touch-action: none; cursor: grab; }
+.grab { width: 36px; height: 4px; margin: 0 auto; border-radius: 4px; background: var(--rule); }
+.sh-head { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 12px 0 20px; touch-action: none; cursor: grab; }
+.sheet[data-dragging] .grab-zone, .sheet[data-dragging] .sh-head { cursor: grabbing; }
+.sh-head h2 { flex: 1; min-width: 0; font-family: var(--font-display); font-size: 20px; font-weight: 300; line-height: 28px; }
+.sh-top { flex: none; padding: 8px 16px 0; }
+.sh-scroll { flex: 0 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.sheet[data-tall] .sh-scroll { flex: 1; }
+.sh-body { padding: 8px 16px 20px; }
+.sh-body[data-with-footer] { padding-bottom: 8px; }
+.sh-body[data-without-title] { padding-top: 4px; }
+.sh-foot { flex: none; display: flex; flex-direction: column-reverse; gap: 8px; padding: 8px 16px 16px; }
+.sh-foot .btn { width: 100%; min-height: 48px; }
+.layer[data-mode='desktop'] { align-items: center; justify-content: center; }
+.layer[data-mode='desktop'] .sheet { width: 480px; max-width: calc(100% - 32px); max-height: 80%; border-radius: var(--r-lg); }
+.layer[data-mode='desktop'] .grab-zone { display: none; }
+.layer[data-mode='desktop'] .sh-head { padding: 16px 12px 0 24px; touch-action: auto; cursor: auto; }
+.layer[data-mode='desktop'] .sh-body { padding: 16px 24px 24px; }
+.layer[data-mode='desktop'] .sh-body[data-with-footer] { padding-bottom: 8px; }
+.layer[data-mode='desktop'] .sh-foot { flex-direction: row; justify-content: flex-end; padding: 16px 24px 24px; }
+.layer[data-mode='desktop'] .sh-foot .btn { width: auto; min-height: 44px; }
+.more-link { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 52px; padding: 0 12px; border: 0; border-radius: var(--r-sm); background: none; color: var(--text); text-decoration: none; cursor: pointer; }
+.more-link:hover { background: var(--hover); }
+/* The currency list (F-016): your currencies first, then every NBU currency */
+.cur-group { padding: 12px 4px 4px; color: var(--muted); font-size: 13px; }
+.cur-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 0 12px; border: 0; border-radius: var(--r-sm); background: none; color: var(--text); text-align: left; cursor: pointer; }
+.cur-row:hover { background: var(--hover); }
+.cur-row b { width: 44px; font-weight: 500; }
+.cur-row span { flex: 1; color: var(--muted); }
+.cur-row[aria-pressed="true"] { color: var(--accent); }
+.cur-row[aria-pressed="true"] b, .cur-row[aria-pressed="true"] span { color: var(--accent); }
+.dd { position: absolute; z-index: 30; max-height: 280px; overflow: auto; padding: 4px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); box-shadow: var(--shadow-float); }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"><div class="frame"><div class="app" id="app"></div></div></div>
+
+<script>
+const ICONS = {
+  stack: ['M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z', 'M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4', 'M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z', 'M3 6v10c0 .888 .772 1.45 2 2', 'M3 11c0 .888 .772 1.45 2 2'],
+  receipt: ['M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2', 'M9 7h6', 'M9 11h6', 'M13 15h2'],
+  wallet: ['M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12', 'M20 12v4h-4a2 2 0 0 1 0 -4h4'],
+  chart: ['M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z', 'M4 20h14'],
+  tree: ['M9 6h11', 'M12 12h8', 'M15 18h5', 'M5 6v.01', 'M8 12v.01', 'M11 18v.01'],
+  users: ['M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', 'M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2', 'M16 3.13a4 4 0 0 1 0 7.75', 'M21 21v-2a4 4 0 0 0 -3 -3.85'],
+  settings: ['M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z', 'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0'],
+  people: ['M6 21v-2a4 4 0 0 1 4 -4h2', 'M22 16c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5z', 'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0'],
+  plus: ['M12 5l0 14', 'M5 12l14 0'],
+  dots: ['M4 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0', 'M18 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0'],
+  x: ['M18 6l-12 12', 'M6 6l12 12'],
+  selector: ['M8 9l4 -4l4 4', 'M16 15l-4 4l-4 -4'],
+  logout: ['M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2', 'M9 12h12l-3 -3', 'M18 15l3 -3'],
+};
+const icon = (n, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n].map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+// ---------- Data ----------
+const NAV = [['receipt', 'transactions', 'Transactions'], ['wallet', 'accounts', 'Accounts'], ['chart', 'reports', 'Reports'], ['tree', 'categories', 'Categories'], ['users', 'family', 'Family'], ['settings', 'settings', 'Settings']];
+const TITLES = Object.fromEntries([...NAV.map(([, id, l]) => [id, l]), ['people', 'People']]);
+const CURRENCIES = [['UAH', 'Hryvnia'], ['USD', 'US dollar'], ['EUR', 'Euro'], ['AUD', 'Australian dollar'], ['AZN', 'Azerbaijani manat'], ['BDT', 'Taka'], ['CAD', 'Canadian dollar'], ['CHF', 'Swiss franc'], ['CNY', 'Yuan renminbi'], ['CZK', 'Czech koruna'], ['DKK', 'Danish krone'], ['DZD', 'Algerian dinar'], ['EGP', 'Egyptian pound'], ['GBP', 'Pound sterling'], ['GEL', 'Lari'], ['HKD', 'Hong Kong dollar'], ['HUF', 'Forint'], ['IDR', 'Rupiah'], ['ILS', 'New Israeli shekel'], ['INR', 'Indian rupee'], ['JPY', 'Yen'], ['KRW', 'Won'], ['KZT', 'Tenge'], ['LBP', 'Lebanese pound'], ['MDL', 'Moldovan leu'], ['MXN', 'Mexican peso'], ['MYR', 'Malaysian ringgit'], ['NOK', 'Norwegian krone'], ['NZD', 'New Zealand dollar'], ['PLN', 'Zloty'], ['RON', 'Romanian leu'], ['SAR', 'Saudi riyal'], ['SEK', 'Swedish krona'], ['SGD', 'Singapore dollar'], ['THB', 'Baht'], ['TND', 'Tunisian dinar'], ['TRY', 'Turkish lira'], ['AED', 'UAE dirham'], ['VND', 'Dong'], ['ZAR', 'Rand']];
+const MINE = ['UAH', 'USD'];
+const curName = (code) => CURRENCIES.find(([c]) => c === code)?.[1] ?? code;
+const accounts = [
+  { id: 1, name: 'Monobank card', bank: 'Monobank', currency: 'UAH', balance: '12 000 ₴' },
+  { id: 2, name: 'Cash', bank: '', currency: 'UAH', balance: '2 350 ₴' },
+  { id: 3, name: 'Dollar savings', bank: 'PrivatBank', currency: 'USD', balance: '$500' },
+];
+
+// ---------- The swipe: as Vaul (references) ----------
+/** Let go past this share of the sheet's height and it closes. */
+const CLOSE_SHARE = 0.25;
+/** A flick down faster than this (px per ms) closes it however short. */
+const FLICK = 0.4;
+/** After the content scrolls, a drag from it waits this long (ms), so a scroll to the top doesn't turn into a close. */
+const SCROLL_LOCK = 100;
+const EASE = 'cubic-bezier(.32, .72, 0, 1)';
+
+const app = document.getElementById('app');
+const stage = document.getElementById('stage');
+const mqDark = matchMedia('(prefers-color-scheme: dark)');
+const mqMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const state = { page: 'accounts', schemePref: 'system', motion: 'normal' };
+const reduced = () => state.motion === 'reduced' || mqMotion.matches;
+const isDesktop = () => app.clientWidth >= 768;
+
+function applyScheme() {
+  app.dataset.scheme = state.schemePref === 'system' ? (mqDark.matches ? 'dark' : 'light') : state.schemePref;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+}
+mqDark.addEventListener('change', applyScheme);
+function log(text) { document.getElementById('log').textContent = text; }
+
+// ---------- Pages ----------
+function shell() {
+  const tabs = NAV.slice(0, 3);
+  const inTabs = tabs.some(([, id]) => id === state.page);
+  return `<div class="shell" id="shell">
+    <aside class="side" aria-label="Sections">
+      <div class="side-head"><span class="logo" aria-hidden="true">${icon('stack')}</span><span class="brand-name">Pup Budget</span></div>
+      <button class="side-add" type="button" data-action="add-tx">${icon('plus')}Add transaction</button>
+      <nav aria-label="Main">
+        ${NAV.map(([i, id, l]) => `<a class="nav-link" href="#${id}" data-nav="${id}"${id === state.page ? ' aria-current="page"' : ''}>${icon(i)}${l}</a>`).join('')}
+        <div class="nav-sep" role="presentation"></div>
+        <a class="nav-link" href="#people" data-nav="people"${state.page === 'people' ? ' aria-current="page"' : ''}>${icon('people')}People</a>
+      </nav>
+    </aside>
+    <div class="column">
+      <header class="top"><div class="brand"><span class="logo" aria-hidden="true">${icon('stack')}</span><span class="brand-name">Pup Budget</span></div></header>
+      <main class="main"><div class="content">${page()}</div></main>
+      <nav class="tabs" aria-label="Main">
+        ${tabs.map(([i, id, l]) => `<a class="tab" href="#${id}" data-nav="${id}"${id === state.page ? ' data-active aria-current="page"' : ''}>${icon(i)}<span class="tab-label">${l}</span></a>`).join('')}
+        <button class="tab" type="button" data-action="more"${inTabs ? '' : ' data-active'}>${icon('dots')}<span class="tab-label">More</span></button>
+        <button class="tab-add" type="button" data-action="add-tx" aria-label="Add transaction">${icon('plus', 24)}</button>
+      </nav>
+    </div>
+  </div>`;
+}
+function page() {
+  if (state.page !== 'accounts') {
+    return `<div class="page-head"><h1>${TITLES[state.page]}</h1></div><p class="muted">A stand-in page for the demo. Back takes you to the page you came from.</p>`;
+  }
+  return `<div class="page-head"><h1>Accounts</h1></div>
+    <ul class="list acc-list">${accounts.map((a) => `<li><button class="acc-row" type="button" data-action="edit" data-id="${a.id}">
+      <span class="who"><b>${esc(a.name)}</b><span>${esc([a.bank, a.currency].filter(Boolean).join(', '))}</span></span><span class="num">${a.balance}</span></button></li>`).join('')}</ul>`;
+}
+function renderPage() {
+  const layers = [...app.querySelectorAll('.layer')];
+  app.innerHTML = shell();
+  layers.forEach((l) => app.append(l));
+  updateInert();
+}
+
+// ---------- Pop-ups and the history ----------
+/** The open pop-ups, bottom first. Each one has its own step in the browser's history. */
+const stack = [];
+/** history.back() calls of ours whose popstate hasn't come yet (a pop-up closed another way than Back). */
+let ourBacks = 0;
+/** Steps to push once our pending back has landed, so they don't get lost under it. */
+const afterBacks = [];
+
+function pushStep() {
+  const step = { page: state.page, popups: stack.length };
+  const push = () => history.pushState(step, '');
+  if (ourBacks > 0) afterBacks.push(push);
+  else push();
+}
+
+window.addEventListener('popstate', (e) => {
+  if (ourBacks > 0) {
+    ourBacks--;
+    if (ourBacks === 0) afterBacks.splice(0).forEach((f) => f());
+    return;
+  }
+  const st = e.state ?? { page: location.hash.slice(1) || 'accounts', popups: 0 };
+  const depth = st.popups ?? 0;
+  if (depth < stack.length) {
+    const names = [];
+    while (stack.length > depth) names.push(close('back').title);
+    log(`Back closed “${names.join('”, then “')}”.`);
+  } else if (depth > stack.length) {
+    // Forward onto a pop-up that was closed: nothing reopens, the step is skipped
+    ourBacks++;
+    history.back();
+    log('Forward: the pop-up closed earlier stays closed.');
+    return;
+  }
+  if (st.page !== state.page) {
+    state.page = st.page;
+    renderPage();
+    log(`Went to ${TITLES[state.page]}.`);
+  }
+});
+
+function navigate(to) {
+  if (stack.length) {
+    // From a sheet (More): its history step becomes the new page, so Back goes to the page under the sheet
+    close('link');
+    history.replaceState({ page: to, popups: 0 }, '', `#${to}`);
+    log(`More → ${TITLES[to]}. Back returns to the page under the sheet, not to the sheet.`);
+  } else {
+    history.pushState({ page: to, popups: 0 }, '', `#${to}`);
+    log(`Went to ${TITLES[to]}.`);
+  }
+  state.page = to;
+  renderPage();
+}
+
+function open(entry) {
+  entry.opener = document.activeElement;
+  stack.push(entry);
+  entry.el = buildLayer(entry);
+  app.append(entry.el);
+  updateInert();
+  pushStep();
+  animateIn(entry);
+  entry.el.querySelector('.sheet').focus({ preventScroll: true });
+  log(`Opened “${entry.title}”. Back will close it.`);
+}
+
+const HOW = { back: 'Back', x: 'the ×', cancel: 'Cancel', save: 'Save', scrim: 'a tap outside', escape: 'Escape', swipe: 'a swipe', pick: 'picking a currency', link: 'a link' };
+/** Closes the top pop-up. Unless Back did it, its history step is removed, so the next Back leaves the page. */
+function close(how) {
+  const entry = stack.pop();
+  closeDropdown();
+  animateOut(entry);
+  updateInert();
+  if (how !== 'back' && how !== 'link') {
+    ourBacks++;
+    history.back();
+    log(`Closed “${entry.title}” with ${HOW[how]}. Back now ${stack.length ? `closes “${stack.at(-1).title}”` : 'leaves the page'}.`);
+  }
+  if (entry.opener?.isConnected) entry.opener.focus({ preventScroll: true });
+  return entry;
+}
+
+function updateInert() {
+  const shellEl = document.getElementById('shell');
+  if (shellEl) shellEl.inert = stack.length > 0;
+  stack.forEach((e, i) => { e.el.inert = i < stack.length - 1; });
+}
+
+// ---------- What each pop-up holds ----------
+function contentOf(entry) {
+  if (entry.kind === 'form') {
+    const d = entry.draft;
+    return {
+      body: `<div class="field"><label for="f-name">Name</label><input class="input" id="f-name" value="${esc(d.name)}" autocomplete="off"></div>
+        <div class="field"><label for="f-bank">Bank</label><input class="input" id="f-bank" value="${esc(d.bank)}" autocomplete="off"></div>
+        <div class="field"><span class="label" id="f-cur-label">Currency</span>
+          <button class="pick-btn" type="button" data-action="pick-currency" aria-labelledby="f-cur-label f-cur-value" aria-expanded="false"><span id="f-cur-value"><b>${d.currency}</b> <span class="what">${curName(d.currency)}</span></span>${icon('selector')}</button></div>
+        <div class="field"><label for="f-note">Note</label><input class="input" id="f-note" value="${esc(d.note)}" autocomplete="off"></div>`,
+      foot: `<button class="btn btn-default" type="button" data-action="cancel">Cancel</button><button class="btn btn-primary" type="button" data-action="save">Save</button>`,
+    };
+  }
+  if (entry.kind === 'currency') {
+    return { top: `<input class="input" type="search" placeholder="Search by code or name" aria-label="Search currencies" data-search>`, body: currencyList(entry, '') };
+  }
+  if (entry.kind === 'more') {
+    const items = [...NAV.slice(3).map(([i, id, l]) => [i, id, l]), ['people', 'people', 'People']];
+    return { body: `<ul class="list">${items.map(([i, id, l]) => `<li><a class="more-link" href="#${id}" data-nav="${id}">${icon(i)}${l}</a></li>`).join('')}
+      <li><button class="more-link" type="button" data-action="noop">${icon('logout')}Sign out</button></li></ul>` };
+  }
+  return { body: `<p class="muted">Quick add comes with F-018.</p>` };
+}
+function currencyList(entry, q) {
+  const query = q.trim().toLowerCase();
+  const hit = ([c, n]) => !query || c.toLowerCase().includes(query) || n.toLowerCase().includes(query);
+  const row = ([c, n]) => `<li><button class="cur-row" type="button" aria-pressed="${c === entry.picked}" data-action="choose" data-code="${c}"><b>${c}</b><span>${n}</span></button></li>`;
+  const mine = CURRENCIES.filter(([c]) => MINE.includes(c)).filter(hit);
+  const rest = CURRENCIES.filter(([c]) => !MINE.includes(c)).filter(hit);
+  return `<div>
+    ${mine.length ? `<p class="cur-group">Your currencies</p><ul class="list">${mine.map(row).join('')}</ul>` : ''}
+    ${rest.length ? `<p class="cur-group">All NBU currencies</p><ul class="list">${rest.map(row).join('')}</ul>` : ''}
+    ${mine.length + rest.length ? '' : '<p class="muted" style="padding:12px 4px">No currency matches.</p>'}</div>`;
+}
+
+function buildLayer(entry) {
+  const mode = isDesktop() ? 'desktop' : 'phone';
+  const { top, body, foot } = contentOf(entry);
+  const el = document.createElement('div');
+  el.className = 'layer';
+  el.dataset.mode = mode;
+  const id = `pop-${stack.indexOf(entry)}`;
+  el.innerHTML = `<div class="scrim" data-action="scrim"></div>
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="${id}-title" tabindex="-1"${entry.tall ? ' data-tall' : ''}>
+      <div class="grab-zone" aria-hidden="true"><div class="grab"></div></div>
+      ${entry.hideTitle ? `<h2 class="sr" id="${id}-title">${entry.title}</h2>` : `<header class="sh-head"><h2 id="${id}-title">${entry.title}</h2><button class="icon-btn" type="button" data-action="x" aria-label="Close">${icon('x')}</button></header>`}
+      ${top ? `<div class="sh-top">${top}</div>` : ''}
+      <div class="sh-scroll"><div class="sh-body"${foot ? ' data-with-footer' : ''}${entry.hideTitle ? ' data-without-title' : ''}>${body}</div></div>
+      ${foot ? `<div class="sh-foot">${foot}</div>` : ''}
+    </section>`;
+  if (mode === 'phone') attachSwipe(el);
+  return el;
+}
+
+// ---------- Motion ----------
+function animateIn(entry) {
+  if (reduced()) return;
+  const sheet = entry.el.querySelector('.sheet');
+  const scrim = entry.el.querySelector('.scrim');
+  const desktop = entry.el.dataset.mode === 'desktop';
+  sheet.style.transform = desktop ? 'scale(.97)' : 'translateY(100%)';
+  if (desktop) sheet.style.opacity = '0';
+  scrim.style.opacity = '0';
+  sheet.getBoundingClientRect();
+  sheet.style.transition = desktop ? 'transform 150ms ease-out, opacity 150ms ease-out' : `transform 300ms ${EASE}`;
+  scrim.style.transition = 'opacity 200ms ease-out';
+  sheet.style.transform = '';
+  sheet.style.opacity = '';
+  scrim.style.opacity = '';
+}
+function animateOut(entry) {
+  const el = entry.el;
+  el.style.pointerEvents = 'none';
+  if (reduced()) { el.remove(); return; }
+  const sheet = el.querySelector('.sheet');
+  const scrim = el.querySelector('.scrim');
+  const desktop = el.dataset.mode === 'desktop';
+  // From wherever the finger left it, if it was dragged
+  sheet.style.transition = desktop ? 'transform 150ms ease-in, opacity 150ms ease-in' : `transform 220ms ${EASE}`;
+  scrim.style.transition = 'opacity 200ms ease-in';
+  sheet.style.transform = desktop ? 'scale(.97)' : 'translateY(100%)';
+  if (desktop) sheet.style.opacity = '0';
+  scrim.style.opacity = '0';
+  setTimeout(() => el.remove(), 240);
+}
+
+/**
+ * Swipe down to close (phone): from the handle or the title at any time; from the content (and the search over a
+ * list) only when the content is at its top and the finger moves down, otherwise the content scrolls as before.
+ */
+function attachSwipe(layer) {
+  const sheet = layer.querySelector('.sheet');
+  const scrim = layer.querySelector('.scrim');
+  const scroll = sheet.querySelector('.sh-scroll');
+  let drag = null;
+  let lastScroll = 0;
+  let touchStartY = null;
+  scroll.addEventListener('scroll', () => { lastScroll = performance.now(); }, { passive: true });
+
+  const begin = (y, by) => {
+    closeDropdown();
+    drag = { y0: y, by, h: sheet.offsetHeight, dy: 0, samples: [{ y, t: performance.now() }] };
+    sheet.dataset.dragging = '';
+    sheet.style.transition = 'none';
+    scrim.style.transition = 'none';
+  };
+  const move = (y) => {
+    const t = performance.now();
+    drag.samples.push({ y, t });
+    while (drag.samples.length > 2 && t - drag.samples[0].t > 100) drag.samples.shift();
+    let dy = y - drag.y0;
+    // Up past the start the sheet barely gives: it's as tall as it gets
+    if (dy < 0) dy = -8 * Math.log1p(-dy / 8);
+    drag.dy = dy;
+    sheet.style.transform = `translateY(${dy}px)`;
+    scrim.style.opacity = String(Math.max(0, 1 - Math.max(dy, 0) / drag.h));
+  };
+  const end = () => {
+    const s = drag.samples;
+    const first = s[0];
+    const last = s[s.length - 1];
+    const speed = last.t > first.t ? (last.y - first.y) / (last.t - first.t) : 0;
+    const shut = drag.dy > drag.h * CLOSE_SHARE || (speed > FLICK && drag.dy > 8);
+    delete sheet.dataset.dragging;
+    drag = null;
+    if (shut) { close('swipe'); return; }
+    // Back into place
+    sheet.style.transition = reduced() ? 'none' : `transform 250ms ${EASE}`;
+    scrim.style.transition = reduced() ? 'none' : 'opacity 250ms ease-out';
+    sheet.style.transform = '';
+    scrim.style.opacity = '';
+    log('Not far or fast enough: the sheet slid back.');
+  };
+
+  // The handle and the title: pointer events (finger, mouse or pen)
+  sheet.querySelectorAll('.grab-zone, .sh-head').forEach((zone) => {
+    zone.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || e.target.closest('button') || drag) return;
+      try { zone.setPointerCapture(e.pointerId); } catch { /* a synthetic pointer */ }
+      begin(e.clientY, 'pointer');
+      const onMove = (ev) => move(ev.clientY);
+      const onUp = () => {
+        zone.removeEventListener('pointermove', onMove);
+        zone.removeEventListener('pointerup', onUp);
+        zone.removeEventListener('pointercancel', onUp);
+        if (drag) end();
+      };
+      zone.addEventListener('pointermove', onMove);
+      zone.addEventListener('pointerup', onUp);
+      zone.addEventListener('pointercancel', onUp);
+    });
+  });
+
+  // The content: touch events, so a drag can take over from the scroll only at the top and only downwards
+  sheet.addEventListener('touchstart', (e) => {
+    touchStartY = null;
+    if (drag || e.touches.length !== 1 || e.target.closest('.grab-zone, .sh-head, .sh-foot')) return;
+    const atTop = !e.target.closest('.sh-scroll') || scroll.scrollTop <= 0;
+    if (atTop && performance.now() - lastScroll > SCROLL_LOCK) touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  sheet.addEventListener('touchmove', (e) => {
+    if (touchStartY === null && drag?.by !== 'touch') return;
+    const y = e.touches[0].clientY;
+    if (!drag) {
+      const dy = y - touchStartY;
+      if (dy < -4 || !e.cancelable) { touchStartY = null; return; }
+      if (dy < 8 || scroll.scrollTop > 0) return;
+      begin(y, 'touch');
+    }
+    e.preventDefault();
+    move(y);
+  }, { passive: false });
+  const touchEnd = () => {
+    touchStartY = null;
+    if (drag?.by === 'touch') end();
+  };
+  sheet.addEventListener('touchend', touchEnd);
+  sheet.addEventListener('touchcancel', touchEnd);
+}
+
+// ---------- The desktop currency list: a dropdown under the field, not a pop-up (Back doesn't close it) ----------
+let dropdown = null;
+function openDropdown(btn, entry) {
+  const layer = entry.el;
+  const r = btn.getBoundingClientRect();
+  const lr = layer.getBoundingClientRect();
+  dropdown = document.createElement('div');
+  dropdown.className = 'dd';
+  dropdown.style.left = `${r.left - lr.left}px`;
+  dropdown.style.top = `${r.bottom - lr.top + 4}px`;
+  dropdown.style.width = `${r.width}px`;
+  const pick = { picked: entry.draft.currency };
+  dropdown.innerHTML = currencyList(pick, '');
+  layer.append(dropdown);
+  btn.setAttribute('aria-expanded', 'true');
+  dropdown.querySelector('[aria-pressed="true"]')?.focus();
+}
+function closeDropdown() {
+  if (!dropdown) return false;
+  dropdown.remove();
+  dropdown = null;
+  app.querySelectorAll('.pick-btn[aria-expanded="true"]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+  return true;
+}
+function setFormCurrency(form, code) {
+  form.draft.currency = code;
+  const value = form.el.querySelector('#f-cur-value');
+  if (value) value.innerHTML = `<b>${code}</b> <span class="what">${curName(code)}</span>`;
+}
+
+// ---------- Actions ----------
+const topPopup = () => stack.at(-1);
+const ACTIONS = {
+  edit: (a) => {
+    const acc = accounts.find((x) => String(x.id) === a.dataset.id);
+    open({ kind: 'form', title: 'Edit account', acc, draft: { ...acc, note: '' } });
+  },
+  'add-tx': () => open({ kind: 'add', title: 'Add transaction' }),
+  more: () => open({ kind: 'more', title: 'More', hideTitle: true }),
+  'pick-currency': (a) => {
+    const form = topPopup();
+    if (form.el.dataset.mode === 'desktop') {
+      if (!closeDropdown()) openDropdown(a, form);
+      return;
+    }
+    open({ kind: 'currency', title: 'Currency', tall: true, picked: form.draft.currency, form });
+  },
+  choose: (a) => {
+    const code = a.dataset.code;
+    if (dropdown) { closeDropdown(); setFormCurrency(topPopup(), code); topPopup().el.querySelector('.pick-btn').focus(); log(`Picked ${code} from the dropdown.`); return; }
+    const { form } = topPopup();
+    close('pick');
+    setFormCurrency(form, code);
+  },
+  x: () => close('x'),
+  cancel: () => close('cancel'),
+  scrim: (a) => { if (a.closest('.layer') === topPopup()?.el) close('scrim'); },
+  save: () => {
+    const form = topPopup();
+    const d = form.draft;
+    d.name = form.el.querySelector('#f-name').value.trim() || d.name;
+    d.bank = form.el.querySelector('#f-bank').value.trim();
+    Object.assign(form.acc, { name: d.name, bank: d.bank, currency: d.currency });
+    close('save');
+    renderPage();
+  },
+  noop: () => log('Sign out isn’t part of this demo.'),
+};
+
+app.addEventListener('click', (e) => {
+  if (dropdown && !e.target.closest('.dd, .pick-btn')) closeDropdown();
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { e.preventDefault(); if (nav.dataset.nav !== state.page || stack.length) navigate(nav.dataset.nav); return; }
+  const a = e.target.closest('[data-action]');
+  if (!a) return;
+  e.preventDefault();
+  ACTIONS[a.dataset.action]?.(a, e);
+});
+app.addEventListener('input', (e) => {
+  if (!e.target.matches('[data-search]')) return;
+  const entry = topPopup();
+  entry.el.querySelector('.sh-body').innerHTML = currencyList(entry, e.target.value);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  document.getElementById('notes').hidden = true;
+  if (closeDropdown()) return;
+  if (stack.length) close('escape');
+});
+
+// ---------- Preview bar (review aid) ----------
+const NOTES = [
+  '<b>Swipe:</b> open an account, then drag the handle or the title down. Let go past a quarter of the sheet’s height, or flick, and it closes; otherwise it slides back.',
+  '<b>From the content:</b> in the account form, Currency opens the list over the form. Scroll the list, come back to its top, and drag down: only the list closes. Dragging up, or down while the list isn’t at its top, just scrolls.',
+  '<b>Back</b> (Android’s gesture or button, the browser’s Back) closes the top pop-up. The next Back goes to the previous page.',
+  '<b>Other ways to close</b> (×, Cancel, Save, a tap outside, Escape, a swipe) leave nothing in the history: Back afterwards leaves the page, and Forward doesn’t reopen the pop-up.',
+  '<b>More → Categories</b> (phone): Back from Categories returns to Accounts, not to the More sheet.',
+  '<b>Desktop:</b> Back (or Alt + ←) closes the dialog too. The currency list there is a dropdown, not a pop-up, so Back doesn’t touch it (Escape does).',
+  '<b>Reduce motion:</b> the sheet still follows the finger but doesn’t slide in, back or out.',
+  'The line under the bar says what the last action did.',
+];
+document.body.insertAdjacentHTML('afterbegin', `<div class="pv-bar"><b>I-015 · Swipe and Back</b>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <div class="pv-group"><span>Motion</span><button data-motion="normal">Normal</button><button data-motion="reduced">Reduced</button></div>
+  <button data-pv="notes" aria-expanded="false">How to try</button>
+  <div class="pv-log" id="log" aria-live="polite">Open an account, the + or More.</div>
+  <div class="pv-notes" id="notes" hidden><ul>${NOTES.map((n) => `<li>${n}</li>`).join('')}</ul></div></div>`);
+
+function setView(v) {
+  stage.dataset.view = v;
+  document.querySelectorAll('button[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+  // The open pop-ups become sheets or dialogs for the new width
+  requestAnimationFrame(() => {
+    closeDropdown();
+    stack.forEach((entry) => { const el = buildLayer(entry); entry.el.replaceWith(el); entry.el = el; });
+    updateInert();
+  });
+}
+function setMotion(m) {
+  state.motion = m;
+  document.querySelectorAll('[data-motion]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.motion === m)));
+}
+document.querySelector('.pv-bar').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  if (b.dataset.view) setView(b.dataset.view);
+  else if (b.dataset.schemeSet) { state.schemePref = b.dataset.schemeSet; applyScheme(); }
+  else if (b.dataset.motion) setMotion(b.dataset.motion);
+  else if (b.dataset.pv === 'notes') { const n = document.getElementById('notes'); n.hidden = !n.hidden; b.setAttribute('aria-expanded', String(!n.hidden)); }
+});
+
+// ---------- For the design check: each state as a "page" ----------
+const PAGES = [{ id: 'accounts' }, { id: 'form' }, { id: 'currency' }, { id: 'more' }, { id: 'add' }];
+function go(id) {
+  // Start over without leaving steps behind
+  while (stack.length) { const e = stack.pop(); e.el.remove(); }
+  closeDropdown();
+  ourBacks = 0;
+  afterBacks.length = 0;
+  state.page = 'accounts';
+  history.replaceState({ page: 'accounts', popups: 0 }, '', '#accounts');
+  renderPage();
+  const saved = state.motion;
+  state.motion = 'reduced';
+  if (id === 'form' || id === 'currency') ACTIONS.edit({ dataset: { id: '1' } });
+  if (id === 'currency') ACTIONS['pick-currency'](topPopup().el.querySelector('.pick-btn'));
+  if (id === 'more' && !isDesktop()) ACTIONS.more();
+  if (id === 'add') ACTIONS['add-tx']();
+  state.motion = saved;
+}
+
+applyScheme();
+setMotion('normal');
+setView(innerWidth >= 1200 ? 'desktop' : 'phone');
+state.page = TITLES[location.hash.slice(1)] ? location.hash.slice(1) : 'accounts';
+history.replaceState({ page: state.page, popups: 0 }, '', `#${state.page}`);
+renderPage();
+</script>
+</body>
+</html>
