@@ -22,7 +22,7 @@ public sealed class AccountsControllerTests
 
     private static readonly AccountItem Item = new(
         AccountId, "Wallet", "UAH", SourceKind.Cash, null, null, null, null, 1_200m, new DateOnly(2026, 1, 1),
-        1_200m, CardStyle.Envelope, null);
+        1_200m, CardStyle.Envelope, null, 0);
 
     private readonly IAccountService accounts = Substitute.For<IAccountService>();
     private readonly AccountsController controller;
@@ -74,7 +74,8 @@ public sealed class AccountsControllerTests
     [Fact]
     public async Task Someone_elses_or_a_made_up_account_is_not_found()
     {
-        accounts.UpdateAsync(UserId, AccountId, Request, Arg.Any<CancellationToken>()).Returns((AccountItem?)null);
+        accounts.UpdateAsync(UserId, AccountId, Request, Arg.Any<CancellationToken>())
+            .Returns(new UpdateAccountResult(UpdateAccountOutcome.NotFound));
         accounts.ArchiveAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(false);
         accounts.RestoreAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(false);
 
@@ -89,7 +90,7 @@ public sealed class AccountsControllerTests
     [Fact]
     public async Task Deleting_someone_elses_or_a_made_up_account_is_not_found()
     {
-        accounts.DeleteAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(false);
+        accounts.DeleteAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(DeleteAccountOutcome.NotFound);
 
         ((IStatusCodeActionResult)await controller.Delete(AccountId, CancellationToken.None))
             .StatusCode.Should().Be(StatusCodes.Status404NotFound);
@@ -98,16 +99,30 @@ public sealed class AccountsControllerTests
     [Fact]
     public async Task Delete_removes_the_signed_in_persons_account()
     {
-        accounts.DeleteAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(true);
+        accounts.DeleteAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(DeleteAccountOutcome.Deleted);
 
         (await controller.Delete(AccountId, CancellationToken.None)).Should().BeOfType<NoContentResult>();
         await accounts.Received(1).DeleteAsync(UserId, AccountId, Arg.Any<CancellationToken>());
     }
 
     [Fact]
+    public async Task An_account_with_transactions_keeps_its_currency_and_cant_be_deleted()
+    {
+        accounts.UpdateAsync(UserId, AccountId, Request, Arg.Any<CancellationToken>())
+            .Returns(new UpdateAccountResult(UpdateAccountOutcome.CurrencyFixed));
+        accounts.DeleteAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(DeleteAccountOutcome.HasTransactions);
+
+        ((IStatusCodeActionResult)(await controller.Update(AccountId, Request, CancellationToken.None)).Result!)
+            .StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        ((IStatusCodeActionResult)await controller.Delete(AccountId, CancellationToken.None))
+            .StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
     public async Task Update_archive_and_restore_answer_for_the_persons_account()
     {
-        accounts.UpdateAsync(UserId, AccountId, Request, Arg.Any<CancellationToken>()).Returns(Item);
+        accounts.UpdateAsync(UserId, AccountId, Request, Arg.Any<CancellationToken>())
+            .Returns(new UpdateAccountResult(UpdateAccountOutcome.Saved, Item));
         accounts.ArchiveAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(true);
         accounts.RestoreAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(true);
 

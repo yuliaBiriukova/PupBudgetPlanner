@@ -6,6 +6,7 @@ using PupBudgetPlanner.Domain.Accounts;
 using PupBudgetPlanner.Domain.Categories;
 using PupBudgetPlanner.Domain.ExchangeRates;
 using PupBudgetPlanner.Domain.Invitations;
+using PupBudgetPlanner.Domain.Transactions;
 using PupBudgetPlanner.Infrastructure.Identity;
 
 namespace PupBudgetPlanner.Infrastructure.Persistence;
@@ -28,6 +29,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<AccountSource> AccountSources => Set<AccountSource>();
 
     public DbSet<Bank> Banks => Set<Bank>();
+
+    /// <summary>Expenses and incomes (F-018).</summary>
+    public DbSet<Transaction> Transactions => Set<Transaction>();
 
     /// <summary>The NBU's official rates kept per day (F-017), shared by everyone.</summary>
     public DbSet<ExchangeRate> ExchangeRates => Set<ExchangeRate>();

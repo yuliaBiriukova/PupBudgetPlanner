@@ -165,10 +165,19 @@ export interface paths {
                         "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
             };
         };
         post?: never;
-        /** Removes it for good (I-011); the person's own sources and banks stay. */
+        /** Removes it for good (I-011); the person's own sources and banks stay. Only an account without transactions. */
         delete: {
             parameters: {
                 query?: never;
@@ -189,6 +198,15 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1268,6 +1286,204 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The latest transactions: the Transactions page until F-020 brings the full list. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LatestTransactions"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveTransactionRequest"];
+                    "text/json": components["schemas"]["SaveTransactionRequest"];
+                    "application/*+json": components["schemas"]["SaveTransactionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SavedTransaction"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transactions/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What the form picks and offers when it opens: the last accounts and categories, the most used. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TransactionSuggestions"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transactions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveTransactionRequest"];
+                    "text/json": components["schemas"]["SaveTransactionRequest"];
+                    "application/*+json": components["schemas"]["SaveTransactionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SavedTransaction"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Deletes it for good; the answer has the balance it gave back. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DeletedTransaction"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1275,6 +1491,8 @@ export interface components {
         /**
          * @description One account on the Accounts page. SourceName is set for an own source and
          *     BankName for a bank; Cash and Bank themselves are named by the app.
+         *     TransactionCount keeps an account with transactions from being deleted or changing its
+         *     currency (I-011, F-018).
          */
         AccountItem: {
             /** Format: uuid */
@@ -1297,6 +1515,8 @@ export interface components {
             cardStyle: components["schemas"]["CardStyle"];
             /** Format: date-time */
             archivedAt: null | string;
+            /** Format: int32 */
+            transactionCount: number | string;
         };
         /**
          * @description Everything the Accounts page shows: the accounts in use (oldest first), the archived ones (last archived first),
@@ -1326,6 +1546,15 @@ export interface components {
             ratesDate: null | string;
             status: components["schemas"]["RatesStatus"];
             rates: components["schemas"]["RateItem"][];
+        };
+        /** @description An account's balance before and after a save or a delete, for the notification that counts it. */
+        BalanceChange: {
+            /** Format: uuid */
+            accountId: string;
+            /** Format: double */
+            before: number | string;
+            /** Format: double */
+            after: number | string;
         };
         /** @description One of the person's banks. */
         BankItem: {
@@ -1406,6 +1635,10 @@ export interface components {
             /** @default false */
             isAdmin: boolean;
         };
+        /** @description The balance a deleted transaction gave back. */
+        DeletedTransaction: {
+            balances: components["schemas"]["BalanceChange"][];
+        };
         HealthResponse: {
             status: string;
         };
@@ -1436,6 +1669,32 @@ export interface components {
          * @enum {unknown}
          */
         InvitationStatus: "Waiting" | "Used" | "Expired" | "Cancelled";
+        /** @description The account last used for a type: the form picks it when it opens (DESIGN_RULES §5). */
+        LastAccount: {
+            type: components["schemas"]["TransactionType"];
+            /** Format: uuid */
+            accountId: string;
+        };
+        /** @description The category last used with an account for a type: the form picks it with the account (owner, F-018). */
+        LastCategory: {
+            type: components["schemas"]["TransactionType"];
+            /** Format: uuid */
+            accountId: string;
+            /** Format: uuid */
+            categoryId: string;
+        };
+        /**
+         * @description The Transactions page until F-020 brings the full list: the latest transactions, newest day first and, within a
+         *     day, the last added first.
+         */
+        LatestTransactions: {
+            items: components["schemas"]["TransactionItem"][];
+        };
+        /** @description A type's most used categories, most used first: the form's category pills. */
+        MostUsedCategories: {
+            type: components["schemas"]["TransactionType"];
+            categoryIds: string[];
+        };
         /** @description The people an admin action is for: one from a row's menu, or everyone picked. */
         PeopleRequest: {
             userIds: string[];
@@ -1507,6 +1766,24 @@ export interface components {
             openingDate: string;
             cardStyle: components["schemas"]["CardStyle"];
         };
+        /** @description The saved transaction and the balances it changed: one account, or two when it moved between them. */
+        SavedTransaction: {
+            transaction: components["schemas"]["TransactionItem"];
+            balances: components["schemas"]["BalanceChange"][];
+        };
+        /** @description A new transaction or the changed one, as the form sends it (F-018). */
+        SaveTransactionRequest: {
+            type: components["schemas"]["TransactionType"];
+            /** Format: date */
+            date: string;
+            /** Format: uuid */
+            accountId: string;
+            /** Format: uuid */
+            categoryId: string;
+            /** Format: double */
+            amount: number | string;
+            note: null | string;
+        };
         SignInRequest: {
             email: string;
             password: string;
@@ -1532,6 +1809,42 @@ export interface components {
          * @enum {unknown}
          */
         SourceKind: "Cash" | "Bank" | "Own";
+        /**
+         * @description One transaction as the lists show it, with its account's and category's names and the account's currency: an
+         *     archived account or category is still named.
+         */
+        TransactionItem: {
+            /** Format: uuid */
+            id: string;
+            type: components["schemas"]["TransactionType"];
+            /** Format: date */
+            date: string;
+            /** Format: uuid */
+            accountId: string;
+            accountName: string;
+            currency: string;
+            /** Format: uuid */
+            categoryId: string;
+            categoryName: string;
+            /** Format: double */
+            amount: number | string;
+            note: null | string;
+        };
+        /**
+         * @description What the quick-add form picks and offers before the person does (F-018): the last account used for each type, the
+         *     category last used with each account, and the most used categories. "Last" is the last one added, whatever its day:
+         *     it is the habit, and an old receipt typed in late counts as one. Pure, so it is tested without a database.
+         */
+        TransactionSuggestions: {
+            lastAccounts: components["schemas"]["LastAccount"][];
+            lastCategories: components["schemas"]["LastCategory"][];
+            mostUsed: components["schemas"]["MostUsedCategories"][];
+        };
+        /**
+         * @description Which way the money goes. F-019 adds transfers between a person's own accounts.
+         * @enum {unknown}
+         */
+        TransactionType: "Expense" | "Income";
         /**
          * @description The signed-in person's settings (F-016). The email can't be changed yet. The theme isn't here: it is kept on each
          *     device, so a phone can be dark while the laptop is light.
