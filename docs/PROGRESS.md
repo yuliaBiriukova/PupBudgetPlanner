@@ -2,6 +2,26 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-02 (F-019 final prototype)
+
+**Done**
+- F-019 started on `feature/F-019-transfers-and-exchange`. Its design rounds were F-018's (every variant had Transfer
+  and Exchange screens), so the next step is a final prototype rather than 3 new variants:
+  [F-019 final prototype](changes/features/F-019-transfers-and-exchange/prototypes/variant-1.html), F-018's variant 7
+  as built with Transfer finished: From / To with a swap button (new), the exchange's second amount suggested at the
+  NBU rate of the day with "Your rate" / "Use the NBU rate", the rate written as the app writes rates ($1 = … ₴ both
+  ways), the earlier-rate and no-rate states, the notification counting both balances, both cards lit on Accounts,
+  "Transfer" / "Exchange" rows, edit and delete.
+- The description file has references (Wise, Wallet by BudgetBakers, CoinKeeper), the brief, the build plan
+  (one row per transfer, a rates endpoint for the form) and 4 open points for the owner.
+- Checked: the design check passes with 0 issues (it found the "Use the NBU rate" link too small to tap, fixed);
+  every screen at 375 and 1440 px, light and dark, looked at (fixed: the two-balance notification wrapping badly, the
+  To amount's line hidden under the phone keys).
+- Test data: none.
+
+**Next**
+- Owner: answer the open points and approve the final prototype and plan for implementation, or ask for changes.
+
 ## 2026-11-02 (I-018: Neon skills in the repo)
 
 **Done**
