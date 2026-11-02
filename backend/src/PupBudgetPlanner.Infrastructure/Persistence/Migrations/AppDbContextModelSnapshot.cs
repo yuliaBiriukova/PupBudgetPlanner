@@ -513,7 +513,7 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("amount");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
@@ -529,6 +529,15 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("note");
+
+                    b.Property<Guid?>("ToAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("to_account_id");
+
+                    b.Property<decimal?>("ToAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("to_amount");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -553,10 +562,16 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_transactions_category_id");
 
+                    b.HasIndex("ToAccountId")
+                        .HasDatabaseName("ix_transactions_to_account_id");
+
                     b.HasIndex("UserId", "Date")
                         .HasDatabaseName("ix_transactions_user_id_date");
 
-                    b.ToTable("transactions", (string)null);
+                    b.ToTable("transactions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_transactions_transfer_shape", "(type = 'Transfer' AND to_account_id IS NOT NULL AND to_amount IS NOT NULL\n    AND category_id IS NULL AND to_account_id <> account_id)\nOR (type <> 'Transfer' AND to_account_id IS NULL AND to_amount IS NULL\n    AND category_id IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("PupBudgetPlanner.Infrastructure.Identity.AppUser", b =>
@@ -811,8 +826,13 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired()
                         .HasConstraintName("fk_transactions_categories_category_id");
+
+                    b.HasOne("PupBudgetPlanner.Domain.Accounts.Account", null)
+                        .WithMany()
+                        .HasForeignKey("ToAccountId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("fk_transactions_accounts_to_account_id");
 
                     b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
                         .WithMany()

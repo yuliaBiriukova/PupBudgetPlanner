@@ -4,7 +4,7 @@ using PupBudgetPlanner.Application.Transactions;
 
 namespace PupBudgetPlanner.Api.Controllers;
 
-/// <summary>The signed-in person's expenses and incomes (F-018).</summary>
+/// <summary>The signed-in person's expenses and incomes (F-018) and transfers (F-019).</summary>
 [ApiController]
 [Route("api/transactions")]
 public sealed class TransactionsController(ITransactionService transactions) : ControllerBase
@@ -40,7 +40,7 @@ public sealed class TransactionsController(ITransactionService transactions) : C
         Guid id, SaveTransactionRequest request, CancellationToken cancellationToken) =>
         ResultOf(await transactions.UpdateAsync(UserId, id, request, cancellationToken));
 
-    /// <summary>Deletes it for good; the answer has the balance it gave back.</summary>
+    /// <summary>Deletes it for good; the answer has the balances it gave back (two for a transfer).</summary>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType<DeletedTransaction>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -57,6 +57,10 @@ public sealed class TransactionsController(ITransactionService transactions) : C
             nameof(SaveTransactionRequest.AccountId), "Pick one of your accounts in use."),
         SaveTransactionOutcome.NoSuchCategory => FieldProblem(
             nameof(SaveTransactionRequest.CategoryId), "Pick one of your categories for this type."),
+        SaveTransactionOutcome.NoSuchToAccount => FieldProblem(
+            nameof(SaveTransactionRequest.ToAccountId), "Pick one of your accounts in use to move the money to."),
+        SaveTransactionOutcome.ToAmountMissing => FieldProblem(
+            nameof(SaveTransactionRequest.ToAmount), "Enter how much the account the money goes to got."),
         _ => Problem(statusCode: StatusCodes.Status404NotFound, title: NoSuchTransaction),
     };
 

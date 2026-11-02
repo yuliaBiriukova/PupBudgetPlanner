@@ -41,14 +41,30 @@ import { DeleteAccountDialog } from './DeleteAccountDialog';
 import { TotalRates } from './TotalRates';
 
 /**
- * The account just added or restored: its card gets a ring and its currency's total counts up by `amount`. After a
+ * An account just added or restored: its card gets a ring and its currency's total counts up by `amount`. After a
  * delete (I-011) `amount` is minus the deleted balance, so the total counts down; after a transaction (F-018) it is
  * what the transaction changed.
  */
-interface Fresh {
+interface FreshAccount {
   id: string;
   currency: string;
   amount: number;
+}
+
+/** The accounts that just changed: one, or both sides of a transfer (F-019). */
+type Fresh = FreshAccount[];
+
+/** What the fresh accounts in `currency` changed together; nothing when none is in it. */
+function changedIn(fresh: Fresh | undefined, currency: string): number | undefined {
+  const inCurrency = fresh?.filter((account) => account.currency === currency) ?? [];
+  return inCurrency.length > 0
+    ? inCurrency.reduce((sum, account) => sum + account.amount, 0)
+    : undefined;
+}
+
+/** Where a total counts from: what it was before `changed`; nothing to count when nothing changed in it. */
+function fromBefore(total: number, changed: number | undefined): number | undefined {
+  return changed === undefined ? undefined : total - changed;
 }
 
 /** The currency "In total" starts with until the API names the person's own (F-016): the hryvnia. */
@@ -232,7 +248,7 @@ export function AccountsPage() {
       <Archived
         accounts={overview.archived}
         onRestored={(account) => {
-          setFresh({ id: account.id, currency: account.currency, amount: account.balance });
+          setFresh([{ id: account.id, currency: account.currency, amount: account.balance }]);
         }}
         onDelete={setDeleting}
       />
@@ -262,7 +278,8 @@ export function AccountsPage() {
                 ? t('accounts.form.added', { name: saved.name })
                 : t('accounts.form.saved'),
             });
-            if (added) setFresh({ id: saved.id, currency: saved.currency, amount: saved.balance });
+            if (added)
+              setFresh([{ id: saved.id, currency: saved.currency, amount: saved.balance }]);
           }}
           onArchived={(account) => {
             closeForm();
@@ -271,7 +288,7 @@ export function AccountsPage() {
           onDeleted={(account) => {
             closeForm();
             notifications.show({ message: t('accounts.delete.done', { name: account.name }) });
-            setFresh({ id: account.id, currency: account.currency, amount: -account.balance });
+            setFresh([{ id: account.id, currency: account.currency, amount: -account.balance }]);
           }}
         />
       )}
@@ -280,8 +297,9 @@ export function AccountsPage() {
 }
 
 /**
- * After a transaction was saved or deleted (F-018): once the page has the new balance, the account's card gets its ring
- * and the totals count by what changed. A change made before the page opened lights nothing.
+ * After a transaction was saved or deleted (F-018): once the page has the new balances, the cards of the accounts it
+ * changed get their ring (both of a transfer, F-019) and the totals count by what changed. An archived account has no
+ * card. A change made before the page opened lights nothing.
  */
 function useFreshAfterTransaction(
   change: LastChange | undefined,
@@ -295,15 +313,23 @@ function useFreshAfterTransaction(
     setWaiting(change);
   }
 
-  const balance = waiting?.balances.at(-1);
-  const account = overview?.accounts.find((item) => item.id === balance?.accountId);
-  if (balance && account?.balance === balance.after) {
+  if (!waiting || !overview) return;
+  const changed = waiting.balances.flatMap((balance) => {
+    const account = overview.accounts.find((item) => item.id === balance.accountId);
+    return account ? [{ account, balance }] : [];
+  });
+  if (
+    changed.length > 0 &&
+    changed.every(({ account, balance }) => account.balance === balance.after)
+  ) {
     setWaiting(undefined);
-    setFresh({
-      id: account.id,
-      currency: account.currency,
-      amount: balance.after - balance.before,
-    });
+    setFresh(
+      changed.map(({ account, balance }) => ({
+        id: account.id,
+        currency: account.currency,
+        amount: balance.after - balance.before,
+      })),
+    );
   }
 }
 
@@ -357,7 +383,7 @@ function Totals({ overview, fresh }: { overview: AccountsOverview; fresh?: Fresh
                 <CountUp
                   value={total.total}
                   currency={total.currency}
-                  from={fresh?.currency === total.currency ? total.total - fresh.amount : undefined}
+                  from={fromBefore(total.total, changedIn(fresh, total.currency))}
                 />
               </span>
             </div>
@@ -369,16 +395,19 @@ function Totals({ overview, fresh }: { overview: AccountsOverview; fresh?: Fresh
 }
 
 /**
- * Where the grand total counts from after an account is added, restored or deleted: less the fresh account's balance
- * at its rate. Nothing when its rate isn't there.
+ * Where the grand total counts from after an account is added, restored or deleted, or a transaction changed it: less
+ * what the fresh accounts changed, each at its rate. Nothing when a rate isn't there.
  */
 function freshFrom(grand: AccountsTotal, fresh?: Fresh): number | undefined {
-  if (!fresh || grand.total === null) return undefined;
-  const from = hryvniasFor(grand, fresh.currency);
+  if (!fresh || fresh.length === 0 || grand.total === null) return undefined;
   const to = hryvniasFor(grand, grand.currency);
-  return from === undefined || to === undefined
-    ? undefined
-    : grand.total - (fresh.amount * from) / to;
+  let changed = 0;
+  for (const account of fresh) {
+    const from = hryvniasFor(grand, account.currency);
+    if (from === undefined || to === undefined) return undefined;
+    changed += (account.amount * from) / to;
+  }
+  return grand.total - changed;
 }
 
 /** Hryvnias for one unit, as the NBU gives the rates (F-016); the hryvnia's own is 1. */
@@ -442,7 +471,7 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
             <CountUp
               value={key.total}
               currency={key.currency}
-              from={fresh?.currency === key.currency ? key.total - fresh.amount : undefined}
+              from={fromBefore(key.total, changedIn(fresh, key.currency))}
             />
           </span>
         )}
@@ -457,7 +486,7 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
               balance={account.balance}
               currency={account.currency}
               cardStyle={account.cardStyle}
-              isNew={fresh?.id === account.id}
+              isNew={fresh?.some((item) => item.id === account.id)}
               className={classes.card}
               onClick={() => {
                 onOpen(account);

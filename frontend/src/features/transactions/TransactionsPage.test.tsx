@@ -68,6 +68,16 @@ const LATEST: Transaction[] = [
   },
 ];
 
+/** The NBU's rates of the day the form asks for (F-019). */
+const RATES = {
+  date: today(),
+  status: 'Current',
+  rates: [
+    { currency: 'EUR', rate: 48.71 },
+    { currency: 'USD', rate: 45.53 },
+  ],
+};
+
 interface Sent {
   method: string;
   url: string;
@@ -79,25 +89,35 @@ function transactionsServer({
   latest = LATEST,
   suggestions = NONE,
   overview = OVERVIEW,
+  rates = RATES,
 }: {
   latest?: Transaction[];
   suggestions?: TransactionSuggestions;
   overview?: AccountsOverview;
+  /** The NBU rates the API gives for any day (F-019). */
+  rates?: { date: string | null; status: string; rates: { currency: string; rate: number }[] };
 } = {}) {
   const sent: Sent[] = [];
   const saved = (body: SaveTransactionRequest, id = 'new') => {
     const account = overview.accounts.find((item) => item.id === body.accountId);
     const before = account?.balance ?? 0;
-    const after = before + (body.type === 'Expense' ? -body.amount : body.amount);
+    const after = before + (body.type === 'Income' ? body.amount : -body.amount);
+    // A transfer: its To gets what the bank gave, or the amount itself in one currency
+    const to = overview.accounts.find((item) => item.id === body.toAccountId);
+    const toAmount = body.toAmount ?? body.amount;
     return {
       transaction: {
         ...body,
         id,
         accountName: account?.name ?? '',
         currency: account?.currency ?? 'UAH',
-        categoryName: 'Saved',
+        categoryName: body.type === 'Transfer' ? null : 'Saved',
+        ...(to && { toAccountName: to.name, toCurrency: to.currency, toAmount }),
       },
-      balances: [{ accountId: body.accountId, before, after }],
+      balances: [
+        { accountId: body.accountId, before, after },
+        ...(to ? [{ accountId: to.id, before: to.balance, after: to.balance + toAmount }] : []),
+      ],
     };
   };
   server.use(
@@ -106,6 +126,7 @@ function transactionsServer({
     http.get('/api/categories', () => HttpResponse.json(DEFAULT_CATEGORIES)),
     http.get('/api/transactions', () => HttpResponse.json({ items: latest })),
     http.get('/api/transactions/suggestions', () => HttpResponse.json(suggestions)),
+    http.get('/api/rates', () => HttpResponse.json(rates)),
     http.post('/api/transactions', async ({ request }) => {
       const body = (await request.json()) as SaveTransactionRequest;
       sent.push({ method: 'POST', url: '/api/transactions', body });
@@ -409,6 +430,225 @@ describe('changing a transaction', () => {
       'DELETE /api/transactions/t1',
     ]);
     expect(sent[0]?.body).toMatchObject({ amount: 640, note: 'Silpo', date: today() });
+  });
+});
+
+/** The last transfer: dollars sold into Mono black. */
+const LAST_EXCHANGE: TransactionSuggestions = {
+  ...NONE,
+  lastAccounts: [{ type: 'Transfer', accountId: 'mono-usd' }],
+  lastTransfer: { fromAccountId: 'mono-usd', toAccountId: 'mono' },
+};
+
+/** Opens the form and switches it to Transfer. */
+async function openTransfer() {
+  const form = await openForm();
+  await userEvent.click(within(form).getByText('Transfer'));
+  return screen.findByRole('dialog', { name: 'Add transfer' });
+}
+
+describe('transfers', () => {
+  it('moves money between two accounts in one currency: one amount, no category', async () => {
+    const sent = transactionsServer({
+      suggestions: { ...NONE, lastTransfer: { fromAccountId: 'mono', toAccountId: 'cash' } },
+    });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    expect(within(form).getByRole('button', { name: /^From/ })).toHaveTextContent('Mono black');
+    expect(within(form).getByRole('button', { name: /^To/ })).toHaveTextContent('Wallet');
+    expect(within(form).queryByRole('radiogroup', { name: 'Category' })).not.toBeInTheDocument();
+    expect(within(form).queryByLabelText(/^To Wallet/)).not.toBeInTheDocument();
+
+    // The To list leaves out the From account
+    await userEvent.click(within(form).getByRole('button', { name: /^To/ }));
+    const list = await screen.findByRole('dialog', { name: 'To' });
+    expect(within(list).queryByRole('button', { name: /^Mono black/ })).not.toBeInTheDocument();
+    await userEvent.click(within(list).getByRole('button', { name: /^Privat card/ }));
+
+    await userEvent.type(within(form).getByLabelText('Amount'), '2000');
+    await userEvent.type(within(form).getByLabelText('Note'), 'Savings');
+    await userEvent.click(within(form).getByRole('button', { name: 'Save transfer' }));
+
+    expect(await screen.findByText('Transfer saved.')).toBeInTheDocument();
+    expect(screen.getByText(/Mono black.*Privat card/)).toBeInTheDocument();
+    expect(sent.map((item) => item.body)).toEqual([
+      {
+        type: 'Transfer',
+        date: today(),
+        accountId: 'mono',
+        categoryId: null,
+        amount: 2000,
+        note: 'Savings',
+        toAccountId: 'privat',
+        toAmount: null,
+      },
+    ]);
+  });
+
+  it('suggests an exchange’s second amount at the NBU rate, takes the bank’s own and goes back', async () => {
+    const sent = transactionsServer({ suggestions: LAST_EXCHANGE });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    expect(within(form).getByRole('button', { name: /^From/ })).toHaveTextContent('Mono dollars');
+    expect(within(form).getByRole('button', { name: /^To/ })).toHaveTextContent('Mono black');
+    await userEvent.type(within(form).getByLabelText('From Mono dollars'), '100');
+    const to = within(form).getByLabelText('To Mono black');
+    await waitFor(() => {
+      expect(to).toHaveValue('4 553');
+    });
+    expect(form).toHaveTextContent(
+      /At the NBU rate of .*: \$1 = 45\.53 ₴\. Change it to what the bank gave you\./,
+    );
+
+    await userEvent.clear(to);
+    await userEvent.type(to, '4490');
+    expect(form).toHaveTextContent('Your rate: $1 = 44.90 ₴. NBU: $1 = 45.53 ₴.');
+    await userEvent.click(within(form).getByRole('button', { name: 'Use the NBU rate' }));
+    expect(to).toHaveValue('4 553');
+    await userEvent.clear(to);
+    await userEvent.type(to, '4490');
+    await userEvent.click(within(form).getByRole('button', { name: 'Save transfer' }));
+
+    expect(await screen.findByText('Exchange saved.')).toBeInTheDocument();
+    expect(sent.map((item) => item.body)).toEqual([
+      expect.objectContaining({
+        accountId: 'mono-usd',
+        amount: 100,
+        toAccountId: 'mono',
+        toAmount: 4490,
+      }),
+    ]);
+  });
+
+  it('swaps From and To with their amounts', async () => {
+    transactionsServer({ suggestions: LAST_EXCHANGE });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    await userEvent.type(within(form).getByLabelText('From Mono dollars'), '100');
+    await userEvent.clear(within(form).getByLabelText('To Mono black'));
+    await userEvent.type(within(form).getByLabelText('To Mono black'), '4490');
+    await userEvent.click(within(form).getByRole('button', { name: 'Swap From and To' }));
+
+    expect(within(form).getByRole('button', { name: /^From/ })).toHaveTextContent('Mono black');
+    expect(within(form).getByLabelText('From Mono black')).toHaveValue('4 490');
+    expect(within(form).getByLabelText('To Mono dollars')).toHaveValue('100');
+    // Buying dollars reads the same way as selling them
+    expect(form).toHaveTextContent('Your rate: $1 = 44.90 ₴.');
+  });
+
+  it('asks for the second amount when the NBU has no rate', async () => {
+    const sent = transactionsServer({
+      suggestions: LAST_EXCHANGE,
+      rates: { date: null, status: 'Missing', rates: [] },
+    });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    await userEvent.type(within(form).getByLabelText('From Mono dollars'), '100');
+    expect(
+      await within(form).findByText(
+        'No NBU rate for this day right now. Type how much Mono black got.',
+      ),
+    ).toBeInTheDocument();
+    expect(within(form).getByLabelText('To Mono black')).toHaveValue('');
+    await userEvent.click(within(form).getByRole('button', { name: 'Save transfer' }));
+    expect(within(form).getByLabelText('To Mono black')).toHaveAccessibleDescription(
+      'Enter how much Mono black got.',
+    );
+    expect(sent).toEqual([]);
+  });
+
+  it('says an earlier rate is an earlier one', async () => {
+    transactionsServer({
+      suggestions: LAST_EXCHANGE,
+      rates: { ...RATES, date: '2026-10-30', status: 'NotPublished' },
+    });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    await waitFor(() => {
+      expect(form).toHaveTextContent(
+        /isn’t out yet\. At the rate of 30 Oct 2026: \$1 = 45\.53 ₴\./,
+      );
+    });
+  });
+
+  it('moves the phone keys to the To amount, the first key replacing the suggestion', async () => {
+    setScreenWidth(375);
+    const sent = transactionsServer({ suggestions: LAST_EXCHANGE });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    const keys = within(form).getByRole('group', { name: 'Amount keys' });
+    for (const key of ['1', '0', '0'])
+      await userEvent.click(within(keys).getByRole('button', { name: key }));
+    await waitFor(() => {
+      expect(within(form).getByLabelText('To Mono black')).toHaveValue('4 553');
+    });
+    await userEvent.click(within(form).getByLabelText('To Mono black'));
+    for (const key of ['4', '4', '9', '0'])
+      await userEvent.click(within(keys).getByRole('button', { name: key }));
+    expect(within(form).getByLabelText('To Mono black')).toHaveValue('4 490');
+    expect(within(form).getByLabelText('From Mono dollars')).toHaveValue('100');
+    await userEvent.click(within(keys).getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(sent.map((item) => (item.body as SaveTransactionRequest).toAmount)).toEqual([4490]);
+    });
+  });
+
+  it('lists transfers and exchanges, and asks before deleting what both balances go back to', async () => {
+    const exchange: Transaction = {
+      id: 't9',
+      type: 'Transfer',
+      date: today(),
+      accountId: 'mono-usd',
+      accountName: 'Mono dollars',
+      currency: 'USD',
+      categoryId: null,
+      categoryName: null,
+      amount: 100,
+      note: null,
+      toAccountId: 'mono',
+      toAccountName: 'Mono black',
+      toCurrency: 'UAH',
+      toAmount: 4490,
+    };
+    const transfer: Transaction = {
+      ...exchange,
+      id: 't10',
+      accountId: 'mono',
+      accountName: 'Mono black',
+      currency: 'UAH',
+      amount: 2000,
+      note: 'Cash for the market',
+      toAccountId: 'cash',
+      toAccountName: 'Wallet',
+      toCurrency: 'UAH',
+      toAmount: 2000,
+    };
+    transactionsServer({ latest: [exchange, transfer] });
+    renderApp('/transactions');
+
+    const exchangeRow = await screen.findByRole('button', { name: /^Exchange/ }, LOADED);
+    expect(exchangeRow).toHaveTextContent('ExchangeMono dollarsMono black$100');
+    expect(exchangeRow).toHaveTextContent('4 490 ₴');
+    expect(screen.getByRole('button', { name: /^Transfer/ })).toHaveTextContent(
+      'TransferMono blackWallet, Cash for the market2 000 ₴',
+    );
+
+    await userEvent.click(exchangeRow);
+    const form = await screen.findByRole('dialog', { name: 'Edit exchange' });
+    expect(within(form).getByLabelText('To Mono black')).toHaveValue('4 490');
+    await userEvent.click(within(form).getByRole('button', { name: 'Delete this exchange' }));
+    const ask = await screen.findByRole('dialog', { name: 'Delete this exchange?' });
+    expect(ask).toHaveTextContent('Exchange from Mono dollars to Mono black');
+    expect(ask).toHaveTextContent(
+      'Mono dollars goes back to $1 340, Mono black to 43 721 ₴. This can’t be undone.',
+    );
   });
 });
 

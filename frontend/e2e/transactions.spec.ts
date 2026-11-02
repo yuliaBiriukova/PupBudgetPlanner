@@ -35,12 +35,13 @@ async function addAccount(
   name: string,
   openingBalance: number,
   source: 'Bank' | 'Cash',
+  currency = 'UAH',
 ) {
   const added = await page.request.post('/api/accounts', {
     headers: await antiforgery(page.request),
     data: {
       name,
-      currency: 'UAH',
+      currency,
       source,
       sourceName: null,
       bankName: source === 'Bank' ? 'Monobank' : null,
@@ -125,4 +126,66 @@ test('a person adds an expense from an account’s card, changes it, deletes it,
   await saveButton(dialog, isMobile, form.saveIncome).click();
   await expect(page.getByText('Income saved.')).toBeVisible();
   await expect(page.getByRole('button', { name: /Salary/ })).toContainText('+1 500 ₴');
+});
+
+test('a person exchanges $100 for hryvnias at the bank’s rate; both balances change, and come back on delete', async ({
+  page,
+  isMobile,
+}) => {
+  const response = await signUpThroughApi(page.request, newPerson('transfers'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+  await addAccount(page, 'Mono dollars', 500, 'Bank', 'USD');
+
+  // From the + on the dollars card, switched to Transfer: that account is the From, the other one the To
+  await page.goto('/accounts');
+  await page.getByRole('button', { name: 'Add a transaction from Mono dollars' }).click();
+  await page
+    .getByRole('dialog', { name: 'Add expense' })
+    .getByText(en.transactions.types.Transfer, { exact: true })
+    .click();
+  const dialog = page.getByRole('dialog', { name: 'Add transfer' });
+  await expect(dialog.getByRole('button', { name: /^From/ })).toContainText('Mono dollars');
+  await expect(dialog.getByRole('button', { name: /^To/ })).toContainText('Mono black');
+  await expect(dialog.getByRole('radiogroup', { name: form.category })).toHaveCount(0);
+
+  // $100 out; the bank gave 4 490 ₴ (the NBU's suggestion is replaced)
+  const from = dialog.getByLabel('From Mono dollars');
+  const to = dialog.getByLabel('To Mono black');
+  if (isMobile) {
+    const keys = dialog.getByRole('group', { name: form.keys });
+    for (const key of '100') await keys.getByRole('button', { name: key, exact: true }).click();
+    await to.click();
+    for (const key of '4490') await keys.getByRole('button', { name: key, exact: true }).click();
+  } else {
+    await from.fill('100');
+    await to.fill('4490');
+  }
+  await expect(to).toHaveValue('4 490');
+  await expect(dialog).toContainText('Your rate: $1 = 44.90 ₴.');
+  await saveButton(dialog, isMobile, form.saveTransfer).click();
+
+  // The notification counts both; both cards have their new balances
+  await expect(page.getByText('Exchange saved.')).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Mono dollars/ })).toContainText('$400');
+  await expect(page.getByRole('button', { name: /^Mono black/ })).toContainText('5 490 ₴');
+
+  // Listed as an exchange; deleting it gives both balances back
+  await page.goto('/transactions');
+  const row = page.getByRole('button', { name: /^Exchange/ });
+  await expect(row).toContainText('Mono dollars');
+  await expect(row).toContainText('4 490 ₴');
+  await row.click();
+  await page
+    .getByRole('dialog', { name: 'Edit exchange' })
+    .getByRole('button', { name: form.deleteLabel.Exchange })
+    .click();
+  const ask = page.getByRole('dialog', { name: en.transactions.delete.title.Exchange });
+  await expect(ask).toContainText('Mono dollars goes back to $500, Mono black to 1 000 ₴.');
+  await ask.getByRole('button', { name: en.transactions.delete.confirm }).click();
+  await expect(page.getByText('Deleted.')).toBeVisible();
+
+  await page.goto('/accounts');
+  await expect(page.getByRole('button', { name: /^Mono dollars/ })).toContainText('$500');
+  await expect(page.getByRole('button', { name: /^Mono black/ })).toContainText('1 000 ₴');
 });

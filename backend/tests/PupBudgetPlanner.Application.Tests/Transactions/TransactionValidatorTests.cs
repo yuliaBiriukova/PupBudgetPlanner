@@ -69,6 +69,44 @@ public sealed class TransactionValidatorTests
     [Fact]
     public void An_unknown_type_is_refused()
     {
-        Errors(Valid() with { Type = (TransactionType)7 }).Should().Equal("Pick expense or income.");
+        Errors(Valid() with { Type = (TransactionType)7 }).Should().Equal("Pick expense, income or transfer.");
+    }
+
+    private static SaveTransactionRequest Transfer() => new(
+        TransactionType.Transfer, new DateOnly(2026, 11, 1), Guid.CreateVersion7(), null, 100m, null,
+        Guid.CreateVersion7(), 4_490m);
+
+    [Fact]
+    public void A_transfer_goes_to_another_account_with_no_category()
+    {
+        Validator.Validate(Transfer()).IsValid.Should().BeTrue();
+        // Between accounts in one currency the To amount isn't sent: it is the amount itself
+        Validator.Validate(Transfer() with { ToAmount = null }).IsValid.Should().BeTrue();
+
+        Errors(Transfer() with { ToAccountId = null }).Should().Equal("Pick the account the money goes to.");
+        var from = Guid.CreateVersion7();
+        Errors(Transfer() with { AccountId = from, ToAccountId = from })
+            .Should().Equal("Pick another account to move the money to.");
+        Errors(Transfer() with { CategoryId = Guid.CreateVersion7() }).Should().Equal("A transfer has no category.");
+    }
+
+    [Theory]
+    [InlineData("0", "The amount must be more than zero.")]
+    [InlineData("-10", "The amount must be more than zero.")]
+    [InlineData("10000000000000000", "The amount is too big.")]
+    public void What_the_to_account_got_is_an_amount_like_any_other(string amount, string error)
+    {
+        var request = Transfer() with { ToAmount = decimal.Parse(amount, CultureInfo.InvariantCulture) };
+
+        var failure = Validator.Validate(request).Errors.Should().ContainSingle().Subject;
+        failure.PropertyName.Should().Be(nameof(SaveTransactionRequest.ToAmount));
+        failure.ErrorMessage.Should().Be(error);
+    }
+
+    [Fact]
+    public void Only_a_transfer_goes_to_another_account()
+    {
+        Errors(Valid() with { ToAccountId = Guid.CreateVersion7(), ToAmount = 100m })
+            .Should().Equal("Only a transfer goes to another account.", "Only a transfer goes to another account.");
     }
 }

@@ -11,23 +11,29 @@ public sealed record LastCategory(TransactionType Type, Guid AccountId, Guid Cat
 /// <summary>A type's most used categories, most used first: the form's category pills.</summary>
 public sealed record MostUsedCategories(TransactionType Type, IReadOnlyList<Guid> CategoryIds);
 
-/// <summary>What the suggestions are worked out from: one recent transaction.</summary>
+/// <summary>The last transfer's From and To: the form picks both when it opens on Transfer (F-019).</summary>
+public sealed record LastTransfer(Guid FromAccountId, Guid ToAccountId);
+
+/// <summary>What the suggestions are worked out from: one recent transaction (a transfer has a To, no category).</summary>
 public sealed record RecentTransaction(
     TransactionType Type,
     Guid AccountId,
-    Guid CategoryId,
+    Guid? CategoryId,
     DateOnly Date,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    Guid? ToAccountId = null);
 
 /// <summary>
 /// What the quick-add form picks and offers before the person does (F-018): the last account used for each type, the
-/// category last used with each account, and the most used categories. "Last" is the last one added, whatever its day:
-/// it is the habit, and an old receipt typed in late counts as one. Pure, so it is tested without a database.
+/// category last used with each account, the most used categories, and the last transfer's From and To (F-019). "Last"
+/// is the last one added, whatever its day: it is the habit, and an old receipt typed in late counts as one. Pure, so
+/// it is tested without a database.
 /// </summary>
 public sealed record TransactionSuggestions(
     IReadOnlyList<LastAccount> LastAccounts,
     IReadOnlyList<LastCategory> LastCategories,
-    IReadOnlyList<MostUsedCategories> MostUsed)
+    IReadOnlyList<MostUsedCategories> MostUsed,
+    LastTransfer? LastTransfer = null)
 {
     /// <summary>How many of the latest added transactions the suggestions look at.</summary>
     public const int RecentLimit = 1000;
@@ -47,15 +53,22 @@ public sealed record TransactionSuggestions(
             .Select(transaction => new LastAccount(transaction.Type, transaction.AccountId))
             .OrderBy(last => last.Type)
             .ToList();
-        var lastCategories = latestFirst
+
+        // Transfers have no category: the categories come from expenses and incomes only
+        var categorised = latestFirst
+            .Where(transaction => transaction.CategoryId is not null)
+            .Select(transaction => (transaction.Type, transaction.AccountId, CategoryId: transaction.CategoryId!.Value,
+                transaction.Date, transaction.CreatedAt))
+            .ToList();
+        var lastCategories = categorised
             .DistinctBy(transaction => (transaction.Type, transaction.AccountId))
             .Select(transaction => new LastCategory(transaction.Type, transaction.AccountId, transaction.CategoryId))
             .ToList();
 
         var since = today.AddDays(-MostUsedDays);
-        var counted = latestFirst.Any(transaction => transaction.Date > since)
-            ? latestFirst.Where(transaction => transaction.Date > since).ToList()
-            : latestFirst;
+        var counted = categorised.Any(transaction => transaction.Date > since)
+            ? categorised.Where(transaction => transaction.Date > since).ToList()
+            : categorised;
         // Most used first; between two used as often, the one used last
         var mostUsed = counted
             .GroupBy(transaction => transaction.Type)
@@ -71,6 +84,11 @@ public sealed record TransactionSuggestions(
                     .ToList()))
             .ToList();
 
-        return new TransactionSuggestions(lastAccounts, lastCategories, mostUsed);
+        var lastTransfer = latestFirst
+            .Where(transaction => transaction.ToAccountId is not null)
+            .Select(transaction => new LastTransfer(transaction.AccountId, transaction.ToAccountId!.Value))
+            .FirstOrDefault();
+
+        return new TransactionSuggestions(lastAccounts, lastCategories, mostUsed, lastTransfer);
     }
 }

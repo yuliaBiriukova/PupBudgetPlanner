@@ -82,7 +82,9 @@ public sealed class TransactionsControllerTests
     [Theory]
     [InlineData(SaveTransactionOutcome.NoSuchAccount, "accountId")]
     [InlineData(SaveTransactionOutcome.NoSuchCategory, "categoryId")]
-    public async Task Someone_elses_or_an_archived_account_or_category_is_a_bad_request(
+    [InlineData(SaveTransactionOutcome.NoSuchToAccount, "toAccountId")]
+    [InlineData(SaveTransactionOutcome.ToAmountMissing, "toAmount")]
+    public async Task Someone_elses_or_an_archived_account_or_category_or_a_missing_to_amount_is_a_bad_request(
         SaveTransactionOutcome outcome, string field)
     {
         transactions.CreateAsync(UserId, Request, Arg.Any<CancellationToken>())

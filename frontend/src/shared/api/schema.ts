@@ -1123,6 +1123,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The rates of date (a transaction's day, never after today), or the latest earlier ones,
+         *     marked with the reason.
+         */
+        get: {
+            parameters: {
+                query: {
+                    date: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RatesOfDay"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings": {
         parameters: {
             query?: never;
@@ -1447,7 +1497,7 @@ export interface paths {
             };
         };
         post?: never;
-        /** Deletes it for good; the answer has the balance it gave back. */
+        /** Deletes it for good; the answer has the balances it gave back (two for a transfer). */
         delete: {
             parameters: {
                 query?: never;
@@ -1635,7 +1685,7 @@ export interface components {
             /** @default false */
             isAdmin: boolean;
         };
-        /** @description The balance a deleted transaction gave back. */
+        /** @description The balances a deleted transaction gave back: one account, two for a transfer. */
         DeletedTransaction: {
             balances: components["schemas"]["BalanceChange"][];
         };
@@ -1682,6 +1732,13 @@ export interface components {
             accountId: string;
             /** Format: uuid */
             categoryId: string;
+        };
+        /** @description The last transfer's From and To: the form picks both when it opens on Transfer (F-019). */
+        LastTransfer: {
+            /** Format: uuid */
+            fromAccountId: string;
+            /** Format: uuid */
+            toAccountId: string;
         };
         /**
          * @description The Transactions page until F-020 brings the full list: the latest transactions, newest day first and, within a
@@ -1735,6 +1792,17 @@ export interface components {
             rate: number | string;
         };
         /**
+         * @description One day's NBU rates as the transfer form gets them (F-019): hryvnias for one unit of each currency, by code. The
+         *     form suggests an exchange's second amount from them. Date is the day they belong to, earlier
+         *     than the asked one unless RatesStatus.Current; with RatesStatus.Missing there are none.
+         */
+        RatesOfDay: {
+            /** Format: date */
+            date: null | string;
+            status: components["schemas"]["RatesStatus"];
+            rates: components["schemas"]["RateItem"][];
+        };
+        /**
          * @description Whether the rates are the asked day's, and if not, why.
          * @enum {unknown}
          */
@@ -1771,7 +1839,11 @@ export interface components {
             transaction: components["schemas"]["TransactionItem"];
             balances: components["schemas"]["BalanceChange"][];
         };
-        /** @description A new transaction or the changed one, as the form sends it (F-018). */
+        /**
+         * @description A new transaction or the changed one, as the form sends it (F-018). A transfer (F-019) has
+         *     ToAccountId and no category; ToAmount is what the To account got, needed
+         *     between two currencies only (between accounts in one currency it is the amount itself).
+         */
         SaveTransactionRequest: {
             type: components["schemas"]["TransactionType"];
             /** Format: date */
@@ -1779,10 +1851,14 @@ export interface components {
             /** Format: uuid */
             accountId: string;
             /** Format: uuid */
-            categoryId: string;
+            categoryId: null | string;
             /** Format: double */
             amount: number | string;
             note: null | string;
+            /** Format: uuid */
+            toAccountId?: null | string;
+            /** Format: double */
+            toAmount?: null | number | string;
         };
         SignInRequest: {
             email: string;
@@ -1811,7 +1887,8 @@ export interface components {
         SourceKind: "Cash" | "Bank" | "Own";
         /**
          * @description One transaction as the lists show it, with its account's and category's names and the account's currency: an
-         *     archived account or category is still named.
+         *     archived account or category is still named. A transfer (F-019) has no category; it has its To account's name and
+         *     currency and what that account got instead.
          */
         TransactionItem: {
             /** Format: uuid */
@@ -1824,27 +1901,35 @@ export interface components {
             accountName: string;
             currency: string;
             /** Format: uuid */
-            categoryId: string;
-            categoryName: string;
+            categoryId: null | string;
+            categoryName: null | string;
             /** Format: double */
             amount: number | string;
             note: null | string;
+            /** Format: uuid */
+            toAccountId?: null | string;
+            toAccountName?: null | string;
+            toCurrency?: null | string;
+            /** Format: double */
+            toAmount?: null | number | string;
         };
         /**
          * @description What the quick-add form picks and offers before the person does (F-018): the last account used for each type, the
-         *     category last used with each account, and the most used categories. "Last" is the last one added, whatever its day:
-         *     it is the habit, and an old receipt typed in late counts as one. Pure, so it is tested without a database.
+         *     category last used with each account, the most used categories, and the last transfer's From and To (F-019). "Last"
+         *     is the last one added, whatever its day: it is the habit, and an old receipt typed in late counts as one. Pure, so
+         *     it is tested without a database.
          */
         TransactionSuggestions: {
             lastAccounts: components["schemas"]["LastAccount"][];
             lastCategories: components["schemas"]["LastCategory"][];
             mostUsed: components["schemas"]["MostUsedCategories"][];
+            lastTransfer?: null | components["schemas"]["LastTransfer"];
         };
         /**
-         * @description Which way the money goes. F-019 adds transfers between a person's own accounts.
+         * @description Which way the money goes: out, in, or between two of the person's own accounts (F-019).
          * @enum {unknown}
          */
-        TransactionType: "Expense" | "Income";
+        TransactionType: "Expense" | "Income" | "Transfer";
         /**
          * @description The signed-in person's settings (F-016). The email can't be changed yet. The theme isn't here: it is kept on each
          *     device, so a phone can be dark while the laptop is light.

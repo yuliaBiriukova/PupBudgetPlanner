@@ -125,6 +125,33 @@
   color: var(--pup-color-income);
 }
 
+/* A transfer: neither in nor out, in blue without a sign; an exchange's two amounts with an arrow (F-019) */
+.transfer {
+  color: var(--pup-color-transfer);
+}
+
+.arrow {
+  margin-inline: 4px;
+  vertical-align: -2px;
+}
+
+/* A transfer's accounts under its name: From → To, then the note */
+.route {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+}
+
+.route > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.route > svg {
+  flex: none;
+}
+
 .dim {
   color: var(--mantine-color-dimmed);
 }
@@ -223,4 +250,9 @@
 
 .danger:hover {
   background: var(--pup-color-danger-hover);
+}
+
+/* The notification after a transfer: what was saved, then both accounts counting on a second line (F-019) */
+.lines {
+  display: grid;
 }

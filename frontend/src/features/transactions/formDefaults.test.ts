@@ -4,6 +4,7 @@ import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
 import {
   categoriesFor,
   defaultAccount,
+  defaultTo,
   lastCategory,
   pills,
   type CategoryOption,
@@ -82,5 +83,36 @@ describe('the category pills', () => {
     const incomes = categoriesFor(GROUPS, 'Income');
 
     expect(pills(incomes, NONE, 'Income', 6)).toEqual(incomes);
+  });
+});
+
+describe('a transfer’s To', () => {
+  const three = [...ACCOUNTS, account('usd', 'Mono dollars', { currency: 'USD' })];
+  const last: TransactionSuggestions = {
+    ...NONE,
+    lastTransfer: { fromAccountId: 'usd', toAccountId: 'mono' },
+  };
+
+  it('is the last transfer’s To', () => {
+    expect(defaultTo(three, last, 'usd')).toBe('mono');
+  });
+
+  it('is the last transfer’s From when the money now leaves its To (a card’s +)', () => {
+    expect(defaultTo(three, last, 'mono')).toBe('usd');
+  });
+
+  it('is the first other account in use without a transfer yet, or one no longer in use', () => {
+    expect(defaultTo(three, NONE, 'mono')).toBe('cash');
+    expect(
+      defaultTo(
+        three,
+        { ...NONE, lastTransfer: { fromAccountId: 'gone', toAccountId: 'old' } },
+        'usd',
+      ),
+    ).toBe('mono');
+  });
+
+  it('is none without another account', () => {
+    expect(defaultTo([account('mono', 'Mono black')], NONE, 'mono')).toBeNull();
   });
 });

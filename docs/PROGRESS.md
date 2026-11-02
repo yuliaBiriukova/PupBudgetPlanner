@@ -2,6 +2,57 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-02 (F-019: Transfers and currency exchange)
+
+**Done**
+- The owner approved the final prototype, the plan and the four open points as proposed ("Approved, build F-019");
+  recorded in the description file and DESIGN_RULES "Screen decisions" before the code.
+- **API:** `Transfer` as a third transaction type, one row with both accounts (`ToAccountId`, `ToAmount`), no category
+  (migration `AddTransfers` with a check constraint). Balances, "used" accounts, save and delete count both sides; the
+  suggestions give the last transfer's From and To; `GET /api/rates?date=…` gives the form the day's NBU rates.
+  ADR 0023.
+- **App:** Transfer in the quick-add switch with From / swap / To; an exchange's second amount suggested at the NBU
+  rate of the picked day, "Your rate" / "Use the NBU rate", the earlier-rate and no-rate lines; on the phone the keys
+  type into the display with the ring. Transactions rows "Transfer" / "Exchange", "Edit exchange", Delete saying what
+  both balances go back to, the notification counting both, both cards lit on Accounts.
+- Found while checking: a gap between `$` and the number in the amount display (F-018's), and the To display hidden
+  under the phone keys; both fixed.
+- Tests: backend (validator, domain, balances, suggestions, rates controller), frontend (`exchange.test.ts`,
+  `defaultTo`, 7 transfer tests on the page), E2E (an exchange of $100 for hryvnias and its delete, desktop and
+  phone). New stories for transfer, exchange (NBU rate, own rate, phone, earlier rate, no rate), edit and delete.
+- Before the push: backend build (0 warnings) and 325 tests; frontend lint, format, typecheck, 201 unit tests, build,
+  Storybook build; the full E2E suite (54 passed, 6 skipped as one-layout tests). Screenshots of the built screens
+  (transfer, To list, exchange at the NBU and own rate, swapped, saved with both cards lit, Transactions, Edit exchange,
+  Delete) at 375 and 1440 px, light and dark, looked at; the flow walked through in the Browser pane on both sizes.
+  Nothing to fix.
+- Test data: a person `e2e-manual-…@example.com` with three accounts and a few transfers (made through the API with an
+  `E2E manual check F-019` invite link, used by it), plus the E2E tests' people; all removed by the E2E clean-up, and
+  checked through the admin API (no `e2e-` people left). The same again for the check before the push. The owner's
+  data untouched.
+
+**Next**
+- Owner: review the PR. Then F-020 (the full Transactions list).
+
+## 2026-11-02 (F-019 final prototype)
+
+**Done**
+- F-019 started on `feature/F-019-transfers-and-exchange`. Its design rounds were F-018's (every variant had Transfer
+  and Exchange screens), so the next step is a final prototype rather than 3 new variants:
+  [F-019 final prototype](changes/features/F-019-transfers-and-exchange/prototypes/variant-1.html), F-018's variant 7
+  as built with Transfer finished: From / To with a swap button (new), the exchange's second amount suggested at the
+  NBU rate of the day with "Your rate" / "Use the NBU rate", the rate written as the app writes rates ($1 = … ₴ both
+  ways), the earlier-rate and no-rate states, the notification counting both balances, both cards lit on Accounts,
+  "Transfer" / "Exchange" rows, edit and delete.
+- The description file has references (Wise, Wallet by BudgetBakers, CoinKeeper), the brief, the build plan
+  (one row per transfer, a rates endpoint for the form) and 4 open points for the owner.
+- Checked: the design check passes with 0 issues (it found the "Use the NBU rate" link too small to tap, fixed);
+  every screen at 375 and 1440 px, light and dark, looked at (fixed: the two-balance notification wrapping badly, the
+  To amount's line hidden under the phone keys).
+- Test data: none.
+
+**Next**
+- Owner: answer the open points and approve the final prototype and plan for implementation, or ask for changes.
+
 ## 2026-11-02 (I-018: Neon skills in the repo)
 
 **Done**
