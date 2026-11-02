@@ -133,6 +133,12 @@ erDiagram
   them. Balances are never stored: `BalanceSheet` adds each account's transactions to its opening balance and totals
   the currencies over the accounts in use (archived ones are left out)
   ([ADR 0017](decisions/0017-accounts-sources-banks.md)).
+- Transactions (F-018): an expense or an income on one account, with a category of the matching kind, a whole amount
+  above zero, a day never after today and an optional note. Balances come from the database's sums per account and
+  type (`TransactionSum` → `BalanceSheet.MovementsOf`); an account with transactions can't be deleted or change its
+  currency. The form's picks (last account, last category per account, most used) are worked out in memory from the
+  latest 1 000 added (`TransactionSuggestions`) ([ADR 0022](decisions/0022-transactions-and-balances.md)). Transfers
+  (`ToAccountId`, `ToAmount`) come with F-019.
 - Currencies are ISO 4217 codes (`char(3)`): the hryvnia and every currency the NBU publishes an official rate for,
   listed once in `Currencies.All` (Domain). The API sends the list with the accounts; the frontend only names them.
 
@@ -140,7 +146,7 @@ erDiagram
 
 | Enum | Values | Used in | Meaning |
 |------|--------|---------|---------|
-| `TransactionType` | `Expense`, `Income`, `Transfer` | `Transaction.Type` | Direction of the money: leaves an account, comes into an account, or moves between two own accounts |
+| `TransactionType` | `Expense`, `Income` (`Transfer` with F-019) | `Transaction.Type` | Direction of the money: leaves an account, comes into an account, or (F-019) moves between two own accounts |
 | `CategoryKind` | `Income`, `Expense` | `CategoryGroup.Kind` | Report section of the group; which categories the form offers for an expense or an income |
 | `SourceKind` | `Cash`, `Bank`, `Own` | `Account.Source` | Where the money is: cash, one of the person's banks, or one of their own sources (F-014) |
 | `CardStyle` | `Solid`, `Tinted`, `Envelope`, `Plain` | `Account.CardStyle` | How the account's card looks; a new account starts with its source's style (F-014) |

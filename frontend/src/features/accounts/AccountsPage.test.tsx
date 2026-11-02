@@ -81,7 +81,7 @@ describe('the Accounts page', () => {
     expect(totals).toHaveTextContent('$1 740');
     const dollars = screen.getByRole('region', { name: 'US dollar' });
     expect(within(dollars).getByText('USD, 2 accounts')).toBeInTheDocument();
-    expect(within(dollars).getByRole('button', { name: /Dollars at home/ })).toHaveTextContent(
+    expect(within(dollars).getByRole('button', { name: /^Dollars at home/ })).toHaveTextContent(
       'Cash',
     );
     expect(within(dollars).getByRole('button', { name: 'Add USD account' })).toBeInTheDocument();
@@ -215,7 +215,7 @@ describe('the Accounts page', () => {
     const sent = accountsServer();
     renderApp('/accounts');
 
-    await userEvent.click(await screen.findByRole('button', { name: /Mono dollars/ }, LOADED));
+    await userEvent.click(await screen.findByRole('button', { name: /^Mono dollars/ }, LOADED));
     const form = await screen.findByRole('dialog', { name: 'Edit Mono dollars' });
     await userEvent.click(within(form).getByRole('button', { name: 'Archive' }));
     const ask = await screen.findByRole('dialog', { name: 'Archive Mono dollars?' });
@@ -247,7 +247,7 @@ describe('the Accounts page', () => {
     const sent = accountsServer(OVERVIEW, without);
     renderApp('/accounts');
 
-    await userEvent.click(await screen.findByRole('button', { name: /Mono dollars/ }, LOADED));
+    await userEvent.click(await screen.findByRole('button', { name: /^Mono dollars/ }, LOADED));
     let form = await screen.findByRole('dialog', { name: 'Edit Mono dollars' });
     const end = within(form).getByRole('region', { name: 'Archive or delete' });
     expect(end).toHaveTextContent('Remove it for good. This can’t be undone.');
@@ -272,7 +272,7 @@ describe('the Accounts page', () => {
 
     expect(await screen.findByText('Mono dollars deleted')).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.queryByRole('button', { name: /Mono dollars/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /^Mono dollars/ })).not.toBeInTheDocument();
     });
     // The dollar total counts down to what is left: jsdom's animation frames never get there, the E2E test checks it
     expect(sent.map((s) => s.url)).toEqual(['DELETE /api/accounts/mono-usd']);

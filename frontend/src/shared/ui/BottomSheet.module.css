@@ -16,6 +16,11 @@
   height: 80dvh;
 }
 
+/* As tall as a sheet goes: a form with its own keys pinned under it (F-018) */
+.content[data-full] {
+  height: 90dvh;
+}
+
 /* Pinned between the title and the content: 16 px under the title like the content would be (8 px from the title's
    centring + these 8, I-012); the body's own 8 px follow it */
 .top {
@@ -60,7 +65,21 @@
   background: transparent;
 }
 
+/* A control in the title row (the transaction form's Expense / Income switch) fills it up to the buttons; the row
+   keeps the title's padding on the left */
+.header[data-with-heading] {
+  gap: 4px;
+  padding-left: 16px;
+}
+
+.heading {
+  flex: 1;
+  min-width: 0;
+}
+
 .title {
+  flex: 1;
+  min-width: 0;
   font-family: var(--pup-font-display);
   font-size: 20px;
   font-weight: 300;

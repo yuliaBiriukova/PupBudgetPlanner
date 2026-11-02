@@ -10,12 +10,14 @@ using PupBudgetPlanner.Application.Auth;
 using PupBudgetPlanner.Application.Categories;
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Application.Settings;
+using PupBudgetPlanner.Application.Transactions;
 using PupBudgetPlanner.Infrastructure.Access;
 using PupBudgetPlanner.Infrastructure.Accounts;
 using PupBudgetPlanner.Infrastructure.Categories;
 using PupBudgetPlanner.Infrastructure.ExchangeRates;
 using PupBudgetPlanner.Infrastructure.Identity;
 using PupBudgetPlanner.Infrastructure.Persistence;
+using PupBudgetPlanner.Infrastructure.Transactions;
 
 namespace PupBudgetPlanner.Infrastructure;
 
@@ -46,6 +48,7 @@ public static class DependencyInjection
         services.AddExchangeRates(configuration);
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<ITransactionService, TransactionService>();
 
         return services;
     }

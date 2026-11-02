@@ -25,6 +25,8 @@ decision — write a new ADR that supersedes it.
 | [0018](0018-whole-amounts.md) | Whole amounts: no cents, rounded half away from zero | Accepted |
 | [0019](0019-exchange-rate-cache.md) | Exchange rates: one NBU call per day, kept per date, fallback never kept | Accepted |
 | [0020](0020-user-settings.md) | User settings: report currency on the account, theme on the device, rates in hryvnias | Accepted |
+| [0021](0021-popup-swipe-and-back.md) | Pop-ups: own swipe code and one history step per open pop-up | Accepted |
+| [0022](0022-transactions-and-balances.md) | Transactions: balances summed by the database, suggestions worked out in memory, no deleting a used account | Accepted |
 
 Template for new ADRs:
 

@@ -32,6 +32,8 @@ interface CurrencyPickerProps {
   /** The button marked like a picked choice: the accent and a check (Settings, a currency from the list). */
   marked?: boolean;
   hint?: string;
+  /** Shown but not changeable (an account with transactions keeps its currency, F-018). */
+  disabled?: boolean;
   /** The phone sheet's title. */
   sheetTitle: string;
 }
@@ -51,6 +53,7 @@ export function CurrencyPicker({
   placeholder,
   marked,
   hint,
+  disabled,
   sheetTitle,
 }: CurrencyPickerProps) {
   const { t } = useTranslation();
@@ -135,6 +138,7 @@ export function CurrencyPicker({
       id={`${id}-button`}
       className={classes.button}
       data-marked={marked ? true : undefined}
+      disabled={disabled}
       aria-expanded={open}
       aria-haspopup="dialog"
       onClick={() => {

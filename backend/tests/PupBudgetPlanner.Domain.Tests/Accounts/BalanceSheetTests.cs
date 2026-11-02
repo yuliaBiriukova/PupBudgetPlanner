@@ -1,4 +1,5 @@
 using PupBudgetPlanner.Domain.Accounts;
+using PupBudgetPlanner.Domain.Transactions;
 
 namespace PupBudgetPlanner.Domain.Tests.Accounts;
 
@@ -21,6 +22,22 @@ public sealed class BalanceSheetTests
         var balances = BalanceSheet.BalancesOf([wallet, dollars], new Dictionary<Guid, decimal> { [wallet.Id] = -340m });
 
         balances.Select(b => b.Balance).Should().Equal(860m, 500m);
+    }
+
+    [Fact]
+    public void An_accounts_movement_is_its_incomes_less_its_expenses()
+    {
+        var wallet = New("UAH", 1_200m);
+        var card = New("UAH", 48_211m);
+
+        var movements = BalanceSheet.MovementsOf([
+            new TransactionSum(wallet.Id, TransactionType.Expense, 3, 1_032m),
+            new TransactionSum(wallet.Id, TransactionType.Income, 1, 500m),
+            new TransactionSum(card.Id, TransactionType.Income, 1, 62_000m),
+        ]);
+
+        movements.Should().BeEquivalentTo(new Dictionary<Guid, decimal> { [wallet.Id] = -532m, [card.Id] = 62_000m });
+        BalanceSheet.BalancesOf([wallet, card], movements).Select(b => b.Balance).Should().Equal(668m, 110_211m);
     }
 
     [Fact]

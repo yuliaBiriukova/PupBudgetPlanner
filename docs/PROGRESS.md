@@ -2,6 +2,204 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-02 (B-003: smaller account cards, in the F-018 PR)
+
+**Done**
+- The owner found the account cards bigger than in the prototype. Root cause: the app shell caps pages at 880 px
+  (F-010) while the prototypes since F-014 drew 1040 px, so three cards fit per row instead of four. The owner chose
+  smaller cards over wider pages. Planned as B-003 (Medium) and fixed in the F-018 PR: cards from 180 px, four per row
+  on the desktop (190 × 119 px); the split edge 44 px there; the balance sized from the room left and its own length.
+- Checked: lint, format, typecheck, unit tests (185), build, Storybook build, E2E (52); screenshots at 375, 768 and
+  1440 px, light and dark, measured and looked at.
+- Test data: one `e2e-manual-…@example.com` person, removed by the E2E clean-up (checked).
+
+**Next**
+- Owner: review and merge PR #44.
+- The other pages are also narrower than their prototypes (880 px against 1040 px); not changed, as the owner chose.
+
+## 2026-11-01 (F-018 review: split edge built)
+
+**Done**
+- The owner approved variant 9 ("Approved, build it"); recorded in the description file and the F-018 screen decision.
+- Built: the split edge on every account card (`AccountCard`'s `onAdd`), 52 px on the phone and 48 px wider, in the
+  card's own colors; the corner + is gone. New stories for it.
+- Checked: lint, format, typecheck, all unit tests (183), build, Storybook build, the full E2E suite (52); screenshots
+  of the Accounts page at 375 and 1440 px, light and dark, looked at.
+- Test data: one `e2e-manual-…@example.com` person with sample accounts and transactions for the screenshots, removed
+  by the E2E clean-up (checked: no `e2e-` people left).
+
+**Next**
+- Owner: review and merge PR #44.
+
+## 2026-11-01 (F-018 review: split edge chosen, final prototype)
+
+**Done**
+- The owner chose option D (split edge). Variant 9 (final) has only it, with the balance kept at today's size next to
+  the column. Design check 0 issues; close-ups at 375 and 1440 px, light and dark, looked at.
+- Test data: none.
+
+**Next**
+- Owner: approve variant 9 for implementation, or ask for changes.
+
+## 2026-11-01 (F-018 review: the + on account cards, round 6)
+
+**Done**
+- The empty Transactions page's Add transaction button is 48 px like the page buttons (it was Mantine's default size).
+- The owner asked for other variants of the + on account cards. Variant 8: the Accounts page as built with four options
+  (quiet corner, Add by the balance, receipt edge, split edge) and today's for comparison; hover in the card's own
+  colors in all of them. Design check 0 issues for every option; close-ups at 375 and 1440 px, light and dark, looked
+  at.
+- Test data: none.
+
+**Next**
+- Owner: pick an option (or a mix); then it becomes the final prototype for approval before the app changes.
+
+## 2026-11-01 (F-018 review: the note field)
+
+**Done**
+- Owner's review: the Note was Mantine's small default input, unlike the app's other fields. It is now the account
+  form's field: 52 px, 16 px text, the fields' border and surface. Screenshots at 375 and 1440 px, light and dark,
+  looked at; the form's unit tests, lint and typecheck pass.
+- Test data: one `e2e-manual-…@example.com` person with four accounts and seven transactions for the screenshots,
+  deleted through the admin API afterwards (checked).
+
+## 2026-11-01 (F-018 built)
+
+**Done**
+- The owner approved variant 7 ("I approve variant 7 for the current feature, build it"); recorded in the description
+  file and DESIGN_RULES (screen decision, and the custom rule for the amount's error read out only).
+- Backend: `Transaction` (expense or income), the `transactions` table, `/api/transactions` (latest 50, add, change,
+  delete, with the balance before and after) and `/api/transactions/suggestions`; balances on the Accounts page include
+  the transactions; an account with transactions can't be deleted or change its currency (409). ADR 0022.
+- Frontend: the quick-add form as approved (week strip and Mantine's calendar, account field, calculator display with
+  the app's keys on the phone, category pills with All categories and a search, note), opened from the shell's +, a +
+  on every account card and a row of the new latest-transactions list; delete asks first; the notification counts the
+  balance. The account form turns Delete and the currency off once there are transactions (I-011's "Later" screens).
+  `ResponsiveDialog` / `BottomSheet` got a title-row control, title-row buttons, a width and a full-height sheet.
+- Found and fixed while checking: the Expense / Income switch didn't switch on the phone (a sheet's title row started a
+  swipe on labels); Escape in a list or the calendar closed the form too; dark-mode display and keys in the page's
+  color; the phone calendar not filling its sheet; faint days of other months in the calendar (axe).
+- Checked: backend tests (306), frontend lint, format, typecheck, unit tests, build, Storybook build; the full E2E suite
+  (52, the new `transactions.spec.ts` on the desktop and the phone); the design check on Transactions and Accounts (0
+  issues); axe on the open form and its lists; screenshots of every state at 375 and 1440 px, light and dark. Not run:
+  the Storybook stories themselves (too slow, owner 2026-10-30). The Browser pane didn't draw while the app window was
+  behind, so the screenshots were taken with headless Playwright.
+- Test data: two people `e2e-manual-…@example.com` with four accounts and seven transactions each, made through the API
+  for the screenshots; removed by the E2E clean-up (checked: no `e2e-` people left). The E2E runs cleaned up after
+  themselves.
+- Seen, not changed: axe reports a second banner landmark while any titled phone sheet is open (the account form too,
+  before F-018).
+
+**Next**
+- Owner: review and merge the F-018 PR. Then F-019 (transfers and exchange) or F-020 (the full list).
+
+## 2026-11-01 (F-018 final prototype, variant 7)
+
+**Done**
+- The owner chose the field with balance (account) and the week strip (day). Variant 7 (final) is variant 5 with them
+  and the owner's other notes: a + on every account card on the Accounts page opens the form with that account picked
+  (new acceptance criterion); the last used account picked, with a hint; a Note field on the phone; the form scrolls in
+  the app's scroll area with faded edges; From and To with select arrows; a calendar dropdown that is never cut off;
+  account dropdowns like the currency list (one line, as wide as the field). Order: amount, category, account, day,
+  note.
+- The shared prototype base changed with it (account rows, dropdown placement), so all seven variants were re-checked.
+- Checked: every screen opens without errors on the phone and the desktop; the + flow tried in the Browser pane;
+  screenshots of every screen at 375 and 1440 px, light and dark, looked at (one fix: screens opened scrolled where
+  the last one was left).
+- Owner's review of variant 7, done in it: no hint under the account; no error text under the amount (the red field;
+  the message read out only); "Pick a category." next to its label; the account dropdown no longer scrolls when it
+  fits (its height left out the borders, fixed for every dropdown); an Order switch shows the account and the day on
+  top or before the category, and (asked next) day, amount, account and day, account, amount. Every screen checked in the Browser pane in each order; the design check run again on
+  all seven variants; screenshots of the orders at 375 and 1440 px looked at.
+- Owner's second review, done in variant 7: the order is day, account, amount, category, note; the day is "day
+  before / after" (less room than the week strip); the category has the most used as pills and every category with a
+  search in the "All categories" dropdown (no search field in the form). The calendar will be Mantine's
+  (`@mantine/dates`). Checked in the Browser pane; design check 0 issues; screenshots looked at.
+- Owner's third review, done in variant 7: the category last used with the account is picked (new acceptance
+  criterion), following the account until one is picked by hand; the week strip is back on top; every block built
+  the same way (24 px label row, 8 px, control; 16 / 20 px between blocks), measured in the Browser pane; the category
+  pills wrap instead of running past the phone's edge, 6 most used on the phone and 8 on the desktop. Design check 0 issues; screenshots at 375 and 1440 px, light
+  and dark, looked at.
+- The owner answered the open points: the latest-transactions list on the Transactions page until F-020, no future
+  dates, no saving on a category tap, and this month's totals per category as an improvement of its own (I-016);
+  plus note suggestions while typing (I-017). Both planned on `plan/i016-i017-quick-add-follow-ups`.
+- Test data: none.
+
+**Next**
+- Owner: approve variant 7 for implementation, or ask for changes.
+
+## 2026-11-01 (F-018 design round 4)
+
+**Done**
+- The owner asked for other ways to pick the account and the day. Variant 6 is variant 5 with both open to choice
+  in the preview bar: Account (chip + list, chip + list by currency, field with balance, most used + Other, row of
+  cards) and Day (chip + calendar, day pills, day before / after, week strip, the phone's own picker). Variant 5 is
+  unchanged (its account, date and note chips now come from one place so variant 6 can swap them).
+- Checked: the design check passes for every option (one fix: the account field's spoken name); every combination
+  opens every screen on the phone and the desktop without errors; screenshots of each option at 375 and 1440 px,
+  light and dark, looked at (one fix: Other wrapped in "Most used + Other").
+- Test data: none.
+
+**Next**
+- Owner: pick an Account and a Day option; then variant 5 gets them as the final prototype for approval.
+
+## 2026-11-01 (F-018 final prototype)
+
+**Done**
+- The owner chose the calculator display and tags with search. Variant 5 (final) is variant 1 with them, and the
+  owner's two notes: a sum is shown as arithmetic (no expense sign, no currency) with its result on the display's top
+  line, `=` or Save turns it into the amount, a sum of zero or less can't be saved; the amount is 34 px on the phone.
+  "Find a category" sits above the 8 most used tags and replaces them with the matching ones while typing.
+- Checked: the design check passes (0 issues; its run found the exchange's second amount 36 px tall on the phone,
+  fixed); sums typed on the keys and on the desktop keyboard tried in the Browser pane; screenshots of every screen at
+  375 and 1440 px, light and dark, looked at (the empty field's sign standing apart from its 0, fixed).
+- Owner's review of variant 5, both fixed in it: no − or + before the amount on the display (the type's color and
+  switch say it); Backspace couldn't take away a + or − (the field showed a space after it, which was all Backspace
+  deleted). Tried in the Browser pane on the keys and the desktop keyboard; the design check passes again (0 issues);
+  screenshots at 375 px, light and dark, looked at.
+- Test data: none.
+
+**Next**
+- Owner: approve variant 5 for implementation (and the four open points), or ask for changes.
+
+## 2026-11-01 (F-018 design round 2)
+
+**Done**
+- The owner liked variant 1 and asked for more ways to type the money and pick the category. Variant 4 is variant 1
+  with both open to choice in the preview bar: Amount (calculator keys, calculator display, keys + recent amounts,
+  phone keyboard, boxed field) and Category (tags, cells with totals, select, groups, search).
+- Checked: the design check passes for every option (its first run found list markup inside the cells and group
+  words narrower than 44 px, both fixed); every combination opens every screen without errors; screenshots of each
+  option at 375 and 1440 px, light and dark, were looked at (they found the display's label row taking the shell's
+  56 px top-bar style, and long names broken mid-word in the cells, both fixed).
+- Test data: none.
+
+**Next**
+- Owner: pick an Amount and a Category option (and answer the open points); then the final prototype.
+
+## 2026-11-01 (F-018 design round 1)
+
+**Done**
+- F-018 quick add started on `feature/F-018-quick-add-income-expense`, design only (not approved, no code).
+  - References: Monefy (calculator, tap a category), Cashew (amount first), CoinKeeper (account → category, most used
+    pairs), the owners' Google Sheet. Mobbin needs a sign-in.
+  - 3 prototypes in `prototypes/`, each with the transfer and exchange of F-019 (shared design), edit, delete, the
+    pickers and the error states:
+    - 1 · Calculator: the app's own keys with + and −, the 8 most used categories as tags, account / date / note chips;
+    - 2 · Ledger slip: the phone's number keyboard, ledger lines, the balance before and after while typing, Save and new;
+    - 3 · Categories first: every category as a cell with this month's total, then the amount; side by side on the desktop.
+  - Four open points in the description file: where to edit before F-020, future dates, tap-to-save in variant 1,
+    this month's totals in variant 3.
+- Checked: the design check passes on all three (0 issues); its first run found 40 px segments and calendar days and
+  narrow empty amount fields on the phone, all fixed. Screenshots of every screen at 375 and 1440 px, light and dark,
+  were looked at; they found a category list that shrank to one row, a Note chip on a line of its own, long names
+  broken mid-word in variant 3's cells, a second focus ring on the amount, and a dropdown hanging off the dialog, all
+  fixed.
+- Test data: none; nothing was run against the database.
+
+**Next**
+- Owner: pick a variant (or a mix) and answer the open points; then the final prototype.
+
 ## 2026-11-01 (I-015 build)
 
 **Done**

@@ -1,6 +1,6 @@
 import { useReducedMotion } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
-import { formatMoney } from '../../shared/format/money';
+import { formatMoney } from '../format/money';
 
 const DURATION = 700;
 

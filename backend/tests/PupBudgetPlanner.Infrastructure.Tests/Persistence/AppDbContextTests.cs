@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PupBudgetPlanner.Domain.Accounts;
 using PupBudgetPlanner.Domain.Categories;
 using PupBudgetPlanner.Domain.ExchangeRates;
+using PupBudgetPlanner.Domain.Transactions;
 using PupBudgetPlanner.Infrastructure.Identity;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
@@ -81,6 +82,23 @@ public sealed class AppDbContextTests
                 .Which.DeleteBehavior.Should().Be(DeleteBehavior.Cascade);
             UniqueIndexColumns(context, personal).Should().ContainSingle().Which.Should().Equal("user_id", "name");
         }
+    }
+
+    [Fact]
+    public void Transactions_go_with_the_person_and_keep_their_account_and_category()
+    {
+        using var context = CreateContext();
+
+        var transactions = context.Model.FindEntityType(typeof(Transaction))!;
+
+        transactions.GetTableName().Should().Be("transactions");
+        transactions.FindProperty(nameof(Transaction.Type))!.GetProviderClrType().Should().Be<string>();
+        transactions.FindProperty(nameof(Transaction.Amount))!.GetColumnType().Should().Be("numeric(18,2)");
+        transactions.FindProperty(nameof(Transaction.Note))!.GetMaxLength().Should().Be(Transaction.NoteMaxLength);
+        transactions.GetForeignKeys().Should().HaveCount(3).And.Satisfy(
+            key => key.PrincipalEntityType.ClrType == typeof(AppUser) && key.DeleteBehavior == DeleteBehavior.Cascade,
+            key => key.PrincipalEntityType.ClrType == typeof(Account) && key.DeleteBehavior == DeleteBehavior.NoAction,
+            key => key.PrincipalEntityType.ClrType == typeof(Category) && key.DeleteBehavior == DeleteBehavior.NoAction);
     }
 
     [Fact]

@@ -1,6 +1,6 @@
 import { UnstyledButton } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { formatMoney } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
 import classes from './AccountCard.module.css';
@@ -17,8 +17,14 @@ interface AccountCardProps {
   cardStyle: CardStyle;
   /** Opens the account; without it the card is a picture (the form's preview). */
   onClick?: () => void;
-  /** Just added or restored: a short accent ring. */
+  /** Just added or restored, or its balance just changed: a short accent ring. */
   isNew?: boolean;
+  /**
+   * Adds a transaction from this account (F-018): a column on the card's right after a thin rule, its own button next
+   * to the card's (variant 9, the split edge). `addLabel` names it for screen readers.
+   */
+  onAdd?: () => void;
+  addLabel?: string;
   className?: string;
 }
 
@@ -32,8 +38,11 @@ export function AccountCard({
   cardStyle,
   onClick,
   isNew,
+  onAdd,
+  addLabel,
   className,
 }: AccountCardProps) {
+  const amount = formatMoney(balance, currency);
   const content = (
     <>
       <span className={classes.top}>
@@ -41,8 +50,12 @@ export function AccountCard({
         {code && <span className={classes.code}>{code}</span>}
         {meta && <span className={classes.meta}>{meta}</span>}
       </span>
-      <span className={cx(classes.balance, balance < 0 && classes.debt)}>
-        {formatMoney(balance, currency)}
+      <span
+        className={cx(classes.balance, balance < 0 && classes.debt)}
+        // Its length sizes it next to the split edge (B-003)
+        style={{ '--chars': amount.length } as CSSProperties}
+      >
+        {amount}
       </span>
     </>
   );
@@ -50,14 +63,27 @@ export function AccountCard({
     className: cx(classes.card, className),
     'data-style': cardStyle,
     'data-new': isNew ? true : undefined,
+    'data-edge': onAdd ? true : undefined,
   };
 
-  return onClick ? (
+  const card = onClick ? (
     <UnstyledButton {...props} onClick={onClick}>
       {content}
     </UnstyledButton>
   ) : (
     <div {...props}>{content}</div>
+  );
+  if (!onAdd) return card;
+
+  // The card and its edge share one cell, side by side: never a button inside a button. The wrapper carries the card's
+  // colors, so the edge is drawn in them too
+  return (
+    <div className={classes.withEdge} data-style={cardStyle}>
+      {card}
+      <UnstyledButton className={classes.edge} aria-label={addLabel} onClick={onAdd}>
+        <IconPlus size={20} stroke={1.7} aria-hidden />
+      </UnstyledButton>
+    </div>
   );
 }
 
