@@ -2,6 +2,19 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-01 (plan: I-016, I-017)
+
+**Done**
+- Two follow-ups of F-018's design review planned on `plan/i016-i017-quick-add-follow-ups`, nothing built:
+  - I-016 (proposed priority Low): this month's total next to each category in the quick-add form, in the report
+    currency (the owner kept it out of F-018 and asked for it as an improvement);
+  - I-017 (proposed priority Medium): the person's notes already used, suggested while typing a note.
+- Both come after F-018 and need 3 HTML prototypes and the owner's approval before they are built.
+- Test data: none.
+
+**Next**
+- Owner: confirm the priorities and review the planning PR. F-018 is built and waits for review in its own PR (#44).
+
 ## 2026-11-01 (I-015 build)
 
 **Done**
