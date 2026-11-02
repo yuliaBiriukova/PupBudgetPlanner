@@ -137,8 +137,12 @@ erDiagram
   above zero, a day never after today and an optional note. Balances come from the database's sums per account and
   type (`TransactionSum` → `BalanceSheet.MovementsOf`); an account with transactions can't be deleted or change its
   currency. The form's picks (last account, last category per account, most used) are worked out in memory from the
-  latest 1 000 added (`TransactionSuggestions`) ([ADR 0022](decisions/0022-transactions-and-balances.md)). Transfers
-  (`ToAccountId`, `ToAmount`) come with F-019.
+  latest 1 000 added (`TransactionSuggestions`) ([ADR 0022](decisions/0022-transactions-and-balances.md)).
+- Transfers (F-019): one row with both accounts, no category: the From side (`AccountId`, `Amount`) and the To side
+  (`ToAccountId`, `ToAmount`, what that account got; the amount itself in one currency, the bank's figure for an
+  exchange). Balances count it on both sides; an account used on either side counts as used. A check constraint keeps
+  the shape. The form suggests an exchange's second amount from `GET /api/rates?date=…`
+  ([ADR 0023](decisions/0023-transfers-one-row.md)).
 - Currencies are ISO 4217 codes (`char(3)`): the hryvnia and every currency the NBU publishes an official rate for,
   listed once in `Currencies.All` (Domain). The API sends the list with the accounts; the frontend only names them.
 
@@ -146,13 +150,13 @@ erDiagram
 
 | Enum | Values | Used in | Meaning |
 |------|--------|---------|---------|
-| `TransactionType` | `Expense`, `Income` (`Transfer` with F-019) | `Transaction.Type` | Direction of the money: leaves an account, comes into an account, or (F-019) moves between two own accounts |
+| `TransactionType` | `Expense`, `Income`, `Transfer` (F-019) | `Transaction.Type` | Direction of the money: leaves an account, comes into an account, or (F-019) moves between two own accounts |
 | `CategoryKind` | `Income`, `Expense` | `CategoryGroup.Kind` | Report section of the group; which categories the form offers for an expense or an income |
 | `SourceKind` | `Cash`, `Bank`, `Own` | `Account.Source` | Where the money is: cash, one of the person's banks, or one of their own sources (F-014) |
 | `CardStyle` | `Solid`, `Tinted`, `Envelope`, `Plain` | `Account.CardStyle` | How the account's card looks; a new account starts with its source's style (F-014) |
 | `FamilyRole` | `Owner`, `Member` | `FamilyMember.Role` | The owner can invite and remove members |
 | `RateSource` | `Nbu` | `ExchangeRate.Source` | Where the rate came from; leaves room for other sources |
-| `RatesStatus` | `Current`, `NotPublished`, `Unavailable`, `Missing` | API only (`AccountsTotal.Status`) | Whether the rates are the asked day's, and if not, why (F-017) |
+| `RatesStatus` | `Current`, `NotPublished`, `Unavailable`, `Missing` | API only (`AccountsTotal.Status`, `RatesOfDay.Status`) | Whether the rates are the asked day's, and if not, why (F-017) |
 
 **Storage:** enums are C# `enum` types in the Domain layer and are stored in PostgreSQL **as text**
 (`"Expense"`, `"Solid"`) with EF Core `HasConversion<string>()`, in a `varchar` column with a maximum length.
@@ -163,7 +167,7 @@ erDiagram
 - The API also sends and receives enums as strings (`JsonStringEnumConverter`), so the generated
   TypeScript types are string unions (`'Expense' | 'Income' | 'Transfer'`).
 
-#### Consistency rules (validated in the Application layer)
+#### Consistency rules (validated in the Application layer; the database checks them too, F-019)
 
 | `Type` | `CategoryId` | `ToAccountId` / `ToAmount` |
 |--------|--------------|----------------------------|

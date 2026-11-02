@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M3 — Transactions |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-019-transfers-and-exchange` |
 | Design | 3 HTML prototypes required: shared with F-018 (its variants 1–7 all had Transfer and Exchange screens) |
 | Approved | 2026-11-02, by the owner in chat ("Approved, build F-019"): the [final prototype](prototypes/variant-1.html), this plan, and the four open points as proposed |
@@ -15,29 +15,29 @@ Move money between own accounts, including buying and selling currency.
 
 ## Acceptance criteria
 
-- [ ] Transfer between two own accounts in the same currency: one amount, no category, an optional note
-- [ ] Between different currencies (an exchange), both amounts are entered; the effective rate is shown next to the
+- [x] Transfer between two own accounts in the same currency: one amount, no category, an optional note
+- [x] Between different currencies (an exchange), both amounts are entered; the effective rate is shown next to the
       NBU's
-- [ ] The second amount is suggested from the NBU rate of the transaction's day and can be changed; with no rate of
+- [x] The second amount is suggested from the NBU rate of the transaction's day and can be changed; with no rate of
       that day yet the latest earlier one is suggested and said so, with no rate at all it must be typed
-- [ ] Transfer is the third type of the quick-add form (Expense, Income, Transfer); the last transfer's From and To come
+- [x] Transfer is the third type of the quick-add form (Expense, Income, Transfer); the last transfer's From and To come
       picked; from an account card's + that account is the From
-- [ ] From and To can be swapped; the To list leaves out the From account
-- [ ] Both balances update at once: the notification counts both, and on the Accounts page both cards light up
-- [ ] A transfer is listed on the Transactions page ("Transfer", or "Exchange" between currencies) and can be changed
+- [x] From and To can be swapped; the To list leaves out the From account
+- [x] Both balances update at once: the notification counts both, and on the Accounts page both cards light up
+- [x] A transfer is listed on the Transactions page ("Transfer", or "Exchange" between currencies) and can be changed
       or deleted; Delete says what both balances go back to
-- [ ] An account a transfer uses (as From or To) counts as used: it can't be deleted or change its currency
-- [ ] Transfers do not count as income or expense in reports (F-021 builds on this)
+- [x] An account a transfer uses (as From or To) counts as used: it can't be deleted or change its currency
+- [x] Transfers do not count as income or expense in reports (F-021 builds on this)
 
 ## Tasks
 
 - [x] Design: F-018's variants had Transfer and Exchange screens; final prototype built from variant 7 as built
 - [x] Owner's approval of the final prototype and this plan (2026-11-02)
-- [ ] Domain + API (incl. migration and the rate for the form)
-- [ ] UI
-- [ ] Storybook stories
-- [ ] Unit tests (backend, frontend) and the E2E test
-- [ ] Docs: ADR, DESIGN_RULES screen decision, PROGRESS
+- [x] Domain + API (incl. migration and the rate for the form)
+- [x] UI
+- [x] Storybook stories
+- [x] Unit tests (backend, frontend) and the E2E test
+- [x] Docs: ADR 0023, DESIGN_RULES screen decision, ARCHITECTURE, PROGRESS
 
 ## Design
 
@@ -139,6 +139,24 @@ PROGRESS) and screenshots at 375 and 1440 px, light and dark, looked at.
 - Unit (backend): transfer validation, balances of both accounts, used accounts, suggestions with From and To.
 - Unit (frontend): the suggested amount and rate text, swap, the form's transfer flow, list rows.
 - E2E (Playwright): exchange 100 USD to UAH; both balances change (desktop and phone).
+
+## Build notes (2026-11-02)
+
+- **Backend:** `TransactionType.Transfer`; `Transaction` got `ToAccountId` and `ToAmount`, `CategoryId` became
+  nullable (migration `AddTransfers`, with the check constraint `ck_transactions_transfer_shape` and a no-action
+  foreign key for To). Between accounts in one currency the API sets To's amount to the amount; between currencies the
+  request must carry it (400 on `toAmount`). Balances, "used" accounts, save and delete count both sides; the
+  suggestions give `lastTransfer`. `GET /api/rates?date=…` returns the day's NBU rates (or the latest earlier, marked),
+  400 after Kyiv's today. [ADR 0023](../../../decisions/0023-transfers-one-row.md).
+- **Frontend:** Transfer in the switch; `TransferAccounts` (From / swap / To, the To list without From), `RateLine`,
+  `exchange.ts` (NBU rate, suggestion, the rate's text); `AmountDisplay` takes a label, the smaller second display, the
+  phone keys' ring and a rate line, and scrolls the display the keys type into above the keys. List rows, the delete
+  question with both balances, the notification counting both, both cards lit on Accounts.
+- **Found while checking:** the amount display left a gap between the dollar sign and the number (the input kept its
+  own 20-character width; F-018's display): fixed in CSS. On the phone the To display and its rate line were under the
+  keys: now scrolled into sight, clear of the scroll area's faded edge.
+- **Not in the prototype:** while the rates load the line says "Getting the NBU rate…"; on the phone "Use the NBU
+  rate" wraps under the rate.
 
 ## Notes
 
