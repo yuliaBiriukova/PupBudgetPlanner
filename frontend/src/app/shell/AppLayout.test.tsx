@@ -45,7 +45,7 @@ describe('app shell on the phone', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Add transaction' }));
 
-    expect(await screen.findByRole('dialog', { name: 'Add transaction' })).toBeInTheDocument();
+    expect(await screen.findByRole('dialog', { name: 'Add expense' })).toBeInTheDocument();
   });
 
   it('switches between light and dark mode', async () => {
@@ -131,6 +131,6 @@ describe('app shell on the desktop', () => {
     const sidebar = await screen.findByRole('complementary', { name: 'Sidebar' });
     await user.click(within(sidebar).getByRole('button', { name: 'Add transaction' }));
 
-    expect(await screen.findByRole('dialog', { name: 'Add transaction' })).toBeInTheDocument();
+    expect(await screen.findByRole('dialog', { name: 'Add expense' })).toBeInTheDocument();
   });
 });

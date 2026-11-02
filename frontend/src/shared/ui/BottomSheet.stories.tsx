@@ -1,4 +1,5 @@
-import { Button, Text } from '@mantine/core';
+import { ActionIcon, Button, SegmentedControl, Text } from '@mantine/core';
+import { IconTrash } from '@tabler/icons-react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
@@ -12,8 +13,8 @@ const meta = {
   args: {
     opened: true,
     onClose: fn(),
-    title: 'Add transaction',
-    children: <Text c="dimmed">Adding expenses, income and transfers is coming soon.</Text>,
+    title: 'Account',
+    children: <Text c="dimmed">Mono black, Privat card and Wallet would be listed here.</Text>,
   },
 } satisfies Meta<typeof BottomSheet>;
 
@@ -22,6 +23,38 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const WithTitle: Story = {};
+
+/**
+ * The transaction form's (F-018): a switch in the title row in place of the title, which screen readers still hear,
+ * and as tall as a sheet goes.
+ */
+export const WithHeading: Story = {
+  args: {
+    title: 'Add expense',
+    full: true,
+    heading: (
+      <SegmentedControl fullWidth radius="xl" data={['Expense', 'Income']} aria-label="Type" />
+    ),
+  },
+};
+
+/** A button in the title row before the close button: the transaction form's Delete (F-018). */
+export const WithActions: Story = {
+  args: {
+    title: 'Edit expense',
+    actions: (
+      <ActionIcon
+        variant="subtle"
+        color="gray"
+        size={44}
+        radius="xl"
+        aria-label="Delete this expense"
+      >
+        <IconTrash size={20} stroke={1.7} />
+      </ActionIcon>
+    ),
+  },
+};
 
 export const WithTitleDark: Story = {
   globals: { colorScheme: 'dark' },

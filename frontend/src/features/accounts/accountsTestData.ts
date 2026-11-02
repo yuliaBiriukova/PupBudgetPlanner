@@ -15,6 +15,7 @@ export const account = (id: string, name: string, extra: Partial<Account> = {}):
   balance: 0,
   cardStyle: 'Envelope',
   archivedAt: null,
+  transactionCount: 0,
   ...extra,
 });
 

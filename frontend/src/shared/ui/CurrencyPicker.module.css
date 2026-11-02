@@ -31,6 +31,12 @@
   font-weight: 500;
 }
 
+.button:disabled {
+  border-color: var(--pup-color-rule);
+  background: var(--pup-color-switch);
+  cursor: default;
+}
+
 .button[aria-expanded='true'] {
   border-color: var(--pup-color-accent);
   outline: 1px solid var(--pup-color-accent);

@@ -101,14 +101,16 @@ export function useSheetSwipe(onClose: () => void) {
       if (overlay) overlay.style.opacity = saved.overlayOpacity;
     };
 
-    // The handle and the title: pointer events (a finger, a mouse or a pen); the CSS turns the browser's panning off
+    // The handle and the title: pointer events (a finger, a mouse or a pen); the CSS turns the browser's panning off.
+    // A control in the title row (the close button, the transaction form's Expense / Income switch, F-018) is tapped,
+    // not dragged
     const onPointerDown = (e: PointerEvent) => {
       const target = e.target as Element;
       if (
         e.button !== 0 ||
         drag ||
         !target.closest('[data-sheet-drag]') ||
-        target.closest('button')
+        target.closest('button, label, input, a')
       ) {
         return;
       }

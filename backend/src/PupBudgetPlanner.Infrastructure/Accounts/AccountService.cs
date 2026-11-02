@@ -9,15 +9,13 @@ namespace PupBudgetPlanner.Infrastructure.Accounts;
 internal sealed class AccountService(AppDbContext dbContext, IExchangeRateService rates, TimeProvider clock)
     : IAccountService
 {
-    /// <summary>No transactions yet (F-018): every balance is the opening balance.</summary>
-    private static readonly IReadOnlyDictionary<Guid, decimal> NoMovements = new Dictionary<Guid, decimal>();
-
     public async Task<AccountsOverview> OverviewAsync(Guid userId, CancellationToken cancellationToken)
     {
         var accounts = await dbContext.Accounts.AsNoTracking()
             .Where(account => account.UserId == userId)
             .OrderBy(account => account.CreatedAt)
             .ToListAsync(cancellationToken);
+        var sums = await dbContext.SumsOfAsync(userId, null, cancellationToken);
         var sources = await dbContext.AccountSources.AsNoTracking()
             .Where(source => source.UserId == userId)
             .OrderBy(source => source.Name)
@@ -31,12 +29,14 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
 
         var sourceNames = sources.ToDictionary(source => source.Id, source => source.Name);
         var bankNames = banks.ToDictionary(bank => bank.Id, bank => bank.Name);
-        var balances = BalanceSheet.BalancesOf(accounts, NoMovements);
+        var balances = BalanceSheet.BalancesOf(accounts, BalanceSheet.MovementsOf(sums));
+        var counts = CountsOf(sums);
         var items = balances
             .Select(balance => ToItem(
                 balance,
                 balance.Account.SourceId is { } sourceId ? sourceNames.GetValueOrDefault(sourceId) : null,
-                balance.Account.BankId is { } bankId ? bankNames.GetValueOrDefault(bankId) : null))
+                balance.Account.BankId is { } bankId ? bankNames.GetValueOrDefault(bankId) : null,
+                counts.GetValueOrDefault(balance.Account.Id)))
             .ToList();
 
         return new AccountsOverview(
@@ -53,7 +53,8 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         var accounts = await dbContext.Accounts.AsNoTracking()
             .Where(account => account.UserId == userId)
             .ToListAsync(cancellationToken);
-        var totals = BalanceSheet.TotalsOf(BalanceSheet.BalancesOf(accounts, NoMovements));
+        var sums = await dbContext.SumsOfAsync(userId, null, cancellationToken);
+        var totals = BalanceSheet.TotalsOf(BalanceSheet.BalancesOf(accounts, BalanceSheet.MovementsOf(sums)));
         // The person's own, picked in Settings (F-016)
         var currency = await dbContext.Users.AsNoTracking()
             .Where(user => user.Id == userId)
@@ -78,19 +79,24 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         return await ItemAsync(account, cancellationToken);
     }
 
-    public async Task<AccountItem?> UpdateAsync(
+    public async Task<UpdateAccountResult> UpdateAsync(
         Guid userId, Guid accountId, SaveAccountRequest request, CancellationToken cancellationToken)
     {
         var account = await FindAsync(userId, accountId, cancellationToken);
         if (account is null)
         {
-            return null;
+            return new UpdateAccountResult(UpdateAccountOutcome.NotFound);
+        }
+
+        if (request.Currency != account.Currency && await HasTransactionsAsync(account.Id, cancellationToken))
+        {
+            return new UpdateAccountResult(UpdateAccountOutcome.CurrencyFixed);
         }
 
         account.Update(await DetailsAsync(userId, request, clock.GetUtcNow(), cancellationToken));
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return await ItemAsync(account, cancellationToken);
+        return new UpdateAccountResult(UpdateAccountOutcome.Saved, await ItemAsync(account, cancellationToken));
     }
 
     public async Task<bool> ArchiveAsync(Guid userId, Guid accountId, CancellationToken cancellationToken)
@@ -119,22 +125,31 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         return true;
     }
 
-    /// <summary>
-    /// No transactions yet (F-018), so every account can go. F-018 refuses an account that has any: the owner chose
-    /// that only an account without transactions can be deleted (I-011).
-    /// </summary>
-    public async Task<bool> DeleteAsync(Guid userId, Guid accountId, CancellationToken cancellationToken)
+    /// <summary>The owner chose that only an account without transactions can be deleted (I-011).</summary>
+    public async Task<DeleteAccountOutcome> DeleteAsync(
+        Guid userId, Guid accountId, CancellationToken cancellationToken)
     {
         var account = await FindAsync(userId, accountId, cancellationToken);
         if (account is null)
         {
-            return false;
+            return DeleteAccountOutcome.NotFound;
+        }
+
+        if (await HasTransactionsAsync(account.Id, cancellationToken))
+        {
+            return DeleteAccountOutcome.HasTransactions;
         }
 
         dbContext.Accounts.Remove(account);
         await dbContext.SaveChangesAsync(cancellationToken);
-        return true;
+        return DeleteAccountOutcome.Deleted;
     }
+
+    private Task<bool> HasTransactionsAsync(Guid accountId, CancellationToken cancellationToken) =>
+        dbContext.Transactions.AnyAsync(transaction => transaction.AccountId == accountId, cancellationToken);
+
+    private static Dictionary<Guid, int> CountsOf(IEnumerable<TransactionSum> sums) =>
+        sums.GroupBy(sum => sum.AccountId).ToDictionary(group => group.Key, group => group.Sum(sum => sum.Count));
 
     /// <summary>Only the person's own accounts: someone else's id is as good as a made-up one.</summary>
     private Task<Account?> FindAsync(Guid userId, Guid accountId, CancellationToken cancellationToken) =>
@@ -205,10 +220,17 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             ? (await dbContext.Banks.FindAsync([bankId], cancellationToken))?.Name
             : null;
 
-        return ToItem(BalanceSheet.BalancesOf([account], NoMovements)[0], sourceName, bankName);
+        var sums = await dbContext.SumsOfAsync(account.UserId, [account.Id], cancellationToken);
+
+        return ToItem(
+            BalanceSheet.BalancesOf([account], BalanceSheet.MovementsOf(sums))[0],
+            sourceName,
+            bankName,
+            sums.Sum(sum => sum.Count));
     }
 
-    private static AccountItem ToItem(AccountBalance balance, string? sourceName, string? bankName)
+    private static AccountItem ToItem(
+        AccountBalance balance, string? sourceName, string? bankName, int transactionCount)
     {
         var account = balance.Account;
         return new AccountItem(
@@ -224,6 +246,7 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             account.OpeningDate,
             balance.Balance,
             account.CardStyle,
-            account.ArchivedAt);
+            account.ArchivedAt,
+            transactionCount);
     }
 }

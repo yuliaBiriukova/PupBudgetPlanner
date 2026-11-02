@@ -11,9 +11,14 @@ export type SaveAccountRequest = Omit<Schemas['SaveAccountRequest'], 'openingBal
 };
 
 /** An account as the page uses it; the API may send its amounts as text (they are decimals there). */
-export type Account = Omit<Schemas['AccountItem'], 'openingBalance' | 'balance'> & {
+export type Account = Omit<
+  Schemas['AccountItem'],
+  'openingBalance' | 'balance' | 'transactionCount'
+> & {
   openingBalance: number;
   balance: number;
+  /** An account with transactions can't be deleted or change its currency (I-011, F-018). */
+  transactionCount: number;
 };
 
 export type CurrencyTotal = Omit<Schemas['CurrencyTotal'], 'accounts' | 'total'> & {
@@ -41,6 +46,7 @@ const toAccount = (item: Schemas['AccountItem']): Account => ({
   ...item,
   openingBalance: Number(item.openingBalance),
   balance: Number(item.balance),
+  transactionCount: Number(item.transactionCount),
 });
 
 /** The Accounts page: accounts, archived ones, totals per currency and what the form offers (F-014). */

@@ -131,7 +131,8 @@ Prototypes: `prototypes/`. Chosen variant: 3 (final prototype), approved 2026-10
     button colors, and the first screenshots showed a charcoal Delete.
 - **F-018 (transactions):** the rule "only an account without transactions can be deleted" is in
   [F-018's notes](../../features/F-018-quick-add-income-expense/F-018-quick-add-income-expense.md#notes). Until then
-  no account has transactions.
+  no account has transactions. Built with F-018 (2026-11-01): the API refuses (409), Delete is off with the reason,
+  and an archived account with transactions keeps only Restore.
 
 ## Tests
 

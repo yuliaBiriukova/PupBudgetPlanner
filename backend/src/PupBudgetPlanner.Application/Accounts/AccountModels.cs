@@ -6,6 +6,8 @@ namespace PupBudgetPlanner.Application.Accounts;
 /// <summary>
 /// One account on the Accounts page. <paramref name="SourceName"/> is set for an own source and
 /// <paramref name="BankName"/> for a bank; Cash and Bank themselves are named by the app.
+/// <paramref name="TransactionCount"/> keeps an account with transactions from being deleted or changing its
+/// currency (I-011, F-018).
 /// </summary>
 public sealed record AccountItem(
     Guid Id,
@@ -20,7 +22,29 @@ public sealed record AccountItem(
     DateOnly OpeningDate,
     decimal Balance,
     CardStyle CardStyle,
-    DateTimeOffset? ArchivedAt);
+    DateTimeOffset? ArchivedAt,
+    int TransactionCount);
+
+public enum UpdateAccountOutcome
+{
+    Saved,
+    NotFound,
+
+    /// <summary>A new currency for an account with transactions: their amounts are in its currency.</summary>
+    CurrencyFixed,
+}
+
+/// <summary>What a change to an account came to; <paramref name="Account"/> is set when it was saved.</summary>
+public sealed record UpdateAccountResult(UpdateAccountOutcome Outcome, AccountItem? Account = null);
+
+public enum DeleteAccountOutcome
+{
+    Deleted,
+    NotFound,
+
+    /// <summary>Only an account without transactions can be deleted; one with them can be archived (I-011).</summary>
+    HasTransactions,
+}
 
 /// <summary>A source of the person's own, besides Cash and Bank.</summary>
 public sealed record SourceItem(Guid Id, string Name);
