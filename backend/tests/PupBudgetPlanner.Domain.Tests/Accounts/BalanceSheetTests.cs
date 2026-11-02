@@ -41,6 +41,21 @@ public sealed class BalanceSheetTests
     }
 
     [Fact]
+    public void A_transfer_takes_its_amount_from_one_account_and_gives_what_the_other_got()
+    {
+        var dollars = New("USD", 500m);
+        var card = New("UAH", 1_000m);
+
+        // $100 sold for 4 490 ₴
+        var movements = BalanceSheet.MovementsOf([
+            new TransactionSum(dollars.Id, TransactionType.Transfer, 1, 100m),
+            new TransactionSum(card.Id, TransactionType.Transfer, 1, 4_490m, Incoming: true),
+        ]);
+
+        BalanceSheet.BalancesOf([dollars, card], movements).Select(b => b.Balance).Should().Equal(400m, 5_490m);
+    }
+
+    [Fact]
     public void Each_currency_has_its_total_and_a_debt_counts_against_it()
     {
         var accounts = new[] { New("UAH", 48_211m), New("UAH", -4_312m), New("USD", 1_240m) };
