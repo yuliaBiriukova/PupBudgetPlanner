@@ -8,12 +8,31 @@ type Schemas = components['schemas'];
 export type TransactionType = Schemas['TransactionType'];
 export type TransactionSuggestions = Schemas['TransactionSuggestions'];
 
-/** A transaction as the pages use it; the API may send its amount as text (a decimal there). */
-export type Transaction = Omit<Schemas['TransactionItem'], 'amount'> & { amount: number };
-
-export type SaveTransactionRequest = Omit<Schemas['SaveTransactionRequest'], 'amount'> & {
+/**
+ * A transaction as the pages use it; the API may send its amounts as text (decimals there). A transfer (F-019) has its
+ * To account and what it got (`toAmount`), and no category.
+ */
+export type Transaction = Omit<Schemas['TransactionItem'], 'amount' | 'toAmount'> & {
   amount: number;
+  toAmount?: number | null;
 };
+
+export type SaveTransactionRequest = Omit<
+  Schemas['SaveTransactionRequest'],
+  'amount' | 'toAmount'
+> & {
+  amount: number;
+  toAmount?: number | null;
+};
+
+/** One day's NBU rates (F-017): hryvnias for one unit of each currency, by code; why when they are earlier. */
+export interface DayRates {
+  /** `YYYY-MM-DD`: the day they are of; empty when there are none. */
+  date: string | null;
+  status: Schemas['RatesStatus'];
+  /** Hryvnias for one unit, by code; the hryvnia itself isn't listed. */
+  rates: Record<string, number>;
+}
 
 /** An account's balance before and after a save or a delete: the notification counts from one to the other. */
 export interface BalanceChange {
@@ -30,7 +49,17 @@ export interface SavedTransaction {
 const toTransaction = (item: Schemas['TransactionItem']): Transaction => ({
   ...item,
   amount: Number(item.amount),
+  toAmount: item.toAmount == null ? null : Number(item.toAmount),
 });
+
+/** Whether it is a transfer between two currencies: an exchange (F-019). */
+export function isExchange(transaction: Pick<Transaction, 'type' | 'currency' | 'toCurrency'>) {
+  return (
+    transaction.type === 'Transfer' &&
+    !!transaction.toCurrency &&
+    transaction.toCurrency !== transaction.currency
+  );
+}
 
 const toChanges = (balances: Schemas['BalanceChange'][]): BalanceChange[] =>
   balances.map((change) => ({
@@ -62,6 +91,30 @@ export const suggestionsQuery = queryOptions({
     return data;
   },
 });
+
+/**
+ * The NBU rates of a transaction's day (F-019), for the exchange's suggested second amount: that day's, or the latest
+ * earlier ones, marked. Kept for the session: a day's rates don't change once published.
+ */
+export const ratesQuery = (date: string) =>
+  queryOptions({
+    queryKey: ['rates', date],
+    queryFn: async ({ signal }): Promise<DayRates> => {
+      const { data, response } = await apiClient.GET('/api/rates', {
+        params: { query: { date } },
+        signal,
+      });
+      if (!response.ok || !data)
+        throw new Error(`Couldn't load the rates: ${String(response.status)}`);
+      return {
+        date: data.date,
+        status: data.status,
+        rates: Object.fromEntries(data.rates.map((item) => [item.currency, Number(item.rate)])),
+      };
+    },
+    // An earlier day's rates never change; today's may come out later: asked again after a while
+    staleTime: 15 * 60 * 1000,
+  });
 
 /** Balances, totals and the lists change with every save or delete: all of them are fetched again. */
 function useRefetchAfterChange() {
@@ -96,7 +149,7 @@ export function useSaveTransaction() {
   });
 }
 
-/** Deletes a transaction for good; the answer has the balance it gave back. */
+/** Deletes a transaction for good; the answer has the balances it gave back (two for a transfer). */
 export function useDeleteTransaction() {
   const refetch = useRefetchAfterChange();
 

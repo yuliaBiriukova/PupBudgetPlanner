@@ -488,15 +488,19 @@
   "transactions": {
     "types": {
       "Expense": "Expense",
-      "Income": "Income"
+      "Income": "Income",
+      "Transfer": "Transfer"
     },
     "add": {
       "Expense": "Add expense",
-      "Income": "Add income"
+      "Income": "Add income",
+      "Transfer": "Add transfer"
     },
     "edit": {
       "Expense": "Edit expense",
-      "Income": "Edit income"
+      "Income": "Edit income",
+      "Transfer": "Edit transfer",
+      "Exchange": "Edit exchange"
     },
     "form": {
       "type": "Type",
@@ -513,7 +517,14 @@
       "account": "Account",
       "accountLabel": "Account: ",
       "accounts": "Your accounts",
+      "from": "From",
+      "to": "To",
+      "pickAccount": "Pick an account",
+      "swap": "Swap From and To",
+      "noOtherAccount": "Add another account first: a transfer goes between two of yours.",
       "amount": "Amount",
+      "fromAccount": "From {{account}}",
+      "toAccount": "To {{account}}",
       "keys": "Amount keys",
       "key": {
         "back": "Delete the last digit",
@@ -530,15 +541,19 @@
       "noCategory": "No category matches “{{query}}”.",
       "note": "Note",
       "notePlaceholder": "Silpo, lunch with Vlad",
+      "notePlaceholderTransfer": "Cash for the market, savings",
       "save": "Save",
       "saveExpense": "Save expense",
       "saveIncome": "Save income",
+      "saveTransfer": "Save transfer",
       "saveChanges": "Save changes",
       "cancel": "Cancel",
       "delete": "Delete",
       "deleteLabel": {
         "Expense": "Delete this expense",
-        "Income": "Delete this income"
+        "Income": "Delete this income",
+        "Transfer": "Delete this transfer",
+        "Exchange": "Delete this exchange"
       },
       "loading": "Loading the form",
       "loadError": "Couldn’t load your accounts and categories.",
@@ -546,27 +561,48 @@
       "noAccounts": "Add an account first: the money has to come from somewhere, or go somewhere.",
       "goToAccounts": "Go to Accounts"
     },
+    "rate": {
+      "current": "At the NBU rate of {{date}}: <num>{{rate}}</num>.",
+      "notPublished": "The NBU rate of {{date}} isn’t out yet. At the rate of {{ratesDate}}: <num>{{rate}}</num>.",
+      "unavailable": "Can’t reach the NBU right now. At the rate of {{ratesDate}}: <num>{{rate}}</num>.",
+      "change": "Change it to what the bank gave you.",
+      "none": "No NBU rate for this day right now. Type how much {{account}} got.",
+      "yours": "Your rate: <num>{{rate}}</num>.",
+      "nbu": "NBU: <num>{{rate}}</num>.",
+      "nbuNone": "NBU: no rate right now.",
+      "useNbu": "Use the NBU rate",
+      "loading": "Getting the NBU rate…"
+    },
     "errors": {
       "amount": "Enter the amount.",
       "amountZero": "The amount must be more than zero.",
       "sumZero": "The sum must be more than zero.",
       "category": "Pick a category.",
+      "to": "Pick the account the money goes to.",
+      "toAmount": "Enter how much {{account}} got.",
       "save": "Couldn’t save. Check the connection and try again: nothing you typed is lost."
     },
     "saved": {
       "Expense": "Expense saved",
       "Income": "Income saved",
+      "Transfer": "Transfer saved",
+      "Exchange": "Exchange saved",
       "changes": "Changes saved",
       "deleted": "Deleted",
-      "balance": "{{what}}. {{account}}:"
+      "balance": "{{what}}. {{account}}:",
+      "what": "{{what}}."
     },
     "delete": {
       "title": {
         "Expense": "Delete this expense?",
-        "Income": "Delete this income?"
+        "Income": "Delete this income?",
+        "Transfer": "Delete this transfer?",
+        "Exchange": "Delete this exchange?"
       },
       "where": "{{category}}, {{account}}",
+      "route": "{{what}} from {{account}} to {{toAccount}}",
       "after": "{{account}} goes back to {{amount}}. This can’t be undone.",
+      "afterBoth": "{{account}} goes back to {{amount}}, {{toAccount}} to {{toAmount}}. This can’t be undone.",
       "keep": "Keep it",
       "confirm": "Delete",
       "error": "Couldn’t delete it. Check the connection and try again."
@@ -579,7 +615,11 @@
       "error": "Couldn’t load your transactions.",
       "retry": "Try again",
       "emptyTitle": "No transactions yet",
-      "emptyText": "Add an expense or an income: the + is always at hand."
+      "emptyText": "Add an expense, an income or a transfer: the + is always at hand.",
+      "Transfer": "Transfer",
+      "Exchange": "Exchange",
+      "to": "to",
+      "into": "into"
     }
   }
 }

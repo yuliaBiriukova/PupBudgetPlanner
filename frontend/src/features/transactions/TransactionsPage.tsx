@@ -1,14 +1,21 @@
 import { Button, Skeleton, Title, UnstyledButton } from '@mantine/core';
-import { IconAlertCircle, IconInfoCircle, IconPlus, IconRefresh } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconArrowRight,
+  IconInfoCircle,
+  IconPlus,
+  IconRefresh,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { cx } from '../../shared/ui/cx';
 import { dayName, longDay, today } from './days';
 import { SignedAmount } from './SignedAmount';
 import { useTransactionForm } from './transactionForm';
 import classes from './Transactions.module.css';
-import { latestTransactionsQuery, type Transaction } from './transactionsApi';
+import { isExchange, latestTransactionsQuery, type Transaction } from './transactionsApi';
 
 /** How long a saved row stays lit (Transactions.module.css). */
 const FRESH_MS = 2400;
@@ -168,10 +175,38 @@ function Day({ day, items, fresh, onOpen }: DayProps) {
               }}
             >
               <span className={classes.main}>
-                <span className={classes.category}>{item.categoryName}</span>
-                <span className={classes.sub}>
-                  {item.note ? `${item.accountName}, ${item.note}` : item.accountName}
-                </span>
+                {item.type === 'Transfer' ? (
+                  // A transfer says where the money went, then the note (F-019)
+                  <>
+                    <span className={classes.category}>
+                      {t(
+                        isExchange(item)
+                          ? 'transactions.list.Exchange'
+                          : 'transactions.list.Transfer',
+                      )}
+                    </span>
+                    <span className={cx(classes.sub, classes.route)}>
+                      <span>{item.accountName}</span>
+                      <IconArrowRight
+                        size={16}
+                        stroke={1.7}
+                        aria-label={t('transactions.list.to')}
+                      />
+                      <span>
+                        {item.note
+                          ? `${item.toAccountName ?? ''}, ${item.note}`
+                          : item.toAccountName}
+                      </span>
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className={classes.category}>{item.categoryName}</span>
+                    <span className={classes.sub}>
+                      {item.note ? `${item.accountName}, ${item.note}` : item.accountName}
+                    </span>
+                  </>
+                )}
               </span>
               <SignedAmount transaction={item} />
             </UnstyledButton>

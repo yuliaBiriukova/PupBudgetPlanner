@@ -133,6 +133,10 @@
   color: var(--pup-color-income);
 }
 
+.switch[data-type='Transfer'] .switchLabel[data-active] {
+  color: var(--pup-color-transfer);
+}
+
 /* Day: the week strip, Monday first; the picked day filled, today outlined */
 .week {
   display: grid;
@@ -283,6 +287,72 @@
   white-space: nowrap;
 }
 
+/* Transfer (F-019): From and To side by side where the account field is, a swap button between them */
+.routeRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+  gap: 4px;
+  align-items: center;
+}
+
+.route {
+  position: relative;
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  min-height: 72px;
+  padding: 10px 36px 10px 14px;
+  border: 1px solid var(--pup-color-field-border);
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+  text-align: left;
+}
+
+.route:hover {
+  background: var(--pup-color-hover);
+}
+
+.route[aria-expanded='true'] {
+  border-color: var(--pup-color-accent);
+  outline: 1px solid var(--pup-color-accent);
+}
+
+.route[aria-invalid] {
+  border-color: var(--mantine-color-error);
+  outline: 1px solid var(--mantine-color-error);
+}
+
+.route:focus-visible {
+  outline: 2px solid var(--pup-color-accent);
+  outline-offset: 2px;
+}
+
+.route small {
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.routeName {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.routeSelect {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  margin-top: -10px;
+  color: var(--mantine-color-dimmed);
+}
+
+.swap {
+  justify-self: center;
+  color: var(--pup-color-transfer);
+}
+
 /* Amount: a calculator display, right-aligned in the type's color; a sum in the text's color, its result on top */
 .display {
   display: grid;
@@ -290,6 +360,8 @@
   border-radius: var(--mantine-radius-md);
   background: var(--pup-color-choice);
   cursor: text;
+  /* Scrolled into sight above the scroll area's faded edges (56 px below, 40 px above) */
+  scroll-margin-block: 40px 56px;
 }
 
 .display:focus-within {
@@ -298,6 +370,27 @@
 
 .display[data-invalid] {
   box-shadow: inset 0 0 0 2px var(--mantine-color-error);
+}
+
+/* An exchange's rate line under the To amount: where its number comes from (F-019) */
+.rate {
+  margin: 0 0 4px;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  line-height: 20px;
+  text-align: right;
+}
+
+.rate .num {
+  color: var(--mantine-color-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rate .textLink {
+  display: inline-flex;
+  margin-block: -12px;
+  margin-left: 4px;
 }
 
 .displayHead {
@@ -324,6 +417,15 @@
 
 .display[data-type='Income'] :is(.big, .result) {
   color: var(--pup-color-income);
+}
+
+.display[data-type='Transfer'] :is(.big, .result) {
+  color: var(--pup-color-transfer);
+}
+
+/* On the phone the ring says which display of an exchange the keys type into (F-019) */
+.display[data-target]:not([data-invalid]) {
+  box-shadow: inset 0 0 0 2px var(--pup-color-accent);
 }
 
 .display[data-sum] .big {
@@ -369,10 +471,12 @@
   visibility: hidden;
 }
 
+/* No width of its own (a text input's is 20 characters, wider than "0" at 40 px): the copy beside it sets the
+   width, so a sign before the number stays next to it (`$100`, F-019) */
 .amountInput {
   grid-area: 1 / 1;
-  width: 100%;
-  min-width: 1ch;
+  width: 0;
+  min-width: 100%;
   padding: 0;
   border: 0;
   background: none;
@@ -394,6 +498,16 @@
   outline: none;
 }
 
+/* An exchange's second amount: smaller, under the first (F-019 final prototype) */
+.display[data-secondary] .big {
+  font-size: 26px;
+  line-height: 44px;
+}
+
+.display[data-secondary] .sign {
+  font-size: 18px;
+}
+
 @media (min-width: 48em) {
   .big {
     font-size: 40px;
@@ -402,6 +516,15 @@
 
   .sign {
     font-size: 26px;
+  }
+
+  .display[data-secondary] .big {
+    font-size: 28px;
+    line-height: 40px;
+  }
+
+  .display[data-secondary] .sign {
+    font-size: 20px;
   }
 }
 

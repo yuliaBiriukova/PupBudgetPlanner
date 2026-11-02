@@ -39,6 +39,28 @@ export function defaultAccount(
   return accounts.find((account) => account.id === last)?.id ?? accounts[0]?.id;
 }
 
+/**
+ * Where a transfer from `fromId` goes when the form opens (F-019): the last transfer's To, or its From when the money
+ * now leaves that account (a card's +), else the first other account in use; none when there is no other account.
+ */
+export function defaultTo(
+  accounts: Account[],
+  suggestions: TransactionSuggestions,
+  fromId: string,
+): string | null {
+  const last = suggestions.lastTransfer;
+  const candidates = [
+    last?.toAccountId,
+    last?.fromAccountId,
+    ...accounts.map((account) => account.id),
+  ];
+  return (
+    candidates.find(
+      (id) => id !== undefined && id !== fromId && accounts.some((account) => account.id === id),
+    ) ?? null
+  );
+}
+
 /** The category last used with the account for the type while it is in use; none when the account has none yet. */
 export function lastCategory(
   suggestions: TransactionSuggestions,

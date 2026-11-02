@@ -175,6 +175,8 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     // Income, and the tags of the Categories page (F-015): neutral, income ones green
     '--pup-color-income': '#1f7a4d',
     '--pup-color-income-bg': '#e4f1ea',
+    // Transfers (F-019): neither in nor out, in the accent
+    '--pup-color-transfer': 'var(--pup-color-accent)',
     '--pup-color-tag': '#ebedf0',
     // The Solid account card (F-014): charcoal here, light grey in dark mode
     '--pup-card-solid': '#26292e',
@@ -221,6 +223,7 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-fresh': '#3a3420',
     '--pup-color-income': '#7fd1a4',
     '--pup-color-income-bg': '#1b2d23',
+    '--pup-color-transfer': 'var(--pup-color-accent)',
     '--pup-color-tag': '#26272a',
     '--pup-card-solid': '#e9eaec',
     '--pup-card-solid-hover': '#d3d6da',

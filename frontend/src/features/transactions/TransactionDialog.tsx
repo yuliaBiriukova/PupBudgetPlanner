@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { DESKTOP_QUERY } from '../../app/shell/sections';
 import { ResponsiveDialog } from '../../shared/ui/ResponsiveDialog';
-import { accountsQuery, type AccountsOverview } from '../accounts/accountsApi';
+import { accountsQuery, type Account, type AccountsOverview } from '../accounts/accountsApi';
 import { categoriesQuery, type CategoriesOverview } from '../categories/categoriesApi';
 import { AccountField } from './AccountField';
 import { evaluate, isSum, pressKey } from './amount';
@@ -23,9 +23,11 @@ import { AmountKeys } from './AmountKeys';
 import { CategoryField } from './CategoryField';
 import { mondayOf, today } from './days';
 import { DeleteTransactionDialog } from './DeleteTransactionDialog';
+import { suggestedToAmount } from './exchange';
 import {
   categoriesFor,
   defaultAccount,
+  defaultTo,
   lastCategory,
   mostUsed,
   pills,
@@ -33,8 +35,11 @@ import {
   PILLS_PHONE,
   type CategoryOption,
 } from './formDefaults';
+import { RateLine } from './RateLine';
 import classes from './TransactionForm.module.css';
 import {
+  isExchange,
+  ratesQuery,
   suggestionsQuery,
   useSaveTransaction,
   type BalanceChange,
@@ -43,13 +48,14 @@ import {
   type TransactionSuggestions,
   type TransactionType,
 } from './transactionsApi';
+import { TransferAccounts } from './TransferAccounts';
 import { WeekStrip } from './WeekStrip';
 
 /** What the form opens for: a new transaction (from an account's card, with that account), or a change. */
 export type FormRequest =
   { kind: 'add'; accountId?: string } | { kind: 'edit'; transaction: Transaction };
 
-const TYPES: readonly TransactionType[] = ['Expense', 'Income'];
+const TYPES: readonly TransactionType[] = ['Expense', 'Income', 'Transfer'];
 
 /** The longest note the API keeps (`Transaction.NoteMaxLength`). */
 const NOTE_MAX_LENGTH = 200;
@@ -60,18 +66,28 @@ interface FormState {
   date: string;
   /** The Monday of the week the strip shows. */
   week: string;
+  /** The account; a transfer's From. */
   accountId: string;
   categoryId: string | null;
   /** Picked by the person: it stays when the account changes. One picked for them follows the account. */
   categoryByHand: boolean;
   /** The amount field: an amount or a sum (`amount.ts`). */
   amount: string;
+  /** A transfer's To (F-019); none when there is no other account. */
+  toAccountId: string | null;
+  /** What an exchange's To got, as typed; the NBU's suggestion stands until `toByHand`. */
+  toAmount: string;
+  toByHand: boolean;
+  /** On the phone, the display of an exchange the keys type into. */
+  keys: 'amount' | 'to';
   note: string;
 }
 
 interface FormErrors {
   amount?: string;
   category?: string;
+  to?: string;
+  toAmount?: string;
 }
 
 interface FormData {
@@ -91,9 +107,10 @@ interface TransactionDialogProps {
 }
 
 /**
- * Quick add (F-018, final prototype variant 7): one form for an expense or an income, and for changing one. In order
- * the day, the account, the amount, the category and the note. On the phone a full sheet with the app's own keys under
- * the scrolling form; on the desktop a dialog where the amount is typed, with Cancel and Save.
+ * Quick add (F-018, final prototype variant 7): one form for an expense, an income or a transfer (F-019), and for
+ * changing one. In order the day, the account (From and To for a transfer), the amount (two for an exchange), the
+ * category and the note. On the phone a full sheet with the app's own keys under the scrolling form; on the desktop a
+ * dialog where the amount is typed, with Cancel and Save.
  */
 export function TransactionDialog({
   request,
@@ -112,6 +129,7 @@ export function TransactionDialog({
     accounts.data && categories.data && suggestions.data
       ? { overview: accounts.data, categories: categories.data, suggestions: suggestions.data }
       : undefined;
+  const allAccounts = data ? [...data.overview.accounts, ...data.overview.archived] : [];
 
   return (
     <>
@@ -134,9 +152,8 @@ export function TransactionDialog({
       {editing && data && (
         <DeleteTransactionDialog
           transaction={editing}
-          account={[...data.overview.accounts, ...data.overview.archived].find(
-            (account) => account.id === editing.accountId,
-          )}
+          account={allAccounts.find((account) => account.id === editing.accountId)}
+          toAccount={allAccounts.find((account) => account.id === editing.toAccountId)}
           opened={opened && deleting}
           onKeep={() => {
             setDeleting(false);
@@ -162,6 +179,11 @@ function initialState(request: FormRequest, data: FormData): FormState {
       categoryId: transaction.categoryId,
       categoryByHand: true,
       amount: String(transaction.amount),
+      toAccountId: transaction.toAccountId ?? null,
+      // An exchange keeps what the bank gave; one currency's To is the amount itself
+      toAmount: isExchange(transaction) ? String(transaction.toAmount ?? '') : '',
+      toByHand: isExchange(transaction),
+      keys: 'amount',
       note: transaction.note ?? '',
     };
   }
@@ -181,11 +203,15 @@ function initialState(request: FormRequest, data: FormData): FormState {
     ),
     categoryByHand: false,
     amount: '',
+    toAccountId: null,
+    toAmount: '',
+    toByHand: false,
+    keys: 'amount',
     note: '',
   };
 }
 
-/** The account a card's + opened the form with stays for both types; otherwise the last one used for the type. */
+/** The account a card's + opened the form with stays for every type; otherwise the last one used for the type. */
 function accountFor(request: FormRequest, data: FormData, type: TransactionType): string {
   const fixed = request.kind === 'add' ? request.accountId : undefined;
   return (
@@ -230,8 +256,21 @@ function TransactionForm({
   // The data arrived after the dialog opened: the form starts now
   if (!form && usable) setForm(initialState(request, usable));
 
+  const allAccounts: Account[] = usable
+    ? [...usable.overview.accounts, ...usable.overview.archived]
+    : [];
+  const account = allAccounts.find((item) => item.id === form?.accountId);
+  const toAccount =
+    form?.type === 'Transfer'
+      ? allAccounts.find((item) => item.id === form.toAccountId)
+      : undefined;
+  const exchange = !!account && !!toAccount && account.currency !== toAccount.currency;
+  // The NBU rates of the picked day, for an exchange's second amount
+  const rates = useQuery({ ...ratesQuery(form?.date ?? today()), enabled: opened && exchange });
+
   const type = form?.type ?? editing?.type ?? 'Expense';
-  const title = editing ? t(`transactions.edit.${type}`) : t(`transactions.add.${type}`);
+  const word = editing && (exchange || isExchange(editing)) ? 'Exchange' : type;
+  const title = editing ? t(`transactions.edit.${word}`) : t(`transactions.add.${type}`);
 
   if (!form || !usable) {
     let body: ReactNode;
@@ -282,13 +321,12 @@ function TransactionForm({
     );
   }
 
-  const allAccounts = [...usable.overview.accounts, ...usable.overview.archived];
-  const account = allAccounts.find((item) => item.id === form.accountId);
+  const transfer = form.type === 'Transfer';
   const all = categoriesFor(usable.categories.groups, form.type);
   // A transaction changed keeps its category even when it is archived: the pill is named from the transaction
   const picked: CategoryOption | undefined =
     all.find((category) => category.id === form.categoryId) ??
-    (editing?.categoryId === form.categoryId
+    (editing?.categoryId && editing.categoryName && editing.categoryId === form.categoryId
       ? { id: editing.categoryId, name: editing.categoryName, group: '' }
       : undefined);
   const shown = pills(
@@ -299,6 +337,19 @@ function TransactionForm({
     picked,
   );
 
+  // An exchange's second amount: what the person typed, else the NBU's suggestion for the amount
+  const suggested =
+    exchange && rates.data
+      ? suggestedToAmount(
+          evaluate(form.amount),
+          account.currency,
+          toAccount.currency,
+          rates.data.rates,
+        )
+      : null;
+  const toText = form.toByHand ? form.toAmount : suggested === null ? '' : String(suggested);
+  const keysOn = exchange && form.keys === 'to' ? 'to' : 'amount';
+
   const change = (next: Partial<FormState>) => {
     setForm({ ...form, ...next });
     save.reset();
@@ -307,22 +358,43 @@ function TransactionForm({
   const setType = (next: TransactionType) => {
     if (next === form.type) return;
     const accountId = accountFor(request, usable, next);
-    // The amount, the day and the note stay; the category is of the other kind
+    // The amount, the day and the note stay; the category is of the other kind, a transfer has none
     change({
       type: next,
       accountId,
-      categoryId: lastCategory(
-        usable.suggestions,
-        categoriesFor(usable.categories.groups, next),
-        accountId,
-        next,
-      ),
+      categoryId:
+        next === 'Transfer'
+          ? null
+          : lastCategory(
+              usable.suggestions,
+              categoriesFor(usable.categories.groups, next),
+              accountId,
+              next,
+            ),
       categoryByHand: false,
+      toAccountId:
+        next === 'Transfer'
+          ? defaultTo(usable.overview.accounts, usable.suggestions, accountId)
+          : null,
+      toAmount: '',
+      toByHand: false,
+      keys: 'amount',
     });
-    setErrors({ ...errors, category: undefined });
+    setErrors({ ...errors, category: undefined, to: undefined, toAmount: undefined });
   };
 
   const setAccount = (accountId: string) => {
+    if (transfer) {
+      // Picking the To account as From swaps the two; the To amount is suggested again for the new pair
+      change({
+        accountId,
+        toAccountId: accountId === form.toAccountId ? form.accountId : form.toAccountId,
+        toAmount: '',
+        toByHand: false,
+      });
+      setErrors({ ...errors, toAmount: undefined });
+      return;
+    }
     // A category picked for the person follows the account; one they picked stays (owner, 2026-11-01)
     change(
       form.categoryByHand
@@ -331,25 +403,63 @@ function TransactionForm({
     );
   };
 
+  const setTo = (toAccountId: string) => {
+    change({ toAccountId, toAmount: '', toByHand: false });
+    setErrors({ ...errors, to: undefined, toAmount: undefined });
+  };
+
+  // The amounts go with their accounts: 100 USD → 4 490 ₴ becomes 4 490 ₴ → 100 USD
+  const swap = () => {
+    if (!form.toAccountId) return;
+    change({
+      accountId: form.toAccountId,
+      toAccountId: form.accountId,
+      ...(exchange
+        ? form.toByHand
+          ? { amount: form.toAmount, toAmount: form.amount }
+          : { amount: toText, toAmount: '' }
+        : {}),
+      keys: 'amount',
+    });
+    setErrors({});
+  };
+
   const setAmount = (amount: string) => {
     change({ amount });
     setErrors({ ...errors, amount: undefined });
   };
 
+  const setToAmount = (toAmount: string) => {
+    change({ toAmount, toByHand: true });
+    setErrors({ ...errors, toAmount: undefined });
+  };
+
   const submit = () => {
     const amount = evaluate(form.amount);
+    const typedTo = form.toByHand ? evaluate(form.toAmount) : suggested;
     const next: FormErrors = {};
     if (!form.amount) next.amount = t('transactions.errors.amount');
     else if (amount === null || amount <= 0)
       next.amount = t(
         isSum(form.amount) ? 'transactions.errors.sumZero' : 'transactions.errors.amountZero',
       );
-    if (!form.categoryId) next.category = t('transactions.errors.category');
+    if (!transfer && !form.categoryId) next.category = t('transactions.errors.category');
+    if (transfer && !toAccount) next.to = t('transactions.errors.to');
+    if (exchange && (typedTo === null || typedTo <= 0))
+      next.toAmount =
+        form.toByHand && isSum(form.toAmount)
+          ? t('transactions.errors.sumZero')
+          : t('transactions.errors.toAmount', { account: toAccount.name });
     setErrors(next);
-    if (next.amount || next.category || amount === null || !form.categoryId) return;
+    if (next.amount || next.category || next.to || next.toAmount || amount === null) return;
 
     // Save works a sum out on the way, as = does
-    if (isSum(form.amount)) setForm({ ...form, amount: String(amount) });
+    if (isSum(form.amount) || (form.toByHand && isSum(form.toAmount)))
+      setForm({
+        ...form,
+        amount: String(amount),
+        toAmount: form.toByHand && typedTo !== null ? String(typedTo) : form.toAmount,
+      });
     save.mutate(
       {
         id: editing?.id,
@@ -357,9 +467,11 @@ function TransactionForm({
           type: form.type,
           date: form.date,
           accountId: form.accountId,
-          categoryId: form.categoryId,
+          categoryId: transfer ? null : form.categoryId,
           amount,
           note: form.note.trim() || null,
+          // Between accounts in one currency the API takes the amount itself as what To got
+          ...(transfer && { toAccountId: form.toAccountId, toAmount: exchange ? typedTo : null }),
         },
       },
       {
@@ -375,7 +487,7 @@ function TransactionForm({
       aria-label={t('transactions.form.type')}
       value={form.type}
       onChange={(value) => {
-        setType(value === 'Income' ? 'Income' : 'Expense');
+        setType(TYPES.find((item) => item === value) ?? 'Expense');
       }}
       data={TYPES.map((item) => ({ value: item, label: t(`transactions.types.${item}`) }))}
       fullWidth
@@ -396,7 +508,7 @@ function TransactionForm({
       color="gray"
       size={44}
       radius="xl"
-      aria-label={t(`transactions.form.deleteLabel.${type}`)}
+      aria-label={t(`transactions.form.deleteLabel.${word}`)}
       onClick={onDelete}
     >
       <IconTrash size={20} stroke={1.7} />
@@ -426,10 +538,13 @@ function TransactionForm({
     </>
   ) : (
     <AmountKeys
-      value={form.amount}
+      value={keysOn === 'to' ? toText : form.amount}
       saving={save.isPending}
       onKey={(key) => {
-        setAmount(pressKey(form.amount, key));
+        if (keysOn === 'to') {
+          // The first key on a suggested amount replaces it
+          setToAmount(pressKey(form.toByHand ? form.toAmount : '', key));
+        } else setAmount(pressKey(form.amount, key));
       }}
       onSave={submit}
     />
@@ -463,9 +578,24 @@ function TransactionForm({
             change({ week });
           }}
         />
-        {account && (
-          <AccountField value={account} accounts={usable.overview.accounts} onChange={setAccount} />
-        )}
+        {account &&
+          (transfer ? (
+            <TransferAccounts
+              from={account}
+              to={toAccount}
+              accounts={usable.overview.accounts}
+              onFrom={setAccount}
+              onTo={setTo}
+              onSwap={swap}
+              error={errors.to}
+            />
+          ) : (
+            <AccountField
+              value={account}
+              accounts={usable.overview.accounts}
+              onChange={setAccount}
+            />
+          ))}
         <AmountDisplay
           value={form.amount}
           onChange={setAmount}
@@ -475,18 +605,61 @@ function TransactionForm({
           error={errors.amount}
           onEnter={submit}
           focusFirst={isDesktop}
-        />
-        <CategoryField
-          value={form.categoryId}
-          onChange={(categoryId) => {
-            change({ categoryId, categoryByHand: true });
-            setErrors({ ...errors, category: undefined });
+          label={
+            exchange ? t('transactions.form.fromAccount', { account: account.name }) : undefined
+          }
+          target={!isDesktop && exchange && keysOn === 'amount'}
+          onTarget={() => {
+            if (form.keys !== 'amount') change({ keys: 'amount' });
           }}
-          pills={shown}
-          all={all}
-          often={mostUsed(all, usable.suggestions, form.type)}
-          error={errors.category}
         />
+        {exchange && (
+          <AmountDisplay
+            value={toText}
+            onChange={setToAmount}
+            type={form.type}
+            currency={toAccount.currency}
+            withKeys={!isDesktop}
+            error={errors.toAmount}
+            onEnter={submit}
+            label={t('transactions.form.toAccount', { account: toAccount.name })}
+            secondary
+            target={!isDesktop && keysOn === 'to'}
+            onTarget={() => {
+              if (form.keys !== 'to') change({ keys: 'to' });
+            }}
+            selectOnFocus={!form.toByHand}
+          >
+            <RateLine
+              from={account.currency}
+              to={toAccount.currency}
+              toName={toAccount.name}
+              date={form.date}
+              amount={evaluate(form.amount)}
+              toAmount={form.toByHand ? evaluate(form.toAmount) : suggested}
+              byHand={form.toByHand}
+              rates={rates.data}
+              loading={rates.isPending}
+              onUseNbu={() => {
+                change({ toAmount: '', toByHand: false });
+                setErrors({ ...errors, toAmount: undefined });
+              }}
+            />
+          </AmountDisplay>
+        )}
+        {!transfer && (
+          <CategoryField
+            value={form.categoryId}
+            onChange={(categoryId) => {
+              change({ categoryId, categoryByHand: true });
+              setErrors({ ...errors, category: undefined });
+            }}
+            pills={shown}
+            all={all}
+            often={mostUsed(all, usable.suggestions, form.type)}
+            error={errors.category}
+          />
+        )}
         <div className={classes.block}>
           <div className={classes.blockHead}>
             <label className={classes.label} htmlFor={noteId}>
@@ -497,7 +670,11 @@ function TransactionForm({
             id={noteId}
             value={form.note}
             maxLength={NOTE_MAX_LENGTH}
-            placeholder={t('transactions.form.notePlaceholder')}
+            placeholder={t(
+              transfer
+                ? 'transactions.form.notePlaceholderTransfer'
+                : 'transactions.form.notePlaceholder',
+            )}
             autoComplete="off"
             classNames={{ input: classes.noteInput }}
             onChange={(event) => {
