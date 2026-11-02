@@ -20,9 +20,15 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Tests: backend (validator, domain, balances, suggestions, rates controller), frontend (`exchange.test.ts`,
   `defaultTo`, 7 transfer tests on the page), E2E (an exchange of $100 for hryvnias and its delete, desktop and
   phone). New stories for transfer, exchange (NBU rate, own rate, phone, earlier rate, no rate), edit and delete.
+- Before the push: backend build (0 warnings) and 325 tests; frontend lint, format, typecheck, 201 unit tests, build,
+  Storybook build; the full E2E suite (54 passed, 6 skipped as one-layout tests). Screenshots of the built screens
+  (transfer, To list, exchange at the NBU and own rate, swapped, saved with both cards lit, Transactions, Edit exchange,
+  Delete) at 375 and 1440 px, light and dark, looked at; the flow walked through in the Browser pane on both sizes.
+  Nothing to fix.
 - Test data: a person `e2e-manual-…@example.com` with three accounts and a few transfers (made through the API with an
   `E2E manual check F-019` invite link, used by it), plus the E2E tests' people; all removed by the E2E clean-up, and
-  checked through the admin API (no `e2e-` people left). The owner's data untouched.
+  checked through the admin API (no `e2e-` people left). The same again for the check before the push. The owner's
+  data untouched.
 
 **Next**
 - Owner: review the PR. Then F-020 (the full Transactions list).
