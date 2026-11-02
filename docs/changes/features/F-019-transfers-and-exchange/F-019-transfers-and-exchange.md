@@ -7,7 +7,7 @@
 | Status | In progress |
 | Branch | `feature/F-019-transfers-and-exchange` |
 | Design | 3 HTML prototypes required: shared with F-018 (its variants 1–7 all had Transfer and Exchange screens) |
-| Approved | — (final prototype and this plan waiting for the owner) |
+| Approved | 2026-11-02, by the owner in chat ("Approved, build F-019"): the [final prototype](prototypes/variant-1.html), this plan, and the four open points as proposed |
 
 ## Goal
 
@@ -32,7 +32,7 @@ Move money between own accounts, including buying and selling currency.
 ## Tasks
 
 - [x] Design: F-018's variants had Transfer and Exchange screens; final prototype built from variant 7 as built
-- [ ] Owner's approval of the final prototype and this plan
+- [x] Owner's approval of the final prototype and this plan (2026-11-02)
 - [ ] Domain + API (incl. migration and the rate for the form)
 - [ ] UI
 - [ ] Storybook stories
@@ -101,7 +101,7 @@ Saved, Transactions, Edit exchange, Delete.
 Checked: every screen opens without errors; screens tried in the Browser pane on the phone; the design check (see
 PROGRESS) and screenshots at 375 and 1440 px, light and dark, looked at.
 
-### Open points (for the owner)
+### Open points (answered 2026-11-02: as proposed, with the approval)
 
 1. **Swap button** between From and To: new, not in F-018's rounds. *Proposed: yes.*
 2. **"Exchange"** as the name of a transfer between currencies in the list, the titles and the notification, while the
