@@ -2,6 +2,19 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-02 (I-018: Neon skills in the repo)
+
+**Done**
+- The owner asked to commit the Neon skills and ignore `launch.json`, which had been untracked since the first
+  sessions. Planned as I-018 (Low) and done: `.claude/skills/neon/`, `.claude/skills/neon-postgres/` and
+  `skills-lock.json` committed as installed (checked for secrets first: none); `.claude/launch.json` (laptop-only
+  paths) added to `.gitignore`.
+- Checked: git status is clean apart from the ignored file. No app code changed, so no builds or tests were run.
+- Test data: none.
+
+**Next**
+- Owner: review and merge the I-018 PR. Then F-019: a final prototype for transfers and exchange, for approval.
+
 ## 2026-11-02 (plan: I-016, I-017)
 
 **Done**

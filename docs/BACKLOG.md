@@ -104,6 +104,7 @@ owner asks for one.
 | [I-015](changes/improvements/I-015-sheet-swipe-and-back/I-015-sheet-swipe-and-back.md) | Phone pop-ups close with a swipe down and with Back | Medium | Done |
 | [I-016](changes/improvements/I-016-category-month-totals/I-016-category-month-totals.md) | 🎨 This month's total next to each category when adding a transaction (after F-018) | Low | Todo |
 | [I-017](changes/improvements/I-017-note-suggestions/I-017-note-suggestions.md) | 🎨 Suggest notes already used while typing a note (after F-018) | Medium | Todo |
+| [I-018](changes/improvements/I-018-neon-skills-in-repo/I-018-neon-skills-in-repo.md) | Neon's Claude skills in the repo; `.claude/launch.json` ignored | Low | Done |
 
 ## Bugfixes
 
