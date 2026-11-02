@@ -66,7 +66,7 @@ test('a person adds accounts and sees their balances and totals, then archives o
   await expect(page.getByRole('region', { name: 'Monobank' })).toContainText('Mono black');
 
   // Archived with money on it: it leaves the totals and waits under Archived
-  await page.getByRole('button', { name: /Dollars at home/ }).click();
+  await page.getByRole('button', { name: /^Dollars at home/ }).click();
   await page
     .getByRole('dialog', { name: 'Edit Dollars at home' })
     .getByRole('button', { name: en.accounts.form.end.archive })
@@ -113,7 +113,7 @@ test('a person deletes accounts for good, from the edit form and from Archived',
   await expect(totals).toContainText('1 250 ₴');
 
   // From the edit form: Delete asks for the name; the button works only once it is typed (any case)
-  await page.getByRole('button', { name: /Tried it/ }).click();
+  await page.getByRole('button', { name: /^Tried it/ }).click();
   await page
     .getByRole('dialog', { name: 'Edit Tried it' })
     .getByRole('button', { name: en.accounts.form.end.deleteButton })
@@ -126,11 +126,11 @@ test('a person deletes accounts for good, from the edit form and from Archived',
   await confirm.click();
   await expect(page.getByText('Tried it deleted')).toBeVisible();
 
-  await expect(page.getByRole('button', { name: /Tried it/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Tried it/ })).toHaveCount(0);
   await expect(totals).toContainText('1 000 ₴');
 
   // From Archived: archive it first, then delete it there
-  await page.getByRole('button', { name: /Old dollars/ }).click();
+  await page.getByRole('button', { name: /^Old dollars/ }).click();
   await page
     .getByRole('dialog', { name: 'Edit Old dollars' })
     .getByRole('button', { name: en.accounts.form.end.archive })
@@ -151,8 +151,8 @@ test('a person deletes accounts for good, from the edit form and from Archived',
 
   // After a reload only Mono black is left, and its bank is still offered in the form
   await page.reload();
-  await expect(page.getByRole('button', { name: /Mono black/ })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Tried it|Old dollars/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Mono black/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^(Tried it|Old dollars)/ })).toHaveCount(0);
   await page.getByRole('button', { name: en.accounts.add, exact: true }).click();
   await expect(
     page

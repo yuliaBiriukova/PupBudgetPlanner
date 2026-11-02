@@ -38,11 +38,20 @@ public sealed class AccountsController(IAccountService accounts) : ControllerBas
     [ProducesResponseType<AccountItem>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<AccountItem>> Update(
-        Guid id, SaveAccountRequest request, CancellationToken cancellationToken) =>
-        await accounts.UpdateAsync(UserId, id, request, cancellationToken) is { } account
-            ? Ok(account)
-            : Problem(statusCode: StatusCodes.Status404NotFound, title: NoSuchAccount);
+        Guid id, SaveAccountRequest request, CancellationToken cancellationToken)
+    {
+        var result = await accounts.UpdateAsync(UserId, id, request, cancellationToken);
+        return result.Outcome switch
+        {
+            UpdateAccountOutcome.Saved => Ok(result.Account),
+            UpdateAccountOutcome.CurrencyFixed => Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "The currency can't be changed: the account has transactions."),
+            _ => Problem(statusCode: StatusCodes.Status404NotFound, title: NoSuchAccount),
+        };
+    }
 
     /// <summary>Takes it out of the totals and the pickers; its history stays.</summary>
     [HttpPost("{id:guid}/archive")]
@@ -61,12 +70,20 @@ public sealed class AccountsController(IAccountService accounts) : ControllerBas
             ? NoContent()
             : Problem(statusCode: StatusCodes.Status404NotFound, title: NoSuchAccount);
 
-    /// <summary>Removes it for good (I-011); the person's own sources and banks stay.</summary>
+    /// <summary>
+    /// Removes it for good (I-011); the person's own sources and banks stay. Only an account without transactions.
+    /// </summary>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken) =>
-        await accounts.DeleteAsync(UserId, id, cancellationToken)
-            ? NoContent()
-            : Problem(statusCode: StatusCodes.Status404NotFound, title: NoSuchAccount);
+        await accounts.DeleteAsync(UserId, id, cancellationToken) switch
+        {
+            DeleteAccountOutcome.Deleted => NoContent(),
+            DeleteAccountOutcome.HasTransactions => Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "It has transactions, so it can only be archived."),
+            _ => Problem(statusCode: StatusCodes.Status404NotFound, title: NoSuchAccount),
+        };
 }

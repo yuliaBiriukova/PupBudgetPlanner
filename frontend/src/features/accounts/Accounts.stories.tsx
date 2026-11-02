@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from 'storybook/test';
 import { MockFetch, type MockRoutes } from '../../test/mockFetch';
+import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
+import { TransactionFormProvider } from '../transactions/TransactionFormProvider';
+import { SUGGESTIONS } from '../transactions/transactionsTestData';
 import { AccountsPage } from './AccountsPage';
 import type { AccountsTotal, RatesStatus } from './accountsApi';
 import { EMPTY, OVERVIEW, TOTAL } from './accountsTestData';
@@ -42,14 +45,19 @@ function AccountsScreen({
           ? { status: 500 }
           : { json: data === 'empty' ? EMPTY : data === 'hryvnias' ? HRYVNIAS : OVERVIEW },
     '/api/accounts/total': rates === 'loading' ? 'pending' : { json: totalOf(data, rates) },
+    // The + on a card opens the quick-add form (F-018)
+    '/api/categories': { json: DEFAULT_CATEGORIES },
+    '/api/transactions/suggestions': { json: SUGGESTIONS },
   };
 
   // In <main>, as in the app shell: the page's header isn't the document's banner
   return (
     <MockFetch routes={routes}>
-      <main>
-        <AccountsPage />
-      </main>
+      <TransactionFormProvider>
+        <main>
+          <AccountsPage />
+        </main>
+      </TransactionFormProvider>
     </MockFetch>
   );
 }
@@ -80,6 +88,20 @@ export const ByCurrencyPhoneDark: Story = { globals: { colorScheme: 'dark' } };
 export const ByCurrencyDesktop: Story = { globals: desktop };
 
 export const ByCurrencyDesktopDark: Story = { globals: { ...desktop, colorScheme: 'dark' } };
+
+/** The + on a card adds a transaction from that account (F-018). */
+export const AddFromCard: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Add a transaction from Privat card' }),
+    );
+    const form = await within(document.body).findByRole('dialog', { name: 'Add expense' });
+    await expect(await within(form).findByRole('button', { name: /^Account:/ })).toHaveTextContent(
+      'Privat card',
+    );
+  },
+};
 
 export const BySourcePhone: Story = { args: { groupBy: 'source' } };
 

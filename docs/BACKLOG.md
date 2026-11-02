@@ -48,7 +48,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 | ID | Feature | Status |
 |----|---------|--------|
 | [F-017](changes/features/F-017-exchange-rates/F-017-exchange-rates.md) | NBU exchange rates | Done |
-| [F-018](changes/features/F-018-quick-add-income-expense/F-018-quick-add-income-expense.md) | 🎨 Quick add: expense and income | Todo |
+| [F-018](changes/features/F-018-quick-add-income-expense/F-018-quick-add-income-expense.md) | 🎨 Quick add: expense and income | Done |
 | [F-019](changes/features/F-019-transfers-and-exchange/F-019-transfers-and-exchange.md) | 🎨 Transfers and currency exchange | Todo |
 | [F-020](changes/features/F-020-transactions-list/F-020-transactions-list.md) | 🎨 Transactions list | Todo |
 
@@ -102,6 +102,8 @@ owner asks for one.
 | [I-013](changes/improvements/I-013-banks-from-nbu/I-013-banks-from-nbu.md) | Suggest banks from the NBU's list instead of a list in the app (after F-017) | Low | Todo |
 | [I-014](changes/improvements/I-014-faster-local-tests/I-014-faster-local-tests.md) | Faster, steadier tests on the owner's laptop: no timeouts in unit and cold-start E2E runs | High | Done |
 | [I-015](changes/improvements/I-015-sheet-swipe-and-back/I-015-sheet-swipe-and-back.md) | Phone pop-ups close with a swipe down and with Back | Medium | Done |
+| [I-016](changes/improvements/I-016-category-month-totals/I-016-category-month-totals.md) | 🎨 This month's total next to each category when adding a transaction (after F-018) | Low | Todo |
+| [I-017](changes/improvements/I-017-note-suggestions/I-017-note-suggestions.md) | 🎨 Suggest notes already used while typing a note (after F-018) | Medium | Todo |
 
 ## Bugfixes
 
@@ -109,3 +111,4 @@ owner asks for one.
 |----|-----|----------|--------|
 | [B-001](changes/bugfixes/B-001-flaky-server-wake-test/B-001-flaky-server-wake-test.md) | Flaky "server answers quickly" unit test | High | Done |
 | [B-002](changes/bugfixes/B-002-stale-tab-icon/B-002-stale-tab-icon.md) | Tab icon still shows the Vite template icon | Medium | Done |
+| [B-003](changes/bugfixes/B-003-account-cards-too-big/B-003-account-cards-too-big.md) | Account cards bigger than in the prototype on the desktop | Medium | Done |

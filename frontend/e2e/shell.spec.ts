@@ -23,6 +23,12 @@ async function openSection(page: Page, id: SectionId, isMobile: boolean) {
   }
 }
 
+/** The shell's + (the sidebar's or the tab bar's), not the empty Transactions page's own button. */
+const shellAdd = (page: Page) =>
+  page
+    .getByRole('button', { name: en.shell.addTransaction })
+    .and(page.locator('button:not(main button)'));
+
 test('navigates between all sections', async ({ page, isMobile }) => {
   await page.goto('/transactions');
 
@@ -39,16 +45,17 @@ test('adding a transaction is one tap away on every page', async ({ page, isMobi
 
   for (const id of SECTIONS) {
     await openSection(page, id, isMobile);
-    await page.getByRole('button', { name: en.shell.addTransaction }).click();
+    await shellAdd(page).click();
 
-    const dialog = page.getByRole('dialog', { name: en.shell.addTransaction });
+    // The quick-add form (F-018) opens on an expense
+    const dialog = page.getByRole('dialog', { name: en.transactions.add.Expense });
     await expect(dialog).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
   }
 });
 
-test('on the phone, More and Add are sheets at the bottom, as tall as their content', async ({
+test('on the phone, More and Add are sheets at the bottom; More as tall as its content, Add as tall as a sheet goes', async ({
   page,
   isMobile,
 }) => {
@@ -58,16 +65,20 @@ test('on the phone, More and Add are sheets at the bottom, as tall as their cont
 
   for (const [button, sheet] of [
     [en.nav.more, en.nav.more],
-    [en.shell.addTransaction, en.shell.addTransaction],
-  ]) {
-    await page.getByRole('button', { name: button }).click();
+    [en.shell.addTransaction, en.transactions.add.Expense],
+  ] as const) {
+    await (
+      button === en.nav.more ? page.getByRole('button', { name: button }) : shellAdd(page)
+    ).click();
     const dialog = page.getByRole('dialog', { name: sheet });
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveCSS('border-radius', '24px 24px 0px 0px');
     await expect(async () => {
       const box = await dialog.boundingBox();
       expect(box && Math.round(box.y + box.height)).toBe(screenHeight);
-      expect(box?.height ?? screenHeight).toBeLessThan(screenHeight / 2);
+      // The quick-add form has its own keys under it: 90 % of the screen (F-018)
+      if (sheet === en.nav.more) expect(box?.height ?? screenHeight).toBeLessThan(screenHeight / 2);
+      else expect(Math.abs((box?.height ?? 0) - screenHeight * 0.9)).toBeLessThan(1);
     }).toPass();
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
@@ -86,10 +97,7 @@ test('the desktop sidebar collapses to a rail and expands from the logo', async 
   await expect(handle).toHaveAttribute('aria-valuetext', en.shell.collapsed);
   await expect(page.locator('aside')).toHaveCSS('width', '72px');
   // In the rail only the icons are left: each keeps its full size, centred on the rail
-  const icons = await page
-    .locator('aside nav svg')
-    .or(page.getByRole('button', { name: en.shell.addTransaction }).locator('svg'))
-    .all();
+  const icons = await page.locator('aside nav svg').or(shellAdd(page).locator('svg')).all();
   expect(icons).toHaveLength(7);
   for (const icon of icons) {
     const box = await icon.boundingBox();

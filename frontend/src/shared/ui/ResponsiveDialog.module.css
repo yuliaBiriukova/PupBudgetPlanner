@@ -16,10 +16,22 @@
 }
 
 .title {
+  flex: 1;
+  min-width: 0;
   font-family: var(--pup-font-display);
   font-size: 20px;
   font-weight: 300;
   line-height: 28px;
+}
+
+/* A control in the title row (the transaction form's Expense / Income switch) fills it up to the buttons */
+.header[data-with-heading] {
+  gap: 4px;
+}
+
+.heading {
+  flex: 1;
+  min-width: 0;
 }
 
 .scroll {
