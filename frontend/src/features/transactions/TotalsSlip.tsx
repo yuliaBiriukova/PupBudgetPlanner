@@ -1,5 +1,5 @@
 import { ActionIcon, TextInput, UnstyledButton, VisuallyHidden } from '@mantine/core';
-import { IconChevronDown, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { IconChevronDown, IconChevronLeft, IconChevronRight, IconPlus } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import {
   forwardRef,
@@ -45,18 +45,21 @@ interface TotalsSlipProps {
   onRetry: () => void;
   /** Filters besides the period are on: the totals are of what's picked. */
   picked: boolean;
-  /** The phone: a swipe moves the month (or year). */
+  /** The phone: a swipe moves the month (or year), and Add transaction is a round + (variant 9). */
   swipe: boolean;
+  /** Opens the quick-add form. */
+  onAdd: () => void;
 }
 
 /**
  * The period's totals (F-020, variant 8): spent and received, big, on a dark slip with a torn edge; a bar for how much
  * of what came in is spent and what's left. The period is its title with ‹ ›, and the title opens the period list.
  * On the phone a swipe left or right moves to the next or previous month; the figures follow the finger a little,
- * and nothing happens past this month.
+ * and nothing happens past this month. Add transaction ends the month row (variant 9): a light pill, a round + on the
+ * phone and on a slip too narrow for its words.
  */
 export const TotalsSlip = forwardRef<HTMLElement, TotalsSlipProps>(function TotalsSlip(
-  { period, onPeriod, onSettle, summary, summaryError, onRetry, picked, swipe },
+  { period, onPeriod, onSettle, summary, summaryError, onRetry, picked, swipe, onAdd },
   ref,
 ) {
   const { t } = useTranslation();
@@ -151,6 +154,15 @@ export const TotalsSlip = forwardRef<HTMLElement, TotalsSlipProps>(function Tota
         {steps && stepButton(-1, previous)}
         <PeriodPicker period={period} onPeriod={onPeriod} onSettle={onSettle} />
         {steps && stepButton(1, next)}
+        <UnstyledButton
+          className={classes.add}
+          data-round={swipe || undefined}
+          aria-label={swipe ? t('shell.addTransaction') : undefined}
+          onClick={onAdd}
+        >
+          <IconPlus size={20} stroke={1.8} aria-hidden />
+          <span className={classes.addLabel}>{t('shell.addTransaction')}</span>
+        </UnstyledButton>
       </div>
       {summary ? (
         <div ref={figures}>

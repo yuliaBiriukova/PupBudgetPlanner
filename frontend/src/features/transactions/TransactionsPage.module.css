@@ -213,6 +213,80 @@
   }
 }
 
+/* Add transaction at the end of the month row (variant 9): the slip's light colour, as the Solid card's + column */
+.slip {
+  container: slip / inline-size;
+}
+
+.add {
+  display: inline-flex;
+  flex: none;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-left: auto;
+  padding: 0 18px 0 14px;
+  border-radius: 999px;
+  background: var(--pup-card-on-solid);
+  color: var(--pup-card-solid);
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.add:hover {
+  background: color-mix(in srgb, var(--pup-card-on-solid) 86%, var(--pup-card-solid));
+}
+
+/* The phone, and a slip narrower than 560 px: a round +, its words for screen readers only */
+.add[data-round] {
+  width: 44px;
+  padding: 0;
+}
+
+.add[data-round] .addLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@container slip (max-width: 560px) {
+  .add {
+    width: 44px;
+    padding: 0;
+  }
+
+  .addLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* On the phone the + needs room: the month sits closer to its arrows, and below 375 px is a little smaller */
+@media (max-width: 47.99em) {
+  .periodButton {
+    padding: 0 4px;
+  }
+}
+
+@media (max-width: 23.4375em) {
+  .periodButton {
+    gap: 4px;
+  }
+
+  .periodName {
+    font-size: 17px;
+  }
+}
+
 /* ---------- The slim totals bar: once the slip scrolls away (phone and tablet) ---------- */
 .miniWrap {
   position: sticky;

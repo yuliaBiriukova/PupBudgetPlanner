@@ -322,6 +322,11 @@ export function TransactionsPage() {
         }}
         picked={picked}
         swipe={!tablet}
+        onAdd={() => {
+          // With one account in use picked, the form opens with it, as from its card (F-018)
+          const account = accounts.data?.accounts.find((item) => item.id === filters.accountId);
+          form.add(account ? { accountId: account.id } : undefined);
+        }}
       />
       {!wide && controls}
       <div className={classes.columns} data-one={(!calendar && !bars) || undefined}>

@@ -298,6 +298,9 @@ Built from the approved variant 8 on `feature/F-020-transactions-list`; decision
 - **Owner's review (2026-11-03):** a day with a transfer gets a blue dot in the calendar next to income's green one,
   and the legend lists Transfer after Income; the summary's days count their transfers (`DayTotal.Transfers`), and a
   day's name for screen readers says "a transfer" or "2 transfers". Checked at 360, 375 and 1440 px, light and dark.
+- **Variant 9, built (2026-11-03):** Add transaction in the slip's month row (`TotalsSlip`): a light pill, a round + on the phone
+  and when the slip is narrower than 560 px (a container query); with one account in use picked the form opens with
+  it. Checked at 360, 375, 768, 834, 1024 and 1440 px, light and dark; design check on the page 0 issues.
 - **Checked:** the design check on the real page (October, a picked day, this year) with 0 issues and 0 console
   errors; screenshots at 360, 375, 834 and 1440 px, light and dark, of the month, the open calendar, a picked day,
   the Filters sheet (empty and with picks), filters on, the slim bar after scrolling, nothing found, the period list,

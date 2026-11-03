@@ -30,6 +30,12 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Owner's review: the calendar marks days with a transfer with a blue dot, as income's green one, with Transfer in the
   legend (the summary's days now count their transfers). Checked at 360, 375 and 1440 px, light and dark; test data
   as above (a second test person, removed the same way).
+- Owner's review: Add transaction on the totals slip. Prototyped first as [variant 9](changes/features/F-020-transactions-list/prototypes/variant-9.html)
+  (three phone placements); the owner approved the round + in the phone's month row. Built: a light pill at the end
+  of the month row, a round + on the phone and on a slip narrower than 560 px (768 px with the full sidebar); with one
+  account in use picked the form opens with it. Checked: design check on the prototype and on the real page, 0 issues;
+  screenshots of the slip at 360, 375, 768, 834, 1024 and 1440 px, light and dark; test data as above (a third test
+  person, removed the same way).
 
 **Next**
 - Owner: review the PR. Open point 6 (search by note) is to be planned as an improvement with I-017.

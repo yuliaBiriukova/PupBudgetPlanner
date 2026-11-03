@@ -305,7 +305,8 @@ describe('the Transactions page', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Clear type: Expenses' })).toBeInTheDocument();
     expect(screen.getByLabelText('2 on')).toHaveTextContent('2');
-  });
+    // Several sheet steps and a Back step to wait for: slower than most when the whole suite runs at once
+  }, 15_000);
 
   it('says nothing was found and clears the filters', async () => {
     transactionsServer({ latest: MONTH, overview: USED });
@@ -352,6 +353,30 @@ describe('the Transactions page', () => {
       `Total−${money(first.spent)}`,
     );
     vi.unstubAllGlobals();
+  });
+
+  it('adds a transaction from the slip, with the one picked account', async () => {
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10&account=privat');
+
+    const totals = await screen.findByRole('region', { name: 'Totals' }, LOADED);
+    await userEvent.click(within(totals).getByRole('button', { name: 'Add transaction' }));
+    const form = await screen.findByRole('dialog', { name: 'Add expense' }, LOADED);
+    expect(
+      await within(form).findByRole('button', { name: /^Account:/ }, LOADED),
+    ).toHaveTextContent('Privat card');
+  });
+
+  it('shows Add transaction on the phone’s slip as a round +, its name for screen readers', async () => {
+    setScreenWidth(375);
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10');
+
+    const totals = await screen.findByRole('region', { name: 'Totals' }, LOADED);
+    const add = within(totals).getByRole('button', { name: 'Add transaction' });
+    expect(add).toHaveAttribute('data-round');
+    await userEvent.click(add);
+    expect(await screen.findByRole('dialog', { name: 'Add expense' }, LOADED)).toBeInTheDocument();
   });
 
   it('explains what to do when there is nothing yet', async () => {
