@@ -506,8 +506,10 @@
   min-width: 0;
 }
 
+/* The receipts are a till slip's width at most, on the tablet too */
 .right {
   min-width: 0;
+  max-width: 520px;
 }
 
 @media (min-width: 64em) {
@@ -531,10 +533,6 @@
     top: 16px;
     display: flex;
     flex-direction: column;
-  }
-
-  .right {
-    max-width: 520px;
   }
 }
 
@@ -1222,4 +1220,12 @@
 .stale {
   opacity: 0.6;
   transition: opacity 120ms ease;
+}
+
+/* On the slip a link is in the slip's own text color, underlined */
+.slip .textLink {
+  min-height: 0;
+  color: var(--pup-card-on-solid);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }

@@ -93,7 +93,10 @@ test('a person adds an expense from an account’s card, changes it, deletes it,
 
   // On the Transactions page: change it
   await page.goto('/transactions');
-  const row = page.getByRole('button', { name: /Groceries/ });
+  // On the day's receipt (the desktop's Where it went has a Groceries line too)
+  const row = page
+    .getByRole('region', { name: /^Today, / })
+    .getByRole('button', { name: /Groceries/ });
   await expect(row).toContainText('Wallet, Silpo');
   await expect(row).toContainText('−250 ₴');
   await row.click();
@@ -125,7 +128,9 @@ test('a person adds an expense from an account’s card, changes it, deletes it,
   await dialog.getByRole('radio', { name: 'Salary' }).click();
   await saveButton(dialog, isMobile, form.saveIncome).click();
   await expect(page.getByText('Income saved.')).toBeVisible();
-  await expect(page.getByRole('button', { name: /Salary/ })).toContainText('+1 500 ₴');
+  await expect(
+    page.getByRole('region', { name: /^Today, / }).getByRole('button', { name: /Salary/ }),
+  ).toContainText('+1 500 ₴');
 });
 
 test('a person exchanges $100 for hryvnias at the bank’s rate; both balances change, and come back on delete', async ({
@@ -188,4 +193,102 @@ test('a person exchanges $100 for hryvnias at the bank’s rate; both balances c
   await page.goto('/accounts');
   await expect(page.getByRole('button', { name: /^Mono dollars/ })).toContainText('$500');
   await expect(page.getByRole('button', { name: /^Mono black/ })).toContainText('1 000 ₴');
+});
+
+/** Adds a transaction of today through the API, as the form would. */
+async function addExpense(
+  page: Page,
+  accountName: string,
+  categoryName: string,
+  amount: number,
+  note: string,
+) {
+  const accounts = (await (await page.request.get('/api/accounts')).json()) as {
+    accounts: { id: string; name: string }[];
+  };
+  const categories = (await (await page.request.get('/api/categories')).json()) as {
+    groups: { kind: string; categories: { id: string; name: string }[] }[];
+  };
+  const added = await page.request.post('/api/transactions', {
+    headers: await antiforgery(page.request),
+    data: {
+      type: 'Expense',
+      date: new Date().toLocaleDateString('sv', { timeZone: 'Europe/Kyiv' }),
+      accountId: accounts.accounts.find((item) => item.name === accountName)?.id,
+      categoryId: categories.groups
+        .filter((group) => group.kind === 'Expense')
+        .flatMap((group) => group.categories)
+        .find((item) => item.name === categoryName)?.id,
+      amount,
+      note,
+    },
+  });
+  expect(added.ok()).toBe(true);
+}
+
+test('a person finds the month’s eating out, changes one on its receipt and deletes another; the filter stays in the address', async ({
+  page,
+  isMobile,
+}) => {
+  const response = await signUpThroughApi(page.request, newPerson('list'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 5000, 'Bank');
+  await addAccount(page, 'Wallet', 1000, 'Cash');
+  await addExpense(page, 'Mono black', 'Groceries', 612, 'Silpo');
+  await addExpense(page, 'Wallet', 'Eating out', 380, 'Lunch');
+  await addExpense(page, 'Mono black', 'Eating out', 150, 'Coffee');
+
+  // The month's totals on top, today's receipt with what it cost
+  await page.goto('/transactions');
+  const totals = page.getByRole('region', { name: en.transactions.totals.label });
+  await expect(totals).toContainText('1 142 ₴');
+  const receipt = page.getByRole('region', { name: /^Today, / });
+  await expect(receipt).toContainText('Total−1 142 ₴');
+
+  // Eating out picked: in Where it went on the desktop, in the Filters sheet on the phone
+  if (isMobile) {
+    await page.getByRole('button', { name: en.transactions.filters.button }).click();
+    const sheet = page.getByRole('dialog', { name: en.transactions.filters.label });
+    await sheet.getByRole('button', { name: /^Eating out/ }).click();
+    await sheet.getByRole('button', { name: 'Show 2 transactions' }).click();
+  } else {
+    await page
+      .getByRole('region', { name: en.transactions.where.spent })
+      .getByRole('button', { name: /^Eating out/ })
+      .click();
+  }
+  await expect(page).toHaveURL(/category=/);
+  await expect(receipt.getByRole('button', { name: /^Groceries/ })).toHaveCount(0);
+  await expect(totals).toContainText(en.transactions.totals.spentPicked);
+  await expect(totals).toContainText('530 ₴');
+
+  // A reload keeps it
+  await page.reload();
+  await expect(
+    isMobile
+      ? page.getByRole('button', { name: 'Clear category: Eating out' })
+      : page.getByRole('button', { name: 'Showing Eating out only. Show all categories' }),
+  ).toBeVisible();
+  await expect(totals).toContainText('530 ₴');
+
+  // Changed on its receipt: the line and the totals follow
+  await receipt.getByRole('button', { name: /^Eating out.*Lunch/ }).click();
+  let dialog = page.getByRole('dialog', { name: 'Edit expense' });
+  await clearAmount(dialog, isMobile, 3);
+  await typeAmount(dialog, isMobile, '400');
+  await saveButton(dialog, isMobile, form.saveChanges).click();
+  await expect(page.getByText('Changes saved. Wallet:')).toBeVisible();
+  await expect(receipt.getByRole('button', { name: /^Eating out.*Lunch/ })).toContainText('−400 ₴');
+  await expect(totals).toContainText('550 ₴');
+
+  // Deleted after asking: gone from the receipt and the totals
+  await receipt.getByRole('button', { name: /^Eating out.*Coffee/ }).click();
+  dialog = page.getByRole('dialog', { name: 'Edit expense' });
+  await dialog.getByRole('button', { name: form.deleteLabel.Expense }).click();
+  const ask = page.getByRole('dialog', { name: en.transactions.delete.title.Expense });
+  await expect(ask).toContainText('Mono black goes back to');
+  await ask.getByRole('button', { name: en.transactions.delete.confirm }).click();
+  await expect(page.getByText('Deleted. Mono black:')).toBeVisible();
+  await expect(receipt.getByRole('button', { name: /^Eating out.*Coffee/ })).toHaveCount(0);
+  await expect(totals).toContainText('400 ₴');
 });

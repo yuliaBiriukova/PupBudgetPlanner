@@ -137,8 +137,9 @@ export const TotalsSlip = forwardRef<HTMLElement, TotalsSlipProps>(function Tota
 
   const steps = period.kind === 'month' || period.kind === 'year';
   return (
-    <header
+    <section
       ref={ref}
+      aria-label={t('transactions.totals.label')}
       className={classes.slip}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -168,7 +169,7 @@ export const TotalsSlip = forwardRef<HTMLElement, TotalsSlipProps>(function Tota
           <span />
         </div>
       )}
-    </header>
+    </section>
   );
 });
 

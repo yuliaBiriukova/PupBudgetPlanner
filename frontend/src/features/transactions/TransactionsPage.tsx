@@ -25,6 +25,7 @@ import {
   summaryQueryOf,
   withCategory,
   withPeriod,
+  withKnown,
   withType,
   type Filters,
 } from './filters';
@@ -53,12 +54,22 @@ const WIDE_QUERY = '(min-width: 64em)';
  */
 export function TransactionsPage() {
   const { t } = useTranslation();
-  const { filters, setFilters, settle } = useTransactionFilters();
+  const address = useTransactionFilters();
+  const { setFilters, settle } = address;
   const form = useTransactionForm();
   const fresh = useFresh(form.lastChange?.key, form.lastChange?.transactionId);
   const wide = useMediaQuery(WIDE_QUERY, false, { getInitialValueInEffect: false });
   const tablet = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
   const dayTitle = useDayTitle();
+
+  const accounts = useQuery(accountsQuery);
+  const categories = useQuery(categoriesQuery);
+  const allAccounts = [...(accounts.data?.accounts ?? []), ...(accounts.data?.archived ?? [])];
+  const filters = withKnown(
+    address.filters,
+    accounts.data && allAccounts.map((account) => account.id),
+    categories.data?.groups.flatMap((group) => group.categories.map((category) => category.id)),
+  );
 
   const summary = useQuery({
     ...transactionSummaryQuery(summaryQueryOf(filters)),
@@ -68,16 +79,11 @@ export function TransactionsPage() {
     ...transactionPagesQuery(listQueryOf(filters)),
     placeholderData: keepPreviousData,
   });
-  const accounts = useQuery(accountsQuery);
-  const categories = useQuery(categoriesQuery);
-
   const slip = useRef<HTMLElement>(null);
-
   const miniOn = useMiniBar(slip, !wide);
 
   const picked = filterCount(filters) > 0;
   const month = filters.period.kind === 'month' ? filters.period.month : undefined;
-  const allAccounts = [...(accounts.data?.accounts ?? []), ...(accounts.data?.archived ?? [])];
   const noTransactions =
     accounts.isSuccess && allAccounts.every((account) => account.transactionCount === 0);
   const kindOf = (categoryId: string) =>

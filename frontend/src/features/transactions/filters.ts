@@ -231,3 +231,21 @@ export function periodName(period: Period, allTime: string): string {
     }
   }
 }
+
+/**
+ * Leaves out an account or a category the person doesn't have (an old or hand-made address), once their lists are
+ * known; until then the ids stay.
+ */
+export function withKnown(
+  filters: Filters,
+  accountIds: readonly string[] | undefined,
+  categoryIds: readonly string[] | undefined,
+): Filters {
+  const known = (id: string | undefined, ids: readonly string[] | undefined) =>
+    !id || !ids || ids.includes(id) ? id : undefined;
+  return {
+    ...filters,
+    accountId: known(filters.accountId, accountIds),
+    categoryId: known(filters.categoryId, categoryIds),
+  };
+}
