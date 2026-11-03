@@ -285,11 +285,15 @@ describe('the Transactions page', () => {
       new URLSearchParams('from=2026-10-01&to=2026-10-31&accountId=cash&type=Expense'),
     ).count;
     await userEvent.click(
-      await within(sheet).findByRole('button', { name: `Show ${String(count)} transactions` }),
+      await within(sheet).findByRole(
+        'button',
+        { name: `Show ${String(count)} transactions` },
+        LOADED,
+      ),
     );
 
     expect(
-      await screen.findByRole('button', { name: 'Clear account: Wallet' }),
+      await screen.findByRole('button', { name: 'Clear account: Wallet' }, LOADED),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Clear type: Expenses' })).toBeInTheDocument();
     expect(screen.getByLabelText('2 on')).toHaveTextContent('2');

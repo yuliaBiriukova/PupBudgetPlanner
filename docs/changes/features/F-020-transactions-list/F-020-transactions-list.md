@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M3 — Transactions |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-020-transactions-list` |
 | Design | 3 HTML prototypes required |
 | Approved | 2026-11-03: [variant 8](prototypes/variant-8.html) as revised, with the plan and the open points' proposals ("variant 8 for F-020 is approved, build it") |
@@ -15,10 +15,10 @@ Find, review and correct past transactions.
 
 ## Acceptance criteria
 
-- [ ] List grouped by day, newest first, with daily totals
-- [ ] Filters: period, account, category, type
-- [ ] Open a transaction to edit; delete with confirmation
-- [ ] Loads more on scroll
+- [x] List grouped by day, newest first, with daily totals
+- [x] Filters: period, account, category, type
+- [x] Open a transaction to edit; delete with confirmation
+- [x] Loads more on scroll
 
 ## Tasks
 
@@ -26,9 +26,9 @@ Find, review and correct past transactions.
 - [x] Round 2: 3 bolder prototypes after the owner found round 1 too plain and too technical (2026-11-03)
 - [x] Round 3: the owner's mix of variants 4 and 5, together or with a view switch (2026-11-03)
 - [x] Owner picks a variant; final prototype approved with the plan (variant 8, 2026-11-03)
-- [ ] API with filters and paging
-- [ ] UI
-- [ ] Storybook stories
+- [x] API with filters and paging (2026-11-03)
+- [x] UI (2026-11-03)
+- [x] Storybook stories (2026-11-03)
 
 ## Design
 
@@ -240,9 +240,46 @@ category" cut off), and once you scrolled the totals and the month were gone. No
 
 ## Tests
 
-- Unit: Filter logic.
-- E2E (Playwright): Filter by category; edit; delete.
+- Unit: the filter logic (`filters.test.ts`: the address there and back, the period, stepping, the type and category
+  rules), the calendar (`calendar.test.ts`), the page (`TransactionsPage.test.tsx`: receipts with day totals, the
+  totals and their share, a category from Where it went, a day from the calendar, the phone's Filters sheet and chips,
+  nothing found and Clear filters, loading more, no transactions, an error); backend `TransactionSummaryTests`,
+  `TransactionFilterValidatorTests` and the controller's list, summary and bad requests.
+- E2E (Playwright, `transactions.spec.ts`): the month's eating out picked (Where it went on the desktop, the Filters
+  sheet on the phone), kept after a reload, one changed and another deleted on its receipt, the totals following.
 
 ## Notes
 
 - F-018 built a stand-in Transactions page (the latest 50 by day, a row opens the form); F-020 replaces it.
+
+## Build (2026-11-03)
+
+Built from the approved variant 8 on `feature/F-020-transactions-list`; decisions in
+[ADR 0024](../../../decisions/0024-transactions-list-and-summary.md).
+
+- **API:** `GET /api/transactions?from&to&accountId&categoryId&type&offset&limit` (30 a page, newest day first, then
+  the last added) and `GET /api/transactions/summary` with the same filters: spent, received and a count per day
+  (transfers counted, never spent or received), the period's categories largest first (the picked one left out of
+  their own filter, so another can be picked), all in the report currency at the NBU rate of each day, or in the
+  account's own with one account picked. One account matches the transfers it is the To of. Worked out in
+  `TransactionSummary.Of` (pure, unit-tested). F-018's `LatestTransactions` is gone.
+- **Page:** `TotalsSlip` (the dark slip, ‹ ›, the period list, the swipe on the phone), the slim totals bar below
+  1024 px, `SpendingCalendar` (folding; open or closed kept in `localStorage`), `WhereItWent`, `TransactionFilters`
+  (desktop: Account, Type, a category chip with ×; tablet: Account, Type, By category; phone: Filters with a count,
+  chips, one sheet), `Receipts` (loads the next 30 as the end comes within 240 px). The filters are the address
+  (`filters.ts`, `useTransactionFilters`); a phone sheet's picks go into it once the sheet's Back step is gone
+  (`afterPopupsClose` in `popupHistory.ts`). A transfer seen from the one picked account is `−` or `+` in blue
+  (`SignedAmount`'s `account`).
+- **Colours:** the slip is the Solid card's tokens; new tokens for the received figure, the slip's track, the paper,
+  its dots and shadow, and the four heat steps (`theme.ts`).
+- **Where the prototype said nothing:** the account, type and period lists are the app's dropdowns (the currency
+  list's look, the picked one in the accent) rather than the prototype's ticks; with no filters on, an empty month says
+  "Nothing in October 2026" without a Clear filters button; an account or a category that isn't the person's (an old
+  or hand-made address) is left out once the lists are known; "Show September 2026" is offered at the end of every
+  month.
+- **Checked:** the design check on the real page (October, a picked day, this year) with 0 issues and 0 console
+  errors; screenshots at 360, 375, 834 and 1440 px, light and dark, of the month, the open calendar, a picked day,
+  the Filters sheet (empty and with picks), filters on, the slim bar after scrolling, nothing found, the period list,
+  By category on the tablet, the account list, Eating out picked, Income, this year, the edit form and the desktop
+  scrolled with its sticky column; the Filters sheet closed by Show and by Back, the picks kept in the address both
+  ways, loading more and the end of the month in the Browser pane.

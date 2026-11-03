@@ -2,6 +2,34 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-03 (F-020: Transactions list)
+
+**Done**
+- The owner approved variant 8 with the open points' proposals ("variant 8 for F-020 is approved, build it"); recorded
+  in the description file and DESIGN_RULES "Screen decisions" before the build.
+- API: `GET /api/transactions` with the filters (period, account, category, type) and pages of 30;
+  `GET /api/transactions/summary`: spent, received, each day's and each category's, in the report currency at the
+  NBU rate of each day (one account picked: its own currency). [ADR 0024](decisions/0024-transactions-list-and-summary.md).
+- The Transactions page as variant 8: the totals slip (‹ ›, the period list, a swipe on the phone, the slim bar once it
+  scrolls away), the folding spending calendar (remembered on the device), Where it went, the filters (desktop,
+  tablet, the phone's Filters sheet with chips), every day as a till receipt with its total, loading more on scroll.
+  The filters are the page's address; a phone sheet's picks go into it once the sheet's Back step is gone.
+- Tests: backend summary, filter validator and controller tests; frontend unit tests for the filters, the calendar and
+  the page; stories for every state (`Transactions/Transactions list`); an E2E test (pick Eating out, reload, change
+  one and delete another on its receipt).
+- Checked: the full E2E suite (56 passed, 6 skipped as before; a first run failed the new test on a stale Vite module,
+  passed after a restart); frontend lint, format, types, build and unit tests; backend build and tests; Storybook builds;
+  the design check on the real page (0 issues, 0 console errors); screenshots at 360, 375, 834 and 1440 px, light and
+  dark, looked at (fixed: the receipts as wide as the column on the tablet, now 520 px as in the prototype; a
+  hand-made address with an unknown account broke the totals, now the id is left out; the slip's "Try again" link was
+  blue on charcoal, now in the slip's own colour).
+- Test data: one test person (`e2e-manual-…@example.com`, an invite link noted "E2E manual check F-020") with four
+  accounts and 122 transactions in the `dev` database for the browser checks and screenshots; removed by the E2E
+  clean-up (signing in as it now fails). The E2E runs' own people removed by their teardown.
+
+**Next**
+- Owner: review the PR. Open point 6 (search by note) is to be planned as an improvement with I-017.
+
 ## 2026-11-03 (F-020 design round 3)
 
 **Done**
