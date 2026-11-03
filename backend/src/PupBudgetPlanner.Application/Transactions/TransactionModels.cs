@@ -38,15 +38,6 @@ public sealed record TransactionItem(
     string? ToCurrency = null,
     decimal? ToAmount = null);
 
-/// <summary>
-/// The Transactions page until F-020 brings the full list: the latest transactions, newest day first and, within a
-/// day, the last added first.
-/// </summary>
-public sealed record LatestTransactions(IReadOnlyList<TransactionItem> Items)
-{
-    public const int Limit = 50;
-}
-
 /// <summary>An account's balance before and after a save or a delete, for the notification that counts it.</summary>
 public sealed record BalanceChange(Guid AccountId, decimal Before, decimal After);
 

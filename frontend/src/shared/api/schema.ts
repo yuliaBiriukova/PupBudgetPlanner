@@ -1343,10 +1343,21 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The latest transactions: the Transactions page until F-020 brings the full list. */
+        /**
+         * The Transactions page (F-020): the ones the filters find, newest day first, limit at a time
+         *     from offset; the answer says where the next page starts.
+         */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    from?: string;
+                    to?: string;
+                    accountId?: string;
+                    categoryId?: string;
+                    type?: components["schemas"]["TransactionType"];
+                    offset?: number | string;
+                    limit?: number | string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -1359,7 +1370,16 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["LatestTransactions"];
+                        "application/json": components["schemas"]["TransactionPage"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
                     };
                 };
             };
@@ -1400,6 +1420,60 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transactions/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What the ones the filters find come to (F-020): spent and received, each day's, and each category's, in the
+         *     report currency at the NBU rates of their days (one account picked: in its own).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                    accountId?: string;
+                    categoryId?: string;
+                    type?: components["schemas"]["TransactionType"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TransactionSummary"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1644,6 +1718,14 @@ export interface components {
          * @enum {unknown}
          */
         CategoryKind: "Income" | "Expense";
+        /** @description A category's line in "Where it went" (or "Where it came from"): what went on it in the period. */
+        CategoryTotal: {
+            /** Format: uuid */
+            categoryId: string;
+            name: string;
+            /** Format: double */
+            amount: number | string;
+        };
         /** @description The name the person and their family see; saved trimmed. */
         ChangeNameRequest: {
             displayName: string;
@@ -1684,6 +1766,20 @@ export interface components {
             email: string;
             /** @default false */
             isAdmin: boolean;
+        };
+        /**
+         * @description A day's totals: what the calendar colours it by and what its receipt's foot says. Count is all its
+         *     transactions the filters find, transfers too: the receipt says how many are still loading.
+         */
+        DayTotal: {
+            /** Format: date */
+            date: string;
+            /** Format: double */
+            spent: number | string;
+            /** Format: double */
+            received: number | string;
+            /** Format: int32 */
+            count: number | string;
         };
         /** @description The balances a deleted transaction gave back: one account, two for a transfer. */
         DeletedTransaction: {
@@ -1739,13 +1835,6 @@ export interface components {
             fromAccountId: string;
             /** Format: uuid */
             toAccountId: string;
-        };
-        /**
-         * @description The Transactions page until F-020 brings the full list: the latest transactions, newest day first and, within a
-         *     day, the last added first.
-         */
-        LatestTransactions: {
-            items: components["schemas"]["TransactionItem"][];
         };
         /** @description A type's most used categories, most used first: the form's category pills. */
         MostUsedCategories: {
@@ -1914,6 +2003,15 @@ export interface components {
             toAmount?: null | number | string;
         };
         /**
+         * @description A page of the list, newest day first and, within a day, the last added first. Next is where the
+         *     next page starts (its `offset`); empty when this one is the last.
+         */
+        TransactionPage: {
+            items: components["schemas"]["TransactionItem"][];
+            /** Format: int32 */
+            next: null | number | string;
+        };
+        /**
          * @description What the quick-add form picks and offers before the person does (F-018): the last account used for each type, the
          *     category last used with each account, the most used categories, and the last transfer's From and To (F-019). "Last"
          *     is the last one added, whatever its day: it is the habit, and an old receipt typed in late counts as one. Pure, so
@@ -1924,6 +2022,27 @@ export interface components {
             lastCategories: components["schemas"]["LastCategory"][];
             mostUsed: components["schemas"]["MostUsedCategories"][];
             lastTransfer?: null | components["schemas"]["LastTransfer"];
+        };
+        /**
+         * @description The Transactions page's totals (F-020): what the period's transactions came to, each day's, and where the money went.
+         *     Amounts are in Currency: the report currency, each at the NBU rate of its own day (PRODUCT.md
+         *     business rule 1), or with one account picked that account's own. Transfers are neither spent nor received (business
+         *     rule 2), but they are counted. Categories leave the picked category out of their filters, so
+         *     another one can be picked from them; they are expense categories, income ones with Income picked, none with
+         *     Transfers. RatesMissing: some amounts in another currency had no rate and aren't in the totals.
+         *     Amounts are kept as they are and rounded when shown (ADR 0018).
+         */
+        TransactionSummary: {
+            currency: string;
+            /** Format: double */
+            spent: number | string;
+            /** Format: double */
+            received: number | string;
+            /** Format: int32 */
+            count: number | string;
+            days: components["schemas"]["DayTotal"][];
+            categories: components["schemas"]["CategoryTotal"][];
+            ratesMissing: boolean;
         };
         /**
          * @description Which way the money goes: out, in, or between two of the person's own accounts (F-019).
