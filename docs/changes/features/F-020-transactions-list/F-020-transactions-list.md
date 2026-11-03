@@ -7,7 +7,7 @@
 | Status | Done |
 | Branch | `feature/F-020-transactions-list` |
 | Design | 3 HTML prototypes required |
-| Approved | 2026-11-03: [variant 8](prototypes/variant-8.html) as revised, with the plan and the open points' proposals ("variant 8 for F-020 is approved, build it") |
+| Approved | 2026-11-03: [variant 8](prototypes/variant-8.html) as revised, with the plan and the open points' proposals ("variant 8 for F-020 is approved, build it"); 2026-11-03: [variant 9](prototypes/variant-9.html), Add transaction on the slip, with the round + in the phone's month row ("+ in the row, approved") |
 
 ## Goal
 
@@ -220,6 +220,24 @@ category" cut off), and once you scrolled the totals and the month were gone. No
   edge-to-edge band~~ was tried; the owner wants the desktop's frame with its margins. Now the phone has the same
   rounded, bordered frame, 16 px from the screen's edges and 8 px inside (days 44.7 px at 375 px); below 375 px it
   sits 12 px from the edges, 6 px inside, so the days stay 44 px (44.3 px at 360 px).
+
+### Round 4: Add transaction on the slip (2026-11-03)
+
+At the PR review the owner asked for an Add transaction button in the black totals slip, and for a prototype first.
+[Variant 9](prototypes/variant-9.html) is variant 8 with it:
+
+- **Desktop and tablet:** a light pill "+ Add transaction" at the end of the month row, in the slip's own light colour
+  (as the Solid card's + column of F-018). On a slip narrower than 560 px (a tablet with the full sidebar) it is a
+  round + with the same name for screen readers, so it never runs into the month.
+- **The phone has no room for the words in the month row.** Three options (the Screen switch): under the totals as
+  the slip's last row (about 52 px taller, the first receipt starts lower); a round + in the month row (below 375 px
+  the month's name is 17 px so the arrows keep their room); or no button (the tab bar's + only, one tap away).
+- With one account picked, the form opens with that account (F-018's + on a card does the same).
+- References: Monefy (the owners' current app: add sits right by the period's totals), F-014's Solid card and its +
+  column (F-018) for the colours.
+- Checked: design check 0 issues; screenshots at 360, 375, tablet and desktop, light and dark (fixed: the round + at
+  360 px crowded the › arrow; the pill ran into the month on the tablet).
+- **Approved 2026-11-03:** the owner picked the round + in the phone's month row ("+ in the row, approved").
 
 ### Open points (approved with variant 8 on 2026-11-03: each proposal as written)
 
