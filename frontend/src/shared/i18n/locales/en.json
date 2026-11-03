@@ -686,7 +686,10 @@
       "nothingSpent": "nothing spent",
       "less": "Less",
       "more": "More",
-      "income": "Income"
+      "income": "Income",
+      "transfer": "Transfer",
+      "transfersOn_one": "a transfer",
+      "transfersOn_other": "{{count}} transfers"
     },
     "where": {
       "spent": "Where it went",

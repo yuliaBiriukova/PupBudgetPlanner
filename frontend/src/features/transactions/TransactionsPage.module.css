@@ -676,12 +676,23 @@
   line-height: 16px;
 }
 
-.incomeDot {
+/* A day with income has a green dot, one with a transfer a blue one (owner's review of PR #49) */
+.dots {
+  display: flex;
+  gap: 3px;
+}
+
+.incomeDot,
+.transferDot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--pup-color-income);
   box-shadow: 0 0 0 2px var(--pup-color-surface);
+}
+
+.transferDot {
+  background: var(--pup-color-transfer);
 }
 
 .cellAmount {
@@ -696,6 +707,7 @@
 
 .legend {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   align-items: center;
   padding-top: 10px;
@@ -729,7 +741,8 @@
   margin-right: auto;
 }
 
-.legendIncome {
+.legendIncome,
+.legendTransfer {
   display: inline-flex;
   gap: 6px;
   align-items: center;
@@ -740,6 +753,18 @@
   height: 8px;
   border-radius: 50%;
   background: var(--pup-color-income);
+  content: '';
+}
+
+.legendTransfer {
+  margin-left: 8px;
+}
+
+.legendTransfer::before {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pup-color-transfer);
   content: '';
 }
 

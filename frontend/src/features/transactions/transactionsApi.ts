@@ -89,6 +89,8 @@ export interface DayTotal {
   received: number;
   /** All its transactions the filters find, transfers too. */
   count: number;
+  /** How many of them are transfers: a blue dot in the calendar, as income's is green. */
+  transfers: number;
 }
 
 /** A category's line in "Where it went". */
@@ -157,6 +159,7 @@ export const transactionSummaryQuery = (query: TransactionQuery) =>
           spent: Number(day.spent),
           received: Number(day.received),
           count: Number(day.count),
+          transfers: Number(day.transfers),
         })),
         categories: data.categories.map((category) => ({
           ...category,

@@ -27,6 +27,10 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   accounts and 122 transactions in the `dev` database for the browser checks and screenshots; removed by the E2E
   clean-up (signing in as it now fails). The E2E runs' own people removed by their teardown.
 
+- Owner's review: the calendar marks days with a transfer with a blue dot, as income's green one, with Transfer in the
+  legend (the summary's days now count their transfers). Checked at 360, 375 and 1440 px, light and dark; test data
+  as above (a second test person, removed the same way).
+
 **Next**
 - Owner: review the PR. Open point 6 (search by note) is to be planned as an improvement with I-017.
 

@@ -53,13 +53,13 @@ public sealed class TransactionSummaryTests
     }
 
     [Fact]
-    public void Each_day_has_its_own_totals_and_counts_its_transfers_too()
+    public void Each_day_has_its_own_totals_and_counts_its_transfers_too_on_their_own()
     {
         var summary = Of(Rows);
 
         summary.Days.Should().Equal(
             new DayTotal(October1, 900m + (10m * 45.53m), 62_000m, 4),
-            new DayTotal(October2, 500m, 0m, 3));
+            new DayTotal(October2, 500m, 0m, 3, Transfers: 1));
     }
 
     [Fact]
@@ -84,6 +84,7 @@ public sealed class TransactionSummaryTests
         summary.Received.Should().Be(0m);
         summary.Count.Should().Be(3);
         summary.Days.Select(day => day.Count).Should().Equal(2, 1);
+        summary.Days.Should().OnlyContain(day => day.Transfers == 0);
     }
 
     [Fact]

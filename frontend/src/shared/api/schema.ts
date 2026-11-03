@@ -1770,6 +1770,8 @@ export interface components {
         /**
          * @description A day's totals: what the calendar colours it by and what its receipt's foot says. Count is all its
          *     transactions the filters find, transfers too: the receipt says how many are still loading.
+         *     Transfers is how many of them are transfers: the calendar marks the day with a blue dot, as a
+         *     green one marks income (owner's review of PR #49).
          */
         DayTotal: {
             /** Format: date */
@@ -1780,6 +1782,11 @@ export interface components {
             received: number | string;
             /** Format: int32 */
             count: number | string;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            transfers: number | string;
         };
         /** @description The balances a deleted transaction gave back: one account, two for a transfer. */
         DeletedTransaction: {

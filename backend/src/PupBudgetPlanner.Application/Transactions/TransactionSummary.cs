@@ -6,8 +6,10 @@ namespace PupBudgetPlanner.Application.Transactions;
 /// <summary>
 /// A day's totals: what the calendar colours it by and what its receipt's foot says. <paramref name="Count"/> is all its
 /// transactions the filters find, transfers too: the receipt says how many are still loading.
+/// <paramref name="Transfers"/> is how many of them are transfers: the calendar marks the day with a blue dot, as a
+/// green one marks income (owner's review of PR #49).
 /// </summary>
-public sealed record DayTotal(DateOnly Date, decimal Spent, decimal Received, int Count);
+public sealed record DayTotal(DateOnly Date, decimal Spent, decimal Received, int Count, int Transfers = 0);
 
 /// <summary>A category's line in "Where it went" (or "Where it came from"): what went on it in the period.</summary>
 public sealed record CategoryTotal(Guid CategoryId, string Name, decimal Amount);
@@ -80,7 +82,8 @@ public sealed record TransactionSummary(
                 day.Key,
                 SumOf(day, TransactionType.Expense, InCurrency),
                 SumOf(day, TransactionType.Income, InCurrency),
-                day.Sum(row => row.Count)))
+                day.Sum(row => row.Count),
+                day.Where(row => row.Type == TransactionType.Transfer).Sum(row => row.Count)))
             .ToList();
 
         var kind = type == TransactionType.Income ? TransactionType.Income : TransactionType.Expense;

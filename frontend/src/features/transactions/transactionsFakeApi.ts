@@ -54,10 +54,20 @@ export function fakeSummary(items: Transaction[], query: URLSearchParams) {
       : (item.amount * (RATES_TO_UAH[item.currency] ?? 1)) / (RATES_TO_UAH[currency] ?? 1);
 
   const found = matching(items, query);
-  const days = new Map<string, { date: string; spent: number; received: number; count: number }>();
+  const days = new Map<
+    string,
+    { date: string; spent: number; received: number; count: number; transfers: number }
+  >();
   for (const item of found) {
-    const day = days.get(item.date) ?? { date: item.date, spent: 0, received: 0, count: 0 };
+    const day = days.get(item.date) ?? {
+      date: item.date,
+      spent: 0,
+      received: 0,
+      count: 0,
+      transfers: 0,
+    };
     day.count++;
+    if (item.type === 'Transfer') day.transfers++;
     if (item.type === 'Expense') day.spent += inCurrency(item);
     if (item.type === 'Income') day.received += inCurrency(item);
     days.set(item.date, day);

@@ -91,6 +91,7 @@ export function SpendingCalendar({
       total?.received
         ? t('transactions.calendar.receivedOn', { amount: formatMoney(total.received, currency) })
         : null,
+      total?.transfers ? t('transactions.calendar.transfersOn', { count: total.transfers }) : null,
     ].filter(Boolean);
     return `${name}: ${parts.length ? parts.join(', ') : t('transactions.calendar.nothingSpent')}`;
   };
@@ -160,7 +161,12 @@ export function SpendingCalendar({
                   <VisuallyHidden>{label(day, total)}</VisuallyHidden>
                   <span className={classes.cellTop} aria-hidden="true">
                     <span className={classes.dayNumber}>{dayjs(day).date()}</span>
-                    {total && total.received > 0 && <span className={classes.incomeDot} />}
+                    {total && (total.received > 0 || total.transfers > 0) && (
+                      <span className={classes.dots}>
+                        {total.received > 0 && <span className={classes.incomeDot} />}
+                        {total.transfers > 0 && <span className={classes.transferDot} />}
+                      </span>
+                    )}
                   </span>
                   <span className={classes.cellAmount} aria-hidden="true">
                     {total && total.spent > 0 ? shortAmount(total.spent) : ''}
@@ -180,6 +186,7 @@ export function SpendingCalendar({
               ))}
               <span className={classes.legendMore}>{t('transactions.calendar.more')}</span>
               <span className={classes.legendIncome}>{t('transactions.calendar.income')}</span>
+              <span className={classes.legendTransfer}>{t('transactions.calendar.transfer')}</span>
             </div>
           )}
         </section>

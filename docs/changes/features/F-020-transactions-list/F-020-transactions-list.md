@@ -277,6 +277,9 @@ Built from the approved variant 8 on `feature/F-020-transactions-list`; decision
   "Nothing in October 2026" without a Clear filters button; an account or a category that isn't the person's (an old
   or hand-made address) is left out once the lists are known; "Show September 2026" is offered at the end of every
   month.
+- **Owner's review (2026-11-03):** a day with a transfer gets a blue dot in the calendar next to income's green one,
+  and the legend lists Transfer after Income; the summary's days count their transfers (`DayTotal.Transfers`), and a
+  day's name for screen readers says "a transfer" or "2 transfers". Checked at 360, 375 and 1440 px, light and dark.
 - **Checked:** the design check on the real page (October, a picked day, this year) with 0 issues and 0 console
   errors; screenshots at 360, 375, 834 and 1440 px, light and dark, of the month, the open calendar, a picked day,
   the Filters sheet (empty and with picks), filters on, the slim bar after scrolling, nothing found, the period list,

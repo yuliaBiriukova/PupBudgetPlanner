@@ -254,11 +254,19 @@ describe('the Transactions page', () => {
     expect(screen.getByText('Spent, on what’s picked')).toBeInTheDocument();
   });
 
-  it('shows only a day tapped in the calendar, and the month again', async () => {
+  it('shows only a day tapped in the calendar, and the month again; a day with a transfer says so', async () => {
     transactionsServer({ latest: MONTH, overview: USED });
     renderApp('/transactions?month=2026-10');
 
     const days = await screen.findByRole('region', { name: 'Days of October' }, LOADED);
+    // The 15th has a transfer (dollars into Mono black): it says so, as a day with income does
+    expect(
+      await within(days).findByRole(
+        'button',
+        { name: /^Thursday 15 October: .*, a transfer$/ },
+        LOADED,
+      ),
+    ).toBeInTheDocument();
     await userEvent.click(within(days).getByRole('button', { name: /^Thursday 1 October/ }));
 
     expect(await screen.findByText('Only Thursday, 1 Oct')).toBeInTheDocument();
