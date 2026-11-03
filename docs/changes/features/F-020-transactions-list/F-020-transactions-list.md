@@ -7,7 +7,7 @@
 | Status | In progress |
 | Branch | `feature/F-020-transactions-list` |
 | Design | 3 HTML prototypes required |
-| Approved | — (waiting: the owner picks a variant, then approves a final prototype and the plan) |
+| Approved | 2026-11-03: [variant 8](prototypes/variant-8.html) as revised, with the plan and the open points' proposals ("variant 8 for F-020 is approved, build it") |
 
 ## Goal
 
@@ -25,7 +25,7 @@ Find, review and correct past transactions.
 - [x] 3 HTML prototypes (2026-11-02)
 - [x] Round 2: 3 bolder prototypes after the owner found round 1 too plain and too technical (2026-11-03)
 - [x] Round 3: the owner's mix of variants 4 and 5, together or with a view switch (2026-11-03)
-- [ ] Owner picks a variant; final prototype approved with the plan
+- [x] Owner picks a variant; final prototype approved with the plan (variant 8, 2026-11-03)
 - [ ] API with filters and paging
 - [ ] UI
 - [ ] Storybook stories
@@ -221,7 +221,7 @@ category" cut off), and once you scrolled the totals and the month were gone. No
   rounded, bordered frame, 16 px from the screen's edges and 8 px inside (days 44.7 px at 375 px); below 375 px it
   sits 12 px from the edges, 6 px inside, so the days stay 44 px (44.3 px at 360 px).
 
-### Open points (for the owner)
+### Open points (approved with variant 8 on 2026-11-03: each proposal as written)
 
 1. **Daily totals:** what a day's header shows. *Proposal:* what was spent that day (−) and, when there was income,
    what was received (+, green), side by side. Transfers aren't counted (business rule 2).
