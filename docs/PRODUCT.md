@@ -86,12 +86,16 @@ people the owner invites can sign up (F-028); later it can open to everyone.
    is entered as a separate expense in the "Bank commission" category.
 3. **Balance of an account** = opening balance + income − expenses ± transfers.
 4. **Balance at month end** in reports = sum of all account balances at the last day of the month,
-   converted with the NBU rate of that day.
+   converted with the NBU rate of that day: what is really on the accounts, not "start + NET" as the
+   spreadsheet worked it out. An account counts from its opening date's month, an archived one until the month
+   before it was archived; this month's is the balance now, as on the Accounts page. The gap between the
+   balance's change and NET (rates, exchanges, new accounts) is the report's "Other changes" row (F-021).
 5. **Categories are personal**, but every user starts from the same default set. The family report
    merges categories that have the same group and name.
 6. **One family per person.** A person can leave a family; the family owner can remove members.
 7. **Average** in the yearly report = total ÷ number of months that already passed in that year
-   (the spreadsheet always divided by 12).
+   (the spreadsheet always divided by 12), this month included, counted from the person's first month with data
+   (F-021).
 
 ## Default categories
 

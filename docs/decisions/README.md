@@ -31,6 +31,7 @@ decision — write a new ADR that supersedes it.
 | [0024](0024-transactions-list-and-summary.md) | Transactions list: filters in the address, pages by offset, a separate summary at each day's rate | Accepted |
 | [0025](0025-prototypes-in-storybook.md) | Prototypes are Storybook stories built from the app's own parts | Accepted |
 | [0026](0026-no-copies-of-accounts.md) | No two accounts in use alike: checked in the Domain, backed by a partial unique index | Accepted |
+| [0027](0027-report-engine.md) | Reports: summed by the database, built in memory; real month-end balances with "Other changes" | Accepted |
 
 Template for new ADRs:
 

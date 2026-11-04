@@ -78,9 +78,10 @@ Why this shape (details in [ADR 0002](decisions/0002-hosting-render-neon.md)):
   Development (Render redirects in production); production sends HSTS.
 - **Data Protection keys are stored in the database.** Render's disk is wiped on every restart (and the free
   service restarts after each sleep); with keys on disk, every user would be signed out each morning.
-- **Report calculation** is a pure, in-memory component (`ReportBuilder`): it gets transactions and rates
-  and returns the report table. This keeps the most important logic fully unit-testable without a database.
-  Data volume is small (thousands of rows per family per year).
+- **Report calculation** is a pure, in-memory component (`ReportBuilder`, Application): it gets what the database
+  summed (incomes and expenses per day, type, currency and category; each account's movement per month) and the
+  rates, and returns the report table. This keeps the most important logic fully unit-testable without a database.
+  Data volume is small (thousands of rows per family per year) ([ADR 0027](decisions/0027-report-engine.md)).
 
 ### Data model (first draft)
 
@@ -149,6 +150,10 @@ erDiagram
   type) by offset, newest first; `GET /api/transactions/summary` gives what they come to (spent, received, each
   day's and each category's) in the report currency at the NBU rate of each day, or in one picked account's currency.
   The page keeps the filters in its address ([ADR 0024](decisions/0024-transactions-list-and-summary.md)).
+- Reports (F-021): `GET /api/reports/year?year=…` and `GET /api/reports/month?month=yyyy-MM`, optional `currency`. One
+  `Report` shape: the groups' and categories' months with Total and Avg, then Total income, Total expenses, NET, Other
+  changes and the real month-end balance; months still to come are `null`
+  ([ADR 0027](decisions/0027-report-engine.md)).
 - Currencies are ISO 4217 codes (`char(3)`): the hryvnia and every currency the NBU publishes an official rate for,
   listed once in `Currencies.All` (Domain). The API sends the list with the accounts; the frontend only names them.
 
@@ -163,6 +168,7 @@ erDiagram
 | `FamilyRole` | `Owner`, `Member` | `FamilyMember.Role` | The owner can invite and remove members |
 | `RateSource` | `Nbu` | `ExchangeRate.Source` | Where the rate came from; leaves room for other sources |
 | `RatesStatus` | `Current`, `NotPublished`, `Unavailable`, `Missing` | API only (`AccountsTotal.Status`, `RatesOfDay.Status`) | Whether the rates are the asked day's, and if not, why (F-017) |
+| `ReportMonthState` | `Passed`, `Current`, `Future` | API only (`ReportMonth.State`) | Where a report's month is against Kyiv's today; a month still to come has no numbers (F-021) |
 
 **Storage:** enums are C# `enum` types in the Domain layer and are stored in PostgreSQL **as text**
 (`"Expense"`, `"Solid"`) with EF Core `HasConversion<string>()`, in a `varchar` column with a maximum length.

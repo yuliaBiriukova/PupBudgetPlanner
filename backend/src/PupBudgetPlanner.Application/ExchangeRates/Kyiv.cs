@@ -11,6 +11,9 @@ public static class Kyiv
         TimeZoneInfo.TryFindSystemTimeZoneById("Europe/Kyiv", out var zone) ? zone
         : TimeZoneInfo.FindSystemTimeZoneById("Europe/Kiev");
 
-    public static DateOnly Today(TimeProvider clock) =>
-        DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(clock.GetUtcNow(), Zone).DateTime);
+    public static DateOnly Today(TimeProvider clock) => DateOf(clock.GetUtcNow());
+
+    /// <summary>The day it was in Kyiv at <paramref name="moment"/>.</summary>
+    public static DateOnly DateOf(DateTimeOffset moment) =>
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(moment, Zone).DateTime);
 }
