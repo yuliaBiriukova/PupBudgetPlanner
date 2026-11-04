@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Domain.Accounts;
@@ -67,36 +68,50 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         return TotalInReportCurrency.Of(totals, currency, day);
     }
 
-    public async Task<AccountItem> CreateAsync(
+    public async Task<SaveAccountResult> CreateAsync(
         Guid userId, SaveAccountRequest request, CancellationToken cancellationToken)
     {
         var now = clock.GetUtcNow();
-        var account = Account.Create(userId, await DetailsAsync(userId, request, now, cancellationToken), now);
+        var details = await DetailsAsync(userId, request, now, cancellationToken);
+        if (await HasCopyAsync(userId, details, null, cancellationToken))
+        {
+            return new SaveAccountResult(SaveAccountOutcome.Copy);
+        }
 
+        var account = Account.Create(userId, details, now);
         dbContext.Accounts.Add(account);
-        await dbContext.SaveChangesAsync(cancellationToken);
 
-        return await ItemAsync(account, cancellationToken);
+        return await SavedAsync(cancellationToken)
+            ? new SaveAccountResult(SaveAccountOutcome.Saved, await ItemAsync(account, cancellationToken))
+            : new SaveAccountResult(SaveAccountOutcome.Copy);
     }
 
-    public async Task<UpdateAccountResult> UpdateAsync(
+    public async Task<SaveAccountResult> UpdateAsync(
         Guid userId, Guid accountId, SaveAccountRequest request, CancellationToken cancellationToken)
     {
         var account = await FindAsync(userId, accountId, cancellationToken);
         if (account is null)
         {
-            return new UpdateAccountResult(UpdateAccountOutcome.NotFound);
+            return new SaveAccountResult(SaveAccountOutcome.NotFound);
         }
 
         if (request.Currency != account.Currency && await HasTransactionsAsync(account.Id, cancellationToken))
         {
-            return new UpdateAccountResult(UpdateAccountOutcome.CurrencyFixed);
+            return new SaveAccountResult(SaveAccountOutcome.CurrencyFixed);
         }
 
-        account.Update(await DetailsAsync(userId, request, clock.GetUtcNow(), cancellationToken));
-        await dbContext.SaveChangesAsync(cancellationToken);
+        var details = await DetailsAsync(userId, request, clock.GetUtcNow(), cancellationToken);
+        // An archived account doesn't count, so it can't be a copy until it is restored
+        if (!account.IsArchived && await HasCopyAsync(userId, details, account.Id, cancellationToken))
+        {
+            return new SaveAccountResult(SaveAccountOutcome.Copy);
+        }
 
-        return new UpdateAccountResult(UpdateAccountOutcome.Saved, await ItemAsync(account, cancellationToken));
+        account.Update(details);
+
+        return await SavedAsync(cancellationToken)
+            ? new SaveAccountResult(SaveAccountOutcome.Saved, await ItemAsync(account, cancellationToken))
+            : new SaveAccountResult(SaveAccountOutcome.Copy);
     }
 
     public async Task<bool> ArchiveAsync(Guid userId, Guid accountId, CancellationToken cancellationToken)
@@ -112,17 +127,22 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         return true;
     }
 
-    public async Task<bool> RestoreAsync(Guid userId, Guid accountId, CancellationToken cancellationToken)
+    public async Task<RestoreAccountOutcome> RestoreAsync(
+        Guid userId, Guid accountId, CancellationToken cancellationToken)
     {
         var account = await FindAsync(userId, accountId, cancellationToken);
         if (account is null)
         {
-            return false;
+            return RestoreAccountOutcome.NotFound;
+        }
+
+        if (account.IsArchived && await HasCopyAsync(userId, account.Details, account.Id, cancellationToken))
+        {
+            return RestoreAccountOutcome.Copy;
         }
 
         account.Restore();
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return true;
+        return await SavedAsync(cancellationToken) ? RestoreAccountOutcome.Restored : RestoreAccountOutcome.Copy;
     }
 
     /// <summary>The owner chose that only an account without transactions can be deleted (I-011).</summary>
@@ -143,6 +163,37 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         dbContext.Accounts.Remove(account);
         await dbContext.SaveChangesAsync(cancellationToken);
         return DeleteAccountOutcome.Deleted;
+    }
+
+    /// <summary>Whether an account in use, other than <paramref name="except"/>, looks just like it (I-020).</summary>
+    private async Task<bool> HasCopyAsync(
+        Guid userId, AccountDetails details, Guid? except, CancellationToken cancellationToken)
+    {
+        var inUse = await dbContext.Accounts.AsNoTracking()
+            .Where(account => account.UserId == userId && account.ArchivedAt == null)
+            .ToListAsync(cancellationToken);
+        return Account.CopyIn(inUse, details, except) is not null;
+    }
+
+    /// <summary>
+    /// Saves the changes; false when the database's index finds a copy that the check above missed: two saves at the
+    /// same moment (<see cref="AccountConfiguration.NoCopiesIndex"/>).
+    /// </summary>
+    private async Task<bool> SavedAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (DbUpdateException exception) when (exception.InnerException is PostgresException
+        {
+            SqlState: PostgresErrorCodes.UniqueViolation,
+            ConstraintName: AccountConfiguration.NoCopiesIndex,
+        })
+        {
+            return false;
+        }
     }
 
     private Task<bool> HasTransactionsAsync(Guid accountId, CancellationToken cancellationToken) =>

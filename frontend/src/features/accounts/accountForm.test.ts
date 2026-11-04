@@ -4,6 +4,7 @@ import {
   amountOnFocus,
   bankSuggestions,
   blankForm,
+  copyOf,
   formFor,
   previewBalance,
   toRequest,
@@ -12,7 +13,7 @@ import {
   withSource,
 } from './accountForm';
 import { groupAccounts, yourCurrencies } from './accountGroups';
-import { account, EMPTY, OVERVIEW } from './accountsTestData';
+import { account, ARCHIVED, EMPTY, OVERVIEW } from './accountsTestData';
 
 const TODAY = '2026-10-30';
 
@@ -95,6 +96,42 @@ describe('the account form', () => {
     expect(toRequest(withNewSource(form, 'Crypto wallet'), OVERVIEW).sourceName).toBe(
       'Crypto wallet',
     );
+  });
+
+  it('finds the account in use a new one would copy, ignoring case and spaces (I-020)', () => {
+    const form = { ...blankForm(OVERVIEW, {}, TODAY), name: ' mono BLACK ' };
+    const accounts = OVERVIEW.accounts;
+
+    expect(copyOf(toRequest(form, OVERVIEW), accounts)?.id).toBe('mono');
+    expect(copyOf(toRequest({ ...form, newBank: 'monobank ' }, OVERVIEW), accounts)?.id).toBe(
+      'mono',
+    );
+    // Another name, currency, bank or source is not a copy
+    expect(copyOf(toRequest({ ...form, name: 'Mono white' }, OVERVIEW), accounts)).toBeUndefined();
+    expect(copyOf(toRequest({ ...form, currency: 'USD' }, OVERVIEW), accounts)).toBeUndefined();
+    expect(copyOf(toRequest({ ...form, bank: 'PrivatBank' }, OVERVIEW), accounts)).toBeUndefined();
+    expect(copyOf(toRequest(withSource(form, 'Cash'), OVERVIEW), accounts)).toBeUndefined();
+  });
+
+  it('finds copies among cash and own sources too, by the source’s name', () => {
+    const cash = { ...withSource(blankForm(OVERVIEW, {}, TODAY), 'Cash'), name: 'wallet' };
+    const own = {
+      ...withNewSource(blankForm(OVERVIEW, {}, TODAY), 'deposit'),
+      name: 'Deposit for the new apartment',
+    };
+
+    expect(copyOf(toRequest(cash, OVERVIEW), OVERVIEW.accounts)?.id).toBe('cash');
+    expect(copyOf(toRequest(own, OVERVIEW), OVERVIEW.accounts)?.id).toBe('deposit');
+  });
+
+  it('leaves out the account being edited and archived accounts', () => {
+    const mono = OVERVIEW.accounts.find((a) => a.id === 'mono');
+    if (!mono) throw new Error('No Mono black in the test data');
+    const oschad = ARCHIVED[0];
+    if (!oschad) throw new Error('No archived account in the test data');
+
+    expect(copyOf(toRequest(formFor(mono), OVERVIEW), OVERVIEW.accounts, 'mono')).toBeUndefined();
+    expect(copyOf(toRequest(formFor(oschad), OVERVIEW), ARCHIVED)).toBeUndefined();
   });
 
   it('clears a zero opening balance on focus and puts it back when left empty', () => {

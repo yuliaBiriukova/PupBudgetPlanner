@@ -240,6 +240,27 @@ export const NewWithMistakes: Story = {
   },
 };
 
+/** A copy of an account in use (I-020): the same name, currency and bank; the name says so. */
+export const NewCopy: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByRole('group', { name: 'Totals' });
+    await userEvent.click(canvas.getByRole('button', { name: 'Add account' }));
+    const body = within(canvasElement.ownerDocument.body);
+    const form = await body.findByRole('dialog', { name: 'New account' });
+    await userEvent.type(within(form).getByLabelText('Name'), 'Mono black');
+    await userEvent.click(within(form).getByRole('button', { name: 'Add account' }));
+    await expect(
+      within(form).getByText('You already have this account. Give it another name.'),
+    ).toBeInTheDocument();
+  },
+};
+
+export const NewCopyDesktopDark: Story = {
+  ...NewCopy,
+  globals: { ...desktop, colorScheme: 'dark' },
+};
+
 /** Edit: the card shows the balance now; Archive and Delete sit at the end of the form (I-011). */
 export const Edit: Story = {
   play: async ({ canvasElement }) => {

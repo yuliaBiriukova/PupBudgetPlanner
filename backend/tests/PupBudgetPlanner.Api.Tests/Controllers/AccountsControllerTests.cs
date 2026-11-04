@@ -52,7 +52,8 @@ public sealed class AccountsControllerTests
     {
         var overview = new AccountsOverview([Item], [], [new CurrencyTotal("UAH", 1, 1_200m)], [], [], Currencies.All);
         accounts.OverviewAsync(UserId, Arg.Any<CancellationToken>()).Returns(overview);
-        accounts.CreateAsync(UserId, Request, Arg.Any<CancellationToken>()).Returns(Item);
+        accounts.CreateAsync(UserId, Request, Arg.Any<CancellationToken>())
+            .Returns(new SaveAccountResult(SaveAccountOutcome.Saved, Item));
 
         (await controller.Overview(CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeSameAs(overview);
@@ -75,9 +76,9 @@ public sealed class AccountsControllerTests
     public async Task Someone_elses_or_a_made_up_account_is_not_found()
     {
         accounts.UpdateAsync(UserId, AccountId, Request, Arg.Any<CancellationToken>())
-            .Returns(new UpdateAccountResult(UpdateAccountOutcome.NotFound));
+            .Returns(new SaveAccountResult(SaveAccountOutcome.NotFound));
         accounts.ArchiveAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(false);
-        accounts.RestoreAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(false);
+        accounts.RestoreAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(RestoreAccountOutcome.NotFound);
 
         ((IStatusCodeActionResult)(await controller.Update(AccountId, Request, CancellationToken.None)).Result!)
             .StatusCode.Should().Be(StatusCodes.Status404NotFound);
@@ -109,7 +110,7 @@ public sealed class AccountsControllerTests
     public async Task An_account_with_transactions_keeps_its_currency_and_cant_be_deleted()
     {
         accounts.UpdateAsync(UserId, AccountId, Request, Arg.Any<CancellationToken>())
-            .Returns(new UpdateAccountResult(UpdateAccountOutcome.CurrencyFixed));
+            .Returns(new SaveAccountResult(SaveAccountOutcome.CurrencyFixed));
         accounts.DeleteAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(DeleteAccountOutcome.HasTransactions);
 
         ((IStatusCodeActionResult)(await controller.Update(AccountId, Request, CancellationToken.None)).Result!)
@@ -122,12 +123,47 @@ public sealed class AccountsControllerTests
     public async Task Update_archive_and_restore_answer_for_the_persons_account()
     {
         accounts.UpdateAsync(UserId, AccountId, Request, Arg.Any<CancellationToken>())
-            .Returns(new UpdateAccountResult(UpdateAccountOutcome.Saved, Item));
+            .Returns(new SaveAccountResult(SaveAccountOutcome.Saved, Item));
         accounts.ArchiveAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(true);
-        accounts.RestoreAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(true);
+        accounts.RestoreAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(RestoreAccountOutcome.Restored);
 
         (await controller.Update(AccountId, Request, CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>();
         (await controller.Archive(AccountId, CancellationToken.None)).Should().BeOfType<NoContentResult>();
         (await controller.Restore(AccountId, CancellationToken.None)).Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task A_copy_of_an_account_in_use_is_a_mistake_in_the_name()
+    {
+        accounts.CreateAsync(UserId, Request, Arg.Any<CancellationToken>())
+            .Returns(new SaveAccountResult(SaveAccountOutcome.Copy));
+
+        var problem = (await controller.Create(Request, CancellationToken.None)).Result.Should()
+            .BeAssignableTo<ObjectResult>().Which.Value.Should().BeOfType<ValidationProblemDetails>().Which;
+
+        problem.Errors.Should().ContainKey("name").WhoseValue.Should().ContainSingle()
+            .Which.Should().Be("You already have this account. Give it another name.");
+    }
+
+    [Fact]
+    public async Task Editing_into_a_copy_is_a_mistake_in_the_name_too()
+    {
+        accounts.UpdateAsync(UserId, AccountId, Request, Arg.Any<CancellationToken>())
+            .Returns(new SaveAccountResult(SaveAccountOutcome.Copy));
+
+        var result = (await controller.Update(AccountId, Request, CancellationToken.None)).Result;
+
+        ((IStatusCodeActionResult)result!).StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        result.Should().BeAssignableTo<ObjectResult>().Which.Value.Should().BeOfType<ValidationProblemDetails>()
+            .Which.Errors.Should().ContainKey("name");
+    }
+
+    [Fact]
+    public async Task Restoring_a_copy_of_an_account_in_use_is_a_conflict()
+    {
+        accounts.RestoreAsync(UserId, AccountId, Arg.Any<CancellationToken>()).Returns(RestoreAccountOutcome.Copy);
+
+        ((IStatusCodeActionResult)await controller.Restore(AccountId, CancellationToken.None))
+            .StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
 }

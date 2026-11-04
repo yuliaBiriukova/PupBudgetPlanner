@@ -132,7 +132,9 @@ erDiagram
   person's banks. Own sources and banks are personal rows (a name unique per person) that stay while an account uses
   them. Balances are never stored: `BalanceSheet` adds each account's transactions to its opening balance and totals
   the currencies over the accounts in use (archived ones are left out)
-  ([ADR 0017](decisions/0017-accounts-sources-banks.md)).
+  ([ADR 0017](decisions/0017-accounts-sources-banks.md)). No two accounts in use alike (I-020): the same name
+  (ignoring case), currency, source and own source or bank is refused when adding, editing or restoring
+  (`Account.CopyIn`), backed by a partial unique index ([ADR 0025](decisions/0025-no-copies-of-accounts.md)).
 - Transactions (F-018): an expense or an income on one account, with a category of the matching kind, a whole amount
   above zero, a day never after today and an optional note. Balances come from the database's sums per account and
   type (`TransactionSum` → `BalanceSheet.MovementsOf`); an account with transactions can't be deleted or change its

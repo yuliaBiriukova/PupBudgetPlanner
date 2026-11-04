@@ -81,6 +81,77 @@ test('a person adds accounts and sees their balances and totals, then archives o
   await expect(page.getByRole('button', { name: 'Restore Dollars at home' })).toBeVisible();
 });
 
+test('a person can’t have two accounts in use exactly alike (I-020)', async ({ page }) => {
+  const response = await signUpThroughApi(page.request, newPerson('accounts-copy'));
+  expect(response.ok()).toBe(true);
+  const copyText = en.accounts.validation.copy;
+
+  // Mono black at Monobank in hryvnias, through the API
+  const monoBlack = {
+    name: 'Mono black',
+    currency: 'UAH',
+    source: 'Bank',
+    sourceName: null,
+    bankName: 'Monobank',
+    openingBalance: 1000,
+    openingDate: '2026-10-01',
+    cardStyle: 'Solid',
+  };
+  const added = await page.request.post('/api/accounts', {
+    headers: await antiforgery(page.request),
+    data: monoBlack,
+  });
+  expect(added.ok()).toBe(true);
+
+  // The API refuses a copy itself, whatever the case and spaces: a mistake in the name
+  const copy = await page.request.post('/api/accounts', {
+    headers: await antiforgery(page.request),
+    data: { ...monoBlack, name: ' MONO black ', bankName: 'monobank' },
+  });
+  expect(copy.status()).toBe(400);
+  expect(await copy.json()).toMatchObject({ errors: { name: [copyText] } });
+
+  // The form says so under the name and adds nothing
+  await page.goto('/accounts');
+  await page.getByRole('button', { name: en.accounts.add, exact: true }).click();
+  let form = page.getByRole('dialog', { name: en.accounts.form.newTitle });
+  await form.getByLabel(en.accounts.form.name, { exact: true }).fill('mono black');
+  await form.getByRole('button', { name: en.accounts.form.add }).click();
+  await expect(form.getByText(copyText)).toBeVisible();
+
+  // In dollars it is another account
+  await form.getByRole('button', { name: en.accounts.form.currency }).click();
+  await page.getByLabel(en.currencyPicker.search).fill('dollar');
+  await page.getByRole('button', { name: /USD\s*US dollar/ }).click();
+  await form.getByRole('button', { name: en.accounts.form.add }).click();
+  await expect(page.getByText('mono black added')).toBeVisible();
+
+  // A closed card doesn't count: archived, the same account can be added again
+  await page.getByRole('button', { name: /^Mono black/ }).click();
+  await page
+    .getByRole('dialog', { name: 'Edit Mono black' })
+    .getByRole('button', { name: en.accounts.form.end.archive })
+    .click();
+  await page
+    .getByRole('dialog', { name: 'Archive Mono black?' })
+    .getByRole('button', { name: en.accounts.archive.confirm })
+    .click();
+  await expect(page.getByText('Mono black archived')).toBeVisible();
+  await page.getByRole('button', { name: en.accounts.add, exact: true }).click();
+  form = page.getByRole('dialog', { name: en.accounts.form.newTitle });
+  await form.getByLabel(en.accounts.form.name, { exact: true }).fill('Mono black');
+  await form.getByRole('button', { name: en.accounts.form.add }).click();
+  await expect(page.getByText('Mono black added')).toBeVisible();
+
+  // …but the archived one can't come back while the new one is in use
+  await page.getByRole('button', { name: new RegExp(en.accounts.archived.title) }).click();
+  await page.getByRole('button', { name: 'Restore Mono black' }).click();
+  await expect(
+    page.getByText('You already have “Mono black” in use. Rename it first, then restore this one.'),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Restore Mono black' })).toBeVisible();
+});
+
 test('a person deletes accounts for good, from the edit form and from Archived', async ({
   page,
 }) => {

@@ -22,6 +22,7 @@ import {
   amountOnFocus,
   bankSuggestions,
   blankForm,
+  copyOf,
   formFor,
   previewBalance,
   sourceKind,
@@ -41,6 +42,7 @@ import {
 import { yourCurrencies } from './accountGroups';
 import { useDeleteQuestion } from './useDeleteQuestion';
 import {
+  AccountCopyError,
   CARD_STYLES,
   useArchiveAccount,
   useSaveAccount,
@@ -127,22 +129,36 @@ export function AccountDialog({
           overview.sources.find((s) => `own:${s.id}` === values.source)?.name ??
           '');
 
+  /** Marks the mistakes; the first may be scrolled away (the phone): its field takes the focus, once it is marked. */
+  const show = (found: FormErrors) => {
+    setErrors(found);
+    requestAnimationFrame(() => {
+      form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+    });
+  };
+
   const submit = () => {
     const found = validateForm(values);
-    setErrors(found);
     if (Object.keys(found).length > 0) {
-      // The first mistake may be scrolled away (the phone): its field takes the focus, once it is marked
-      requestAnimationFrame(() => {
-        form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
-      });
+      show(found);
       return;
     }
+    const body = toRequest(values, overview);
+    // No two accounts in use alike (I-020): found here, before anything is sent
+    if (copyOf(body, overview.accounts, account?.id)) {
+      show({ name: { key: 'copy' } });
+      return;
+    }
+    setErrors({});
     if (save.isPending) return;
     save.mutate(
-      { id: account?.id, body: toRequest(values, overview) },
+      { id: account?.id, body },
       {
         onSuccess: (saved) => {
           onSaved(saved, !account);
+        },
+        onError: (error) => {
+          if (error instanceof AccountCopyError) show({ name: { key: 'copy' } });
         },
       },
     );
@@ -371,7 +387,7 @@ export function AccountDialog({
           classNames={{ label: classes.label, input: classes.input, error: classes.error }}
         />
 
-        {save.isError && (
+        {save.isError && !(save.error instanceof AccountCopyError) && (
           <p className={classes.formError} role="alert">
             {t('accounts.errors.save')}
           </p>

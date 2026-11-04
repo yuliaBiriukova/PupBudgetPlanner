@@ -96,4 +96,26 @@ public sealed class Account
     public void Archive(DateTimeOffset now) => ArchivedAt ??= now;
 
     public void Restore() => ArchivedAt = null;
+
+    /// <summary>
+    /// Whether an account with <paramref name="details"/> would look just like this one in the pickers and the list
+    /// (I-020): the same name, ignoring case and the spaces around it, currency, source and own source or bank.
+    /// </summary>
+    public bool LooksLike(AccountDetails details) =>
+        string.Equals(Name, details.Name.Trim(), StringComparison.OrdinalIgnoreCase) &&
+        Currency == details.Currency &&
+        Source == details.Source &&
+        SourceId == details.SourceId &&
+        BankId == details.BankId;
+
+    /// <summary>
+    /// The account in use among <paramref name="accounts"/> that <paramref name="details"/> would copy, leaving out
+    /// <paramref name="except"/> (the account being changed or restored); archived ones don't count (I-020).
+    /// </summary>
+    public static Account? CopyIn(IEnumerable<Account> accounts, AccountDetails details, Guid? except = null) =>
+        accounts.FirstOrDefault(account => !account.IsArchived && account.Id != except && account.LooksLike(details));
+
+    /// <summary>What the form would show for it: its details as they are saved.</summary>
+    public AccountDetails Details =>
+        new(Name, Currency, Source, SourceId, BankId, OpeningBalance, OpeningDate, CardStyle);
 }
