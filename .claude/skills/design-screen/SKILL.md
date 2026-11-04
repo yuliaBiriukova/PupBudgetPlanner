@@ -1,19 +1,23 @@
 ---
 name: design-screen
-description: Design or review a screen or component for Pup Budget Planner — the 3 HTML prototypes every 🎨 backlog item needs, a revision of a chosen variant, or a critique of an existing prototype or page. Use before writing any prototype HTML or UI component styles.
+description: Design or review a screen or component for Pup Budget Planner — the 3 prototype stories in Storybook every 🎨 backlog item needs, a revision of a chosen variant, or a critique of an existing prototype or page. Use before writing any prototype story or UI component styles.
 ---
 
 # Designing a screen for Pup Budget Planner
 
 Models drift to the statistical average of the web: system/Inter type, indigo buttons, identical rounded
 cards, all-caps labels, fade-up on everything. This skill exists to stop that and to make screens that feel
-like *this* app. Follow the steps in order; don't write HTML before step 3.
+like *this* app. Follow the steps in order; don't write a prototype before step 3.
+
+Prototypes are **Storybook stories built from the app's own parts** (I-021, ADR 0025), so the owner sees the
+real UI with only the new part added, never a hand-drawn copy of it.
 
 ## 1. Read first
 
 - `docs/PRODUCT.md` (who, what, business rules), `docs/DESIGN_RULES.md` (section 1 "Custom rules" wins over
   everything, including this skill), the change's description file, and the "Screen decisions" table.
-- Earlier chosen prototypes in `docs/changes/**/prototypes/` — new screens must look like the same app.
+- Storybook's *Design system / Foundations* and *Components* (`frontend/src/shared/design-system/`), `theme.ts`,
+  and the stories of the screen being changed (`frontend/src/**/*.stories.tsx`): what exists is reused as it is.
 
 ## 1a. Look at references
 
@@ -38,42 +42,52 @@ Before the brief, see how others solve this screen — don't invent from the ave
 - **One feeling** the screen should leave (e.g. "calm and in control", "quick and done").
 - If any of this is unclear, ask the user before designing.
 
-## 3. Token plan before any markup
+## 3. Plan from the design system before any markup
 
-Write a compact plan and show it:
+The app's look is set: colors, type (Unbounded 300 + Manrope 400/500), radius, spacing, icons and every kind of
+element are in `theme.ts` and *Design system* in Storybook. Write a compact plan and show it:
 
-- **Palette:** 4–6 named hex colors with roles (surface, text, primary action, income, expense, transfer,
-  accent). Income green / expense red / transfer blue are fixed meanings. Must pass WCAG AA in light and dark.
-- **Type:** one family, or two clearly different ones, with a reason tied to the brief. Google Fonts with
-  **Cyrillic** support (Ukrainian is coming). A real scale with contrast in size and weight. Amounts get
-  their own treatment: tabular figures, true minus sign (−), currency placement per DESIGN_RULES §5.
-- **Shape and depth:** at most 2 radius values, one shadow approach (or none), a spacing scale.
+- **What is reused:** the screen, components and design-system elements the new part is made of.
+- **What is new:** only the part this change adds, made from Mantine and the theme's tokens. Amounts keep their
+  treatment: tabular figures, true minus sign (−), currency placement per DESIGN_RULES §5.
+- **A new token** (a color, a size, an element kind) only when the change can't be built without it: name it,
+  say why, and show it in the prototype with a theme override inside the prototype's folder.
 - **Motion:** one moment that explains a change (e.g. a balance updating after save). Nothing else moves.
 - **The bold element:** the one memorable thing on this screen. Spend boldness there; keep the rest quiet.
-- **Mantine mapping:** every token must be expressible in the Mantine theme (`theme.ts`: font families,
-  10-shade palettes, `primaryShade`, radius, shadows). If it can't be built with Mantine, change the plan.
 
 Then run the **slop check** (below) against the plan, revise, and say what you changed and why.
 
 ## 4. Three variants = three directions
 
-The 3 prototypes differ in *direction* (type, color and density decisions), not just in layout with the same
-skin. Give each a one-line thesis, e.g. "ledger: dense, serif numbers, paper tones" vs "pocket: big touch
-targets, one bold color" vs "dashboard: quiet chrome, data first". At least one variant takes a real,
-justified aesthetic risk.
+The 3 prototypes differ in *direction* (layout, interaction, density, what comes first), all in the app's look.
+Give each a one-line thesis, e.g. "a dropdown under the field" vs "pills by the keys" vs "from your receipts".
+At least one variant takes a real, justified risk.
 
-Build them as self-contained HTML in `docs/changes/<type>/<ID-name>/prototypes/variant-N.html` that opens
-straight from disk and shows phone and desktop layouts in light and dark. The design check exercises more
-when a prototype exposes these global functions (all optional): `go(pageId)` with a `PAGES` list of `{ id }`,
-`state.schemePref` + `applyScheme()` for light/dark, `setView(name)` for a preview frame, `coldStart()` for the
-waking-up state, `setNavCollapsed(bool | null)`, and `setLogo(name)` with a `LOGOS` object.
+Build each as a **Storybook story** in `frontend/src/prototypes/<ID-name>/` (e.g. `Variant1.stories.tsx`,
+`Final.stories.tsx`), `title: 'Prototypes/<ID> <name>'`, story name `Variant 1: Dropdown`,
+`parameters: { layout: 'fullscreen' }`:
+
+- Render the **real screen** the change is on, the way its own stories do (e.g. the Transactions screen with
+  `MockFetch` and the test data in `src/features/transactions/Transactions.stories.tsx`), and add the new part.
+  The story's decorator already gives the app's providers, theme and the toolbar's light/dark.
+- **Never edit the app's files** for a prototype. A component that needs to work differently is copied into the
+  prototype folder and changed there. Shared fake data may be imported, not changed.
+- Options inside a variant are separate stories or Storybook controls (args); states (empty, loading, error,
+  an open list) are separate stories too, so each has its own address for the check.
+- Plain English text is fine in a prototype (no i18n keys yet); typecheck, ESLint and Prettier must pass.
+- In the description file, list each story with its link:
+  `http://localhost:6006/?path=/story/<story-id>`.
+
+The owner opens them in Storybook (`npm run storybook` in `frontend/`, port 6006; start it and give the links)
+and switches phone / desktop and light / dark in its toolbar. Earlier changes' HTML prototypes stay as they are.
 
 ## 5. Verify by looking, not guessing
 
-- Run the Playwright + axe design check on every variant, in `frontend/`:
-  `npm run design:check -- ../docs/changes/<type>/<ID-name>/prototypes/variant-1.html …`
-  (pages of the running app too: `http://localhost:5173/<page>`, with `--storage <state.json>` when signed in)
-  It covers 360/375/768/1024/1440 px, light and dark, every page and state: overflow, touch targets ≥ 44 px on
+- Run the Playwright + axe design check on every story of the round, in `frontend/`, with Storybook running:
+  `npm run design:check -- "http://localhost:6006/iframe.html?id=<story-id>" …`
+  (it sets light and dark through the Storybook toolbar's global and names the screenshots after the story; HTML
+  files and pages of the running app work too: `http://localhost:5173/<page>`, with `--storage <state.json>` when
+  signed in). It covers 360/375/768/1024/1440 px, light and dark, every page and state: overflow, touch targets ≥ 44 px on
   the phone, icon scale 16/20/24, clipped text, overlapping floating elements, WCAG AA contrast and other axe
   rules, visible focus, console errors. It exits with 1 when anything is found; the report with screenshots is
   `frontend/test-results/design-check/report.html`. Don't trust a clean run you haven't seen fail once.
@@ -96,7 +110,11 @@ When the user picks a variant with changes, or a mix, build it as one **final pr
 step 5, show it and ask: "Approve this for implementation?" Repeat until they approve it in so many words.
 Picking options or commenting on a round is **not** approval: never start the implementation, backend or
 frontend, on it. Then record the approved prototype and the date in the change file (`Approved` row) and in
-DESIGN_RULES "Screen decisions"; add any new lasting rule to "Custom rules".
+DESIGN_RULES "Screen decisions"; add any new lasting rule to "Custom rules". Copy the final story's design-check
+screenshots (375 and 1440 px, light and dark) into the change folder's `prototypes/`.
+
+When the change is built, delete its `frontend/src/prototypes/<ID-name>/` folder in the same PR; the real
+screen's stories replace it.
 
 ## Slop check
 
