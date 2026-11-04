@@ -44,7 +44,7 @@ export function AccountField({ value, accounts, onChange }: AccountFieldProps) {
         }}
         title={t('transactions.form.account')}
         // As tall as its rows up to 344 px, like the currency list (owner, 2026-10-31)
-        listHeight={344}
+        listHeight={ACCOUNT_LIST_HEIGHT}
         target={
           <UnstyledButton
             className={classes.field}
@@ -65,28 +65,57 @@ export function AccountField({ value, accounts, onChange }: AccountFieldProps) {
           </UnstyledButton>
         }
       >
-        <ul className={classes.list} aria-label={t('transactions.form.accounts')}>
-          {accounts.map((account) => (
-            <li key={account.id}>
-              <UnstyledButton
-                className={classes.listItem}
-                aria-pressed={account.id === value.id}
-                data-autofocus={account.id === value.id ? true : undefined}
-                onClick={() => {
-                  onChange(account.id);
-                  setOpen(false);
-                }}
-                {...KEEP_FORM_OPEN}
-              >
-                <span className={classes.listName}>{account.name}</span>
-                <span className={classes.balance}>
-                  {formatMoney(account.balance, account.currency)}
-                </span>
-              </UnstyledButton>
-            </li>
-          ))}
-        </ul>
+        <AccountList
+          accounts={accounts}
+          value={value.id}
+          onPick={(accountId) => {
+            onChange(accountId);
+            setOpen(false);
+          }}
+        />
       </Picker>
     </div>
+  );
+}
+
+/** The account lists' height on the desktop: as tall as their rows up to 344 px (owner, 2026-10-31). */
+export const ACCOUNT_LIST_HEIGHT = 344;
+
+interface AccountListProps {
+  accounts: Account[];
+  /** The picked one, in the accent; it takes the focus. */
+  value?: string;
+  onPick: (accountId: string) => void;
+}
+
+/** The accounts as the pickers list them: one line per account with its balance now. */
+export function AccountList({ accounts, value, onPick }: AccountListProps) {
+  const { t } = useTranslation();
+  return (
+    <ul className={classes.list} aria-label={t('transactions.form.accounts')}>
+      {accounts.map((account, i) => (
+        <li key={account.id}>
+          <UnstyledButton
+            className={classes.listItem}
+            aria-pressed={account.id === value}
+            // The picked one takes the focus, or the first when none of them is picked
+            data-autofocus={
+              account.id === value || (i === 0 && !accounts.some((item) => item.id === value))
+                ? true
+                : undefined
+            }
+            onClick={() => {
+              onPick(account.id);
+            }}
+            {...KEEP_FORM_OPEN}
+          >
+            <span className={classes.listName}>{account.name}</span>
+            <span className={classes.balance}>
+              {formatMoney(account.balance, account.currency)}
+            </span>
+          </UnstyledButton>
+        </li>
+      ))}
+    </ul>
   );
 }

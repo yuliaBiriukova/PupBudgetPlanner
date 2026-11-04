@@ -35,7 +35,7 @@ public sealed class TransactionsControllerTests
         var services = new ServiceCollection().AddProblemDetails();
         services.AddMvcCore();
         var person = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, UserId.ToString())], "cookie"));
-        controller = new TransactionsController(transactions)
+        controller = new TransactionsController(transactions, new TransactionFilterValidator())
         {
             ControllerContext = new ControllerContext
             {
@@ -52,17 +52,51 @@ public sealed class TransactionsControllerTests
     }
 
     [Fact]
-    public async Task The_latest_and_the_suggestions_are_the_signed_in_persons()
+    public async Task The_list_its_summary_and_the_suggestions_are_the_signed_in_persons()
     {
-        var latest = new LatestTransactions([Saved.Transaction]);
+        var filter = new TransactionFilter(new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 31), AccountId);
+        var page = new TransactionPage([Saved.Transaction], 30);
+        var summary = new TransactionSummary("UAH", 612m, 0m, 1, [], [], false);
         var suggestions = new TransactionSuggestions([new LastAccount(TransactionType.Expense, AccountId)], [], []);
-        transactions.LatestAsync(UserId, Arg.Any<CancellationToken>()).Returns(latest);
+        transactions.ListAsync(UserId, filter, 0, 30, Arg.Any<CancellationToken>()).Returns(page);
+        transactions.SummaryAsync(UserId, filter, Arg.Any<CancellationToken>()).Returns(summary);
         transactions.SuggestionsAsync(UserId, Arg.Any<CancellationToken>()).Returns(suggestions);
 
-        (await controller.Latest(CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
-            .Which.Value.Should().BeSameAs(latest);
+        (await controller.List(CancellationToken.None, filter.From, filter.To, filter.AccountId))
+            .Result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(page);
+        (await controller.Summary(CancellationToken.None, filter.From, filter.To, filter.AccountId))
+            .Result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(summary);
         (await controller.Suggestions(CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeSameAs(suggestions);
+    }
+
+    [Theory]
+    [InlineData(-1, 30, "offset")]
+    [InlineData(0, 0, "limit")]
+    [InlineData(0, 101, "limit")]
+    public async Task A_page_out_of_range_is_a_bad_request(int offset, int limit, string field)
+    {
+        var result = await controller.List(CancellationToken.None, offset: offset, limit: limit);
+
+        result.Result.Should().BeAssignableTo<ObjectResult>()
+            .Which.Value.Should().BeOfType<ValidationProblemDetails>()
+            .Which.Errors.Should().ContainKey(field);
+        await transactions.DidNotReceiveWithAnyArgs()
+            .ListAsync(default, default!, default, default, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task A_period_that_ends_before_it_starts_is_a_bad_request_for_the_list_and_the_summary()
+    {
+        DateOnly from = new(2026, 10, 31), to = new(2026, 10, 1);
+
+        var list = (await controller.List(CancellationToken.None, from, to)).Result;
+        var summary = (await controller.Summary(CancellationToken.None, from, to)).Result;
+
+        list.Should().BeAssignableTo<ObjectResult>().Which.Value.Should().BeOfType<ValidationProblemDetails>()
+            .Which.Errors.Should().ContainKey("to");
+        summary.Should().BeAssignableTo<ObjectResult>().Which.Value.Should().BeOfType<ValidationProblemDetails>()
+            .Which.Errors.Should().ContainKey("to");
     }
 
     [Fact]
@@ -82,7 +116,9 @@ public sealed class TransactionsControllerTests
     [Theory]
     [InlineData(SaveTransactionOutcome.NoSuchAccount, "accountId")]
     [InlineData(SaveTransactionOutcome.NoSuchCategory, "categoryId")]
-    public async Task Someone_elses_or_an_archived_account_or_category_is_a_bad_request(
+    [InlineData(SaveTransactionOutcome.NoSuchToAccount, "toAccountId")]
+    [InlineData(SaveTransactionOutcome.ToAmountMissing, "toAmount")]
+    public async Task Someone_elses_or_an_archived_account_or_category_or_a_missing_to_amount_is_a_bad_request(
         SaveTransactionOutcome outcome, string field)
     {
         transactions.CreateAsync(UserId, Request, Arg.Any<CancellationToken>())

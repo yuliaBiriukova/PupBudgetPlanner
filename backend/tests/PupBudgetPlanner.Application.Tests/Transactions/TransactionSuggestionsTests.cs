@@ -122,4 +122,35 @@ public sealed class TransactionSuggestionsTests
 
         suggestions.MostUsed.Single().CategoryIds.Should().HaveCount(TransactionSuggestions.MostUsedCount);
     }
+
+    /// <summary>The <paramref name="order"/>th transaction added: a transfer, today.</summary>
+    private static RecentTransaction Transferred(int order, Guid from, Guid to) =>
+        new(TransactionType.Transfer, from, null, Today, Start.AddMinutes(order), to);
+
+    [Fact]
+    public void The_last_transfer_gives_its_from_and_to()
+    {
+        var suggestions = TransactionSuggestions.From(
+            [Transferred(1, Mono, Wallet), Added(2, Mono, Groceries), Transferred(3, Privat, Mono)], Today);
+
+        suggestions.LastTransfer.Should().Be(new LastTransfer(Privat, Mono));
+        suggestions.LastAccounts.Should().Contain(new LastAccount(TransactionType.Transfer, Privat));
+    }
+
+    [Fact]
+    public void Transfers_leave_the_categories_alone()
+    {
+        var suggestions = TransactionSuggestions.From(
+            [Added(1, Mono, Groceries), Transferred(2, Mono, Wallet), Transferred(3, Mono, Wallet)], Today);
+
+        suggestions.LastCategories.Should().Equal(new LastCategory(TransactionType.Expense, Mono, Groceries));
+        suggestions.MostUsed.Should().ContainSingle().Which.Should().BeEquivalentTo(
+            new MostUsedCategories(TransactionType.Expense, [Groceries]));
+    }
+
+    [Fact]
+    public void No_transfer_yet_no_last_transfer()
+    {
+        TransactionSuggestions.From([Added(1, Mono, Groceries)], Today).LastTransfer.Should().BeNull();
+    }
 }

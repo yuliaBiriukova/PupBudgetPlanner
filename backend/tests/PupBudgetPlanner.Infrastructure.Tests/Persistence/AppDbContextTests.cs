@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using PupBudgetPlanner.Domain.Accounts;
 using PupBudgetPlanner.Domain.Categories;
 using PupBudgetPlanner.Domain.ExchangeRates;
@@ -85,7 +87,7 @@ public sealed class AppDbContextTests
     }
 
     [Fact]
-    public void Transactions_go_with_the_person_and_keep_their_account_and_category()
+    public void Transactions_go_with_the_person_and_keep_their_accounts_and_category()
     {
         using var context = CreateContext();
 
@@ -95,8 +97,12 @@ public sealed class AppDbContextTests
         transactions.FindProperty(nameof(Transaction.Type))!.GetProviderClrType().Should().Be<string>();
         transactions.FindProperty(nameof(Transaction.Amount))!.GetColumnType().Should().Be("numeric(18,2)");
         transactions.FindProperty(nameof(Transaction.Note))!.GetMaxLength().Should().Be(Transaction.NoteMaxLength);
-        transactions.GetForeignKeys().Should().HaveCount(3).And.Satisfy(
+        transactions.FindProperty(nameof(Transaction.ToAmount))!.GetColumnType().Should().Be("numeric(18,2)");
+        context.GetService<IDesignTimeModel>().Model.FindEntityType(typeof(Transaction))!.GetCheckConstraints()
+            .Should().ContainSingle(check => check.Name == "ck_transactions_transfer_shape");
+        transactions.GetForeignKeys().Should().HaveCount(4).And.Satisfy(
             key => key.PrincipalEntityType.ClrType == typeof(AppUser) && key.DeleteBehavior == DeleteBehavior.Cascade,
+            key => key.PrincipalEntityType.ClrType == typeof(Account) && key.DeleteBehavior == DeleteBehavior.NoAction,
             key => key.PrincipalEntityType.ClrType == typeof(Account) && key.DeleteBehavior == DeleteBehavior.NoAction,
             key => key.PrincipalEntityType.ClrType == typeof(Category) && key.DeleteBehavior == DeleteBehavior.NoAction);
     }

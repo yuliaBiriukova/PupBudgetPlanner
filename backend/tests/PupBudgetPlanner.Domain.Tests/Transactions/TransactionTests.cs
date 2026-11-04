@@ -97,4 +97,64 @@ public sealed class TransactionTests
         Transaction.CategoryKindOf(TransactionType.Expense).Should().Be(CategoryKind.Expense);
         Transaction.CategoryKindOf(TransactionType.Income).Should().Be(CategoryKind.Income);
     }
+
+    private static readonly Guid Dollars = Guid.CreateVersion7();
+    private static readonly Guid Card = Guid.CreateVersion7();
+
+    private static TransactionDetails Transfer(decimal amount = 100m, decimal? toAmount = 4_490m) =>
+        new(TransactionType.Transfer, new DateOnly(2026, 11, 1), Dollars, null, amount, null, Card, toAmount);
+
+    [Fact]
+    public void A_transfer_goes_from_one_account_to_another_with_both_amounts_whole()
+    {
+        var transaction = Transaction.Create(Guid.CreateVersion7(), Transfer(amount: 100.4m, toAmount: 4_489.5m), Now);
+
+        transaction.Type.Should().Be(TransactionType.Transfer);
+        transaction.AccountId.Should().Be(Dollars);
+        transaction.ToAccountId.Should().Be(Card);
+        transaction.CategoryId.Should().BeNull();
+        transaction.Amount.Should().Be(100m);
+        transaction.ToAmount.Should().Be(4_490m);
+        transaction.Movement.Should().Be(-100m);
+    }
+
+    [Fact]
+    public void A_transfer_needs_another_account_something_got_and_no_category()
+    {
+        var owner = Guid.CreateVersion7();
+
+        FluentActions.Invoking(() => Transaction.Create(owner, Transfer() with { ToAccountId = null }, Now))
+            .Should().Throw<ArgumentException>();
+        FluentActions.Invoking(() => Transaction.Create(owner, Transfer() with { ToAccountId = Dollars }, Now))
+            .Should().Throw<ArgumentException>();
+        FluentActions.Invoking(() => Transaction.Create(owner, Transfer(toAmount: null), Now))
+            .Should().Throw<ArgumentException>();
+        FluentActions.Invoking(() => Transaction.Create(owner, Transfer(toAmount: 0.4m), Now))
+            .Should().Throw<ArgumentException>();
+        FluentActions.Invoking(() => Transaction.Create(owner, Transfer() with { CategoryId = Guid.CreateVersion7() }, Now))
+            .Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void An_expense_needs_a_category_and_goes_to_no_other_account()
+    {
+        var owner = Guid.CreateVersion7();
+
+        FluentActions.Invoking(() => Transaction.Create(owner, Details() with { CategoryId = null }, Now))
+            .Should().Throw<ArgumentException>();
+        FluentActions.Invoking(() => Transaction.Create(owner, Details() with { ToAccountId = Card, ToAmount = 1m }, Now))
+            .Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void An_expense_changed_into_a_transfer_takes_the_to_side_and_drops_its_category()
+    {
+        var transaction = Transaction.Create(Guid.CreateVersion7(), Details(accountId: Dollars), Now);
+
+        transaction.Update(Transfer(), Now.AddHours(1));
+
+        transaction.CategoryId.Should().BeNull();
+        transaction.ToAccountId.Should().Be(Card);
+        transaction.ToAmount.Should().Be(4_490m);
+    }
 }

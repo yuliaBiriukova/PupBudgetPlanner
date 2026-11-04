@@ -1123,6 +1123,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The rates of date (a transaction's day, never after today), or the latest earlier ones,
+         *     marked with the reason.
+         */
+        get: {
+            parameters: {
+                query: {
+                    date: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RatesOfDay"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings": {
         parameters: {
             query?: never;
@@ -1293,10 +1343,21 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The latest transactions: the Transactions page until F-020 brings the full list. */
+        /**
+         * The Transactions page (F-020): the ones the filters find, newest day first, limit at a time
+         *     from offset; the answer says where the next page starts.
+         */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    from?: string;
+                    to?: string;
+                    accountId?: string;
+                    categoryId?: string;
+                    type?: components["schemas"]["TransactionType"];
+                    offset?: number | string;
+                    limit?: number | string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -1309,7 +1370,16 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["LatestTransactions"];
+                        "application/json": components["schemas"]["TransactionPage"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
                     };
                 };
             };
@@ -1350,6 +1420,60 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transactions/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What the ones the filters find come to (F-020): spent and received, each day's, and each category's, in the
+         *     report currency at the NBU rates of their days (one account picked: in its own).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                    accountId?: string;
+                    categoryId?: string;
+                    type?: components["schemas"]["TransactionType"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TransactionSummary"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1447,7 +1571,7 @@ export interface paths {
             };
         };
         post?: never;
-        /** Deletes it for good; the answer has the balance it gave back. */
+        /** Deletes it for good; the answer has the balances it gave back (two for a transfer). */
         delete: {
             parameters: {
                 query?: never;
@@ -1594,6 +1718,14 @@ export interface components {
          * @enum {unknown}
          */
         CategoryKind: "Income" | "Expense";
+        /** @description A category's line in "Where it went" (or "Where it came from"): what went on it in the period. */
+        CategoryTotal: {
+            /** Format: uuid */
+            categoryId: string;
+            name: string;
+            /** Format: double */
+            amount: number | string;
+        };
         /** @description The name the person and their family see; saved trimmed. */
         ChangeNameRequest: {
             displayName: string;
@@ -1635,7 +1767,28 @@ export interface components {
             /** @default false */
             isAdmin: boolean;
         };
-        /** @description The balance a deleted transaction gave back. */
+        /**
+         * @description A day's totals: what the calendar colours it by and what its receipt's foot says. Count is all its
+         *     transactions the filters find, transfers too: the receipt says how many are still loading.
+         *     Transfers is how many of them are transfers: the calendar marks the day with a blue dot, as a
+         *     green one marks income (owner's review of PR #49).
+         */
+        DayTotal: {
+            /** Format: date */
+            date: string;
+            /** Format: double */
+            spent: number | string;
+            /** Format: double */
+            received: number | string;
+            /** Format: int32 */
+            count: number | string;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            transfers: number | string;
+        };
+        /** @description The balances a deleted transaction gave back: one account, two for a transfer. */
         DeletedTransaction: {
             balances: components["schemas"]["BalanceChange"][];
         };
@@ -1683,12 +1836,12 @@ export interface components {
             /** Format: uuid */
             categoryId: string;
         };
-        /**
-         * @description The Transactions page until F-020 brings the full list: the latest transactions, newest day first and, within a
-         *     day, the last added first.
-         */
-        LatestTransactions: {
-            items: components["schemas"]["TransactionItem"][];
+        /** @description The last transfer's From and To: the form picks both when it opens on Transfer (F-019). */
+        LastTransfer: {
+            /** Format: uuid */
+            fromAccountId: string;
+            /** Format: uuid */
+            toAccountId: string;
         };
         /** @description A type's most used categories, most used first: the form's category pills. */
         MostUsedCategories: {
@@ -1735,6 +1888,17 @@ export interface components {
             rate: number | string;
         };
         /**
+         * @description One day's NBU rates as the transfer form gets them (F-019): hryvnias for one unit of each currency, by code. The
+         *     form suggests an exchange's second amount from them. Date is the day they belong to, earlier
+         *     than the asked one unless RatesStatus.Current; with RatesStatus.Missing there are none.
+         */
+        RatesOfDay: {
+            /** Format: date */
+            date: null | string;
+            status: components["schemas"]["RatesStatus"];
+            rates: components["schemas"]["RateItem"][];
+        };
+        /**
          * @description Whether the rates are the asked day's, and if not, why.
          * @enum {unknown}
          */
@@ -1771,7 +1935,11 @@ export interface components {
             transaction: components["schemas"]["TransactionItem"];
             balances: components["schemas"]["BalanceChange"][];
         };
-        /** @description A new transaction or the changed one, as the form sends it (F-018). */
+        /**
+         * @description A new transaction or the changed one, as the form sends it (F-018). A transfer (F-019) has
+         *     ToAccountId and no category; ToAmount is what the To account got, needed
+         *     between two currencies only (between accounts in one currency it is the amount itself).
+         */
         SaveTransactionRequest: {
             type: components["schemas"]["TransactionType"];
             /** Format: date */
@@ -1779,10 +1947,14 @@ export interface components {
             /** Format: uuid */
             accountId: string;
             /** Format: uuid */
-            categoryId: string;
+            categoryId: null | string;
             /** Format: double */
             amount: number | string;
             note: null | string;
+            /** Format: uuid */
+            toAccountId?: null | string;
+            /** Format: double */
+            toAmount?: null | number | string;
         };
         SignInRequest: {
             email: string;
@@ -1811,7 +1983,8 @@ export interface components {
         SourceKind: "Cash" | "Bank" | "Own";
         /**
          * @description One transaction as the lists show it, with its account's and category's names and the account's currency: an
-         *     archived account or category is still named.
+         *     archived account or category is still named. A transfer (F-019) has no category; it has its To account's name and
+         *     currency and what that account got instead.
          */
         TransactionItem: {
             /** Format: uuid */
@@ -1824,27 +1997,65 @@ export interface components {
             accountName: string;
             currency: string;
             /** Format: uuid */
-            categoryId: string;
-            categoryName: string;
+            categoryId: null | string;
+            categoryName: null | string;
             /** Format: double */
             amount: number | string;
             note: null | string;
+            /** Format: uuid */
+            toAccountId?: null | string;
+            toAccountName?: null | string;
+            toCurrency?: null | string;
+            /** Format: double */
+            toAmount?: null | number | string;
+        };
+        /**
+         * @description A page of the list, newest day first and, within a day, the last added first. Next is where the
+         *     next page starts (its `offset`); empty when this one is the last.
+         */
+        TransactionPage: {
+            items: components["schemas"]["TransactionItem"][];
+            /** Format: int32 */
+            next: null | number | string;
         };
         /**
          * @description What the quick-add form picks and offers before the person does (F-018): the last account used for each type, the
-         *     category last used with each account, and the most used categories. "Last" is the last one added, whatever its day:
-         *     it is the habit, and an old receipt typed in late counts as one. Pure, so it is tested without a database.
+         *     category last used with each account, the most used categories, and the last transfer's From and To (F-019). "Last"
+         *     is the last one added, whatever its day: it is the habit, and an old receipt typed in late counts as one. Pure, so
+         *     it is tested without a database.
          */
         TransactionSuggestions: {
             lastAccounts: components["schemas"]["LastAccount"][];
             lastCategories: components["schemas"]["LastCategory"][];
             mostUsed: components["schemas"]["MostUsedCategories"][];
+            lastTransfer?: null | components["schemas"]["LastTransfer"];
         };
         /**
-         * @description Which way the money goes. F-019 adds transfers between a person's own accounts.
+         * @description The Transactions page's totals (F-020): what the period's transactions came to, each day's, and where the money went.
+         *     Amounts are in Currency: the report currency, each at the NBU rate of its own day (PRODUCT.md
+         *     business rule 1), or with one account picked that account's own. Transfers are neither spent nor received (business
+         *     rule 2), but they are counted. Categories leave the picked category out of their filters, so
+         *     another one can be picked from them; they are expense categories, income ones with Income picked, none with
+         *     Transfers. RatesMissing: some amounts in another currency had no rate and aren't in the totals.
+         *     Amounts are kept as they are and rounded when shown (ADR 0018).
+         */
+        TransactionSummary: {
+            currency: string;
+            /** Format: double */
+            spent: number | string;
+            /** Format: double */
+            received: number | string;
+            /** Format: int32 */
+            count: number | string;
+            days: components["schemas"]["DayTotal"][];
+            categories: components["schemas"]["CategoryTotal"][];
+            ratesMissing: boolean;
+        };
+        /**
+         * @description Which way the money goes: out, in, or between two of the person's own accounts (F-019).
          * @enum {unknown}
          */
-        TransactionType: "Expense" | "Income";
+        TransactionType: "Expense" | "Income" | "Transfer";
         /**
          * @description The signed-in person's settings (F-016). The email can't be changed yet. The theme isn't here: it is kept on each
          *     device, so a phone can be dark while the laptop is light.

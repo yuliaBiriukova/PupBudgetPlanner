@@ -1,7 +1,7 @@
 import { notifications } from '@mantine/notifications';
 import { IconCheck } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState, type ReactNode } from 'react';
+import { Fragment, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CountUp } from '../../shared/ui/CountUp';
 import { accountsQuery, type AccountsOverview } from '../accounts/accountsApi';
@@ -11,12 +11,13 @@ import {
   type LastChange,
   type TransactionFormApi,
 } from './transactionForm';
-import type { BalanceChange } from './transactionsApi';
+import classes from './Transactions.module.css';
+import { isExchange, type BalanceChange, type Transaction } from './transactionsApi';
 
 /**
  * Holds the quick-add form (F-018) for the whole app shell: the + in the sidebar and the tab bar, the + on an account's
  * card and a row of the Transactions page open it. After a save or a delete the notification counts the account's
- * balance to its new value: the one moment of the form.
+ * balance to its new value (both of a transfer, F-019): the one moment of the form.
  */
 export function TransactionFormProvider({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
@@ -43,33 +44,66 @@ export function TransactionFormProvider({ children }: { children: ReactNode }) {
     setDialog((current) => current && { ...current, opened: false });
   };
 
-  /** The notification with the balance counting from before to after; the account named as the page has it. */
+  /**
+   * The notification with the balance counting from before to after; the account named as the page has it. A transfer
+   * (F-019) counts both: the accounts on a second line.
+   */
   const notify = (
     text: string,
     balances: BalanceChange[],
-    fallbackName: string,
+    transaction: Transaction,
     transactionId?: string,
   ) => {
     const overview = queryClient.getQueryData<AccountsOverview>(accountsQuery.queryKey);
-    const change = balances[balances.length - 1];
-    const account = [...(overview?.accounts ?? []), ...(overview?.archived ?? [])].find(
-      (item) => item.id === change?.accountId,
-    );
-    notifications.show({
-      icon: <IconCheck size={16} stroke={1.8} />,
-      message: change ? (
-        <>
-          {t('transactions.saved.balance', { what: text, account: account?.name ?? fallbackName })}{' '}
+    const accounts = [...(overview?.accounts ?? []), ...(overview?.archived ?? [])];
+    // A transfer's From and To; otherwise the account it is on now (the last balance, F-018)
+    const shown =
+      transaction.type === 'Transfer' && transaction.toAccountId
+        ? [transaction.accountId, transaction.toAccountId].flatMap(
+            (id) => balances.find((change) => change.accountId === id) ?? [],
+          )
+        : balances.slice(-1);
+    const counts = shown.map((change) => {
+      const account = accounts.find((item) => item.id === change.accountId);
+      return {
+        key: change.accountId,
+        name:
+          account?.name ??
+          (change.accountId === transaction.toAccountId
+            ? (transaction.toAccountName ?? '')
+            : transaction.accountName),
+        count: (
           <CountUp
             value={change.after}
             from={change.before}
             currency={account?.currency ?? 'UAH'}
           />
-        </>
-      ) : (
-        text
-      ),
+        ),
+      };
     });
+    const [only] = counts;
+    let message: ReactNode = text;
+    if (counts.length > 1)
+      message = (
+        <span className={classes.lines}>
+          <span>{t('transactions.saved.what', { what: text })}</span>
+          <span>
+            {counts.map((item, i) => (
+              <Fragment key={item.key}>
+                {i > 0 && ', '}
+                {item.name} {item.count}
+              </Fragment>
+            ))}
+          </span>
+        </span>
+      );
+    else if (only)
+      message = (
+        <>
+          {t('transactions.saved.balance', { what: text, account: only.name })} {only.count}
+        </>
+      );
+    notifications.show({ icon: <IconCheck size={16} stroke={1.8} />, message });
     setLastChange((current) => ({
       key: (current?.key ?? 0) + 1,
       transactionId,
@@ -91,15 +125,17 @@ export function TransactionFormProvider({ children }: { children: ReactNode }) {
             notify(
               edited
                 ? t('transactions.saved.changes')
-                : t(`transactions.saved.${saved.transaction.type}`),
+                : t(
+                    `transactions.saved.${isExchange(saved.transaction) ? 'Exchange' : saved.transaction.type}`,
+                  ),
               saved.balances,
-              saved.transaction.accountName,
+              saved.transaction,
               saved.transaction.id,
             );
           }}
           onDeleted={(transaction, balances) => {
             close();
-            notify(t('transactions.saved.deleted'), balances, transaction.accountName);
+            notify(t('transactions.saved.deleted'), balances, transaction);
           }}
         />
       )}

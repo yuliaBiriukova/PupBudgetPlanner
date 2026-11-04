@@ -8,12 +8,15 @@ import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
 import { useTransactionForm } from './transactionForm';
 import { TransactionFormProvider } from './TransactionFormProvider';
 import { TransactionsPage } from './TransactionsPage';
+import { fakePage, fakeSummary } from './transactionsFakeApi';
 import { latestTransactions, SUGGESTIONS } from './transactionsTestData';
 
 interface ScreenProps {
   data?: 'latest' | 'empty' | 'loading' | 'error';
-  /** The form opened over the page: to add, to change the first transaction, from an account's card. */
-  form?: 'add' | 'edit' | 'from-account';
+  /** The form opened over the page: to add, to change a transaction, from an account's card. */
+  form?: 'add' | 'edit' | 'edit-exchange' | 'from-account';
+  /** The NBU rates the form gets for an exchange (F-019): the day's, an earlier day's, none. */
+  rates?: 'current' | 'earlier' | 'none';
   /** What the form gets from the API. */
   formData?: 'ready' | 'loading' | 'error' | 'no-accounts';
   /** The save answers with an error. */
@@ -33,12 +36,21 @@ function Opener({ form }: { form?: ScreenProps['form'] }) {
     // Salary, an income on Privat card
     const salary = latestTransactions().find((item) => item.id === 't5');
     if (form === 'edit' && salary) api.edit(salary);
+    // $100 sold into Mono black (F-019)
+    const exchange = latestTransactions().find((item) => item.id === 't3');
+    if (form === 'edit-exchange' && exchange) api.edit(exchange);
   }, [api, form]);
   return null;
 }
 
 /** The Transactions page and the quick-add form with a fake API (F-018). */
-function TransactionsScreen({ data = 'latest', form, formData = 'ready', saveFails }: ScreenProps) {
+function TransactionsScreen({
+  data = 'latest',
+  form,
+  formData = 'ready',
+  saveFails,
+  rates = 'current',
+}: ScreenProps) {
   const answer = (json: unknown) =>
     formData === 'loading' ? 'pending' : formData === 'error' ? { status: 500 } : { json };
   const routes: MockRoutes = {
@@ -47,11 +59,29 @@ function TransactionsScreen({ data = 'latest', form, formData = 'ready', saveFai
         ? 'pending'
         : data === 'error'
           ? { status: 500 }
-          : { json: { items: data === 'empty' ? [] : latestTransactions() } },
+          : (_, query) => ({
+              json: fakePage(data === 'empty' ? [] : latestTransactions(), query),
+            }),
+    '/api/transactions/summary': (_, query) => ({
+      json: fakeSummary(data === 'empty' ? [] : latestTransactions(), query),
+    }),
     '/api/accounts': answer(formData === 'no-accounts' ? EMPTY : OVERVIEW),
     '/api/categories': answer(DEFAULT_CATEGORIES),
     '/api/transactions/suggestions': answer(SUGGESTIONS),
     'POST /api/transactions': saveFails ? { status: 500 } : 'pending',
+    '/api/rates': {
+      json:
+        rates === 'none'
+          ? { date: null, status: 'Missing', rates: [] }
+          : {
+              date: rates === 'earlier' ? '2026-10-28' : '2026-10-29',
+              status: rates === 'earlier' ? 'NotPublished' : 'Current',
+              rates: [
+                { currency: 'EUR', rate: 48.71 },
+                { currency: 'USD', rate: 45.53 },
+              ],
+            },
+    },
   };
 
   // In <main>, as in the app shell: the page's header isn't the document's banner
@@ -221,3 +251,108 @@ export const FormCouldNotLoad: Story = { args: { form: 'add', formData: 'error' 
 
 /** No accounts yet: the form says to add one first. */
 export const FormWithoutAccounts: Story = { args: { form: 'add', formData: 'no-accounts' } };
+
+/** Opens the form on Transfer (F-019): the last transfer's From and To picked, $100 → Mono black. */
+async function openTransfer(amount?: string) {
+  const body = within(document.body);
+  const form = await body.findByRole('dialog', { name: 'Add expense' });
+  await userEvent.click(await within(form).findByText('Transfer'));
+  const transfer = await body.findByRole('dialog', { name: 'Add transfer' });
+  if (amount) await userEvent.type(within(transfer).getByLabelText('From Mono dollars'), amount);
+  return transfer;
+}
+
+/** A transfer in one currency: one amount in blue, From and To with the swap between them, no category. */
+export const TransferDesktop: Story = {
+  args: { form: 'add' },
+  globals: desktop,
+  play: async () => {
+    const form = await openTransfer();
+    await userEvent.click(within(form).getByRole('button', { name: /^To/ }));
+    await userEvent.click(await within(document.body).findByRole('button', { name: /^Wallet/ }));
+    await userEvent.click(within(form).getByRole('button', { name: /^From/ }));
+    await userEvent.click(
+      await within(document.body).findByRole('button', { name: /^Mono black/ }),
+    );
+    await userEvent.type(within(form).getByLabelText('Amount'), '2000');
+  },
+};
+
+/** An exchange: the second amount suggested at the NBU rate of the day, the line saying so. */
+export const ExchangeDesktop: Story = {
+  args: { form: 'add' },
+  globals: desktop,
+  play: async () => {
+    const form = await openTransfer('100');
+    await expect(await within(form).findByLabelText('To Mono black')).toHaveValue('4 553');
+  },
+};
+
+/** The bank's own figure: "Your rate" next to the NBU's, and "Use the NBU rate". */
+export const ExchangeYourRateDesktopDark: Story = {
+  args: { form: 'add' },
+  globals: { ...desktop, colorScheme: 'dark' },
+  play: async () => {
+    const form = await openTransfer('100');
+    const to = within(form).getByLabelText('To Mono black');
+    await userEvent.clear(to);
+    await userEvent.type(to, '4490');
+    await expect(form).toHaveTextContent('Your rate');
+  },
+};
+
+/** On the phone the keys type into the display with the ring; a tap on the other moves them. */
+export const ExchangePhone: Story = {
+  args: { form: 'add' },
+  play: async () => {
+    const form = await openTransfer();
+    const keys = within(form).getByRole('group', { name: 'Amount keys' });
+    for (const key of ['1', '0', '0'])
+      await userEvent.click(within(keys).getByRole('button', { name: key }));
+    await userEvent.click(within(form).getByLabelText('To Mono black'));
+  },
+};
+
+export const ExchangePhoneDark: Story = {
+  ...ExchangePhone,
+  globals: { colorScheme: 'dark' },
+};
+
+/** The day's rate isn't out yet: the latest earlier one is suggested and the line says so. */
+export const ExchangeEarlierRate: Story = {
+  args: { form: 'add', rates: 'earlier' },
+  globals: desktop,
+  play: async () => {
+    const form = await openTransfer('100');
+    await expect(await within(form).findByText(/isn’t out yet/)).toBeInTheDocument();
+  },
+};
+
+/** No rate at all: the To amount is asked for, and Save without it turns it red. */
+export const ExchangeNoRate: Story = {
+  args: { form: 'add', rates: 'none' },
+  globals: desktop,
+  play: async () => {
+    const form = await openTransfer('100');
+    await userEvent.click(within(form).getByRole('button', { name: 'Save transfer' }));
+    await expect(within(form).getByLabelText('To Mono black')).toHaveAttribute('aria-invalid');
+  },
+};
+
+/** A row opens "Edit exchange", with the bank's figure kept. */
+export const EditExchangeDesktop: Story = { args: { form: 'edit-exchange' }, globals: desktop };
+
+/** Delete says what both balances go back to. */
+export const DeleteExchangeAsks: Story = {
+  args: { form: 'edit-exchange' },
+  globals: desktop,
+  play: async () => {
+    const form = await within(document.body).findByRole('dialog', { name: 'Edit exchange' });
+    await userEvent.click(
+      await within(form).findByRole('button', { name: 'Delete this exchange' }),
+    );
+    await expect(
+      await within(document.body).findByRole('dialog', { name: 'Delete this exchange?' }),
+    ).toHaveTextContent('Mono black to');
+  },
+};

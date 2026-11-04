@@ -2,18 +2,25 @@ using PupBudgetPlanner.Domain.Transactions;
 
 namespace PupBudgetPlanner.Application.Transactions;
 
-/// <summary>A new transaction or the changed one, as the form sends it (F-018).</summary>
+/// <summary>
+/// A new transaction or the changed one, as the form sends it (F-018). A transfer (F-019) has
+/// <paramref name="ToAccountId"/> and no category; <paramref name="ToAmount"/> is what the To account got, needed
+/// between two currencies only (between accounts in one currency it is the amount itself).
+/// </summary>
 public sealed record SaveTransactionRequest(
     TransactionType Type,
     DateOnly Date,
     Guid AccountId,
-    Guid CategoryId,
+    Guid? CategoryId,
     decimal Amount,
-    string? Note);
+    string? Note,
+    Guid? ToAccountId = null,
+    decimal? ToAmount = null);
 
 /// <summary>
 /// One transaction as the lists show it, with its account's and category's names and the account's currency: an
-/// archived account or category is still named.
+/// archived account or category is still named. A transfer (F-019) has no category; it has its To account's name and
+/// currency and what that account got instead.
 /// </summary>
 public sealed record TransactionItem(
     Guid Id,
@@ -22,19 +29,14 @@ public sealed record TransactionItem(
     Guid AccountId,
     string AccountName,
     string Currency,
-    Guid CategoryId,
-    string CategoryName,
+    Guid? CategoryId,
+    string? CategoryName,
     decimal Amount,
-    string? Note);
-
-/// <summary>
-/// The Transactions page until F-020 brings the full list: the latest transactions, newest day first and, within a
-/// day, the last added first.
-/// </summary>
-public sealed record LatestTransactions(IReadOnlyList<TransactionItem> Items)
-{
-    public const int Limit = 50;
-}
+    string? Note,
+    Guid? ToAccountId = null,
+    string? ToAccountName = null,
+    string? ToCurrency = null,
+    decimal? ToAmount = null);
 
 /// <summary>An account's balance before and after a save or a delete, for the notification that counts it.</summary>
 public sealed record BalanceChange(Guid AccountId, decimal Before, decimal After);
@@ -42,7 +44,7 @@ public sealed record BalanceChange(Guid AccountId, decimal Before, decimal After
 /// <summary>The saved transaction and the balances it changed: one account, or two when it moved between them.</summary>
 public sealed record SavedTransaction(TransactionItem Transaction, IReadOnlyList<BalanceChange> Balances);
 
-/// <summary>The balance a deleted transaction gave back.</summary>
+/// <summary>The balances a deleted transaction gave back: one account, two for a transfer.</summary>
 public sealed record DeletedTransaction(IReadOnlyList<BalanceChange> Balances);
 
 public enum SaveTransactionOutcome
@@ -57,6 +59,12 @@ public enum SaveTransactionOutcome
 
     /// <summary>The category isn't one of the person's, is archived, or is of the other kind.</summary>
     NoSuchCategory,
+
+    /// <summary>A transfer's To account isn't one of the person's, or it is archived (F-019).</summary>
+    NoSuchToAccount,
+
+    /// <summary>An exchange without what the To account got: between two currencies it can't be worked out.</summary>
+    ToAmountMissing,
 }
 
 /// <summary>What a save came to; <paramref name="Saved"/> is set when it was saved.</summary>

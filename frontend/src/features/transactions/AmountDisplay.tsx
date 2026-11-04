@@ -1,5 +1,5 @@
 import { VisuallyHidden } from '@mantine/core';
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { currencySign, formatMoney, signBefore } from '../../shared/format/money';
 import { evaluate, fromTyped, isSum, showExpression } from './amount';
@@ -20,12 +20,25 @@ interface AmountDisplayProps {
   onEnter: () => void;
   /** Takes the focus as the form appears (the desktop: the amount is typed first). */
   focusFirst?: boolean;
+  /** Its name over the number: "Amount", or an exchange's side ("From Mono dollars", F-019). */
+  label?: string;
+  /** An exchange's second amount (F-019): a smaller number under the first. */
+  secondary?: boolean;
+  /** The app's keys type into it (the phone, an exchange): the ring says so. */
+  target?: boolean;
+  /** A tap or a click on it: on the phone the keys move to it. */
+  onTarget?: () => void;
+  /** It holds a suggestion (the NBU's amount): selected when it takes the focus, so typing replaces it. */
+  selectOnFocus?: boolean;
+  /** Under the number: an exchange's rate line. */
+  children?: ReactNode;
 }
 
 /**
  * The amount on a calculator display (F-018 final prototype): right-aligned in the type's color with the account's
- * currency, no sign before it (the color and the Expense / Income switch say which it is). A sum is shown as
- * arithmetic in the text's color, its result on the top line.
+ * currency, no sign before it (the color and the type switch say which it is). A sum is shown as arithmetic in the
+ * text's color, its result on the top line. An exchange (F-019) has two: the amount From, and a smaller one for what To
+ * got, with the rate under it.
  */
 export function AmountDisplay({
   value,
@@ -36,6 +49,12 @@ export function AmountDisplay({
   error,
   onEnter,
   focusFirst,
+  label,
+  secondary,
+  target,
+  onTarget,
+  selectOnFocus,
+  children,
 }: AmountDisplayProps) {
   const { t } = useTranslation();
   const id = useId();
@@ -51,18 +70,31 @@ export function AmountDisplay({
     if (focusFirst) input.current?.focus();
   }, [focusFirst]);
 
+  // On the phone the display the keys type into stays in sight above them, with its rate line (an exchange's To sits
+  // low in the form, F-019)
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (target || error) root.current?.scrollIntoView({ block: 'nearest' });
+  }, [target, error, value]);
+
   const sign = <span className={classes.sign}>{currencySign(currency)}</span>;
 
   return (
     <div
+      ref={root}
       className={classes.display}
       data-type={type}
       data-sum={sum || undefined}
       data-invalid={error ? true : undefined}
-      onClick={() => input.current?.focus()}
+      data-secondary={secondary ? true : undefined}
+      data-target={target ? true : undefined}
+      onClick={() => {
+        input.current?.focus();
+        onTarget?.();
+      }}
     >
       <div className={classes.displayHead}>
-        <label htmlFor={id}>{t('transactions.form.amount')}</label>
+        <label htmlFor={id}>{label ?? t('transactions.form.amount')}</label>
         <span aria-live="polite">
           {sum && (
             <span className={classes.result} data-low={result === null || result <= 0 || undefined}>
@@ -86,6 +118,9 @@ export function AmountDisplay({
             data-autofocus={focusFirst ? true : undefined}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? `${id}-error` : undefined}
+            onFocus={(event) => {
+              if (selectOnFocus) event.currentTarget.select();
+            }}
             onChange={(event) => {
               onChange(fromTyped(event.currentTarget.value));
             }}
@@ -99,6 +134,7 @@ export function AmountDisplay({
         </span>
         {!sum && !before && sign}
       </div>
+      {children}
       {error && <VisuallyHidden id={`${id}-error`}>{error}</VisuallyHidden>}
     </div>
   );

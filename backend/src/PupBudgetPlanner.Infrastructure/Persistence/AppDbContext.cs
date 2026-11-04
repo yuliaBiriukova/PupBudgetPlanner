@@ -30,7 +30,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<Bank> Banks => Set<Bank>();
 
-    /// <summary>Expenses and incomes (F-018).</summary>
+    /// <summary>Expenses and incomes (F-018), transfers (F-019).</summary>
     public DbSet<Transaction> Transactions => Set<Transaction>();
 
     /// <summary>The NBU's official rates kept per day (F-017), shared by everyone.</summary>

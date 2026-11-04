@@ -27,6 +27,8 @@ decision — write a new ADR that supersedes it.
 | [0020](0020-user-settings.md) | User settings: report currency on the account, theme on the device, rates in hryvnias | Accepted |
 | [0021](0021-popup-swipe-and-back.md) | Pop-ups: own swipe code and one history step per open pop-up | Accepted |
 | [0022](0022-transactions-and-balances.md) | Transactions: balances summed by the database, suggestions worked out in memory, no deleting a used account | Accepted |
+| [0023](0023-transfers-one-row.md) | Transfers: one row with both accounts; the form's rate from the API, the amounts from the person | Accepted |
+| [0024](0024-transactions-list-and-summary.md) | Transactions list: filters in the address, pages by offset, a separate summary at each day's rate | Accepted |
 
 Template for new ADRs:
 

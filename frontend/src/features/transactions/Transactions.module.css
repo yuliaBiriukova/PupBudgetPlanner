@@ -1,114 +1,5 @@
-/* The Transactions page until F-020 (F-018 final prototype): the latest transactions by day; a row opens it */
-.head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: center;
-  padding: 8px 0 20px;
-}
-
-.title {
-  margin: 0 auto 0 0;
-}
-
-.latest {
-  max-width: 720px;
-}
-
-.note {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  margin: 0 0 16px;
-  color: var(--mantine-color-dimmed);
-  font-size: 14px;
-}
-
-.note > svg {
-  flex: none;
-  margin-top: 2px;
-}
-
-.day {
-  margin: 0;
-  padding: 16px 0 4px;
-  color: var(--mantine-color-dimmed);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.rows {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.row {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  width: calc(100% + 24px);
-  min-height: 60px;
-  margin: 0 -12px;
-  padding: 8px 12px;
-  border-radius: var(--mantine-radius-md);
-  color: var(--mantine-color-text);
-  text-align: left;
-}
-
-.row:hover {
-  background: var(--pup-color-hover);
-}
-
-.row:focus-visible {
-  outline: 2px solid var(--mantine-color-text);
-  outline-offset: -2px;
-}
-
-/* The one moment: the row just saved is lit and fades */
-.row[data-fresh] {
-  animation: fresh 2400ms ease-out;
-}
-
-@keyframes fresh {
-  0%,
-  40% {
-    background: var(--pup-color-fresh);
-  }
-
-  100% {
-    background: transparent;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .row[data-fresh] {
-    animation: none;
-    background: var(--pup-color-fresh);
-  }
-}
-
-.main {
-  display: grid;
-  flex: 1;
-  min-width: 0;
-}
-
-.category {
-  overflow: hidden;
-  font-weight: 500;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sub {
-  overflow: hidden;
-  color: var(--mantine-color-dimmed);
-  font-size: 14px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+/* Amounts as lists and questions show them (F-018, F-019), and the Delete question; the Transactions page itself is
+   TransactionsPage.module.css (F-020) */
 
 .amount {
   font-variant-numeric: tabular-nums;
@@ -125,68 +16,19 @@
   color: var(--pup-color-income);
 }
 
+/* A transfer: neither in nor out, in blue without a sign; an exchange's two amounts with an arrow (F-019) */
+.transfer {
+  color: var(--pup-color-transfer);
+}
+
+.arrow {
+  margin-inline: 4px;
+  vertical-align: -2px;
+}
+
 .dim {
   color: var(--mantine-color-dimmed);
 }
-
-/* Empty, error */
-.empty {
-  max-width: 460px;
-  padding: 32px 0 8px;
-}
-
-.emptyTitle {
-  margin: 0;
-  font-family: var(--pup-font-display);
-  font-size: 20px;
-  font-weight: 300;
-  line-height: 1.3;
-}
-
-.emptyText {
-  margin: 8px 0 0;
-  color: var(--mantine-color-dimmed);
-}
-
-/* As tall as the app's other page buttons (Add account) */
-.emptyButton {
-  min-height: 48px;
-}
-
-.errorBanner {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  max-width: 720px;
-  padding: 12px 14px;
-  border-radius: var(--mantine-radius-md);
-  background: var(--pup-color-error-bg);
-  color: var(--pup-color-error-text);
-}
-
-.errorBanner > svg {
-  flex: none;
-  margin-top: 2px;
-}
-
-.errorBanner p {
-  margin: 0;
-}
-
-.textLink {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  min-height: 44px;
-  color: inherit;
-  font-weight: 500;
-}
-
-.textLink:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 /* Delete asks first: what is deleted, in a box */
 .what {
   display: grid;
@@ -223,4 +65,9 @@
 
 .danger:hover {
   background: var(--pup-color-danger-hover);
+}
+
+/* The notification after a transfer: what was saved, then both accounts counting on a second line (F-019) */
+.lines {
+  display: grid;
 }

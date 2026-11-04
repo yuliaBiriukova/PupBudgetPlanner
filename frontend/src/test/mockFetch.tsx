@@ -3,17 +3,16 @@ import { useState, type ReactNode } from 'react';
 /** How a story's fake API answers one path: JSON, a status with no body, or never (loading forever). */
 export type MockAnswer = { json: unknown; status?: number } | { status: number } | 'pending';
 
-/** `METHOD /path` → answer; a path without a method matches GET. */
-export type MockRoutes = Record<string, MockAnswer | ((body: unknown) => MockAnswer)>;
+/** `METHOD /path` → answer; a path without a method matches GET. A function gets the body and the query (F-020). */
+export type MockRoutes = Record<
+  string,
+  MockAnswer | ((body: unknown, query: URLSearchParams) => MockAnswer)
+>;
 
-function answer(
-  routes: MockRoutes,
-  method: string,
-  path: string,
-  body: unknown,
-): Promise<Response> {
-  const route = routes[`${method} ${path}`] ?? (method === 'GET' ? routes[path] : undefined);
-  const result = typeof route === 'function' ? route(body) : route;
+function answer(routes: MockRoutes, method: string, url: URL, body: unknown): Promise<Response> {
+  const route =
+    routes[`${method} ${url.pathname}`] ?? (method === 'GET' ? routes[url.pathname] : undefined);
+  const result = typeof route === 'function' ? route(body, url.searchParams) : route;
   if (result === 'pending') return new Promise<Response>(() => undefined);
   if (!result) return Promise.resolve(new Response(null, { status: 404 }));
   if ('json' in result) {
@@ -39,7 +38,7 @@ export function MockFetch({ routes, children }: { routes: MockRoutes; children: 
       return answer(
         routes,
         request.method,
-        new URL(request.url).pathname,
+        new URL(request.url),
         text ? (JSON.parse(text) as unknown) : undefined,
       );
     };

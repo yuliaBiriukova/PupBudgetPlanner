@@ -496,6 +496,10 @@ playwright/.cache/
 .env.*
 !.env.example
 
+# ---- Claude Code ----
+# Dev servers for the desktop app's Browser pane; paths only work on the owner's laptop (I-018)
+.claude/launch.json
+
 # ---- Editors / OS ----
 .idea/
 .vscode/*

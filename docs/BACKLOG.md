@@ -49,8 +49,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 |----|---------|--------|
 | [F-017](changes/features/F-017-exchange-rates/F-017-exchange-rates.md) | NBU exchange rates | Done |
 | [F-018](changes/features/F-018-quick-add-income-expense/F-018-quick-add-income-expense.md) | 🎨 Quick add: expense and income | Done |
-| [F-019](changes/features/F-019-transfers-and-exchange/F-019-transfers-and-exchange.md) | 🎨 Transfers and currency exchange | Todo |
-| [F-020](changes/features/F-020-transactions-list/F-020-transactions-list.md) | 🎨 Transactions list | Todo |
+| [F-019](changes/features/F-019-transfers-and-exchange/F-019-transfers-and-exchange.md) | 🎨 Transfers and currency exchange | Done |
+| [F-020](changes/features/F-020-transactions-list/F-020-transactions-list.md) | 🎨 Transactions list | Done |
 
 ### M4 — Reports
 
@@ -104,6 +104,7 @@ owner asks for one.
 | [I-015](changes/improvements/I-015-sheet-swipe-and-back/I-015-sheet-swipe-and-back.md) | Phone pop-ups close with a swipe down and with Back | Medium | Done |
 | [I-016](changes/improvements/I-016-category-month-totals/I-016-category-month-totals.md) | 🎨 This month's total next to each category when adding a transaction (after F-018) | Low | Todo |
 | [I-017](changes/improvements/I-017-note-suggestions/I-017-note-suggestions.md) | 🎨 Suggest notes already used while typing a note (after F-018) | Medium | Todo |
+| [I-018](changes/improvements/I-018-neon-skills-in-repo/I-018-neon-skills-in-repo.md) | Neon's Claude skills in the repo; `.claude/launch.json` ignored | Low | Done |
 
 ## Bugfixes
 

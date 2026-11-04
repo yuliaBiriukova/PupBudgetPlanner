@@ -146,7 +146,7 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
     }
 
     private Task<bool> HasTransactionsAsync(Guid accountId, CancellationToken cancellationToken) =>
-        dbContext.Transactions.AnyAsync(transaction => transaction.AccountId == accountId, cancellationToken);
+        dbContext.IsUsedAsync(accountId, cancellationToken);
 
     private static Dictionary<Guid, int> CountsOf(IEnumerable<TransactionSum> sums) =>
         sums.GroupBy(sum => sum.AccountId).ToDictionary(group => group.Key, group => group.Sum(sum => sum.Count));

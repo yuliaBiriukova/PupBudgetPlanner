@@ -1,7 +1,8 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw/http';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { formatMoney } from '../../shared/format/money';
 import { renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
@@ -14,6 +15,7 @@ import type {
   Transaction,
   TransactionSuggestions,
 } from './transactionsApi';
+import { fakePage, fakeSummary, twoMonths } from './transactionsFakeApi';
 import { categoryId } from './transactionsTestData';
 
 /** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
@@ -68,6 +70,16 @@ const LATEST: Transaction[] = [
   },
 ];
 
+/** The NBU's rates of the day the form asks for (F-019). */
+const RATES = {
+  date: today(),
+  status: 'Current',
+  rates: [
+    { currency: 'EUR', rate: 48.71 },
+    { currency: 'USD', rate: 45.53 },
+  ],
+};
+
 interface Sent {
   method: string;
   url: string;
@@ -79,33 +91,49 @@ function transactionsServer({
   latest = LATEST,
   suggestions = NONE,
   overview = OVERVIEW,
+  rates = RATES,
 }: {
   latest?: Transaction[];
   suggestions?: TransactionSuggestions;
   overview?: AccountsOverview;
+  /** The NBU rates the API gives for any day (F-019). */
+  rates?: { date: string | null; status: string; rates: { currency: string; rate: number }[] };
 } = {}) {
   const sent: Sent[] = [];
   const saved = (body: SaveTransactionRequest, id = 'new') => {
     const account = overview.accounts.find((item) => item.id === body.accountId);
     const before = account?.balance ?? 0;
-    const after = before + (body.type === 'Expense' ? -body.amount : body.amount);
+    const after = before + (body.type === 'Income' ? body.amount : -body.amount);
+    // A transfer: its To gets what the bank gave, or the amount itself in one currency
+    const to = overview.accounts.find((item) => item.id === body.toAccountId);
+    const toAmount = body.toAmount ?? body.amount;
     return {
       transaction: {
         ...body,
         id,
         accountName: account?.name ?? '',
         currency: account?.currency ?? 'UAH',
-        categoryName: 'Saved',
+        categoryName: body.type === 'Transfer' ? null : 'Saved',
+        ...(to && { toAccountName: to.name, toCurrency: to.currency, toAmount }),
       },
-      balances: [{ accountId: body.accountId, before, after }],
+      balances: [
+        { accountId: body.accountId, before, after },
+        ...(to ? [{ accountId: to.id, before: to.balance, after: to.balance + toAmount }] : []),
+      ],
     };
   };
   server.use(
     http.get('/api/accounts', () => HttpResponse.json(overview)),
     http.get('/api/accounts/total', () => HttpResponse.json(TOTAL)),
     http.get('/api/categories', () => HttpResponse.json(DEFAULT_CATEGORIES)),
-    http.get('/api/transactions', () => HttpResponse.json({ items: latest })),
+    http.get('/api/transactions', ({ request }) =>
+      HttpResponse.json(fakePage(latest, new URL(request.url).searchParams)),
+    ),
+    http.get('/api/transactions/summary', ({ request }) =>
+      HttpResponse.json(fakeSummary(latest, new URL(request.url).searchParams)),
+    ),
     http.get('/api/transactions/suggestions', () => HttpResponse.json(suggestions)),
+    http.get('/api/rates', () => HttpResponse.json(rates)),
     http.post('/api/transactions', async ({ request }) => {
       const body = (await request.json()) as SaveTransactionRequest;
       sent.push({ method: 'POST', url: '/api/transactions', body });
@@ -153,22 +181,202 @@ async function pickAccount(form: HTMLElement, name: string) {
   await userEvent.click(within(list).getByRole('button', { name: new RegExp(`^${name}`) }));
 }
 
+/** The month's receipts, the period's totals and its calendar come from these (F-020). */
+const MONTH = twoMonths('2026-10-29');
+
+/** The accounts with transactions on them: the page isn't the "No transactions yet" one. */
+const USED: AccountsOverview = {
+  ...OVERVIEW,
+  accounts: OVERVIEW.accounts.map((account) => ({ ...account, transactionCount: 12 })),
+};
+
+/** An amount as the page shows it, with plain spaces: the text matchers make the page's no-break ones plain too. */
+const money = (value: number) => formatMoney(value, 'UAH').replace(/\u00a0/g, ' ');
+
 describe('the Transactions page', () => {
-  it('lists the latest transactions by day, today and yesterday by name', async () => {
+  it('shows a month as receipts by day, newest first, each with what the day cost', async () => {
     transactionsServer();
     renderApp('/transactions');
 
-    const today = await screen.findByRole('region', { name: /^Today, / }, LOADED);
-    expect(within(today).getByRole('button', { name: /Groceries/ })).toHaveTextContent(
-      'GroceriesMono black, Silpo−612 ₴',
+    const todays = await screen.findByRole('region', { name: /^Today, / }, LOADED);
+    expect(within(todays).getByRole('button', { name: /Groceries/ })).toHaveTextContent(
+      'Groceries−612 ₴Mono black, Silpo',
     );
+    expect(todays).toHaveTextContent('Total−612 ₴');
     const yesterday = screen.getByRole('region', { name: /^Yesterday, / });
     expect(within(yesterday).getByRole('button', { name: /Salary/ })).toHaveTextContent(
-      '+62 000 ₴',
+      'Salary+62 000 ₴Privat card, October',
     );
-    expect(screen.getByRole('region', { name: '12 Oct 2026' })).toHaveTextContent(
-      'SpotifyMono dollars−$11',
+    expect(yesterday).toHaveTextContent('Received+62 000 ₴');
+    // This month only: 12 October is another month unless today is in October
+    if (!today().startsWith('2026-10')) {
+      expect(screen.queryByRole('button', { name: /Spotify/ })).not.toBeInTheDocument();
+    }
+  });
+
+  it('puts the month’s spent and received on top, with how much of what came in is spent', async () => {
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10');
+
+    const totals = await screen.findByRole('region', { name: 'Totals' }, LOADED);
+    const summary = fakeSummary(MONTH, new URLSearchParams('from=2026-10-01&to=2026-10-31'));
+    await waitFor(() => {
+      expect(totals).toHaveTextContent(money(summary.spent));
+    }, LOADED);
+    expect(totals).toHaveTextContent(`+${money(summary.received)}`);
+    expect(
+      within(totals).getByRole('img', {
+        name: `${String(Math.round((summary.spent / summary.received) * 100))}% of what came in is spent`,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(totals).getByRole('button', { name: /^Period:\s*October 2026$/ }),
+    ).toBeInTheDocument();
+    expect(within(totals).getByRole('button', { name: 'Previous month' })).toBeEnabled();
+  });
+
+  it('shows only a category picked in Where it went, with its own totals', async () => {
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10');
+
+    const where = await screen.findByRole('region', { name: 'Where it went' }, LOADED);
+    await userEvent.click(
+      await within(where).findByRole('button', { name: /^Eating out/ }, LOADED),
     );
+
+    expect(
+      await screen.findByRole('button', { name: 'Showing Eating out only. Show all categories' }),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /^Groceries−/ })).not.toBeInTheDocument();
+    });
+    expect(screen.getAllByRole('button', { name: /^Eating out−/ }).length).toBeGreaterThan(0);
+    expect(screen.getByText('Spent, on what’s picked')).toBeInTheDocument();
+  });
+
+  it('shows only a day tapped in the calendar, and the month again; a day with a transfer says so', async () => {
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10');
+
+    const days = await screen.findByRole('region', { name: 'Days of October' }, LOADED);
+    // The 15th has a transfer (dollars into Mono black): it says so, as a day with income does
+    expect(
+      await within(days).findByRole(
+        'button',
+        { name: /^Thursday 15 October: .*, a transfer$/ },
+        LOADED,
+      ),
+    ).toBeInTheDocument();
+    await userEvent.click(within(days).getByRole('button', { name: /^Thursday 1 October/ }));
+
+    expect(await screen.findByText('Only Thursday, 1 Oct')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getAllByRole('region', { name: /, \d+ Oct$/ })).toHaveLength(1);
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'Show all of October' }));
+    await waitFor(() => {
+      expect(screen.getAllByRole('region', { name: /, \d+ Oct$/ }).length).toBeGreaterThan(1);
+    });
+  });
+
+  it('opens on the phone with the Filters button; the sheet’s picks show as chips', async () => {
+    setScreenWidth(375);
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Filters' }, LOADED));
+    const sheet = await screen.findByRole('dialog', { name: 'Filters' });
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Wallet' }));
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Expenses' }));
+    const count = fakeSummary(
+      MONTH,
+      new URLSearchParams('from=2026-10-01&to=2026-10-31&accountId=cash&type=Expense'),
+    ).count;
+    await userEvent.click(
+      await within(sheet).findByRole(
+        'button',
+        { name: `Show ${String(count)} transactions` },
+        LOADED,
+      ),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Clear account: Wallet' }, LOADED),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Clear type: Expenses' })).toBeInTheDocument();
+    expect(screen.getByLabelText('2 on')).toHaveTextContent('2');
+    // Several sheet steps and a Back step to wait for: slower than most when the whole suite runs at once
+  }, 15_000);
+
+  it('says nothing was found and clears the filters', async () => {
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10&account=mono-usd&type=income');
+
+    expect(await screen.findByText('Nothing found', {}, LOADED)).toBeInTheDocument();
+    expect(
+      screen.getByText('No transactions match these filters in October 2026.'),
+    ).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(await screen.findAllByRole('region', { name: /, \d+ Oct$/ })).not.toHaveLength(0);
+  });
+
+  it('loads more as the end of the list comes near, the day’s total already whole', async () => {
+    // The end of the list is always in sight: every page loads in turn
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        private readonly callback: IntersectionObserverCallback;
+        constructor(callback: IntersectionObserverCallback) {
+          this.callback = callback;
+        }
+        observe = () => {
+          setTimeout(() => {
+            this.callback([{ isIntersecting: true } as IntersectionObserverEntry], this as never);
+          });
+        };
+        disconnect = vi.fn();
+      },
+    );
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10');
+
+    const october = MONTH.filter((item) => item.date.startsWith('2026-10'));
+    expect(october.length).toBeGreaterThan(30);
+    expect(await screen.findByText('That’s all of October 2026.', {}, LOADED)).toBeInTheDocument();
+    const lines = screen
+      .getAllByRole('region', { name: /, \d+ Oct$/ })
+      .flatMap((receipt) => within(receipt).getAllByRole('button'));
+    expect(lines).toHaveLength(october.length);
+    // A day's foot is its whole total, as the summary has it
+    const first = fakeSummary(MONTH, new URLSearchParams('from=2026-10-01&to=2026-10-01'));
+    expect(screen.getByRole('region', { name: 'Thursday, 1 Oct' })).toHaveTextContent(
+      `Total−${money(first.spent)}`,
+    );
+    vi.unstubAllGlobals();
+  });
+
+  it('adds a transaction from the slip, with the one picked account', async () => {
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10&account=privat');
+
+    const totals = await screen.findByRole('region', { name: 'Totals' }, LOADED);
+    await userEvent.click(within(totals).getByRole('button', { name: 'Add transaction' }));
+    const form = await screen.findByRole('dialog', { name: 'Add expense' }, LOADED);
+    expect(
+      await within(form).findByRole('button', { name: /^Account:/ }, LOADED),
+    ).toHaveTextContent('Privat card');
+  });
+
+  it('shows Add transaction on the phone’s slip as a round +, its name for screen readers', async () => {
+    setScreenWidth(375);
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10');
+
+    const totals = await screen.findByRole('region', { name: 'Totals' }, LOADED);
+    const add = within(totals).getByRole('button', { name: 'Add transaction' });
+    expect(add).toHaveAttribute('data-round');
+    await userEvent.click(add);
+    expect(await screen.findByRole('dialog', { name: 'Add expense' }, LOADED)).toBeInTheDocument();
   });
 
   it('explains what to do when there is nothing yet', async () => {
@@ -385,7 +593,9 @@ describe('changing a transaction', () => {
     const sent = transactionsServer();
     renderApp('/transactions');
 
-    await userEvent.click(await screen.findByRole('button', { name: /Groceries/ }, LOADED));
+    // On today's receipt: the desktop's Where it went has a Groceries line too
+    const receipt = await screen.findByRole('region', { name: /^Today, / }, LOADED);
+    await userEvent.click(within(receipt).getByRole('button', { name: /Groceries/ }));
     let form = await screen.findByRole('dialog', { name: 'Edit expense' });
     expect(within(form).getByLabelText('Amount')).toHaveValue('612');
     expect(within(form).getByRole('radio', { name: 'Groceries' })).toBeChecked();
@@ -395,7 +605,11 @@ describe('changing a transaction', () => {
     await userEvent.click(within(form).getByRole('button', { name: 'Save changes' }));
     expect(await screen.findByText(/Changes saved\. Mono black:/)).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: /Groceries/ }));
+    await userEvent.click(
+      within(screen.getByRole('region', { name: /^Today, / })).getByRole('button', {
+        name: /Groceries/,
+      }),
+    );
     form = await screen.findByRole('dialog', { name: 'Edit expense' });
     await userEvent.click(within(form).getByRole('button', { name: 'Delete this expense' }));
     const ask = await screen.findByRole('dialog', { name: 'Delete this expense?' });
@@ -409,6 +623,226 @@ describe('changing a transaction', () => {
       'DELETE /api/transactions/t1',
     ]);
     expect(sent[0]?.body).toMatchObject({ amount: 640, note: 'Silpo', date: today() });
+  });
+});
+
+/** The last transfer: dollars sold into Mono black. */
+const LAST_EXCHANGE: TransactionSuggestions = {
+  ...NONE,
+  lastAccounts: [{ type: 'Transfer', accountId: 'mono-usd' }],
+  lastTransfer: { fromAccountId: 'mono-usd', toAccountId: 'mono' },
+};
+
+/** Opens the form and switches it to Transfer. */
+async function openTransfer() {
+  const form = await openForm();
+  await userEvent.click(within(form).getByText('Transfer'));
+  return screen.findByRole('dialog', { name: 'Add transfer' });
+}
+
+describe('transfers', () => {
+  it('moves money between two accounts in one currency: one amount, no category', async () => {
+    const sent = transactionsServer({
+      suggestions: { ...NONE, lastTransfer: { fromAccountId: 'mono', toAccountId: 'cash' } },
+    });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    expect(within(form).getByRole('button', { name: /^From/ })).toHaveTextContent('Mono black');
+    expect(within(form).getByRole('button', { name: /^To/ })).toHaveTextContent('Wallet');
+    expect(within(form).queryByRole('radiogroup', { name: 'Category' })).not.toBeInTheDocument();
+    expect(within(form).queryByLabelText(/^To Wallet/)).not.toBeInTheDocument();
+
+    // The To list leaves out the From account
+    await userEvent.click(within(form).getByRole('button', { name: /^To/ }));
+    const list = await screen.findByRole('dialog', { name: 'To' });
+    expect(within(list).queryByRole('button', { name: /^Mono black/ })).not.toBeInTheDocument();
+    await userEvent.click(within(list).getByRole('button', { name: /^Privat card/ }));
+
+    await userEvent.type(within(form).getByLabelText('Amount'), '2000');
+    await userEvent.type(within(form).getByLabelText('Note'), 'Savings');
+    await userEvent.click(within(form).getByRole('button', { name: 'Save transfer' }));
+
+    expect(await screen.findByText('Transfer saved.')).toBeInTheDocument();
+    expect(screen.getByText(/Mono black.*Privat card/)).toBeInTheDocument();
+    expect(sent.map((item) => item.body)).toEqual([
+      {
+        type: 'Transfer',
+        date: today(),
+        accountId: 'mono',
+        categoryId: null,
+        amount: 2000,
+        note: 'Savings',
+        toAccountId: 'privat',
+        toAmount: null,
+      },
+    ]);
+  });
+
+  it('suggests an exchange’s second amount at the NBU rate, takes the bank’s own and goes back', async () => {
+    const sent = transactionsServer({ suggestions: LAST_EXCHANGE });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    expect(within(form).getByRole('button', { name: /^From/ })).toHaveTextContent('Mono dollars');
+    expect(within(form).getByRole('button', { name: /^To/ })).toHaveTextContent('Mono black');
+    await userEvent.type(within(form).getByLabelText('From Mono dollars'), '100');
+    const to = within(form).getByLabelText('To Mono black');
+    await waitFor(() => {
+      expect(to).toHaveValue('4 553');
+    });
+    expect(form).toHaveTextContent(
+      /At the NBU rate of .*: \$1 = 45\.53 ₴\. Change it to what the bank gave you\./,
+    );
+
+    await userEvent.clear(to);
+    await userEvent.type(to, '4490');
+    expect(form).toHaveTextContent('Your rate: $1 = 44.90 ₴. NBU: $1 = 45.53 ₴.');
+    await userEvent.click(within(form).getByRole('button', { name: 'Use the NBU rate' }));
+    expect(to).toHaveValue('4 553');
+    await userEvent.clear(to);
+    await userEvent.type(to, '4490');
+    await userEvent.click(within(form).getByRole('button', { name: 'Save transfer' }));
+
+    expect(await screen.findByText('Exchange saved.')).toBeInTheDocument();
+    expect(sent.map((item) => item.body)).toEqual([
+      expect.objectContaining({
+        accountId: 'mono-usd',
+        amount: 100,
+        toAccountId: 'mono',
+        toAmount: 4490,
+      }),
+    ]);
+  });
+
+  it('swaps From and To with their amounts', async () => {
+    transactionsServer({ suggestions: LAST_EXCHANGE });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    await userEvent.type(within(form).getByLabelText('From Mono dollars'), '100');
+    await userEvent.clear(within(form).getByLabelText('To Mono black'));
+    await userEvent.type(within(form).getByLabelText('To Mono black'), '4490');
+    await userEvent.click(within(form).getByRole('button', { name: 'Swap From and To' }));
+
+    expect(within(form).getByRole('button', { name: /^From/ })).toHaveTextContent('Mono black');
+    expect(within(form).getByLabelText('From Mono black')).toHaveValue('4 490');
+    expect(within(form).getByLabelText('To Mono dollars')).toHaveValue('100');
+    // Buying dollars reads the same way as selling them
+    expect(form).toHaveTextContent('Your rate: $1 = 44.90 ₴.');
+  });
+
+  it('asks for the second amount when the NBU has no rate', async () => {
+    const sent = transactionsServer({
+      suggestions: LAST_EXCHANGE,
+      rates: { date: null, status: 'Missing', rates: [] },
+    });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    await userEvent.type(within(form).getByLabelText('From Mono dollars'), '100');
+    expect(
+      await within(form).findByText(
+        'No NBU rate for this day right now. Type how much Mono black got.',
+      ),
+    ).toBeInTheDocument();
+    expect(within(form).getByLabelText('To Mono black')).toHaveValue('');
+    await userEvent.click(within(form).getByRole('button', { name: 'Save transfer' }));
+    expect(within(form).getByLabelText('To Mono black')).toHaveAccessibleDescription(
+      'Enter how much Mono black got.',
+    );
+    expect(sent).toEqual([]);
+  });
+
+  it('says an earlier rate is an earlier one', async () => {
+    transactionsServer({
+      suggestions: LAST_EXCHANGE,
+      rates: { ...RATES, date: '2026-10-30', status: 'NotPublished' },
+    });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    await waitFor(() => {
+      expect(form).toHaveTextContent(
+        /isn’t out yet\. At the rate of 30 Oct 2026: \$1 = 45\.53 ₴\./,
+      );
+    });
+  });
+
+  it('moves the phone keys to the To amount, the first key replacing the suggestion', async () => {
+    setScreenWidth(375);
+    const sent = transactionsServer({ suggestions: LAST_EXCHANGE });
+    renderApp('/transactions');
+
+    const form = await openTransfer();
+    const keys = within(form).getByRole('group', { name: 'Amount keys' });
+    for (const key of ['1', '0', '0'])
+      await userEvent.click(within(keys).getByRole('button', { name: key }));
+    await waitFor(() => {
+      expect(within(form).getByLabelText('To Mono black')).toHaveValue('4 553');
+    });
+    await userEvent.click(within(form).getByLabelText('To Mono black'));
+    for (const key of ['4', '4', '9', '0'])
+      await userEvent.click(within(keys).getByRole('button', { name: key }));
+    expect(within(form).getByLabelText('To Mono black')).toHaveValue('4 490');
+    expect(within(form).getByLabelText('From Mono dollars')).toHaveValue('100');
+    await userEvent.click(within(keys).getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(sent.map((item) => (item.body as SaveTransactionRequest).toAmount)).toEqual([4490]);
+    });
+  });
+
+  it('lists transfers and exchanges, and asks before deleting what both balances go back to', async () => {
+    const exchange: Transaction = {
+      id: 't9',
+      type: 'Transfer',
+      date: today(),
+      accountId: 'mono-usd',
+      accountName: 'Mono dollars',
+      currency: 'USD',
+      categoryId: null,
+      categoryName: null,
+      amount: 100,
+      note: null,
+      toAccountId: 'mono',
+      toAccountName: 'Mono black',
+      toCurrency: 'UAH',
+      toAmount: 4490,
+    };
+    const transfer: Transaction = {
+      ...exchange,
+      id: 't10',
+      accountId: 'mono',
+      accountName: 'Mono black',
+      currency: 'UAH',
+      amount: 2000,
+      note: 'Cash for the market',
+      toAccountId: 'cash',
+      toAccountName: 'Wallet',
+      toCurrency: 'UAH',
+      toAmount: 2000,
+    };
+    transactionsServer({ latest: [exchange, transfer] });
+    renderApp('/transactions');
+
+    const exchangeRow = await screen.findByRole('button', { name: /^Exchange/ }, LOADED);
+    expect(exchangeRow).toHaveTextContent('Exchange$100');
+    expect(exchangeRow).toHaveTextContent('Mono dollarsMono black');
+    expect(exchangeRow).toHaveTextContent('4 490 ₴');
+    expect(screen.getByRole('button', { name: /^Transfer/ })).toHaveTextContent(
+      'Transfer2 000 ₴Mono blackWallet, Cash for the market',
+    );
+
+    await userEvent.click(exchangeRow);
+    const form = await screen.findByRole('dialog', { name: 'Edit exchange' });
+    expect(within(form).getByLabelText('To Mono black')).toHaveValue('4 490');
+    await userEvent.click(within(form).getByRole('button', { name: 'Delete this exchange' }));
+    const ask = await screen.findByRole('dialog', { name: 'Delete this exchange?' });
+    expect(ask).toHaveTextContent('Exchange from Mono dollars to Mono black');
+    expect(ask).toHaveTextContent(
+      'Mono dollars goes back to $1 340, Mono black to 43 721 ₴. This can’t be undone.',
+    );
   });
 });
 
