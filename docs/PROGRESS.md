@@ -2,6 +2,39 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-04 (Plan: production testing, B-004 – B-007, I-022 – I-025)
+
+**Done**
+- Planned on `plan/prod-testing-fixes` the seven issues the owner found testing production, as four bugfixes and four
+  improvements (the account list's item split in two). Nothing built; all `Todo`, each to be built on its own branch
+  after the owner's approval:
+  - [B-006](changes/bugfixes/B-006-currency-sign-overlaps-amount/B-006-currency-sign-overlaps-amount.md) (High): the
+    currency sign overlaps the amount in the quick-add calculator display.
+  - [B-007](changes/bugfixes/B-007-where-it-went-cut-off/B-007-where-it-went-cut-off.md) (High): "Where it went" is cut
+    off on the desktop and doesn't scroll.
+  - [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) (High): Add transaction opens on
+    the day picked in the calendar.
+  - [B-004](changes/bugfixes/B-004-currency-search-not-typing/B-004-currency-search-not-typing.md) (Medium): nothing can
+    be typed in the account form's currency search; three variants to prototype (fix the dropdown, type in the field
+    itself, a list step inside the dialog), as the owner asked for another way to solve it.
+  - [B-005](changes/bugfixes/B-005-account-list-scroll-bar/B-005-account-list-scroll-bar.md) (Medium): the account
+    list's scroll bar covers the balances.
+  - [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) (Medium): the account list
+    shows each account's currency (and bank).
+  - [I-023](changes/improvements/I-023-opening-balance-calculator/I-023-opening-balance-calculator.md) (Low): the
+    opening balance works as a calculator, with the app's own keys on the phone.
+  - [I-022](changes/improvements/I-022-opening-balance-left-aligned/I-022-opening-balance-left-aligned.md) (Low): the
+    opening balance typed from the left.
+- The bugs' root causes are suspected from reading the code, not confirmed: each is reproduced on its own branch before
+  its fix is proposed for approval. The owner's screenshots stay out of the repo (they show real balances).
+- The owner's answers (2026-11-04): I-025 is High and I-023 Low, the other priorities as proposed. I-022: the sign
+  stays at the field's right edge. I-023: the app's own keys on the phone, as in the quick-add form, but not opened
+  as the account form opens. I-025: a past month without a day opens the form on today.
+- Test data: none.
+
+**Next**
+- Owner: review the planning PR. Then the High ones first: B-006, B-007 and I-025.
+
 ## 2026-11-04 (F-021: Report engine)
 
 **Done**
