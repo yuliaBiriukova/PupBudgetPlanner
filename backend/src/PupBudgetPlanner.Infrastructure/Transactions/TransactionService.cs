@@ -126,6 +126,24 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
         return TransactionSuggestions.From(recent, Kyiv.Today(clock));
     }
 
+    public async Task<IReadOnlyList<UsedNote>> NotesAsync(
+        Guid userId, TransactionType type, string text, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return [];
+        }
+
+        // One row a note; matched in memory, where case is ignored in Ukrainian too whatever the database's locale
+        var used = await dbContext.Transactions.AsNoTracking()
+            .Where(transaction => transaction.UserId == userId && transaction.Type == type && transaction.Note != null)
+            .GroupBy(transaction => transaction.Note!)
+            .Select(same => new UsedNote(same.Key, same.Count(), same.Max(transaction => transaction.CreatedAt)))
+            .ToListAsync(cancellationToken);
+
+        return NoteSuggestions.Of(used, text);
+    }
+
     public async Task<SaveTransactionResult> CreateAsync(
         Guid userId, SaveTransactionRequest request, CancellationToken cancellationToken)
     {

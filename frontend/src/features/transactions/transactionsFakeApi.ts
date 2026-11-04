@@ -204,3 +204,46 @@ export function twoMonths(now: string = today()): Transaction[] {
   // Newest first; within a day the last added first
   return out.reverse();
 }
+
+/** A note the fake API knows: how many transactions have it and how many days ago the last was added. */
+export interface FakeNote {
+  note: string;
+  uses: number;
+  daysAgo: number;
+}
+
+/** The final prototype's expense notes (I-017 variant 4). */
+export const EXPENSE_NOTES: FakeNote[] = [
+  { note: 'Silpo', uses: 14, daysAgo: 2 },
+  { note: 'Lunch with Vlad', uses: 6, daysAgo: 5 },
+  { note: 'Taxi home', uses: 5, daysAgo: 9 },
+  { note: 'Physio session', uses: 4, daysAgo: 6 },
+  { note: 'Kids’ music lesson', uses: 4, daysAgo: 12 },
+  { note: 'Simcard top-up', uses: 3, daysAgo: 20 },
+  { note: 'Silpo, wine for Friday', uses: 2, daysAgo: 4 },
+  { note: 'Basil and tomatoes, market', uses: 1, daysAgo: 3 },
+  { note: 'АТБ', uses: 9, daysAgo: 1 },
+  { note: 'Батарейки', uses: 2, daysAgo: 15 },
+  { note: 'Квартплата за жовтень', uses: 2, daysAgo: 33 },
+  { note: 'Вата і бинт', uses: 1, daysAgo: 8 },
+];
+
+/**
+ * `GET /api/transactions/notes`: the notes that have the text, the ones that start with it first, then by use and
+ * date, at most 5, as the backend orders them (`NoteSuggestions.Of`). Only expenses have notes here.
+ */
+export function fakeNotes(notes: FakeNote[], query: URLSearchParams) {
+  const text = (query.get('text') ?? '').trim().toLocaleLowerCase('uk');
+  if (!text || query.get('type') !== 'Expense') return [];
+  const fold = (item: FakeNote) => item.note.toLocaleLowerCase('uk');
+  const starts = (item: FakeNote) => (fold(item).startsWith(text) ? 1 : 0);
+  return notes
+    .filter((item) => fold(item).includes(text) && fold(item) !== text)
+    .sort((a, b) => starts(b) - starts(a) || b.uses - a.uses || a.daysAgo - b.daysAgo)
+    .slice(0, 5)
+    .map((item) => ({
+      note: item.note,
+      uses: item.uses,
+      lastUsed: `${addDays(today(), -item.daysAgo)}T09:00:00Z`,
+    }));
+}

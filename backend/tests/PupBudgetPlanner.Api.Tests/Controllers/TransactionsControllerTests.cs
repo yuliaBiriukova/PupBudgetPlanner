@@ -70,6 +70,31 @@ public sealed class TransactionsControllerTests
             .Which.Value.Should().BeSameAs(suggestions);
     }
 
+    [Fact]
+    public async Task The_note_suggestions_are_the_signed_in_persons_own_of_the_type()
+    {
+        IReadOnlyList<UsedNote> notes = [new UsedNote("Silpo", 14, DateTimeOffset.UtcNow)];
+        transactions.NotesAsync(UserId, TransactionType.Expense, "si", Arg.Any<CancellationToken>()).Returns(notes);
+
+        (await controller.Notes(TransactionType.Expense, CancellationToken.None, "si")).Result
+            .Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(notes);
+    }
+
+    [Fact]
+    public async Task A_text_longer_than_a_note_or_an_unknown_type_is_a_bad_request()
+    {
+        var tooLong = (await controller.Notes(TransactionType.Expense, CancellationToken.None, new string('a', 201)))
+            .Result;
+        var unknown = (await controller.Notes((TransactionType)42, CancellationToken.None, "si")).Result;
+
+        tooLong.Should().BeAssignableTo<ObjectResult>().Which.Value.Should().BeOfType<ValidationProblemDetails>()
+            .Which.Errors.Should().ContainKey("text");
+        unknown.Should().BeAssignableTo<ObjectResult>().Which.Value.Should().BeOfType<ValidationProblemDetails>()
+            .Which.Errors.Should().ContainKey("type");
+        await transactions.DidNotReceiveWithAnyArgs()
+            .NotesAsync(default, default, default!, TestContext.Current.CancellationToken);
+    }
+
     [Theory]
     [InlineData(-1, 30, "offset")]
     [InlineData(0, 0, "limit")]

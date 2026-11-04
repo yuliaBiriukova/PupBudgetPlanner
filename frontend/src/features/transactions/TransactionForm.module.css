@@ -605,6 +605,52 @@
   color: inherit;
 }
 
+/* The Note field's suggestions (I-017): the app's dropdown, one line a row, the row picked with the keys in the
+   accent. What was typed is quiet grey and the rest of the note, what the list adds, stands out */
+.suggestionsScroll {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
+.suggestions {
+  padding: 6px;
+}
+
+.dropdown .suggestion {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: var(--mantine-radius-sm);
+  color: var(--mantine-color-text);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.dropdown .suggestion:hover {
+  background: var(--pup-color-hover);
+}
+
+.dropdown .suggestion[data-combobox-selected] {
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+}
+
+.typed {
+  color: var(--mantine-color-dimmed);
+  font-weight: 400;
+}
+
+.suggestion[data-combobox-selected] .typed {
+  color: inherit;
+}
+
+/* The phone's Save while the note is typed: the app's keys fold away and the phone's keyboard takes their place */
+.saveAlone {
+  height: 52px;
+  font-size: 16px;
+}
+
 .none {
   margin: 0;
   padding: 12px 10px;

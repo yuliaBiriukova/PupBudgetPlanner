@@ -2,6 +2,45 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-04 (I-017 design round 1)
+
+**Done**
+- Started I-017 (note suggestions) on `improvement/I-017-note-suggestions`; status In progress. No code: the change
+  isn't approved yet.
+- References (Baymard on autocomplete, the phone keyboards' word strip, the browser's and Mantine's autocomplete, the
+  app's own lists and receipts) in the description file. Monefy and Wallet weren't looked at: not open without signing in.
+- Three prototypes on the form as built: [variant 1 · The app's dropdown](changes/improvements/I-017-note-suggestions/prototypes/variant-1.html),
+  [variant 2 · Pills by the keys](changes/improvements/I-017-note-suggestions/prototypes/variant-2.html),
+  [variant 3 · From your receipts](changes/improvements/I-017-note-suggestions/prototypes/variant-3.html) (the
+  category comes with the note: more than the criteria ask). In all three the app's keys fold away on the phone while a
+  note is typed, so the phone's keyboard and the list have room.
+- Checked: the design check on all three, 0 issues after fixes (the phone list drawn outside the sheet, an empty list
+  still marked as one, a 35 px Undo, the account field's name); screenshots of all five screens at 375 and 1440 px,
+  light and dark, looked at (fixed: the typed part too faint to tell apart, now grey; Undo's gaps; a list cut off with
+  no fade).
+- Test data: none.
+
+- The owner chose variant 1, with the notes that start with what was typed first. Built as the
+  [final prototype](changes/improvements/I-017-note-suggestions/prototypes/variant-4.html) ("si": Silpo, Simcard
+  top-up, Silpo, wine for Friday, then Physio session, Kids' music lesson); the criteria say so. Design check 0 issues;
+  all five screens at 375 and 1440 px, light and dark, looked at.
+
+- The owner approved the final prototype ("the prototype is approved, build it"); recorded in the description file and
+  DESIGN_RULES "Screen decisions" before the build.
+- Built: `GET /api/transactions/notes` (the person's own notes of the form's type, grouped in the database, matched and
+  ordered by the pure `NoteSuggestions.Of`: starts-with first, then use and date, case ignored in Ukrainian too, at most
+  5); the Note field as a Mantine `Combobox` in the app's dropdown look (`NoteField.tsx`), asked for after a 200 ms
+  pause; on the phone the app's keys fold to one Save while the note is typed (a tap on the amount brings them back), the
+  Note field scrolls to the top with the list under it down to Save, and a full sheet follows the phone's keyboard
+  (`useKeyboardInset`). Stories: suggestions on the phone and the desktop, light and dark, Ukrainian, none, loading.
+- Checked: see the PR (tests, E2E, screenshots at 375 / 520-high and 1440 px, light and dark, looked at; fixed on the
+  way: the desktop list shrinking instead of turning up above the field, the phone's list faded by the form's own fade).
+  Not tried on a real phone: Playwright has no phone keyboard.
+- Test data: the E2E run's `e2e-notes-…@example.com` people (and the spec's others), deleted by its clean-up.
+
+**Next**
+- Owner: review the PR; try the Note field on a phone (the keyboard and Save above it).
+
 ## 2026-11-04 (I-019: One look for every element)
 
 **Done**
