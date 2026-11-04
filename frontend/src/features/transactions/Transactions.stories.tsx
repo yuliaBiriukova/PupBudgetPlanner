@@ -8,7 +8,7 @@ import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
 import { useTransactionForm } from './transactionForm';
 import { TransactionFormProvider } from './TransactionFormProvider';
 import { TransactionsPage } from './TransactionsPage';
-import { fakePage, fakeSummary } from './transactionsFakeApi';
+import { EXPENSE_NOTES, fakeNotes, fakePage, fakeSummary } from './transactionsFakeApi';
 import { latestTransactions, SUGGESTIONS } from './transactionsTestData';
 
 interface ScreenProps {
@@ -21,6 +21,8 @@ interface ScreenProps {
   formData?: 'ready' | 'loading' | 'error' | 'no-accounts';
   /** The save answers with an error. */
   saveFails?: boolean;
+  /** The Note field's suggestions (I-017): the earlier notes, none at all, or still loading. */
+  notes?: 'some' | 'none' | 'loading';
 }
 
 /** Opens the form as the + or a row would. */
@@ -50,6 +52,7 @@ function TransactionsScreen({
   formData = 'ready',
   saveFails,
   rates = 'current',
+  notes = 'some',
 }: ScreenProps) {
   const answer = (json: unknown) =>
     formData === 'loading' ? 'pending' : formData === 'error' ? { status: 500 } : { json };
@@ -68,6 +71,10 @@ function TransactionsScreen({
     '/api/accounts': answer(formData === 'no-accounts' ? EMPTY : OVERVIEW),
     '/api/categories': answer(DEFAULT_CATEGORIES),
     '/api/transactions/suggestions': answer(SUGGESTIONS),
+    '/api/transactions/notes':
+      notes === 'loading'
+        ? 'pending'
+        : (_, query) => ({ json: notes === 'none' ? [] : fakeNotes(EXPENSE_NOTES, query) }),
     'POST /api/transactions': saveFails ? { status: 500 } : 'pending',
     '/api/rates': {
       json:
@@ -354,5 +361,90 @@ export const DeleteExchangeAsks: Story = {
     await expect(
       await within(document.body).findByRole('dialog', { name: 'Delete this exchange?' }),
     ).toHaveTextContent('Mono black to');
+  },
+};
+
+/** Types a note into the form's Note field (I-017), as the person would. */
+async function typeNote(text: string) {
+  const form = await within(document.body).findByRole('dialog', { name: 'Add expense' });
+  const note = await within(form).findByLabelText('Note');
+  await userEvent.type(note, text);
+  return form;
+}
+
+/**
+ * The earlier notes under the Note field on the phone (I-017): the app's keys fold away for the phone's keyboard, the
+ * field scrolls to the top and the list hangs under it, the notes that start with "si" first.
+ */
+export const NoteSuggestionsPhone: Story = {
+  args: { form: 'add' },
+  play: async () => {
+    await typeNote('si');
+    const list = await within(document.body).findByRole('listbox', {
+      name: 'Notes you used before',
+    });
+    await expect(
+      within(list)
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual([
+      'Silpo',
+      'Simcard top-up',
+      'Silpo, wine for Friday',
+      'Physio session',
+      'Kids’ music lesson',
+    ]);
+  },
+};
+
+export const NoteSuggestionsPhoneDark: Story = {
+  ...NoteSuggestionsPhone,
+  globals: { colorScheme: 'dark' },
+};
+
+/** The desktop: a dropdown under the field, ↓ ↑ move through it. */
+export const NoteSuggestionsDesktop: Story = {
+  args: { form: 'add' },
+  globals: desktop,
+  play: async () => {
+    await typeNote('si');
+    await within(document.body).findByRole('listbox', { name: 'Notes you used before' });
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}');
+  },
+};
+
+export const NoteSuggestionsDesktopDark: Story = {
+  ...NoteSuggestionsDesktop,
+  globals: { ...desktop, colorScheme: 'dark' },
+};
+
+/** Ukrainian: case ignored, АТБ first. */
+export const NoteSuggestionsUkrainian: Story = {
+  args: { form: 'add' },
+  globals: desktop,
+  play: async () => {
+    await typeNote('ат');
+    await expect(
+      await within(document.body).findByRole('option', { name: 'АТБ' }),
+    ).toBeInTheDocument();
+  },
+};
+
+/** No earlier note has it: no list at all. */
+export const NoteSuggestionsNone: Story = {
+  args: { form: 'add', notes: 'none' },
+  globals: desktop,
+  play: async () => {
+    await typeNote('si');
+    await expect(within(document.body).queryByRole('listbox')).not.toBeInTheDocument();
+  },
+};
+
+/** The notes still loading: no spinner, no list until they come. */
+export const NoteSuggestionsLoading: Story = {
+  args: { form: 'add', notes: 'loading' },
+  play: async () => {
+    await typeNote('si');
+    await expect(within(document.body).queryByRole('listbox')).not.toBeInTheDocument();
   },
 };

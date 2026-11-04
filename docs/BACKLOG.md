@@ -103,10 +103,11 @@ owner asks for one.
 | [I-014](changes/improvements/I-014-faster-local-tests/I-014-faster-local-tests.md) | Faster, steadier tests on the owner's laptop: no timeouts in unit and cold-start E2E runs | High | Done |
 | [I-015](changes/improvements/I-015-sheet-swipe-and-back/I-015-sheet-swipe-and-back.md) | Phone pop-ups close with a swipe down and with Back | Medium | Done |
 | [I-016](changes/improvements/I-016-category-month-totals/I-016-category-month-totals.md) | 🎨 This month's total next to each category when adding a transaction (after F-018) | Low | Todo |
-| [I-017](changes/improvements/I-017-note-suggestions/I-017-note-suggestions.md) | 🎨 Suggest notes already used while typing a note (after F-018) | Medium | Todo |
+| [I-017](changes/improvements/I-017-note-suggestions/I-017-note-suggestions.md) | 🎨 Suggest notes already used while typing a note (after F-018) | Medium | Done |
 | [I-018](changes/improvements/I-018-neon-skills-in-repo/I-018-neon-skills-in-repo.md) | Neon's Claude skills in the repo; `.claude/launch.json` ignored | Low | Done |
 | [I-019](changes/improvements/I-019-ui-consistency/I-019-ui-consistency.md) | 🎨 One look for buttons and other UI elements across the app (the sidebar's Add transaction first) | Medium | Done |
 | [I-020](changes/improvements/I-020-no-duplicate-accounts/I-020-no-duplicate-accounts.md) | No two accounts in use with the same name, currency, source and bank | Medium | Done |
+| [I-021](changes/improvements/I-021-prototypes-in-storybook/I-021-prototypes-in-storybook.md) | Prototypes as Storybook stories built from the app's own parts, so they look like the real UI | High | Done |
 
 ## Bugfixes
 

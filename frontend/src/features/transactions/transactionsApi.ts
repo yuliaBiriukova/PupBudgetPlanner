@@ -205,6 +205,25 @@ export const ratesQuery = (date: string) =>
     staleTime: 15 * 60 * 1000,
   });
 
+/**
+ * The Note field's suggestions (I-017): the person's own earlier notes of the type that have `text` in them, at most 5,
+ * the ones that start with it first. A save asks for them again, as for every list under `transactions`.
+ */
+export const noteSuggestionsQuery = (type: TransactionType, text: string) =>
+  queryOptions({
+    queryKey: [...transactionsKey, 'notes', type, text],
+    queryFn: async ({ signal }): Promise<string[]> => {
+      const { data, response } = await apiClient.GET('/api/transactions/notes', {
+        params: { query: { type, text } },
+        signal,
+      });
+      if (!response.ok || !data)
+        throw new Error(`Couldn't load the notes: ${String(response.status)}`);
+      return data.map((item) => item.note);
+    },
+    staleTime: 60 * 1000,
+  });
+
 /** Balances, totals and the lists change with every save or delete: all of them are fetched again. */
 function useRefetchAfterChange() {
   const queryClient = useQueryClient();
