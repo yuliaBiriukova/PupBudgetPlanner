@@ -1,0 +1,580 @@
+/* The Reports page (F-022): the head, the year's table on the desktop and tablet, the page's states. Phone first; the
+   table from 48em (the shell's sidebar) */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ---------- The head: the title, Year / Month, the period with ‹ ›, the currency ---------- */
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: center;
+}
+
+/* The phone: no big title (the tab bar says Reports), so the report starts higher. Year / Month and the currency on
+   the first row, the period with ‹ › across the second */
+.title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.mode {
+  flex: none;
+  order: 1;
+}
+
+.currency {
+  flex: none;
+  order: 2;
+  margin-left: auto;
+}
+
+.break {
+  flex: 1 0 100%;
+  order: 3;
+  height: 0;
+}
+
+.stepper {
+  display: flex;
+  flex: 1 0 100%;
+  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  order: 4;
+}
+
+.period {
+  min-width: 64px;
+  font-family: var(--pup-font-display);
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 300;
+  line-height: 32px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* The tablet: the title and the period on the first row, Year / Month and the currency under them */
+@media (min-width: $mantine-breakpoint-sm) {
+  .title {
+    position: static;
+    flex: 1 1 auto;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+  }
+
+  .mode,
+  .currency,
+  .break,
+  .stepper {
+    order: 0;
+  }
+
+  .stepper {
+    flex: none;
+    justify-content: flex-start;
+  }
+
+  .period {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .currency {
+    margin-left: 0;
+  }
+}
+
+/* The desktop: one row, the title first, then Year / Month, the period and the currency */
+@media (min-width: $mantine-breakpoint-md) {
+  .break {
+    display: none;
+  }
+
+  .mode {
+    order: 1;
+  }
+
+  .stepper {
+    order: 2;
+  }
+
+  .currency {
+    order: 3;
+  }
+}
+
+/* ---------- The year's table: as tall as its rows (the page scrolls), the category column stays put ---------- */
+.sheet {
+  border-radius: var(--mantine-radius-lg);
+  background: var(--pup-color-surface);
+  box-shadow: inset 0 0 0 1px var(--pup-color-rule);
+}
+
+/* A table wider than the screen shows its sideways bar (owner, 2026-11-04): always on, on a grey track in a gutter
+   of its own under the rows, so it covers nothing; one that fits has none (DESIGN_RULES, custom rules) */
+.frame :global(.mantine-ScrollArea-scrollbar),
+.frame :global(.mantine-ScrollArea-scrollbar):is(:hover, :active) {
+  padding: 2px;
+  border-radius: 6px;
+  background-color: var(--pup-color-tag);
+}
+
+.frame :global(.mantine-ScrollArea-scrollbar)[data-orientation='horizontal'] {
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  height: 12px;
+}
+
+.frame:not([data-x]) :global(.mantine-ScrollArea-scrollbar)[data-orientation='horizontal'] {
+  display: none;
+}
+
+/* The gutter is the scroll area's own padding: the rows stop before it, the bar sits in it */
+.frame :global(.mantine-ScrollArea-root) {
+  box-sizing: border-box;
+}
+
+.frame[data-x] :global(.mantine-ScrollArea-root) {
+  padding-bottom: 20px;
+}
+
+/* The table scrolls with the keys too, once it has the focus */
+.sheet :global(.mantine-ScrollArea-viewport):focus-visible {
+  outline: 2px solid var(--mantine-color-text);
+  outline-offset: -2px;
+}
+
+/* Dense cells, so the whole year fits on a 1440 px screen */
+.table {
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  line-height: 20px;
+}
+
+.table th,
+.table td {
+  height: 36px;
+  padding: 8px 6px;
+  background: var(--pup-color-surface);
+  font-weight: 400;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table thead th {
+  height: 44px;
+  box-shadow: inset 0 -1px var(--pup-color-rule);
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* The first column: the groups and categories, frozen on the left */
+.table .name {
+  position: sticky;
+  z-index: 1;
+  left: 0;
+  min-width: 168px;
+  max-width: 240px;
+  padding-inline: 12px;
+  overflow: hidden;
+  box-shadow: inset -1px 0 var(--pup-color-rule);
+  color: var(--mantine-color-text);
+  text-align: left;
+  text-overflow: ellipsis;
+}
+
+.table thead .name {
+  z-index: 3;
+  box-shadow:
+    inset -1px 0 var(--pup-color-rule),
+    inset 0 -1px var(--pup-color-rule);
+}
+
+.table .month {
+  min-width: 64px;
+}
+
+.total {
+  font-weight: 500;
+}
+
+.table [data-current] {
+  background: var(--pup-color-active-bg);
+}
+
+.monthLabel {
+  display: block;
+}
+
+.monthNote {
+  display: block;
+  color: var(--pup-color-accent);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.avgNote {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.zero {
+  color: var(--mantine-color-dimmed);
+}
+
+.income {
+  color: var(--pup-color-income);
+}
+
+/* A group's row: its total, unfolding into its categories */
+.groupRow th,
+.groupRow td {
+  height: 44px;
+  font-weight: 500;
+}
+
+.groupRow .name {
+  font-family: var(--pup-font-display);
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.fold {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  margin: -12px -8px;
+  padding: 0 8px;
+  border-radius: var(--mantine-radius-sm);
+  font: inherit;
+}
+
+.fold:hover {
+  background: var(--pup-color-hover);
+}
+
+.fold > svg {
+  flex: none;
+  transition: transform 160ms ease-out;
+}
+
+.fold[aria-expanded='false'] > svg {
+  transform: rotate(-90deg);
+}
+
+.child .name {
+  padding-left: 36px;
+}
+
+/* A category's amount opens its transactions (open point 4): the link fills the cell, a thumb tall */
+.cellLink {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 44px;
+  margin: -12px -6px;
+  padding: 0 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.cellLink:hover {
+  background: color-mix(in srgb, var(--mantine-color-text) 6%, transparent);
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+}
+
+.cellLink:focus-visible {
+  outline: 2px solid var(--mantine-color-text);
+  outline-offset: -2px;
+}
+
+/* A month over the category's usual turns red in four steps */
+.table [data-heat='1'] {
+  background: var(--pup-heat-1);
+}
+
+.table [data-heat='2'] {
+  background: var(--pup-heat-2);
+}
+
+.table [data-heat='3'] {
+  background: var(--pup-heat-3);
+}
+
+.table [data-heat='4'] {
+  background: var(--pup-heat-4);
+  color: var(--pup-color-on-heat);
+}
+
+/* The year as bars over the months: income and expenses */
+.table thead .chartCell {
+  height: 88px;
+  padding: 8px 6px 0;
+  box-shadow: none;
+  vertical-align: bottom;
+}
+
+.table thead .chartCell.name {
+  vertical-align: middle;
+  box-shadow: inset -1px 0 var(--pup-color-rule);
+}
+
+.bars {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  justify-content: flex-end;
+  height: 72px;
+}
+
+.bar {
+  width: 12px;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+}
+
+.barIn {
+  background: var(--pup-color-income);
+}
+
+.barOut {
+  background: var(--pup-color-expense);
+}
+
+.legend {
+  display: grid;
+  gap: 4px;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.legend span {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+/* A month's heading opens the month */
+.monthButton {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -8px -6px;
+  padding: 0 6px;
+  border-radius: var(--mantine-radius-sm);
+  color: var(--mantine-color-text);
+  font: inherit;
+  text-decoration: underline dotted var(--pup-color-field-border);
+  text-underline-offset: 4px;
+}
+
+.monthButton:hover {
+  background: var(--pup-color-hover);
+}
+
+/* ---------- The bottom line: the summary rows on the Solid card's charcoal (light grey in dark mode) ---------- */
+.summary th,
+.summary td {
+  background: var(--pup-card-solid);
+  color: var(--pup-card-on-solid);
+}
+
+.summary .name {
+  box-shadow: inset -1px 0 var(--pup-slip-track);
+  color: var(--pup-card-on-solid);
+}
+
+.summary [data-current] {
+  background: color-mix(in srgb, var(--pup-card-on-solid) 10%, var(--pup-card-solid));
+}
+
+.summary tr:first-child > * {
+  height: 44px;
+  padding-top: 16px;
+}
+
+.summary tr:last-child > * {
+  height: 52px;
+  padding-bottom: 16px;
+}
+
+.summary .muted {
+  color: var(--pup-card-solid-muted);
+}
+
+.summary .up {
+  color: var(--pup-slip-received);
+}
+
+.summary .down {
+  color: var(--pup-card-solid-debt);
+}
+
+.balance {
+  font-weight: 500;
+}
+
+.spacer th,
+.spacer td {
+  height: 16px;
+  padding: 0;
+}
+
+/* What the reds mean, above the table */
+.heatKey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.heatKey > span {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.heatKey i {
+  width: 16px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.heatKey i[data-heat='1'] {
+  background: var(--pup-heat-1);
+}
+
+.heatKey i[data-heat='2'] {
+  background: var(--pup-heat-2);
+}
+
+.heatKey i[data-heat='3'] {
+  background: var(--pup-heat-3);
+}
+
+.heatKey i[data-heat='4'] {
+  background: var(--pup-heat-4);
+}
+
+/* Short words below the desktop, so the key is one line */
+.short {
+  display: none;
+}
+
+@media (max-width: 61.99em) {
+  .heatKey {
+    gap: 4px 12px;
+  }
+
+  .heatKey .long {
+    display: none;
+  }
+
+  .heatKey .short {
+    display: inline;
+  }
+}
+
+/* ---------- The page's states ---------- */
+.note {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.empty {
+  max-width: 460px;
+  padding: 24px 0 8px;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-family: var(--pup-font-display);
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.3;
+}
+
+.emptyText {
+  margin: 8px 0 0;
+  color: var(--mantine-color-dimmed);
+}
+
+.errorBanner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-error-bg);
+  color: var(--pup-color-error-text);
+}
+
+.errorBanner p {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.retry {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  color: inherit;
+  font-weight: 500;
+}
+
+.retry:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Another year or month loading: the last one stays, dimmed, until the new one comes */
+.stale {
+  opacity: 0.6;
+  transition: opacity 120ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fold > svg,
+  .stale {
+    transition: none;
+  }
+}

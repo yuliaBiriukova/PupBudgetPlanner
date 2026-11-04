@@ -2,6 +2,85 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-04 (F-022: Reports screen, built)
+
+**Done**
+- The owner approved the final prototype with the month as M2 ("I like M2 variant … approved"; the open points as
+  proposed); recorded in the description file and DESIGN_RULES "Screen decisions". The final prototype's screenshots
+  (year and month, 375 and 1440 px, light and dark) are in the change's `prototypes/`; its stories are deleted.
+- Built [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) on `feature/F-022-reports-ui`: the year as the
+  folding table on the desktop and tablet and as months on the phone, the month as a receipt a group with its balance;
+  Year / Month, ‹ › over the periods with data, the report currency as a filter pill for this visit; the period and
+  currency in the page's address; a category's amount opens its transactions. M4 (Reports) is done.
+- The design round's "prototypes that open like a page" is now
+  [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md): it was planned here as I-022, but
+  `develop` gave I-022 – I-025 to the production testing fixes (#59) in the meantime. Still `Todo`.
+- API: the report says the person's first month with data (`firstMonth`). Shared: `CurrencyPicker`'s `pill` option,
+  the filter pill's styles moved to `Pills.module.css`, a wide page option in the shell.
+- Checked: backend build and tests; frontend lint, format, typecheck, build, unit tests, `build-storybook`; the full
+  E2E suite (desktop and phone) with the new Reports test; the design check on the Reports stories (0 issues on the
+  page after one fix; the currency sheet's "outside the screen" at 360 px happens on the existing sheet story too);
+  screenshots of the year, month, empty, couldn't-load and loading states at 375 and 1440 px, light and dark, looked
+  at; walked through in the Browser pane against this branch's API (unfold, a cell to Transactions and Back, a month,
+  dollars, the phone's sheet).
+- Test data: a test person `e2e-manual-…@example.com` with two accounts and two years of transactions, and an
+  `E2E manual F-022` invite link, for the walk-through; the E2E runs' own people. The E2E clean-up deleted the people
+  (with their data) and cancelled the invite links.
+
+**Next**
+- Owner: review the PR. Then M5 (Family).
+
+## 2026-11-04 (F-022: Reports screen, design round 1)
+
+**Done**
+- Started [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) on `feature/F-022-reports-ui`; status In
+  progress. No code: the change isn't approved yet.
+- References (the owners' spreadsheet, YNAB's Income v Expense, Actual Budget's custom reports, Monarch's cash flow,
+  the app's own Transactions page) in the description file; Mobbin turns the browser away (403).
+- The first round made of stories (I-021): *Prototypes / F-022 Reports* in Storybook, the real shell and parts with a
+  test year in the spreadsheet's shape. Variant 1 · The sheet, filled in (frozen panes on both edges, every amount with
+  its currency, the month as two receipts); variant 2 · This month, against your usual (the month first on the slip,
+  the months as NET bars, categories as bars with a tick at their usual month); variant 3 · One sheet, tap a month
+  (folding groups, the year as bars over the months, unusual months in four reds, a month opens as a receipt).
+- Five open points with proposals in the description file (the currency in every cell, another currency only on this
+  page, which month opens, a cell as a link to its transactions, the years).
+- Checked: typecheck, ESLint, Prettier; the design check on every variant's stories, 4 issues left after fixes (the
+  months' and groups' buttons under 44 px, their names not matching the visible text, bars drawn under the tab bar,
+  the table not opening on this month), all in variant 3's month sheet on the phone: two from the shared sheet (its
+  title row is a `<header>`, a second banner next to the top bar), two a receipt with nothing to focus in a scrolling
+  sheet (gone once its lines are links, open point 4). Screenshots at 375 and 1440 px, light and dark, looked at
+  (fixed: variant 3 too wide for 1440 px, variant 1's month half empty on the desktop, a cut-off label).
+- The owner picked variant 3's year with variant 1's month; built as the final prototype (Year / Month, a month's
+  heading opens it). Design check 0 issues; screenshots at 375 and 1440 px, light and dark, looked at.
+- The owner found the stories "worse than HTML": planned as
+  [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) (High). Found: the desktop stories
+  drew a fixed 1280 px frame and locked the viewport, 13 stories for 3 variants, Storybook's chrome. Done in F-022's
+  stories already (no config change): one story per variant, links that open the page filling the window without the
+  sidebar and panel (`&nav=false&panel=false&globals=viewport.value:!undefined`), the screen size from the toolbar. The
+  Storybook config part waits for the owner's approval.
+- The owner found the year awful on the phone (mobile first): three phone options on the final prototype, all with a
+  shorter head — A the table tighter, B one month at a time with its usual month (recommended), C months as rows.
+  Design check 0 issues; screenshots at 375 and 1440 px, light and dark, looked at.
+- The owner dropped option A and asked to leave out categories with nothing in the year (and a group left without
+  any); done in the final prototype. Design check on B, C and the month 0 issues; screenshots looked at.
+- The owner asked for a visible scroll bar on a table wider than the screen: the year's table keeps its bars on when it
+  doesn't fit (a custom rule in DESIGN_RULES). Checked at 1000 and 1024 px, light and dark; design check 0 issues.
+- The owner picked phone C (months as rows) for the year; B dropped. The month's categories "look like one solid
+  list": three looks with the groups set apart — M1 sections of one receipt, M2 a receipt a group (recommended), M3
+  bars. Design check 0 issues; screenshots looked at.
+- The report currency is now the Transactions page's filter pill, opening the shared currency list (owner: "use selects
+  from the design system"). Design check 0 issues.
+- The owner found the table's bars broken (over the rows, the upright one with nothing to scroll, crossing in the
+  corner): now a bar only for each way that doesn't fit, in a gutter of its own. Checked at 1100 and 1440 px, light and
+  dark; design check 0 issues.
+- Then the table takes the height it needs and the page scrolls (owner): no scroll up and down of its own, only the
+  sideways bar when it's too wide. Design check 0 issues.
+- Test data: none.
+
+**Next**
+- Owner: pick the month's look; then approve the final prototype for implementation (and the open points'
+  proposals); approve I-026's config part.
+
 ## 2026-11-04 (F-021: Report engine)
 
 **Done**

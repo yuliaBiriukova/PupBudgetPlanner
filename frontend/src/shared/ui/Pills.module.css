@@ -39,3 +39,55 @@
   outline: 2px solid var(--mantine-color-text);
   outline-offset: 2px;
 }
+
+/* A filter pill (F-020, the Reports page's currency in F-022): a button that opens a list, an icon, what is picked and
+   a chevron; marked in the accent while it filters ([data-on]) */
+.select {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 0 12px 0 16px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: 999px;
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.select:hover {
+  background: var(--pup-color-hover);
+}
+
+.select > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select > svg {
+  flex: none;
+  color: var(--mantine-color-dimmed);
+}
+
+.select[data-on] {
+  border-color: var(--pup-color-accent);
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+}
+
+.select[data-on] > svg {
+  color: inherit;
+}
+
+.select[aria-expanded='true'] > svg:last-child {
+  transform: rotate(180deg);
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--mantine-color-text);
+  outline-offset: 2px;
+}

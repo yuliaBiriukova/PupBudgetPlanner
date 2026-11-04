@@ -49,7 +49,8 @@ public sealed class ReportBuilderTests
         DateOnly? firstDay = null,
         IReadOnlyDictionary<DateOnly, DayRates>? rates = null,
         string currency = "UAH",
-        IReadOnlyList<CategoryGroup>? groups = null) =>
+        IReadOnlyList<CategoryGroup>? groups = null,
+        bool noFirstDay = false) =>
         ReportBuilder.Build(
             period,
             currency,
@@ -59,7 +60,7 @@ public sealed class ReportBuilderTests
                 amounts ?? [],
                 accounts ?? [],
                 movements ?? [],
-                firstDay ?? new DateOnly(2026, 1, 1)),
+                noFirstDay ? null : firstDay ?? new DateOnly(2026, 1, 1)),
             rates ?? new Dictionary<DateOnly, DayRates>());
 
     private static ReportAmount Spent(DateOnly date, Guid category, decimal amount, string currency = "UAH") =>
@@ -192,6 +193,24 @@ public sealed class ReportBuilderTests
         report.Summary.Expenses.Average.Should().Be(840m / months);
         report.Groups[1].Categories[0].Amounts.Average.Should().Be(840m / months);
         report.Groups[1].Total.Average.Should().Be(840m / months);
+    }
+
+    [Theory]
+    [InlineData(true, "2025-06-30", "2025-06-01")]
+    [InlineData(false, "2026-02-14", "2026-02-01")]
+    [InlineData(true, null, null)]
+    public void The_report_says_the_first_month_with_data(bool year, string? firstDay, string? firstMonth)
+    {
+        var period = year ? ReportPeriod.Year(2026) : ReportPeriod.Month(2026, 10);
+        var first = firstDay is null
+            ? (DateOnly?)null
+            : DateOnly.Parse(firstDay, System.Globalization.CultureInfo.InvariantCulture);
+
+        var report = Build(period, firstDay: first, noFirstDay: firstDay is null);
+
+        report.FirstMonth.Should().Be(firstMonth is null
+            ? null
+            : DateOnly.Parse(firstMonth, System.Globalization.CultureInfo.InvariantCulture));
     }
 
     [Fact]

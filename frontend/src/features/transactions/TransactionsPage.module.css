@@ -388,57 +388,13 @@
   padding-bottom: 8px;
 }
 
-.select {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  min-width: 0;
-  max-width: 100%;
-  min-height: 44px;
-  padding: 0 12px 0 16px;
-  border: 1px solid var(--pup-color-rule);
-  border-radius: 999px;
-  background: var(--pup-color-surface);
-  color: var(--mantine-color-text);
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.select:hover {
-  background: var(--pup-color-hover);
-}
-
-.select > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.select > svg {
-  flex: none;
-  color: var(--mantine-color-dimmed);
-}
-
-.select[data-on] {
-  border-color: var(--pup-color-accent);
-  background: var(--pup-color-active-bg);
-  color: var(--pup-color-accent);
-}
-
-.select[data-on] > svg {
-  color: inherit;
-}
-
-.select[aria-expanded='true'] > svg:last-child {
-  transform: rotate(180deg);
-}
-
-.filtersButton {
+/* The phone's Filters button: the shared filter pill (Pills.module.css) with its count */
+.controls .filtersButton {
   flex: none;
   padding: 0 16px 0 14px;
 }
 
-.filtersButton > svg {
+.controls .filtersButton > svg {
   color: inherit;
 }
 
@@ -489,8 +445,7 @@
   background: color-mix(in srgb, var(--pup-color-accent) 14%, transparent);
 }
 
-.chipClear:focus-visible,
-.select:focus-visible {
+.chipClear:focus-visible {
   outline: 2px solid var(--mantine-color-text);
   outline-offset: 2px;
 }

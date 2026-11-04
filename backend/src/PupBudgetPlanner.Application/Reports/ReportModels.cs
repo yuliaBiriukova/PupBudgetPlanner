@@ -97,12 +97,14 @@ public sealed record ReportSummary(
 /// <summary>
 /// The spreadsheet-like report (F-021) in <paramref name="Currency"/>, each amount at the NBU rate of its own day
 /// (business rule 1). <paramref name="MonthsCounted"/> is what Avg divides by: the year's months from the person's first
-/// month with data up to this one (none for a monthly report). Amounts are kept as worked out and rounded when shown
-/// (ADR 0018).
+/// month with data up to this one (none for a monthly report). <paramref name="FirstMonth"/> is the first day of that
+/// first month (none without any data), so the Reports screen steps back only as far as there is something (F-022).
+/// Amounts are kept as worked out and rounded when shown (ADR 0018).
 /// </summary>
 public sealed record Report(
     string Currency,
     IReadOnlyList<ReportMonth> Months,
     int? MonthsCounted,
     IReadOnlyList<ReportGroup> Groups,
-    ReportSummary Summary);
+    ReportSummary Summary,
+    DateOnly? FirstMonth);

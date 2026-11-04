@@ -57,7 +57,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 | ID | Feature | Status |
 |----|---------|--------|
 | [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) | Report engine | Done |
-| [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) | 🎨 Reports screen | Todo |
+| [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) | 🎨 Reports screen | Done |
 
 ### M5 — Family
 
@@ -108,6 +108,7 @@ owner asks for one.
 | [I-019](changes/improvements/I-019-ui-consistency/I-019-ui-consistency.md) | 🎨 One look for buttons and other UI elements across the app (the sidebar's Add transaction first) | Medium | Done |
 | [I-020](changes/improvements/I-020-no-duplicate-accounts/I-020-no-duplicate-accounts.md) | No two accounts in use with the same name, currency, source and bank | Medium | Done |
 | [I-021](changes/improvements/I-021-prototypes-in-storybook/I-021-prototypes-in-storybook.md) | Prototypes as Storybook stories built from the app's own parts, so they look like the real UI | High | Done |
+| [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) | Prototypes in Storybook that open like a page: filling the window, one story per variant, the screen size from the toolbar | High | Todo |
 
 ## Bugfixes
 
