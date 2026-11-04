@@ -27,8 +27,12 @@ async function clearAmount(dialog: Locator, isMobile: boolean, digits: number) {
     await dialog.getByRole('button', { name: form.key.back }).click();
 }
 
+/** Save: on the phone the keys' Save, or the type's own once the keys fold away for a note (I-017). */
 const saveButton = (dialog: Locator, isMobile: boolean, desktopName: string) =>
-  dialog.getByRole('button', { name: isMobile ? form.save : desktopName, exact: true });
+  dialog.getByRole('button', {
+    name: isMobile ? new RegExp(`^(${form.save}|${desktopName})$`) : desktopName,
+    exact: !isMobile,
+  });
 
 async function addAccount(
   page: Page,
@@ -76,7 +80,7 @@ test('a person adds an expense from an account’s card, changes it, deletes it,
     .getByRole('button', { name: 'Groceries' })
     .click();
   await expect(dialog.getByRole('radio', { name: 'Groceries' })).toBeChecked();
-  await dialog.getByLabel(form.note).fill('Silpo');
+  await dialog.getByLabel(form.note, { exact: true }).fill('Silpo');
   await saveButton(dialog, isMobile, form.saveExpense).click();
 
   await expect(page.getByText('Expense saved. Wallet:')).toBeVisible();
@@ -291,4 +295,46 @@ test('a person finds the month’s eating out, changes one on its receipt and de
   await expect(page.getByText('Deleted. Mono black:')).toBeVisible();
   await expect(receipt.getByRole('button', { name: /^Eating out.*Coffee/ })).toHaveCount(0);
   await expect(totals).toContainText('400 ₴');
+});
+
+test('a note used before is suggested while typing the next one; two letters and a tap fill it in', async ({
+  page,
+  isMobile,
+}) => {
+  const response = await signUpThroughApi(page.request, newPerson('notes'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 5000, 'Bank');
+
+  // The first time the note is typed in full
+  await page.goto('/transactions');
+  await page.getByRole('button', { name: en.shell.addTransaction }).first().click();
+  let dialog = page.getByRole('dialog', { name: 'Add expense' });
+  await typeAmount(dialog, isMobile, '612');
+  await dialog.getByRole('button', { name: form.allCategories }).click();
+  await page.getByLabel(form.searchCategories).fill('groc');
+  await page
+    .getByRole('dialog', { name: form.category })
+    .getByRole('button', { name: 'Groceries' })
+    .click();
+  await dialog.getByLabel(form.note, { exact: true }).fill('Silpo, wine for Friday');
+  await saveButton(dialog, isMobile, form.saveExpense).click();
+  await expect(page.getByText('Expense saved. Mono black:')).toBeVisible();
+
+  // The next time two letters bring it back; on the phone the app's keys fold away while the note is typed
+  await page.getByRole('button', { name: en.shell.addTransaction }).first().click();
+  dialog = page.getByRole('dialog', { name: 'Add expense' });
+  await typeAmount(dialog, isMobile, '450');
+  await dialog.getByLabel(form.note, { exact: true }).pressSequentially('si');
+  if (isMobile) await expect(dialog.getByRole('group', { name: form.keys })).toBeHidden();
+  await page
+    .getByRole('listbox', { name: form.noteSuggestions })
+    .getByRole('option', { name: 'Silpo, wine for Friday' })
+    .click();
+  await expect(dialog.getByLabel(form.note, { exact: true })).toHaveValue('Silpo, wine for Friday');
+  await saveButton(dialog, isMobile, form.saveExpense).click();
+  await expect(page.getByText('Expense saved. Mono black:')).toBeVisible();
+
+  await expect(
+    page.getByRole('region', { name: /^Today, / }).getByRole('button', { name: /−450 ₴/ }),
+  ).toContainText('Mono black, Silpo, wine for Friday');
 });

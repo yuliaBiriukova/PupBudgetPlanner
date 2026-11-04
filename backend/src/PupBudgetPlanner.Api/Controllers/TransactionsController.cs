@@ -92,6 +92,31 @@ public sealed class TransactionsController(
     public async Task<ActionResult<TransactionSuggestions>> Suggestions(CancellationToken cancellationToken) =>
         Ok(await transactions.SuggestionsAsync(UserId, cancellationToken));
 
+    /// <summary>
+    /// The Note field's suggestions (I-017): the person's own earlier notes of the type that have <paramref name="text"/>
+    /// in them, ignoring case, at most 5, the ones that start with it first. None for an empty text.
+    /// </summary>
+    [HttpGet("notes")]
+    [ProducesResponseType<IReadOnlyList<UsedNote>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyList<UsedNote>>> Notes(
+        [FromQuery] TransactionType type, CancellationToken cancellationToken, [FromQuery] string? text = null)
+    {
+        if (!Enum.IsDefined(type))
+        {
+            ModelState.AddModelError(nameof(type), "Pick expense, income or transfer.");
+        }
+
+        if (text?.Length > Transaction.NoteMaxLength)
+        {
+            ModelState.AddModelError(nameof(text), $"A note is at most {Transaction.NoteMaxLength} characters.");
+        }
+
+        return ModelState.IsValid
+            ? Ok(await transactions.NotesAsync(UserId, type, text ?? "", cancellationToken))
+            : ValidationProblem(ModelState);
+    }
+
     [HttpPost]
     [ProducesResponseType<SavedTransaction>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]

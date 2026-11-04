@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I-017 · Note suggestions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar and frame (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { display: flex; flex-direction: column; height: 100dvh; background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; position: relative; z-index: 10; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-notes { position: absolute; right: 16px; top: 100%; margin-top: 6px; width: min(560px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; background: #1b1e24; color: #e9ecef; border-radius: 10px; padding: 14px 18px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+.pv-notes ul { margin: 6px 0 0; padding-left: 18px; }
+.pv-notes li + li { margin-top: 4px; }
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.frame { position: relative; overflow: hidden; flex: none; container: app / inline-size; }
+.stage[data-view='phone'] .frame { width: 375px; height: min(812px, 100%); border: 10px solid #16181d; border-radius: 44px; }
+.stage[data-view='tablet'] .frame { width: 834px; height: min(1050px, 100%); border: 12px solid #16181d; border-radius: 28px; }
+.stage[data-view='desktop'] .frame { width: 100%; height: 100%; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+@media (max-width: 600px) {
+  .stage { padding: 0; }
+  .stage .frame { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; }
+  .pv-view { display: none !important; }
+}
+
+/* ---------- Tokens: the app's theme (theme.ts, I-019) ---------- */
+.app {
+  --bg: #f5f6f7; --surface: #fcfcfd; --sidebar: #ebedf0; --seg-bg: #ebedf0; --text: #1c1e21; --muted: #57585b;
+  --rule: #d7d8d9; --hover: #e8e9ea; --field-border: #7c828a;
+  --primary: #26292e; --primary-hover: #363a40; --on-primary: #f5f6f7;
+  --accent: #2a62a3; --active-bg: #e7ecf1; --logo: #8ec1ec;
+  --expense: #b3261e; --income: #1f7a4d; --transfer: #2a62a3;
+  --fresh: #fdf3d6; --pill: #1c1e21; --on-pill: #f5f6f7; --focus: #26292e; --scrim: rgba(18, 19, 21, .45);
+  --shadow-float: 0 8px 24px rgba(15, 17, 20, .1);
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+  --r-sm: 12px; --r-lg: 24px; --kbd: 0px;
+}
+.app[data-scheme='dark'] {
+  --bg: #121315; --surface: #1b1c1e; --sidebar: #18191b; --seg-bg: #1f2022; --text: #e9eaec; --muted: #a4a5a7;
+  --rule: #37383a; --hover: #26272a; --field-border: #71747b;
+  --primary: #e9eaec; --primary-hover: #d3d6da; --on-primary: #121315;
+  --accent: #8ec1ec; --active-bg: #262f37; --logo: #8ec1ec;
+  --expense: #f2958c; --income: #7fd1a4; --transfer: #8ec1ec;
+  --fresh: #3a3420; --pill: #e9eaec; --on-pill: #121315; --focus: #e9eaec; --scrim: rgba(0, 0, 0, .6);
+  --shadow-float: 0 10px 28px rgba(0, 0, 0, .45);
+}
+
+/* ---------- Base ---------- */
+.app { height: 100%; width: 100%; position: relative; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; color-scheme: light; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+:where(.app) :where(button, input) { font: inherit; color: inherit; }
+:where(.app) :where(h1, h2, h3, p, ul, ol) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 0; cursor: pointer; font-weight: 500; font-size: 15px; white-space: nowrap; background: none; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-quiet { color: var(--muted); }
+.btn-quiet:hover { background: var(--hover); color: var(--text); }
+.icon-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+.icon-btn:disabled { opacity: .4; cursor: default; background: none; }
+.text-link { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; color: var(--accent); font-weight: 500; font-size: 14px; background: none; border: 0; padding: 0; cursor: pointer; }
+.text-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.toast { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); padding: 10px 16px; border-radius: 999px; background: var(--pill); color: var(--on-pill); font-size: 14px; z-index: 60; white-space: nowrap; }
+
+/* Fields (I-019): 52 px, 16 px text and 16 px inside, a 2 px accent border in focus */
+.input { display: flex; align-items: center; gap: 8px; width: 100%; height: 52px; padding: 0 16px; border: 1px solid var(--field-border); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font-size: 16px; text-align: left; }
+.input:focus, .input:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+button.input { cursor: pointer; }
+.input .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.input .bal { color: var(--muted); font-size: 14px; }
+.input .ic { color: var(--muted); }
+input.input::placeholder { color: var(--muted); }
+
+/* The pill switch (I-019): the picked type in its colour */
+/* It fills the title row up to the X, three equal options (fullWidth in the app) */
+.seg { display: grid; flex: 1; min-width: 0; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 4px; padding: 4px; border-radius: 999px; background: var(--seg-bg); }
+.seg button { min-height: 44px; padding: 0 12px; border: 0; border-radius: 999px; background: none; color: var(--muted); font-weight: 500; cursor: pointer; }
+.seg button[aria-checked='true'] { background: var(--surface); box-shadow: 0 1px 3px rgba(15, 17, 20, .14); color: var(--expense); }
+.app[data-scheme='dark'] .seg button[aria-checked='true'] { background: var(--active-bg); box-shadow: none; }
+
+/* Pills you pick (I-019): 44 px, the fields' border, the picked one in the accent's tint */
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--field-border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; white-space: nowrap; }
+.pill:hover { background: var(--hover); }
+.pill[aria-checked='true'], .pill[aria-selected='true'] { border-color: var(--accent); background: var(--active-bg); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pill[data-flash] { animation: fresh 1600ms ease-out; }
+@keyframes fresh { from { background: var(--fresh); } }
+@media (prefers-reduced-motion: reduce) { .pill[data-flash] { animation: none; } }
+
+/* ---------- The page behind the pop-up (shapes only) ---------- */
+.behind { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr; }
+.behind .side { display: none; background: var(--sidebar); }
+.behind .main { padding: 24px 16px; display: grid; align-content: start; gap: 16px; }
+.behind .bar { height: 16px; border-radius: 8px; background: var(--rule); }
+.behind .slip { height: 140px; border-radius: var(--r-sm); background: var(--primary); opacity: .9; }
+@container app (min-width: 768px) { .behind { grid-template-columns: 240px 1fr; } .behind .side { display: block; } .behind .main { padding: 40px 48px; max-width: 920px; } }
+
+/* ---------- The pop-up (I-012): a sheet on the phone, a dialog from 768 px ---------- */
+.scrim { position: absolute; inset: 0 0 var(--kbd) 0; z-index: 20; display: flex; align-items: flex-end; background: var(--scrim); }
+.dialog { position: relative; display: flex; flex-direction: column; width: 100%; height: 100%; border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--surface); box-shadow: var(--shadow-float); overflow: hidden; }
+.handle { flex: none; width: 36px; height: 4px; margin: 8px auto 0; border-radius: 999px; background: var(--rule); }
+.dlg-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 8px 8px 0 16px; }
+.dlg-body { position: relative; flex: 1; min-height: 0; overflow: auto; padding: 16px 16px 0; scrollbar-width: none; }
+.dlg-body::-webkit-scrollbar { display: none; }
+.dlg-foot { flex: none; display: grid; gap: 12px; padding: 16px; }
+.dlg-foot .save { width: 100%; min-height: 52px; }
+.dlg-foot .row { display: flex; gap: 8px; justify-content: flex-end; }
+@container app (min-width: 768px) {
+  .scrim { align-items: center; justify-content: center; bottom: 0; }
+  .dialog { width: 520px; height: auto; max-height: 86%; border-radius: var(--r-lg); }
+  .handle { display: none; }
+  .dlg-head { padding: 12px 12px 0 20px; }
+  .dlg-body { padding: 20px 20px 0; }
+  .dlg-foot { padding: 20px; }
+}
+
+/* ---------- The form (F-018 variant 7 as built): every block a 24 px label row, 8 px, its control ---------- */
+.form { display: grid; gap: 16px; padding-bottom: 2px; }
+@container app (min-width: 768px) { .form { gap: 20px; } }
+.blk { display: grid; gap: 8px; min-width: 0; }
+.blk-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 24px; }
+.blk-head .label { margin: 0; font-size: 14px; font-weight: 500; line-height: 24px; }
+.blk-head .btns { display: flex; margin-right: -12px; }
+.blk-head .icon-btn, .blk-head .text-link { margin-block: -10px; }
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.week button { display: grid; justify-items: center; min-height: 56px; padding: 6px 0; border: 0; border-radius: var(--r-sm); background: none; color: var(--text); cursor: pointer; }
+.week button:hover { background: var(--hover); }
+.week small { color: var(--muted); font-size: 12px; line-height: 16px; }
+.week b { font-weight: 500; font-size: 16px; line-height: 24px; font-variant-numeric: tabular-nums; }
+.week button[aria-checked='true'] { background: var(--primary); color: var(--on-primary); }
+.week button[aria-checked='true'] small { color: inherit; }
+.week button:disabled { opacity: .4; cursor: default; background: none; }
+.display { display: grid; justify-items: end; min-height: 64px; padding: 4px 16px; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); color: var(--expense); cursor: pointer; width: 100%; }
+.display .big { font-family: var(--font-display); font-weight: 300; font-size: 34px; line-height: 52px; font-variant-numeric: tabular-nums; }
+.display .sm { font-size: 22px; }
+@container app (min-width: 768px) { .display .big { font-size: 40px; line-height: 56px; } .display .sm { font-size: 26px; } }
+
+/* ---------- The phone's own keyboard (drawn, to show what stays visible while typing a note) ---------- */
+.sys-kbd { position: absolute; left: 0; right: 0; bottom: 0; z-index: 30; height: var(--kbd); display: grid; grid-template-rows: 20px repeat(4, 40px); gap: 8px; align-content: start; padding: 6px 4px 0; background: #d1d4d9; }
+.app[data-scheme='dark'] .sys-kbd { background: #2b2c2f; }
+.sys-kbd .cap { text-align: center; color: #57585b; font: 12px/20px system-ui, sans-serif; }
+.app[data-scheme='dark'] .sys-kbd .cap { color: #b8babd; }
+.sys-kbd .kr { display: flex; justify-content: center; gap: 4px; }
+.sys-kbd .k { flex: 1 1 0; max-width: 36px; display: grid; place-items: center; border-radius: 6px; background: #fdfdfe; color: #1c1e21; font: 400 18px/1 system-ui, sans-serif; }
+.sys-kbd .k.w { max-width: 52px; flex-basis: 52px; font-size: 14px; background: #b9bdc4; }
+.sys-kbd .k.sp { max-width: none; flex: 5 1 0; }
+.app[data-scheme='dark'] .sys-kbd .k { background: #48494d; color: #f1f2f3; }
+.app[data-scheme='dark'] .sys-kbd .k.w { background: #3a3b3e; }
+@container app (min-width: 768px) { .sys-kbd { display: none; } }
+
+/* ---------- Suggestions: shared ---------- */
+.sg-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+/* What was typed is quiet; the rest of the note, what the list adds, stands out (Baymard) */
+.sg-text .hit { font-weight: 400; color: var(--muted); }
+[aria-selected='true'] .sg-text .hit { color: inherit; }
+.sg-hint { color: var(--muted); font-size: 14px; }
+/* A list with more rows below fades out at its foot (as the app's scroll areas, I-004) */
+[data-more] { mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent); }
+
+/* Variant 1 · the app's dropdown: under the field, over the form, one line a row */
+.v1-pop { position: absolute; z-index: 40; display: flex; flex-direction: column; padding: 6px; overflow: auto; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); box-shadow: var(--shadow-float); scrollbar-width: thin; }
+.v1-pop[hidden] { display: none; }
+.v1-row { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 10px; border-radius: 8px; cursor: pointer; }
+.v1-row:hover { background: var(--hover); }
+.v1-row[aria-selected='true'] { background: var(--active-bg); color: var(--accent); }
+.v1-room { height: 248px; }
+
+/* Variant 2 · pills by the keys: on the phone a strip right above the keyboard, on the desktop a row under the field */
+.v2-strip { display: flex; gap: 8px; min-height: 44px; margin: 0 -16px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; align-items: center;
+  mask-image: linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 32px), transparent); }
+.v2-strip::-webkit-scrollbar { display: none; }
+.v2-strip .pill { flex: none; max-width: 240px; }
+.v2-strip .pill .sg-text { font-weight: 500; }
+.v2-inline { display: flex; flex-wrap: wrap; gap: 8px; }
+.v2-inline:empty { display: none; }
+.v2-inline .pill { max-width: 100%; }
+
+/* Variant 3 · from your receipts: lines with a dotted leader to the category the note went with */
+.v3-pop { position: absolute; z-index: 40; display: flex; flex-direction: column; padding: 6px; overflow: auto; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--surface); box-shadow: var(--shadow-float); scrollbar-width: thin; }
+.v3-pop[hidden] { display: none; }
+.v3-dock { display: flex; flex-direction: column; min-height: 0; overflow: auto; margin: -8px -6px 0; padding: 0 6px; scrollbar-width: none; }
+.v3-h { padding: 10px 10px 4px; color: var(--muted); font-size: 13px; font-weight: 500; line-height: 18px; }
+.v3-row { display: flex; align-items: center; min-height: 44px; padding: 0 10px; border-radius: 8px; cursor: pointer; }
+.v3-row:hover { background: var(--hover); }
+.v3-row .lead { flex: 1 1 16px; min-width: 16px; align-self: center; height: 0; margin: 6px 8px 0; border-bottom: 2px dotted var(--rule); }
+.v3-row .cat { flex: none; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 14px; }
+.v3-row[aria-selected='true'] { background: var(--active-bg); color: var(--accent); }
+.v3-row[aria-selected='true'] .cat { color: var(--accent); }
+.v3-row[aria-selected='true'] .lead { border-color: currentColor; opacity: .5; }
+.v3-dock .sg-hint { padding: 12px 10px; }
+.v3-said { color: var(--muted); font-size: 14px; line-height: 20px; }
+.v3-said b { font-weight: 500; color: var(--text); }
+.v3-said .text-link { min-width: 44px; justify-content: center; margin: -12px 0 -12px 4px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="frame">
+    <div class="app" id="app" data-scheme="light"></div>
+  </div>
+</div>
+
+<script>
+const VARIANT = 3;
+
+const DIRECTIONS = {
+  1: {
+    name: 'Variant 1 · The app’s dropdown',
+    thesis: 'The quiet one: the earlier notes open in the same list as the account and currency fields, one line a row, under the Note field.',
+    notes: [
+      'Desktop: a dropdown under the field, over the dialog, as wide as the field; when the room under the dialog runs out it opens above the field (as the app’s other dropdowns do).',
+      'Phone: while you type a note the app’s keys fold away, so the phone’s keyboard has the room; Save stays under the form. The form scrolls the Note field to the top, the list hangs under it, over the form. Tap the amount to get the keys back.',
+      'In each row what you typed is quiet grey and the rest of the note stands out, so the eye goes to what the list adds.',
+      'At most 5, the most used first, then the most recent. “si” finds Silpo, but also Physio session and Kids’ music lesson: the note only has to contain it.',
+      '↓ ↑ move through the list, Enter picks, Escape closes it. Typing on without picking keeps exactly what you typed; Enter with nothing picked saves.',
+      'While the next rows load the list keeps the last ones: no spinner. No list for an empty field, or when nothing matches.',
+    ],
+  },
+  2: {
+    name: 'Variant 2 · Pills by the keys',
+    thesis: 'The thumb one: the earlier notes as pills right above the phone’s keyboard, where the thumb already is, like the keyboard’s own word suggestions. Nothing opens over the form.',
+    notes: [
+      'Phone: while you type a note the app’s keys fold to a strip of pills above Save, right over the phone’s keyboard. The strip keeps its place while you type (a line says what it is for until the first letters), so the form never jumps. More than fit scroll sideways.',
+      'Desktop: the same pills in a row under the field, inside the dialog; the dialog grows by that row while there are any.',
+      'A pill is picked with a tap or a click; ↓ goes into the pills, ↓ ↑ move along them, Enter picks, Escape hides them.',
+      'At most 5, the most used first, then the most recent. The note only has to contain what you typed.',
+      'Risk: on Android the phone’s keyboard has its own word strip right under ours: two rows of suggestions, one above the other.',
+    ],
+  },
+  3: {
+    name: 'Variant 3 · From your receipts',
+    thesis: 'The ledger one: each earlier note as a receipt line with the category it went with, the notes of the picked category first, and picking one brings its category too.',
+    notes: [
+      'Each line: the note, a dotted leader, the category it was saved with last time (as on the Transactions page’s receipts).',
+      'The notes used with the picked category come first (the open point on ordering), then the others, each part by how often it is used; at most 5 in all. On the desktop the two parts have their headings, “With Groceries” and “Other notes”; on the phone the category at each line’s end says it, to leave room for five lines.',
+      'Picking a note also picks its category when you haven’t picked one yourself (the one that came picked from the account). A line says so, with Undo; the category pill flashes once. A category you picked by hand never changes. This is more than I-017 asks for: say if you want it.',
+      'Phone: the app’s keys fold away and the list docks above Save, right above the phone’s keyboard, with a fixed height so the Note field above it never moves. Desktop: a dropdown under the field, as in variant 1.',
+      '↓ ↑ move through the list, Enter picks, Escape closes it. Typing on without picking keeps what you typed.',
+    ],
+  },
+};
+const DIRECTION = DIRECTIONS[VARIANT];
+
+// ---------- Icons (Tabler, 1.7 stroke) ----------
+const ICONS = {
+  x: ['M18 6l-12 12', 'M6 6l12 12'],
+  left: ['M15 6l-6 6l6 6'],
+  right: ['M9 6l6 6l-6 6'],
+  cal: ['M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z', 'M16 3v4', 'M8 3v4', 'M4 11h16'],
+  selector: ['M8 9l4 -4l4 4', 'M16 15l-4 4l-4 -4'],
+  down: ['M6 9l6 6l6 -6'],
+};
+const icon = (n, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n].map((d) => `<path d="${d}"/>`).join('')}</svg>`;
+const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+// ---------- Data: the person's own earlier expense notes, how often and how long ago each was used ----------
+const NOTES = [
+  { text: 'Silpo', n: 14, ago: 2, cat: 'Groceries' },
+  { text: 'Lunch with Vlad', n: 6, ago: 5, cat: 'Eating out' },
+  { text: 'Taxi home', n: 5, ago: 9, cat: 'Transportation' },
+  { text: 'Physio session', n: 4, ago: 6, cat: 'Medicine/Drugs/Skincare' },
+  { text: 'Kids’ music lesson', n: 4, ago: 12, cat: 'Activities' },
+  { text: 'Simcard top-up', n: 3, ago: 20, cat: 'Bills' },
+  { text: 'Silpo, wine for Friday', n: 2, ago: 4, cat: 'Groceries' },
+  { text: 'Basil and tomatoes, market', n: 1, ago: 3, cat: 'Groceries' },
+  { text: 'АТБ', n: 9, ago: 1, cat: 'Groceries' },
+  { text: 'Батарейки', n: 2, ago: 15, cat: 'Home supplies' },
+  { text: 'Квартплата за жовтень', n: 2, ago: 33, cat: 'Bills' },
+  { text: 'Вата і бинт', n: 1, ago: 8, cat: 'Medicine/Drugs/Skincare' },
+];
+const CATS_PHONE = ['Groceries', 'Eating out', 'Transportation', 'Delivery', 'Home supplies', 'Bills'];
+const CATS_DESK = [...CATS_PHONE, 'Medicine/Drugs/Skincare', 'Activities'];
+const MAX = 5;
+const norm = (s) => s.toLocaleLowerCase('uk');
+
+function matches() {
+  const q = norm(F.note.trim());
+  if (!q || F.closed) return [];
+  const found = NOTES.filter((x) => norm(x.text).includes(q) && norm(x.text) !== q);
+  const byUse = (a, b) => b.n - a.n || a.ago - b.ago;
+  if (VARIANT === 3) return found.sort((a, b) => (b.cat === F.cat) - (a.cat === F.cat) || byUse(a, b)).slice(0, MAX);
+  return found.sort(byUse).slice(0, MAX);
+}
+function marked(text) {
+  const q = norm(F.note.trim());
+  const i = norm(text).indexOf(q);
+  if (i < 0 || !q) return esc(text);
+  return `${esc(text.slice(0, i))}<span class="hit">${esc(text.slice(i, i + q.length))}</span>${esc(text.slice(i + q.length))}`;
+}
+
+// ---------- State ----------
+const app = document.getElementById('app');
+const stage = document.getElementById('stage');
+const mq = matchMedia('(prefers-color-scheme: dark)');
+const state = { page: '', schemePref: 'system' };
+const F = { note: '', active: -1, closed: false, cat: 'Groceries', catByHand: false, flash: false, said: null };
+const isWide = () => app.clientWidth >= 768;
+const KBD = 232;
+const KEYS = {
+  en: [['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'], ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], ['⇧', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '⌫'], ['?123', ',', ' ', '.', '↵']],
+  uk: [['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х'], ['ф', 'і', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'є'], ['⇧', 'я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю', '⌫'], ['?123', ',', ' ', '.', '↵']],
+};
+
+function applyScheme() {
+  const scheme = state.schemePref === 'system' ? (mq.matches ? 'dark' : 'light') : state.schemePref;
+  app.dataset.scheme = scheme;
+  document.querySelectorAll('[data-scheme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schemeSet === state.schemePref)));
+}
+mq.addEventListener('change', () => { applyScheme(); });
+
+// ---------- The form ----------
+function week() {
+  const days = [['Mon', 2], ['Tue', 3], ['Wed', 4], ['Thu', 5], ['Fri', 6], ['Sat', 7], ['Sun', 8]];
+  return `<div class="blk"><div class="blk-head"><span class="label">Day</span><div class="btns">
+    <button class="icon-btn" aria-label="The week before">${icon('left')}</button><button class="icon-btn" aria-label="The week after" disabled>${icon('right')}</button><button class="icon-btn" aria-label="Pick a day in the calendar">${icon('cal')}</button></div></div>
+    <div class="week" role="radiogroup" aria-label="Day">${days.map(([w, d]) => `<button role="radio" aria-checked="${d === 4}" ${d > 4 ? 'disabled' : ''} aria-label="${w} ${d} Nov"><small>${w}</small><b>${d}</b></button>`).join('')}</div></div>`;
+}
+const account = () => `<div class="blk"><div class="blk-head"><span class="label">Account</span></div>
+  <button class="input"><span class="grow">Monobank</span><span class="bal num">12 450 ₴</span>${icon('selector')}</button></div>`;
+const amount = () => `<div class="blk"><div class="blk-head"><span class="label">Amount</span></div>
+  <button class="display" data-action="amount" aria-label="Amount: 1 250 hryvnias"><span class="big">1 250 <span class="sm">₴</span></span></button></div>`;
+function categories() {
+  const list = isWide() ? CATS_DESK : CATS_PHONE;
+  const shown = list.includes(F.cat) ? list : [F.cat, ...list.slice(0, -1)];
+  return `<div class="blk" id="cat-blk"><div class="blk-head"><span class="label">Category</span><button class="text-link">All categories ${icon('down', 16)}</button></div>
+    <div class="pills" role="radiogroup" aria-label="Category">${shown.map((c) => `<button class="pill" role="radio" aria-checked="${c === F.cat}" data-action="cat" data-cat="${esc(c)}" ${c === F.cat && F.flash ? 'data-flash' : ''}>${esc(c)}</button>`).join('')}</div></div>`;
+}
+function note() {
+  const said = VARIANT === 3 && F.said
+    ? `<p class="v3-said" id="said">Category set to <b>${esc(F.cat)}</b>, as last time with this note. <button class="text-link" data-action="undo-cat">Undo</button></p>` : '';
+  const inline = VARIANT === 2 && isWide() ? '<div class="v2-inline" id="sg" role="listbox" aria-label="Notes you used before"></div>' : '';
+  return `<div class="blk" id="note-blk"><div class="blk-head"><label class="label" for="note">Note</label></div>
+    <input class="input" id="note" value="${esc(F.note)}" placeholder="Silpo, lunch with Vlad" maxlength="200" autocomplete="off" enterkeyhint="done"
+      role="combobox" aria-autocomplete="list" aria-controls="sg" aria-expanded="false">${inline}${said}</div>`;
+}
+
+function foot() {
+  if (isWide()) return `<div class="row"><button class="btn btn-quiet" data-action="cancel">Cancel</button><button class="btn btn-primary" data-action="save">Save expense</button></div>`;
+  const save = '<button class="btn btn-primary save" data-action="save">Save expense</button>';
+  if (VARIANT === 2) return `<div class="v2-strip" id="sg" role="listbox" aria-label="Notes you used before"></div>${save}`;
+  if (VARIANT === 3) return `<div class="v3-dock" id="sg" role="listbox" aria-label="Notes you used before"></div>${save}`;
+  return save;
+}
+
+function keyboard() {
+  if (isWide()) return '';
+  const rows = KEYS[state.page === 'ukr' ? 'uk' : 'en'];
+  return `<div class="sys-kbd" aria-hidden="true"><div class="cap">The phone’s own keyboard</div>${rows.map((r) => `<div class="kr">${r.map((k) => `<span class="k${k.length > 1 || '⇧⌫↵'.includes(k) ? ' w' : ''}${k === ' ' ? ' sp' : ''}">${k}</span>`).join('')}</div>`).join('')}</div>`;
+}
+
+function render() {
+  const wide = isWide();
+  app.style.setProperty('--kbd', wide ? '0px' : `${KBD}px`);
+  const room = !wide && VARIANT === 1 ? '<div class="v1-room" aria-hidden="true"></div>' : '';
+  const pop = (VARIANT === 1 || (VARIANT === 3 && wide)) ? `<div class="v${VARIANT}-pop" id="sg" role="listbox" aria-label="Notes you used before" hidden></div>` : '';
+  // On the phone the list stays inside the sheet; on the desktop it may hang past the dialog, over the page
+  const inSheet = wide ? '' : pop;
+  const onPage = wide ? pop : '';
+  app.innerHTML = `<div class="behind" aria-hidden="true"><div class="side"></div><div class="main"><div class="bar" style="width:40%"></div><div class="slip"></div><div class="bar"></div><div class="bar" style="width:70%"></div><div class="bar"></div></div></div>
+    <div class="scrim"><div class="dialog" role="dialog" aria-modal="true" aria-label="Add expense">
+      <div class="handle"></div>
+      <div class="dlg-head"><div class="seg" role="radiogroup" aria-label="Type"><button role="radio" aria-checked="true">Expense</button><button role="radio" aria-checked="false">Income</button><button role="radio" aria-checked="false">Transfer</button></div>
+        <button class="icon-btn" aria-label="Close" data-action="cancel">${icon('x')}</button></div>
+      <div class="dlg-body" id="body"><div class="form">${week()}${account()}${amount()}${categories()}${note()}</div>${room}</div>
+      <div class="dlg-foot">${foot()}</div>${inSheet}
+    </div></div>${onPage}${keyboard()}`;
+  F.flash = false;
+  document.getElementById('body').addEventListener('scroll', () => {
+    const pop = document.querySelector('.v1-pop:not([hidden]), .v3-pop:not([hidden])');
+    if (pop) placePop(pop, document.getElementById('note'));
+  }, { passive: true });
+  wireNote();
+  renderList();
+  placeInView();
+}
+
+// ---------- The list ----------
+function renderList() {
+  const box = document.getElementById('sg');
+  const input = document.getElementById('note');
+  if (!box) return;
+  const rows = matches();
+  if (F.active >= rows.length) F.active = rows.length - 1;
+  const opt = (x, i, inner, cls) => `<div class="${cls}" role="option" id="sg-${i}" aria-selected="${i === F.active}" data-pick="${i}">${inner}</div>`;
+  let html = '';
+  if (VARIANT === 1) {
+    html = rows.map((x, i) => opt(x, i, `<span class="sg-text">${marked(x.text)}</span>`, 'v1-row')).join('');
+  } else if (VARIANT === 2) {
+    html = rows.map((x, i) => opt(x, i, `<span class="sg-text">${marked(x.text)}</span>`, 'pill')).join('');
+    if (!F.note.trim() && !isWide()) html = '<span class="sg-hint" role="presentation">Notes you used before show here as you type</span>';
+  } else {
+    const line = (x, i) => opt(x, i, `<span class="sg-text">${marked(x.text)}</span><span class="lead"></span><span class="cat">${esc(x.cat)}</span>`, 'v3-row');
+    const same = rows.filter((x) => x.cat === F.cat);
+    if (same.length && same.length < rows.length && isWide()) {
+      html = `<div class="v3-h" role="presentation">With ${esc(F.cat)}</div>${same.map((x) => line(x, rows.indexOf(x))).join('')}<div class="v3-h" role="presentation">Other notes</div>${rows.filter((x) => x.cat !== F.cat).map((x) => line(x, rows.indexOf(x))).join('')}`;
+    } else html = rows.map(line).join('');
+    if (!F.note.trim() && !isWide()) html = '<p class="sg-hint" role="presentation">Notes you used before show here as you type</p>';
+  }
+  box.innerHTML = html;
+  const open = rows.length > 0;
+  // A list only while it has rows; the hint takes the same place without the role
+  if (open || box.matches('.v1-pop, .v3-pop')) { box.setAttribute('role', 'listbox'); box.setAttribute('aria-label', 'Notes you used before'); }
+  else { box.removeAttribute('role'); box.removeAttribute('aria-label'); }
+  input.setAttribute('aria-expanded', String(open));
+  if (F.active >= 0 && open) input.setAttribute('aria-activedescendant', `sg-${F.active}`); else input.removeAttribute('aria-activedescendant');
+  if (box.matches('.v1-pop, .v3-pop')) { box.hidden = !open; if (open) placePop(box, input); }
+  if (VARIANT === 3 && !isWide()) sizeDock(box);
+  box.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  fade(box);
+}
+
+function fade(box) {
+  if (!box.matches('.v1-pop, .v3-pop, .v3-dock')) return;
+  box.toggleAttribute('data-more', box.scrollTop + box.clientHeight < box.scrollHeight - 1);
+  box.onscroll = () => fade(box);
+}
+
+// A dropdown under the field (above it when the room below runs out), over the dialog
+function placePop(box, input) {
+  const a = (box.offsetParent ?? app).getBoundingClientRect();
+  const r = input.getBoundingClientRect();
+  box.style.left = `${r.left - a.left}px`;
+  box.style.width = `${r.width}px`;
+  box.style.maxHeight = '';
+  box.style.top = '0px';
+  const h = box.scrollHeight + 2;
+  if (!isWide()) {
+    // Phone: under the field, down to the Save button
+    const footTop = document.querySelector('.dlg-foot').getBoundingClientRect().top - a.top;
+    const top = r.bottom - a.top + 4;
+    box.style.top = `${top}px`;
+    box.style.maxHeight = `${Math.max(96, footTop - top - 8)}px`;
+    fade(box);
+    return;
+  }
+  const below = a.bottom - r.bottom - 16;
+  const above = r.top - a.top - 16;
+  if (h <= below || below >= above) {
+    box.style.top = `${r.bottom - a.top + 4}px`;
+    box.style.maxHeight = `${Math.min(344, below)}px`;
+  } else {
+    const hh = Math.min(h, 344, above);
+    box.style.top = `${r.top - a.top - 4 - hh}px`;
+    box.style.maxHeight = `${hh}px`;
+  }
+}
+
+// Variant 3 on the phone: the dock keeps one height while the note is typed, so the field above it never moves
+function sizeDock(box) {
+  const dialog = document.querySelector('.dialog');
+  const room = dialog.clientHeight - 64 - 84 - 112;
+  box.style.height = `${Math.max(96, Math.min(5 * 44 + 8, room))}px`;
+}
+
+function placeInView() {
+  const body = document.getElementById('body');
+  const blk = document.getElementById('note-blk');
+  if (!body || !blk) return;
+  if (!isWide() && VARIANT === 1) body.scrollTop = blk.offsetTop - 16;
+  else body.scrollTop = body.scrollHeight;
+  const pop = document.querySelector('.v1-pop:not([hidden]), .v3-pop:not([hidden])');
+  if (pop) placePop(pop, document.getElementById('note'));
+}
+
+function pick(i) {
+  const x = matches()[i];
+  if (!x) return;
+  F.note = x.text;
+  F.active = -1;
+  F.closed = true;
+  if (VARIANT === 3 && !F.catByHand && x.cat !== F.cat) {
+    F.said = { was: F.cat };
+    F.cat = x.cat;
+    F.flash = true;
+  }
+  render();
+  focusNote();
+}
+
+function focusNote() {
+  const input = document.getElementById('note');
+  input.focus({ preventScroll: true });
+  input.setSelectionRange(input.value.length, input.value.length);
+}
+
+function wireNote() {
+  const input = document.getElementById('note');
+  input.addEventListener('input', () => {
+    F.note = input.value;
+    F.closed = false;
+    F.active = -1;
+    renderList();
+  });
+  input.addEventListener('keydown', (e) => {
+    const rows = matches();
+    if (e.key === 'ArrowDown' && rows.length) { e.preventDefault(); F.active = (F.active + 1) % rows.length; renderList(); }
+    else if (e.key === 'ArrowUp' && rows.length) { e.preventDefault(); F.active = F.active <= 0 ? rows.length - 1 : F.active - 1; renderList(); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (F.active >= 0 && rows.length) pick(F.active); else toast('Saved: in the app the form closes here');
+    } else if (e.key === 'Escape' && rows.length) { e.preventDefault(); e.stopPropagation(); F.closed = true; F.active = -1; renderList(); }
+  });
+}
+
+let toastTimer;
+function toast(text) {
+  document.querySelector('.toast')?.remove();
+  app.insertAdjacentHTML('beforeend', `<div class="toast" role="status">${esc(text)}</div>`);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => document.querySelector('.toast')?.remove(), 2200);
+}
+
+// ---------- Screens ----------
+const PAGES = [
+  { id: 'type', label: 'Typing “si”' },
+  { id: 'keys', label: 'Arrow keys' },
+  { id: 'ukr', label: 'Ukrainian “ат”' },
+  { id: 'picked', label: 'Picked' },
+  { id: 'empty', label: 'Empty note' },
+];
+function go(id) {
+  state.page = id;
+  Object.assign(F, { note: 'si', active: -1, closed: false, cat: 'Groceries', catByHand: false, flash: false, said: null });
+  if (id === 'keys') F.active = 1;
+  if (id === 'ukr') F.note = 'ат';
+  if (id === 'empty') F.note = '';
+  if (id === 'picked') {
+    if (VARIANT === 3) { F.cat = 'Eating out'; F.note = 'sil'; render(); pick(0); }
+    else { F.note = 'Silpo'; F.closed = true; }
+  }
+  if (!(id === 'picked' && VARIANT === 3)) { render(); focusNote(); }
+  placeInView();
+  document.querySelectorAll('[data-page-set]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.pageSet === id)));
+}
+
+document.body.insertAdjacentHTML('afterbegin', `<div class="pv-bar"><b>I-017 · ${DIRECTION.name}</b>
+  <div class="pv-group pv-view"><span>View</span><button data-view="phone">Phone</button><button data-view="tablet">Tablet</button><button data-view="desktop">Desktop</button></div>
+  <div class="pv-group"><span>Screen</span>${PAGES.map((p) => `<button data-page-set="${p.id}">${p.label}</button>`).join('')}</div>
+  <div class="pv-group"><span>Theme</span><button data-scheme-set="light">Light</button><button data-scheme-set="dark">Dark</button><button data-scheme-set="system">System</button></div>
+  <button data-action="notes" aria-expanded="false">About this direction</button>
+  <div class="pv-notes" id="notes" hidden><b>${DIRECTION.name}</b><p style="margin:4px 0 0">${DIRECTION.thesis}</p><ul>${DIRECTION.notes.map((n) => `<li>${n}</li>`).join('')}</ul></div></div>`);
+
+function setView(v) { stage.dataset.view = v; document.querySelectorAll('button[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v))); }
+setView(innerWidth >= 1200 ? 'desktop' : 'phone');
+
+// Re-lay the screen when the frame crosses 768 px; keep the dropdown on its field
+let wasWide = null;
+new ResizeObserver(() => {
+  if (!state.page) return;
+  if (isWide() !== wasWide) { wasWide = isWide(); render(); focusNote(); return; }
+  const pop = document.querySelector('.v1-pop:not([hidden]), .v3-pop:not([hidden])');
+  if (pop) placePop(pop, document.getElementById('note'));
+}).observe(app);
+
+// A row is picked on pointer down, so the field keeps its focus (and the phone its keyboard)
+document.addEventListener('pointerdown', (e) => {
+  const o = e.target.closest('[data-pick]');
+  if (o) { e.preventDefault(); pick(Number(o.dataset.pick)); }
+});
+document.addEventListener('click', (e) => {
+  const p = e.target.closest('[data-page-set]');
+  if (p) { go(p.dataset.pageSet); return; }
+  const s = e.target.closest('[data-scheme-set]');
+  if (s) { state.schemePref = s.dataset.schemeSet; applyScheme(); return; }
+  const v = e.target.closest('button[data-view]');
+  if (v) { setView(v.dataset.view); return; }
+  const a = e.target.closest('[data-action]');
+  if (!a) return;
+  const act = a.dataset.action;
+  if (act === 'notes') { const n = document.getElementById('notes'); n.hidden = !n.hidden; a.setAttribute('aria-expanded', String(!n.hidden)); }
+  if (act === 'cat') { F.cat = a.dataset.cat; F.catByHand = true; F.said = null; render(); }
+  if (act === 'undo-cat') { F.cat = F.said.was; F.said = null; render(); focusNote(); }
+  if (act === 'save') toast('Saved: in the app the form closes here');
+  if (act === 'cancel') toast('In the app the form closes here');
+  if (act === 'amount' && !isWide()) toast('In the app the keys come back for the amount');
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('notes').hidden = true; });
+
+applyScheme();
+go(PAGES[0].id);
+wasWide = isWide();
+// The fonts change the form's height once they load
+document.fonts.ready.then(() => placeInView());
+</script>
+</body>
+</html>
