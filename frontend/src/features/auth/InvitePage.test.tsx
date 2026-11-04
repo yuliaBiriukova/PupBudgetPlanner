@@ -65,7 +65,8 @@ describe('the invite page', () => {
     expect(registered).toEqual([
       expect.objectContaining({ email: 'olena@example.com', inviteToken: 'good-token' }),
     ]);
-  });
+    // Four fields typed and the app's first render: about 5 s in CI, right at the default limit
+  }, 10_000);
 
   it('sends Continue with Google with the link’s token', async () => {
     inviteOnlyServer();
