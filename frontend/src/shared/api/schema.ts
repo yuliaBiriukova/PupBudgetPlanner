@@ -275,6 +275,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Brings it back, unless an account in use looks just like it (409, I-020). */
         post: {
             parameters: {
                 query?: never;
@@ -295,6 +296,15 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };

@@ -2,6 +2,29 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-04 (I-020: No two accounts alike)
+
+**Done**
+- Built [I-020](changes/improvements/I-020-no-duplicate-accounts/I-020-no-duplicate-accounts.md) on
+  `improvement/I-020-no-duplicate-accounts`, approved by the owner in chat ("approved build"). An exact copy of an
+  account in use (name ignoring case and spaces, currency, source, own source or bank) is refused when adding,
+  editing or restoring; archived accounts don't count. The rule is in the Domain (`Account.CopyIn`); the form finds
+  a copy before sending and shows the API's answer (400 on `name`, 409 on restore) the same way.
+- A partial unique index `ix_accounts_no_copies_in_use` (migration `NoCopiesOfAccounts`, SQL: EF Core can't model an
+  expression index) catches two saves at the same moment. Decided while building: when a database already has
+  copies, the migration skips the index with a warning instead of failing the deploy or changing anyone's accounts
+  ([ADR 0026](decisions/0026-no-copies-of-accounts.md)). The migration ran on `dev`; whether it made the index there
+  couldn't be read from here (no database access), so the owner checks `dev` and production with the PR's query.
+- Checked: backend build and tests, frontend lint, format, typecheck, build, unit tests, `build-storybook`, the full
+  E2E suite (desktop and phone), the design check on Accounts (0 issues), screenshots of the New account form with the
+  copy error and of the refused restore at 375 and 1440 px, light and dark, looked at; walked through in the Browser
+  pane.
+- Test data: a test person `e2e-manual-…@example.com` with three accounts and an `E2E manual I-020` invite link, for
+  the walk-through; the E2E runs' own people. The E2E clean-up deleted the people (with their accounts) and cancelled
+  the invite links; the test person can no longer sign in.
+
+**Next**
+- Owner: review the PR; check `dev` and production for the index and for existing copies.
 ## 2026-11-04 (I-021: Prototypes in Storybook)
 
 **Done**

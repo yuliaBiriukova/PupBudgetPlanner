@@ -141,7 +141,8 @@ export type FormErrors = Partial<
 >;
 
 export type FormError =
-  { key: 'name' | 'newSource' | 'bank' | 'amount' | 'date' } | { key: 'tooLong'; max: number };
+  | { key: 'name' | 'newSource' | 'bank' | 'amount' | 'date' | 'copy' }
+  | { key: 'tooLong'; max: number };
 
 /** The form's mistakes, as the API would find them, so they show under the fields before anything is sent. */
 export function validateForm(values: AccountFormValues): FormErrors {
@@ -184,6 +185,30 @@ export function toRequest(
     openingDate: values.openingDate,
     cardStyle: values.cardStyle,
   };
+}
+
+/**
+ * The account in use that the request would copy (I-020), as the API finds it: the same name ignoring case and the
+ * spaces around it, currency, source, and own source or bank (by name, ignoring case, as the API matches them).
+ * `except` is the account being edited.
+ */
+export function copyOf(
+  request: SaveAccountRequest,
+  accounts: readonly Account[],
+  except?: string,
+): Account | undefined {
+  const same = (a: string | null | undefined, b: string | null | undefined) =>
+    (a ?? '').trim().toLocaleLowerCase() === (b ?? '').trim().toLocaleLowerCase();
+  return accounts.find(
+    (account) =>
+      account.id !== except &&
+      account.archivedAt == null &&
+      same(account.name, request.name) &&
+      account.currency === request.currency &&
+      account.source === request.source &&
+      (request.source !== 'Own' || same(account.sourceName, request.sourceName)) &&
+      (request.source !== 'Bank' || same(account.bankName, request.bankName)),
+  );
 }
 
 /** Banks to suggest for what is typed: up to 6 that contain it, not yours already, not exactly it. */

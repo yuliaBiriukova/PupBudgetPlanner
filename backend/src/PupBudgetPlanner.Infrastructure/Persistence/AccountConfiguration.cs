@@ -7,6 +7,13 @@ namespace PupBudgetPlanner.Infrastructure.Persistence;
 
 internal sealed class AccountConfiguration : IEntityTypeConfiguration<Account>
 {
+    /// <summary>
+    /// No two accounts in use alike (I-020): one per person, name ignoring case, currency, source, own source and bank,
+    /// among the accounts not archived. An expression index, so it is made in its migration
+    /// (<c>NoCopiesOfAccounts</c>), not here; the service checks first and this catches two saves at the same moment.
+    /// </summary>
+    internal const string NoCopiesIndex = "ix_accounts_no_copies_in_use";
+
     /// <summary>Longest <see cref="SourceKind"/> and <see cref="CardStyle"/> names, stored as text (ARCHITECTURE.md "Enums").</summary>
     private const int EnumMaxLength = 20;
 

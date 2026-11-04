@@ -28,6 +28,7 @@ import {
 } from './accountGroups';
 import classes from './Accounts.module.css';
 import {
+  AccountCopyError,
   accountsQuery,
   accountsTotalQuery,
   useArchiveAccount,
@@ -581,6 +582,13 @@ function Archived({
                             message: t('accounts.archived.restored', { name: account.name }),
                           });
                           onRestored(account);
+                        },
+                        onError: (error) => {
+                          if (error instanceof AccountCopyError)
+                            notifications.show({
+                              color: 'red',
+                              message: t('accounts.archived.copy', { name: account.name }),
+                            });
                         },
                       },
                     );

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using PupBudgetPlanner.Domain.Accounts;
 using PupBudgetPlanner.Domain.Categories;
 using PupBudgetPlanner.Domain.ExchangeRates;
@@ -84,6 +86,21 @@ public sealed class AppDbContextTests
                 .Which.DeleteBehavior.Should().Be(DeleteBehavior.Cascade);
             UniqueIndexColumns(context, personal).Should().ContainSingle().Which.Should().Equal("user_id", "name");
         }
+    }
+
+    [Fact]
+    public void A_migration_makes_the_index_that_keeps_out_copies_of_accounts_in_use()
+    {
+        using var context = CreateContext();
+        var migrations = context.GetService<IMigrationsAssembly>();
+
+        var migration = migrations.CreateMigration(
+            migrations.Migrations.Single(entry => entry.Key.EndsWith("_NoCopiesOfAccounts", StringComparison.Ordinal)).Value,
+            context.Database.ProviderName!);
+
+        migration.UpOperations.OfType<SqlOperation>().Should().ContainSingle().Which.Sql.Should()
+            .Contain($"CREATE UNIQUE INDEX {AccountConfiguration.NoCopiesIndex}")
+            .And.Contain("WHERE archived_at IS NULL");
     }
 
     [Fact]

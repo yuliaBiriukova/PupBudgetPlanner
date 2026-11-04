@@ -97,6 +97,17 @@ export const accountsTotalQuery = queryOptions({
   },
 });
 
+/**
+ * The API found that the account would look just like another one in use (I-020): a mistake in its name when it is
+ * saved, a conflict when it is restored.
+ */
+export class AccountCopyError extends Error {
+  constructor() {
+    super('You already have this account.');
+    this.name = 'AccountCopyError';
+  }
+}
+
 /** Adds an account (no `id`) or saves the edited one; the page is fetched again afterwards. */
 export function useSaveAccount() {
   const queryClient = useQueryClient();
@@ -109,9 +120,11 @@ export function useSaveAccount() {
       id?: string;
       body: SaveAccountRequest;
     }): Promise<Account> => {
-      const { data, response } = id
+      const { data, error, response } = id
         ? await apiClient.PUT('/api/accounts/{id}', { params: { path: { id } }, body })
         : await apiClient.POST('/api/accounts', { body });
+      // The form checks it first; this is a copy saved meanwhile (another tab, two saves at once)
+      if (response.status === 400 && hasNameError(error)) throw new AccountCopyError();
       if (!response.ok || !data)
         throw new Error(`Couldn't save the account: ${String(response.status)}`);
       return toAccount(data);
@@ -120,7 +133,14 @@ export function useSaveAccount() {
   });
 }
 
-/** Archives an account, or brings an archived one back. */
+/** A 400 from the API with a mistake in the name: the form's other mistakes are found before it is sent. */
+function hasNameError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null || !('errors' in error)) return false;
+  const { errors } = error;
+  return typeof errors === 'object' && errors !== null && 'name' in errors;
+}
+
+/** Archives an account, or brings an archived one back (not when an account in use is just like it, I-020). */
 export function useArchiveAccount() {
   const queryClient = useQueryClient();
 
@@ -130,6 +150,7 @@ export function useArchiveAccount() {
       const { response } = restore
         ? await apiClient.POST('/api/accounts/{id}/restore', { params })
         : await apiClient.POST('/api/accounts/{id}/archive', { params });
+      if (restore && response.status === 409) throw new AccountCopyError();
       if (!response.ok) throw new Error(`Couldn't change the account: ${String(response.status)}`);
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: accountsQuery.queryKey }),

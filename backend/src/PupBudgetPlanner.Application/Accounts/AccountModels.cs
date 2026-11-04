@@ -25,17 +25,29 @@ public sealed record AccountItem(
     DateTimeOffset? ArchivedAt,
     int TransactionCount);
 
-public enum UpdateAccountOutcome
+public enum SaveAccountOutcome
 {
     Saved,
     NotFound,
 
     /// <summary>A new currency for an account with transactions: their amounts are in its currency.</summary>
     CurrencyFixed,
+
+    /// <summary>It would look just like another account in use (I-020).</summary>
+    Copy,
 }
 
-/// <summary>What a change to an account came to; <paramref name="Account"/> is set when it was saved.</summary>
-public sealed record UpdateAccountResult(UpdateAccountOutcome Outcome, AccountItem? Account = null);
+/// <summary>What a new account or a change to one came to; <paramref name="Account"/> is set when it was saved.</summary>
+public sealed record SaveAccountResult(SaveAccountOutcome Outcome, AccountItem? Account = null);
+
+public enum RestoreAccountOutcome
+{
+    Restored,
+    NotFound,
+
+    /// <summary>An account in use looks just like it (I-020): one of them is renamed first.</summary>
+    Copy,
+}
 
 public enum DeleteAccountOutcome
 {
