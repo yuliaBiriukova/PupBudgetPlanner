@@ -7,6 +7,7 @@ import { cx } from '../../shared/ui/cx';
 import type { Account } from '../accounts/accountsApi';
 import { cleared, filterCount, type Filters } from './filters';
 import { Picker } from './Picker';
+import pills from '../../shared/ui/Pills.module.css';
 import formClasses from './TransactionForm.module.css';
 import classes from './TransactionsPage.module.css';
 import type { CategoryTotal, TransactionType } from './transactionsApi';
@@ -277,7 +278,12 @@ function PhoneFilters({
     </span>
   );
   const pill = (pressed: boolean, text: string, onClick: () => void, type?: TransactionType) => (
-    <UnstyledButton aria-pressed={pressed} data-type={type} onClick={onClick}>
+    <UnstyledButton
+      className={cx(pills.pill, classes.typePill)}
+      aria-pressed={pressed}
+      data-type={type}
+      onClick={onClick}
+    >
       {text}
     </UnstyledButton>
   );
@@ -325,8 +331,7 @@ function PhoneFilters({
         footer={
           <div className={classes.sheetFooter}>
             <Button
-              variant="default"
-              radius="xl"
+              variant="quiet"
               disabled={on === 0}
               onClick={() => {
                 onChange(cleared(filters));
@@ -334,7 +339,7 @@ function PhoneFilters({
             >
               {t('transactions.filters.clearAll')}
             </Button>
-            <Button radius="xl" onClick={close}>
+            <Button onClick={close}>
               {count === 0
                 ? t('transactions.filters.nothing')
                 : t('transactions.filters.show', { count: count ?? 0 })}
@@ -345,7 +350,7 @@ function PhoneFilters({
         <div className={classes.sheet}>
           <section className={classes.sheetSection} aria-label={t('transactions.filters.account')}>
             <h3 aria-hidden="true">{t('transactions.filters.account')}</h3>
-            <div className={classes.pills}>
+            <div className={pills.pills}>
               {pill(!filters.accountId, t('transactions.filters.allAccounts'), () => {
                 onAccount(undefined);
               })}
@@ -360,7 +365,7 @@ function PhoneFilters({
           </section>
           <section className={classes.sheetSection} aria-label={t('transactions.filters.type')}>
             <h3 aria-hidden="true">{t('transactions.filters.type')}</h3>
-            <div className={classes.pills}>
+            <div className={pills.pills}>
               {pill(!filters.type, t('transactions.filters.allTypes'), () => {
                 onType(undefined);
               })}

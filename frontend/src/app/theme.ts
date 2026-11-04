@@ -1,11 +1,16 @@
 import {
+  ActionIcon,
   Button,
   Checkbox,
   createTheme,
+  defaultVariantColorsResolver,
   Input,
+  Menu,
   ScrollArea,
+  SegmentedControl,
   type CSSVariablesResolver,
   type MantineColorsTuple,
+  type VariantColorsResolver,
 } from '@mantine/core';
 import { SCROLL_BAR_HIDE_DELAY } from '../shared/ui/FadingScrollArea';
 import themeClasses from './theme.module.css';
@@ -69,8 +74,41 @@ const dark: MantineColorsTuple = [
   '#08090a',
 ];
 
+/**
+ * The app's button kinds besides the charcoal `filled` one (I-019): `quiet` the grey word (Cancel, Keep, actions in
+ * rows), `danger` the red pill that confirms a delete, `danger-quiet` the red word (Delete in rows and forms).
+ */
+const variantColorResolver: VariantColorsResolver = (input) => {
+  switch (input.variant) {
+    case 'quiet':
+      return {
+        background: 'transparent',
+        hover: 'var(--pup-color-hover)',
+        color: 'var(--mantine-color-text)',
+        border: 'none',
+      };
+    case 'danger':
+      return {
+        background: 'var(--pup-color-danger)',
+        hover: 'var(--pup-color-danger-hover)',
+        color: 'var(--pup-color-on-danger)',
+        border: 'none',
+      };
+    case 'danger-quiet':
+      return {
+        background: 'transparent',
+        hover: 'var(--pup-color-error-bg)',
+        color: 'var(--pup-color-danger)',
+        border: 'none',
+      };
+    default:
+      return defaultVariantColorsResolver(input);
+  }
+};
+
 export const theme = createTheme({
   colors: { charcoal, sky, gray, dark },
+  variantColorResolver,
   primaryColor: 'charcoal',
   primaryShade: { light: 8, dark: 1 },
   autoContrast: true,
@@ -92,14 +130,37 @@ export const theme = createTheme({
   components: {
     // autoContrast picks the text color once, from the light-mode shade, so dark mode got white text on the
     // light button. Filled buttons in the primary color take the text color of the current scheme instead.
+    // Every button is a 44 px pill (I-019); the sign-in screens make theirs 52 px.
     Button: Button.extend({
-      vars: (_theme, props) =>
-        (props.variant ?? 'filled') === 'filled' && props.color === undefined
-          ? { root: { '--button-color': 'var(--pup-color-on-primary)' } }
-          : { root: {} },
+      defaultProps: { radius: 'xl' },
+      classNames: { root: themeClasses.button },
+      vars: (_theme, props) => ({
+        root: {
+          '--button-height': '44px',
+          ...((props.variant ?? 'filled') === 'filled' && props.color === undefined
+            ? { '--button-color': 'var(--pup-color-on-primary)' }
+            : {}),
+        },
+      }),
     }),
-    // Fields in focus get a 2 px accent border (theme.module.css): Mantine only changes the border color
-    Input: Input.extend({ classNames: { input: themeClasses.input } }),
+    // Icon buttons: 44 px circles (I-019)
+    ActionIcon: ActionIcon.extend({ defaultProps: { radius: 'xl', size: 44 } }),
+    // One field for every form (I-019): 52 px, 16 px text and 16 px inside, the surface and the fields' border
+    // (theme.module.css). In focus a 2 px accent border: Mantine only changes the border color
+    Input: Input.extend({
+      classNames: { wrapper: themeClasses.inputWrapper, input: themeClasses.input },
+      vars: () => ({ wrapper: { '--input-height': '52px', '--input-fz': '16px' } }),
+    }),
+    // One pill switch (I-019): the picked option raised on the choice track, in the text colour
+    SegmentedControl: SegmentedControl.extend({
+      defaultProps: { radius: 'xl', withItemsBorders: false },
+      classNames: {
+        root: themeClasses.switch,
+        indicator: themeClasses.switchIndicator,
+        label: themeClasses.switchLabel,
+      },
+    }),
+    Menu: Menu.extend({ classNames: { item: themeClasses.menuItem } }),
     // Pup's scroll bar for every scroll area, Mantine's own too (dropdowns): the look is in theme.module.css; it
     // shows while scrolling. Shared areas add the fades with FadingScrollArea (I-004). Autosize takes its own
     // defaults and passes them on, so it needs them too.
@@ -154,9 +215,8 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-hero-rule': '#474c54',
     '--pup-color-switch': '#ebedf0',
     '--pup-color-switch-active': '#fcfcfd',
-    // A segmented choice on the page (Settings, F-016): the track and the picked pill
+    // The pill switch's track and the keypad's keys (I-019); the picked pill is --pup-color-switch-active
     '--pup-color-choice': '#ebedf0',
-    '--pup-color-choice-active': '#fcfcfd',
     '--pup-shadow-switch': '0 1px 3px rgba(15, 17, 20, 0.14)',
     '--pup-color-field-border': '#7c828a',
     // Errors: field messages and the banner
@@ -220,9 +280,8 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-color-hero-rule': '#2e3035',
     '--pup-color-switch': '#121315',
     '--pup-color-switch-active': '#2e3035',
-    // On the page the switch's own track would be the page's colour: the tag's, and the picked pill in the accent's tint
+    // The pill switch's track: the tag's colour, so it shows on the page in dark mode
     '--pup-color-choice': '#26272a',
-    '--pup-color-choice-active': '#262f37',
     '--pup-shadow-switch': 'none',
     '--pup-color-field-border': '#71747b',
     '--mantine-color-error': '#f2958c',

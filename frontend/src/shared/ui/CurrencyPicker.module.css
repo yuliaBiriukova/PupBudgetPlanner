@@ -94,11 +94,10 @@
   padding: 8px;
 }
 
+/* The list's search: the app's field (theme.ts), 48 px to leave room for the list */
 .searchInput {
   height: 48px;
   min-height: 48px;
-  border-color: var(--pup-color-field-border);
-  font-size: 16px;
 }
 
 /* The list has its own X on the desktop; the browser's clear button would be a second one */

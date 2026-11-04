@@ -36,7 +36,7 @@ export function InvitePage() {
       <div role="alert">
         <p className={invite.text}>{t('auth.invite.failed')}</p>
         <Button
-          variant="default"
+          variant="quiet"
           className={invite.action}
           onClick={() => {
             void preview.refetch();

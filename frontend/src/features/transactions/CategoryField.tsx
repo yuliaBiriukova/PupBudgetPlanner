@@ -13,6 +13,7 @@ import { DESKTOP_QUERY } from '../../app/shell/sections';
 import type { CategoryOption } from './formDefaults';
 import { Picker } from './Picker';
 import { KEEP_FORM_OPEN } from './transactionForm';
+import pillClasses from '../../shared/ui/Pills.module.css';
 import classes from './TransactionForm.module.css';
 
 interface CategoryFieldProps {
@@ -71,8 +72,6 @@ export function CategoryField({ value, onChange, pills, all, often, error }: Cat
           <ActionIcon
             variant="subtle"
             color="gray"
-            radius="xl"
-            size={40}
             aria-label={t('transactions.form.closeList')}
             onClick={close}
             {...KEEP_FORM_OPEN}
@@ -143,7 +142,7 @@ export function CategoryField({ value, onChange, pills, all, often, error }: Cat
         )}
       </div>
       <div
-        className={classes.pills}
+        className={pillClasses.pills}
         role="radiogroup"
         aria-labelledby={headingId}
         aria-describedby={error ? `${headingId}-error` : undefined}
@@ -152,13 +151,13 @@ export function CategoryField({ value, onChange, pills, all, often, error }: Cat
           <UnstyledButton
             key={category.id}
             role="radio"
-            className={classes.pill}
+            className={pillClasses.pill}
             aria-checked={category.id === value}
             onClick={() => {
               onChange(category.id);
             }}
           >
-            {category.id === value && <IconCheck size={16} stroke={1.8} aria-hidden />}
+            {category.id === value && <IconCheck size={16} stroke={1.7} aria-hidden />}
             {category.name}
           </UnstyledButton>
         ))}
@@ -221,7 +220,7 @@ function CategoryList({ value, all, often, query, onPick }: CategoryListProps) {
               {...KEEP_FORM_OPEN}
             >
               <span className={classes.listName}>{category.name}</span>
-              {category.id === value && <IconCheck size={20} stroke={1.8} aria-hidden />}
+              {category.id === value && <IconCheck size={20} stroke={1.7} aria-hidden />}
             </UnstyledButton>
           </li>
         ))}

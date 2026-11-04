@@ -104,8 +104,6 @@ export function CurrencyPicker({
           <ActionIcon
             variant="subtle"
             color="gray"
-            radius="xl"
-            size={40}
             aria-label={t('currencyPicker.close')}
             onClick={close}
             {...keepDialogOpen}
@@ -151,7 +149,7 @@ export function CurrencyPicker({
           {hideLabel && <VisuallyHidden>{`${label}: `}</VisuallyHidden>}
           <b>{value}</b>
           <span className={classes.what}>{currencyName(value)}</span>
-          {marked && <IconCheck className={classes.check} size={20} stroke={1.8} aria-hidden />}
+          {marked && <IconCheck className={classes.check} size={20} stroke={1.7} aria-hidden />}
         </>
       ) : (
         <span className={classes.placeholder}>{placeholder}</span>

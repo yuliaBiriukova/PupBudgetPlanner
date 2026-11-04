@@ -43,6 +43,22 @@
   }
 }
 
+/* A delete that waits for a typed confirmation: the same red, faded, so it still reads as the delete button
+   (F-028, I-011) */
+.button[data-variant='danger']:is(:disabled, [data-disabled]) {
+  background: var(--pup-color-danger);
+  color: var(--pup-color-on-danger);
+  opacity: 0.45;
+}
+
+/* Every field (I-019): the surface behind it, the fields' border (3:1) and 16 px inside; Mantine's error and focus
+   colours still win, their selectors are stronger */
+[data-mantine-color-scheme] .inputWrapper[data-variant='default'] {
+  --input-bd: var(--pup-color-field-border);
+  --input-bg: var(--pup-color-surface);
+  --input-padding: 16px;
+}
+
 /* A field in focus gets a 2 px accent border (the border and a 1 px outline on it), the sign-in fields' style from
    F-011, everywhere. Mantine alone only changes the border color, which is easy to miss */
 .input:focus,
@@ -50,4 +66,39 @@
   border-color: var(--pup-color-accent);
   outline: 1px solid var(--pup-color-accent);
   outline-offset: 0;
+}
+
+/* The pill switch (I-019): a pill track in the choice colour, the picked option raised in the text colour. A screen
+   can colour its picked label (the transaction type) */
+.switch {
+  padding: 4px;
+  background: var(--pup-color-choice);
+}
+
+.switchIndicator {
+  background: var(--pup-color-switch-active);
+  box-shadow: var(--pup-shadow-switch);
+}
+
+.switchLabel {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  font-weight: 500;
+
+  /* Mantine fades the color; the indicator's slide is enough, and the text is never caught half-way */
+  transition: none;
+}
+
+.switchLabel:hover,
+.switchLabel[data-active] {
+  color: var(--mantine-color-text);
+}
+
+/* Menu items are touch targets too */
+.menuItem {
+  min-height: 44px;
 }

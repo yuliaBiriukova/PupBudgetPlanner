@@ -103,7 +103,7 @@ export function TransactionFormProvider({ children }: { children: ReactNode }) {
           {t('transactions.saved.balance', { what: text, account: only.name })} {only.count}
         </>
       );
-    notifications.show({ icon: <IconCheck size={16} stroke={1.8} />, message });
+    notifications.show({ icon: <IconCheck size={16} stroke={1.7} />, message });
     setLastChange((current) => ({
       key: (current?.key ?? 0) + 1,
       transactionId,

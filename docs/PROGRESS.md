@@ -2,6 +2,45 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-04 (I-019: One look for every element)
+
+**Done**
+- The owner found the sidebar's Add transaction unlike the app's other buttons and asked for every UI element to be
+  aligned: planned as [I-019](changes/improvements/I-019-ui-consistency/I-019-ui-consistency.md) (Medium, proposed).
+  Audit from the code: buttons in five heights (36 px, Mantine's default, is the most used, below the touch target),
+  seven not pills, three Cancel styles, the red Delete built three times; four builds of the pill switch in two colour
+  sets; pills with two borders; the 52 px field style copied into six screens; icon buttons in three sizes and two
+  shapes; three icon strokes. Proposal and open points in the description file.
+- The owner asked for the design system in Storybook ("add design system to storybook"), approved by the request:
+  *Design system / Foundations* (colour tokens of both schemes side by side, read from `theme.ts`; type; corners and
+  spacing measured in the browser; icons) and *Design system / Components* (buttons, icon buttons, switches, pills and
+  chips, fields, check boxes and menus, each variant built with the app's own props and styles, with where it is used
+  and "Differs" on what I-019 aligns). Settings' `Choice` is exported for it; no screen changed.
+- Checked: types, lint and format; all 10 pages render at 375 and 1440 px, light and dark, with no errors and no
+  sideways scroll; screenshots looked at (fixed: the colour groups' names repeated in each column).
+- Test data: none.
+
+- The owner's answers: Cancel the grey word everywhere; the keypad's keys as pills (a comparison of today, pill and
+  circle keys, [keypad-round-keys.html](changes/improvements/I-019-ui-consistency/prototypes/keypad-round-keys.html));
+  44 px for every button, 52 px only on sign-in. The [before / after page](changes/improvements/I-019-ui-consistency/prototypes/before-after.html)
+  showed every element today and after; its design check flags only the "Today" column (36 and 40 px buttons, and the
+  menu's Delete in Mantine's red at 3.2:1 contrast). The owner approved it ("Approved, build it"); recorded in the
+  description file and DESIGN_RULES "Screen decisions" before the build.
+- Built: the look is set once in `theme.ts` (button variants `quiet`, `danger`, `danger-quiet`; 44 px pills and icon
+  circles; one field; one `SegmentedControl` switch; 44 px menu items) and `shared/ui/Pills.module.css`; every screen
+  moved to it, the copied styles removed. Storybook *Design system / Components* now shows the one look; DESIGN_RULES
+  has a "Components" section.
+- Checked: types, lint and format; unit tests (227); the full E2E suite (56 passed, 6 skipped as before; it caught the
+  rail's + off the icons' axis, fixed and its test re-run); the app and Storybook build; screenshots of every changed
+  screen's stories at 375 and 1440 px, light and dark, looked at.
+- Test data: the E2E runs' own people, removed by their teardown; nothing made by hand.
+- Kept as they are, on purpose: Continue with Google's outline (the brand's button), People's selection bar (light
+  buttons on its dark bar), the form's Today / Yesterday (picks, not buttons), the phone tab bar's round + (52 px), the
+  48 px search fields inside the currency and category lists, and the read-only invite link field.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-03 (F-020: Transactions list)
 
 **Done**

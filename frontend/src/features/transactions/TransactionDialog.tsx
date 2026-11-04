@@ -278,7 +278,7 @@ function TransactionForm({
       body = (
         <div className={classes.empty}>
           <p>{t('transactions.form.noAccounts')}</p>
-          <Button component={Link} to="/accounts" radius="xl" onClick={onClose}>
+          <Button component={Link} to="/accounts" onClick={onClose}>
             {t('transactions.form.goToAccounts')}
           </Button>
         </div>
@@ -491,14 +491,8 @@ function TransactionForm({
       }}
       data={TYPES.map((item) => ({ value: item, label: t(`transactions.types.${item}`) }))}
       fullWidth
-      radius="xl"
-      withItemsBorders={false}
       data-type={form.type}
-      classNames={{
-        root: classes.switch,
-        indicator: classes.switchIndicator,
-        label: classes.switchLabel,
-      }}
+      className={classes.typeSwitch}
     />
   );
 
@@ -506,8 +500,6 @@ function TransactionForm({
     <ActionIcon
       variant="subtle"
       color="gray"
-      size={44}
-      radius="xl"
       aria-label={t(`transactions.form.deleteLabel.${word}`)}
       onClick={onDelete}
     >
@@ -519,20 +511,18 @@ function TransactionForm({
     <>
       {editing && (
         <Button
-          variant="subtle"
-          radius="xl"
-          color="var(--mantine-color-error)"
-          leftSection={<IconTrash size={16} stroke={1.7} />}
+          variant="danger-quiet"
+          leftSection={<IconTrash size={20} stroke={1.7} />}
           onClick={onDelete}
         >
           {t('transactions.form.delete')}
         </Button>
       )}
       <span className={classes.spacer} />
-      <Button variant="default" radius="xl" onClick={onClose}>
+      <Button variant="quiet" onClick={onClose}>
         {t('transactions.form.cancel')}
       </Button>
-      <Button radius="xl" loading={save.isPending} onClick={submit}>
+      <Button loading={save.isPending} onClick={submit}>
         {editing ? t('transactions.form.saveChanges') : t(`transactions.form.save${type}`)}
       </Button>
     </>
@@ -676,7 +666,6 @@ function TransactionForm({
                 : 'transactions.form.notePlaceholder',
             )}
             autoComplete="off"
-            classNames={{ input: classes.noteInput }}
             onChange={(event) => {
               change({ note: event.currentTarget.value });
             }}

@@ -164,13 +164,12 @@ function NameSection({ settings }: { settings: UserSettings }) {
         onKeyDown={(event) => {
           if (event.key === 'Enter') save();
         }}
-        classNames={{ label: classes.label, input: classes.input, error: classes.error }}
+        classNames={{ label: classes.label, error: classes.error }}
       />
       {(dirty || error) && (
         <div className={classes.buttons}>
           <Button
-            variant="default"
-            radius="xl"
+            variant="quiet"
             onClick={() => {
               setDraft(settings.displayName);
               setError(undefined);
@@ -178,7 +177,7 @@ function NameSection({ settings }: { settings: UserSettings }) {
           >
             {t('settings.cancel')}
           </Button>
-          <Button radius="xl" loading={changeName.isPending} onClick={save}>
+          <Button loading={changeName.isPending} onClick={save}>
             {t('settings.saveName')}
           </Button>
         </div>
@@ -333,7 +332,7 @@ interface ChoiceProps {
  * A segmented choice: radio buttons as pills on a track, the picked one raised (the sign-in switch's look, F-011).
  * Native radios, so the arrow keys move between them.
  */
-function Choice({ name, labelledBy, value, options, onChange }: ChoiceProps) {
+export function Choice({ name, labelledBy, value, options, onChange }: ChoiceProps) {
   return (
     <div className={classes.choice} role="radiogroup" aria-labelledby={labelledBy}>
       {options.map(({ value: option, label, icon: OptionIcon }) => (
@@ -352,7 +351,7 @@ function Choice({ name, labelledBy, value, options, onChange }: ChoiceProps) {
               onChange(option);
             }}
           />
-          {OptionIcon && <OptionIcon size={20} stroke={1.6} aria-hidden />}
+          {OptionIcon && <OptionIcon size={20} stroke={1.7} aria-hidden />}
           {label}
         </label>
       ))}

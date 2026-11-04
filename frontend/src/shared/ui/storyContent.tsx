@@ -48,10 +48,8 @@ export function LongCategoryList() {
 export function SaveButtons() {
   return (
     <>
-      <Button radius="xl" variant="subtle" color="gray">
-        Cancel
-      </Button>
-      <Button radius="xl">Save</Button>
+      <Button variant="quiet">Cancel</Button>
+      <Button>Save</Button>
     </>
   );
 }

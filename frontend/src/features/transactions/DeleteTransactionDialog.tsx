@@ -68,13 +68,11 @@ export function DeleteTransactionDialog({
       size={400}
       footer={
         <>
-          <Button variant="default" radius="xl" onClick={onKeep}>
+          <Button variant="quiet" onClick={onKeep}>
             {t('transactions.delete.keep')}
           </Button>
           <Button
-            radius="xl"
-            color="var(--pup-color-danger)"
-            className={classes.danger}
+            variant="danger"
             loading={remove.isPending}
             onClick={() => {
               remove.mutate(
