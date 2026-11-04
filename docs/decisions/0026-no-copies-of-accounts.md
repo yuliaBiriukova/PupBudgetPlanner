@@ -1,4 +1,4 @@
-# 0025. No two accounts in use alike: checked in the Domain, backed by a partial unique index
+# 0026. No two accounts in use alike: checked in the Domain, backed by a partial unique index
 
 - Status: Accepted
 - Date: 2026-11-04

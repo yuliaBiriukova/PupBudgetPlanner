@@ -13,14 +13,15 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - A partial unique index `ix_accounts_no_copies_in_use` (migration `NoCopiesOfAccounts`, SQL: EF Core can't model an
   expression index) catches two saves at the same moment. Decided while building: when a database already has
   copies, the migration skips the index with a warning instead of failing the deploy or changing anyone's accounts
-  ([ADR 0025](decisions/0025-no-copies-of-accounts.md)). The migration ran on `dev`; whether it made the index there
+  ([ADR 0026](decisions/0026-no-copies-of-accounts.md)). The migration ran on `dev`; whether it made the index there
   couldn't be read from here (no database access), so the owner checks `dev` and production with the PR's query.
 - Checked: backend build and tests, frontend lint, format, typecheck, build, unit tests, `build-storybook`, the full
   E2E suite (desktop and phone), the design check on Accounts (0 issues), screenshots of the New account form with the
   copy error and of the refused restore at 375 and 1440 px, light and dark, looked at; walked through in the Browser
   pane.
 - Test data: a test person `e2e-manual-…@example.com` with three accounts and an `E2E manual I-020` invite link, for
-  the walk-through; the E2E runs' own people. All removed by the E2E clean-up (see the PR).
+  the walk-through; the E2E runs' own people. The E2E clean-up deleted the people (with their accounts) and cancelled
+  the invite links; the test person can no longer sign in.
 
 **Next**
 - Owner: review the PR; check `dev` and production for the index and for existing copies.

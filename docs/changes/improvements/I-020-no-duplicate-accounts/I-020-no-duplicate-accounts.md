@@ -49,7 +49,7 @@ unique names (ADR 0017).
 - [x] API: the error as `ProblemDetails` with the error on `name`; restore's error with the other account's name.
 - [x] Frontend: show the API's error under the name field in `AccountDialog`; the restore notification on the
       Accounts page. i18n keys for both messages.
-- [x] Tests (below); docs: ARCHITECTURE (accounts) and [ADR 0025](../../../decisions/0025-no-copies-of-accounts.md)
+- [x] Tests (below); docs: ARCHITECTURE (accounts) and [ADR 0026](../../../decisions/0026-no-copies-of-accounts.md)
       instead of a note in ADR 0017 (the index and the migration are a decision of their own).
 
 ## Design
@@ -75,7 +75,7 @@ wants another wording or place for the messages, that is decided in review of th
   same answer. The API answers a copy with 400 and the error on `name`, a refused restore with 409. The form finds a
   copy itself before sending (`copyOf`) and shows the API's answer the same way. The index
   `ix_accounts_no_copies_in_use` is made by SQL in the `NoCopiesOfAccounts` migration (EF Core can't model an
-  expression index), `NULLS NOT DISTINCT` so cash accounts count too. See ADR 0025.
+  expression index), `NULLS NOT DISTINCT` so cash accounts count too. See ADR 0026.
 - **Existing copies, as decided while building.** Copies made before I-020 aren't changed. The migration makes the
   index only when there are none, and otherwise logs a warning and skips it, so a deploy never fails on old data; the
   Domain check stops new copies either way. The `dev` and production data couldn't be read from here: the owner checks
