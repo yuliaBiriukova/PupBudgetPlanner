@@ -1183,6 +1183,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reports/year": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** January to December of year: the months still to come have no numbers. */
+        get: {
+            parameters: {
+                query?: {
+                    year?: number | string;
+                    currency?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Report"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reports/month": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One month, month written `yyyy-MM`; no Avg. */
+        get: {
+            parameters: {
+                query?: {
+                    month?: string;
+                    currency?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Report"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings": {
         parameters: {
             query?: never;
@@ -1973,6 +2069,83 @@ export interface components {
             email: string;
             password: string;
             inviteToken?: null | string;
+        };
+        /**
+         * @description The spreadsheet-like report (F-021) in Currency, each amount at the NBU rate of its own day
+         *     (business rule 1). MonthsCounted is what Avg divides by: the year's months from the person's first
+         *     month with data up to this one (none for a monthly report). Amounts are kept as worked out and rounded when shown
+         *     (ADR 0018).
+         */
+        Report: {
+            currency: string;
+            months: components["schemas"]["ReportMonth"][];
+            /** Format: int32 */
+            monthsCounted: null | number | string;
+            groups: components["schemas"]["ReportGroup"][];
+            summary: components["schemas"]["ReportSummary"];
+        };
+        /** @description A category's row. An archived one is a row only when the period has amounts on it. */
+        ReportCategory: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            isArchived: boolean;
+            amounts: components["schemas"]["ReportLine"];
+        };
+        /** @description A section of the report: the group's categories in the Categories page's order and the group's total. */
+        ReportGroup: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            kind: components["schemas"]["CategoryKind"];
+            categories: components["schemas"]["ReportCategory"][];
+            total: components["schemas"]["ReportLine"];
+        };
+        /**
+         * @description A row's numbers: one a month in the report's order (none for a month still to come), the period's
+         *     Total and Average (Avg, the yearly report's only). A row that isn't a sum has
+         *     no total, and a total with a month missing is none rather than short.
+         */
+        ReportLine: {
+            months: (null | number | string)[];
+            /** Format: double */
+            total: null | number | string;
+            /** Format: double */
+            average: null | number | string;
+        };
+        /**
+         * @description A column of the report. Month is its first day. RatesMissing: some incomes or
+         *     expenses in another currency had no rate and aren't in its numbers. BalanceRates are the rates
+         *     its month-end balance used, in hryvnias as the NBU publishes them (ADR 0020): the day's (today's for this month),
+         *     or the latest earlier ones, marked; none when the balance needed no rates or the month is still to come.
+         */
+        ReportMonth: {
+            /** Format: date */
+            month: string;
+            state: components["schemas"]["ReportMonthState"];
+            ratesMissing: boolean;
+            balanceRates: null | components["schemas"]["RatesOfDay"];
+        };
+        /**
+         * @description Where a month is against Kyiv's today: over, under way, or still to come (then it has no numbers).
+         * @enum {unknown}
+         */
+        ReportMonthState: "Passed" | "Current" | "Future";
+        /**
+         * @description The rows under the table (PRODUCT.md, business rules 4 and 7). Net is income less expenses.
+         *     Balance is what was really on the accounts at each month's end, the balance now for this month;
+         *     StartBalance the one at the end of the month before the period. OtherChanges
+         *     is each month's change in balance less its NET: the rates, exchanges and new accounts, so start + NET + other
+         *     changes = end in every month.
+         */
+        ReportSummary: {
+            income: components["schemas"]["ReportLine"];
+            expenses: components["schemas"]["ReportLine"];
+            net: components["schemas"]["ReportLine"];
+            otherChanges: components["schemas"]["ReportLine"];
+            balance: components["schemas"]["ReportLine"];
+            /** Format: double */
+            startBalance: null | number | string;
         };
         /**
          * @description A new account or the edited one. For SourceKind.Own, SourceName names one of the

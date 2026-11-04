@@ -2,6 +2,50 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-04 (F-021: Report engine)
+
+**Done**
+- The owner approved F-021 ("Approved, build it"); recorded in the description file before the build.
+- Built [F-021](changes/features/F-021-report-engine/F-021-report-engine.md): `GET /api/reports/year?year=…` and
+  `GET /api/reports/month?month=yyyy-MM` (optional `currency`), one `Report` shape. The pure `ReportBuilder`
+  (Application) works it out from what `ReportService` has the database sum: incomes and expenses per day, currency and
+  category, and each account's movement per month. Conversion at each amount's own day; real month-end balances (this
+  month equals the Accounts total); the "Other changes" row; Avg from the first month with data; months still to come
+  `null`; amounts without a rate left out and marked. API types regenerated for F-022.
+  [ADR 0027](decisions/0027-report-engine.md); ARCHITECTURE.md updated.
+- Decided while building: the month-end balances live in `ReportBuilder` (Application), not next to `BalanceSheet`
+  (Domain), as an archived account's day is a Kyiv date.
+- Checked: backend build and all 440 tests (among them `ReportBuilderTests`, and `SpreadsheetYearTests`: a test year in
+  the spreadsheet's shape whose every hryvnia category, group and month total matches the spreadsheet); frontend lint,
+  format, typecheck, build, `build-storybook`; the full E2E suite (desktop and phone) with the new
+  `e2e/reports.spec.ts` against the real NBU (auth.spec's sign-up on the desktop hit the sign-in rate limit once and
+  passed when re-run). The frontend unit tests timed out locally on some Transactions page tests, with or without this
+  branch's only frontend change (the generated types), while other sessions kept the CPU at 100%; CI runs them. No
+  screen changed: no design check or screenshots.
+- Test data: the E2E runs' own people (`e2e-reports-…@example.com` and the other specs'), deleted by their clean-up.
+
+**Next**
+- Owner: review the PR. Then F-022, the Reports screen (3 prototype stories first).
+
+## 2026-11-04 (F-021: Report engine, plan)
+
+**Done**
+- Started [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) on `feature/F-021-report-engine`;
+  F-021 and M4 In progress. No code: the change isn't approved yet.
+- The description file now has the full plan: the yearly and monthly report's rows and summary, Avg's months, month-end
+  balances (this month equals the Accounts total), missing rates, two endpoints (`/api/reports/year`,
+  `/api/reports/month`, optional `currency`), the pure `ReportBuilder`, an API-level E2E test, ADR 0027 to come; and
+  seven open points with proposals (Avg in the first year and this month, accounts opened mid-year and archived ones,
+  NET vs the balance's change, the spreadsheet fixture, many NBU calls at once).
+- The owner answered all seven open points (Avg from the first month with data, this month counted; accounts from
+  their opening month, archived ones until the month before; the real balance with an "Other changes" row; a test
+  year in the spreadsheet's shape for the fixture; the first slow opening is fine). PRODUCT.md business rules 4 and 7
+  updated.
+- Test data: none.
+
+**Next**
+- Owner: approve F-021 before it is built.
+
 ## 2026-11-04 (I-020: No two accounts alike)
 
 **Done**

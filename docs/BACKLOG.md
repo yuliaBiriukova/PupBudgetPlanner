@@ -56,7 +56,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 | ID | Feature | Status |
 |----|---------|--------|
-| [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) | Report engine | Todo |
+| [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) | Report engine | Done |
 | [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) | 🎨 Reports screen | Todo |
 
 ### M5 — Family
