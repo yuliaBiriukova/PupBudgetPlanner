@@ -2,7 +2,7 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
-## 2026-11-04 (I-017 design round 1)
+## 2026-11-04 (I-017: Note suggestions)
 
 **Done**
 - Started I-017 (note suggestions) on `improvement/I-017-note-suggestions`; status In progress. No code: the change
@@ -40,6 +40,21 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the PR; try the Note field on a phone (the keyboard and Save above it).
+
+## 2026-11-04 (Plan: I-020)
+
+**Done**
+- The owner asked whether accounts with the same name, currency, bank and source should be possible; today nothing
+  stops it. Planned as [I-020](changes/improvements/I-020-no-duplicate-accounts/I-020-no-duplicate-accounts.md)
+  (Medium, Todo) on `plan/i020-no-duplicate-accounts`: an exact copy of an account in use is refused (name compared
+  ignoring case and spaces) when adding, editing or restoring; another currency, bank or source stays allowed;
+  archived accounts don't count; the backend checks it too, with a unique index. No prototypes: the messages use the
+  app's existing error and notification.
+- Test data: none.
+
+**Next**
+- Owner: review and approve I-020 (the wording of the two messages, and the archived-accounts rule) before it is
+  built on `improvement/I-020-no-duplicate-accounts`.
 
 ## 2026-11-04 (I-019: One look for every element)
 
