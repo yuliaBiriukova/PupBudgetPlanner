@@ -184,6 +184,19 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-card-on-solid': '#f5f6f7',
     '--pup-card-solid-muted': '#b4b9bf',
     '--pup-card-solid-debt': '#f2958c',
+    // The Transactions page (F-020): the totals slip is the Solid card's charcoal (light grey in dark mode), the days
+    // are till receipts on paper with dotted rules, and the calendar's days go four steps of red by what they cost
+    '--pup-slip-received': '#7fd1a4',
+    '--pup-slip-track': 'rgba(245, 246, 247, 0.16)',
+    '--pup-slip-hover': 'rgba(245, 246, 247, 0.1)',
+    '--pup-color-paper': '#fffefb',
+    '--pup-color-paper-dots': '#a9abae',
+    '--pup-color-paper-shadow': 'rgba(28, 30, 33, 0.1)',
+    '--pup-heat-1': 'color-mix(in srgb, var(--pup-color-expense) 12%, var(--pup-color-surface))',
+    '--pup-heat-2': 'color-mix(in srgb, var(--pup-color-expense) 28%, var(--pup-color-surface))',
+    '--pup-heat-3': 'color-mix(in srgb, var(--pup-color-expense) 50%, var(--pup-color-surface))',
+    '--pup-heat-4': 'var(--pup-color-expense)',
+    '--pup-color-on-heat': '#fcfcfd',
   },
   dark: {
     '--mantine-color-body': '#121315',
@@ -230,5 +243,17 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--pup-card-on-solid': '#1c1e21',
     '--pup-card-solid-muted': '#474c54',
     '--pup-card-solid-debt': '#a1221b',
+    '--pup-slip-received': '#1a6b43',
+    '--pup-slip-track': 'rgba(28, 30, 33, 0.14)',
+    '--pup-slip-hover': 'rgba(28, 30, 33, 0.08)',
+    '--pup-color-paper': '#1f2023',
+    '--pup-color-paper-dots': '#5d5f63',
+    '--pup-color-paper-shadow': 'rgba(0, 0, 0, 0.5)',
+    // A brighter red under the steps, so the dark days aren't muddy
+    '--pup-heat-1': 'color-mix(in srgb, #ee6a60 22%, var(--pup-color-surface))',
+    '--pup-heat-2': 'color-mix(in srgb, #ee6a60 40%, var(--pup-color-surface))',
+    '--pup-heat-3': 'color-mix(in srgb, #ee6a60 62%, var(--pup-color-surface))',
+    '--pup-heat-4': 'var(--pup-color-expense)',
+    '--pup-color-on-heat': '#121315',
   },
 });

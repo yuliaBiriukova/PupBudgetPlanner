@@ -2,6 +2,142 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-03 (F-020: Transactions list)
+
+**Done**
+- The owner approved variant 8 with the open points' proposals ("variant 8 for F-020 is approved, build it"); recorded
+  in the description file and DESIGN_RULES "Screen decisions" before the build.
+- API: `GET /api/transactions` with the filters (period, account, category, type) and pages of 30;
+  `GET /api/transactions/summary`: spent, received, each day's and each category's, in the report currency at the
+  NBU rate of each day (one account picked: its own currency). [ADR 0024](decisions/0024-transactions-list-and-summary.md).
+- The Transactions page as variant 8: the totals slip (‹ ›, the period list, a swipe on the phone, the slim bar once it
+  scrolls away), the folding spending calendar (remembered on the device), Where it went, the filters (desktop,
+  tablet, the phone's Filters sheet with chips), every day as a till receipt with its total, loading more on scroll.
+  The filters are the page's address; a phone sheet's picks go into it once the sheet's Back step is gone.
+- Tests: backend summary, filter validator and controller tests; frontend unit tests for the filters, the calendar and
+  the page; stories for every state (`Transactions/Transactions list`); an E2E test (pick Eating out, reload, change
+  one and delete another on its receipt).
+- Checked: the full E2E suite (56 passed, 6 skipped as before; a first run failed the new test on a stale Vite module,
+  passed after a restart); frontend lint, format, types, build and unit tests; backend build and tests; Storybook builds;
+  the design check on the real page (0 issues, 0 console errors); screenshots at 360, 375, 834 and 1440 px, light and
+  dark, looked at (fixed: the receipts as wide as the column on the tablet, now 520 px as in the prototype; a
+  hand-made address with an unknown account broke the totals, now the id is left out; the slip's "Try again" link was
+  blue on charcoal, now in the slip's own colour).
+- Test data: one test person (`e2e-manual-…@example.com`, an invite link noted "E2E manual check F-020") with four
+  accounts and 122 transactions in the `dev` database for the browser checks and screenshots; removed by the E2E
+  clean-up (signing in as it now fails). The E2E runs' own people removed by their teardown.
+
+- Owner's review: the calendar marks days with a transfer with a blue dot, as income's green one, with Transfer in the
+  legend (the summary's days now count their transfers). Checked at 360, 375 and 1440 px, light and dark; test data
+  as above (a second test person, removed the same way).
+- Owner's review: Add transaction on the totals slip. Prototyped first as [variant 9](changes/features/F-020-transactions-list/prototypes/variant-9.html)
+  (three phone placements); the owner approved the round + in the phone's month row. Built: a light pill at the end
+  of the month row, a round + on the phone and on a slip narrower than 560 px (768 px with the full sidebar); with one
+  account in use picked the form opens with it. Checked: design check on the prototype and on the real page, 0 issues;
+  screenshots of the slip at 360, 375, 768, 834, 1024 and 1440 px, light and dark; test data as above (a third test
+  person, removed the same way).
+
+**Next**
+- Owner: review the PR. Open point 6 (search by note) is to be planned as an improvement with I-017.
+
+## 2026-11-03 (F-020 design round 3)
+
+**Done**
+- From the owner's picks in round 2 (variant 4's receipts, variant 5's calendar and category bars, totals made
+  prominent; variant 6 out), two prototypes on the same parts:
+  [variant 7 · Receipts and calendar together](changes/features/F-020-transactions-list/prototypes/variant-7.html) and
+  [variant 8 · Receipts or calendar](changes/features/F-020-transactions-list/prototypes/variant-8.html) (a view
+  switch). Both open with the period's totals big on a dark slip, with a spent-of-received bar; the category bars show
+  each one's share.
+- Checked: the design check passes on both with 0 issues; every screen at 375 and 1440 px, light and dark, looked at.
+- The owner found that variant 8's Receipts / Calendar switch blanked the page: its buttons used `data-view`, the
+  attribute of the prototype's own Phone / Tablet / Desktop switcher, so a click resized the frame to nothing. Renamed;
+  the switch was clicked both ways in the browser. The checks had missed it because they open each screen directly
+  instead of clicking the switch.
+- Test data: none.
+
+- The owner chose variant 8 and asked for a folding calendar instead of the switch: closed it is a row with a strip of
+  the month's days in their colours, open it is the full calendar (closed at first on the phone, open on the desktop).
+  The design check found the open calendar's days 43 px wide on a 360 px phone (the frame took the room); on narrow
+  phones the open calendar now has no frame. Opening, tapping a day and folding were clicked in the browser.
+- The owner didn't like the closed strip; closed, the calendar now shows one week of day squares (this week, or the
+  picked day's), with "Show the month". Design check 0 issues; tapping a day in the week, opening the month, picking
+  a day and folding back to its week clicked in the browser.
+- On the desktop the filters moved to the top of the receipts column, right above the receipts (owner's request);
+  design check 0 issues.
+- Phone first, at the owner's request: spent and received side by side (the first receipt starts at 469 px instead of
+  567 at 375 px), a swipe on the totals moves the month, a slim totals bar stays on top once they scroll away (a tap
+  goes back up), the three filters fit one row. Checked: design check 0 issues; the swipe and the bar tried with real
+  touch events (next month stops at October, the period list doesn't open after a swipe, a tap on the bar scrolls up);
+  fixed: "Catego…" cut off at 360 px, the bar's top 8 px hidden under the app bar.
+- The owner still saw the filters cut off and found the desktop's categories unreachable by scrolling. Phone filters
+  are now one Filters button with a count, the picked ones as chips with ×, and one sheet (account and type pills,
+  category bars, Clear all / Show N). On the desktop the sticky column fits the window and "Where it went" scrolls
+  inside it, passing the wheel on to the page at its end. Checked: design check 0 issues; the sheet tapped through at
+  360 px (pick, show, clear one chip, clear all); the wheel over the categories reaches the last one, then scrolls the
+  page; the scroll bar moved off the percentages.
+- The owner: the wheel at the categories' end (or top) must not scroll the receipts. The list now keeps the wheel,
+  and the sticky column is fitted to the visible window on every scroll so the list's end is always reachable.
+  Checked with the wheel in 900 and 760 px tall windows: past the list's end and top the page stays put, at the top
+  of the page and after scrolling; design check 0 issues.
+- Owner's review: the calendar's fold has only its arrow; the Filters sheet no longer stretches its sections apart
+  when Income or Transfers is picked (Income now shows its own categories in green); the sheet's scroll bar moved
+  off the rows. Tapped through at 375 px, light and dark; design check 0 issues.
+- With no filters on, the phone shows the Filters button alone (no "All accounts and categories" line).
+- The calendar has the desktop's rounded frame on the phone too, with the page's 16 px margins (12 px below 375 px,
+  so the days stay 44 px wide: 44.3 px at 360, 44.7 at 375); an edge-to-edge band tried first was not what the owner
+  wanted. Design check 0 issues, looked at 360 and 375 px, light and dark.
+
+**Next**
+- Owner: more changes to variant 8, or approve it (with the open points) for implementation.
+
+## 2026-11-03 (F-020 design round 2)
+
+**Done**
+- The owner found round 1 too plain and too technical. Round 2 has three bolder directions, each with one idea from
+  the couple's world and friendlier words, on the app's theme:
+  [variant 4 · Till receipts](changes/features/F-020-transactions-list/prototypes/variant-4.html) (every day a receipt
+  slip, the month's receipt of categories filters),
+  [variant 5 · Spending calendar](changes/features/F-020-transactions-list/prototypes/variant-5.html) (days coloured by
+  what they cost, a day or a category picked from the picture),
+  [variant 6 · Wallet and statement](changes/features/F-020-transactions-list/prototypes/variant-6.html) (account
+  cards as the filter, the balance after every row, the filters as a sentence).
+- More references in the description file (Money Manager's calendar, Copilot Money, Spendee, a Dribbble expense
+  tracker, a till receipt and a bank statement).
+- Checked: the design check passes on all three with 0 issues (it found month arrows squeezed below 44 px on the
+  phone, a skipped heading level, calendar days whose names left out their visible text, and an income dot and hidden
+  ⋯ buttons under open lists; all fixed). Every screen at 375 and 1440 px, light and dark, looked at (fixed: the
+  month's receipt and the category bars pushing the days off the phone's first screen, now behind a button; a
+  rent day washing out the calendar, now coloured by the month's quarters; muddy dark-mode calendar colours; the
+  wallet's ⋯ pushing amounts out of line; the picked card off screen on the phone).
+- Test data: none.
+
+**Next**
+- Owner: pick a variant from either round (or a mix) and answer the open points; then a final prototype and the
+  plan for approval.
+
+## 2026-11-02 (F-020 design variants)
+
+**Done**
+- F-020 started on `feature/F-020-transactions-list` (status In progress). References (Monefy, Monize, PocketGuard,
+  Toshl, the owners' sheet, F-018's list as built), the brief and the token plan are in the description file.
+- Three variants for the owner, each with phone, tablet and desktop, light and dark, and every state (filters, lists,
+  nothing found, loading more, edit, delete, loading, error, no transactions):
+  [variant 1 · Month ledger](changes/features/F-020-transactions-list/prototypes/variant-1.html),
+  [variant 2 · Pocket stream](changes/features/F-020-transactions-list/prototypes/variant-2.html),
+  [variant 3 · Filters and the month strip](changes/features/F-020-transactions-list/prototypes/variant-3.html).
+- Six open points for the owner (daily totals, their currency, the default period, transfers with one account picked,
+  filters in the address, search by note).
+- Checked: the design check passes on all three with 0 issues (it found variant 2's chip buttons 42 px tall and
+  variant 3's day bars too narrow to be buttons; fixed: the chips are 44 px, the strip is one chart a mouse can click);
+  every screen at 375 and 1440 px, light and dark, looked at (fixed: stretched select buttons, "That's all of All
+  time.", a swiped row hiding its text, the desktop trash button pushing amounts out of line, the year's total cut off
+  on the phone, the jump to a day not scrolling).
+- Test data: none.
+
+**Next**
+- Owner: pick a variant (or a mix) and answer the open points; then a final prototype and the plan for approval.
+
 ## 2026-11-02 (F-019: Transfers and currency exchange)
 
 **Done**

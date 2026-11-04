@@ -143,6 +143,10 @@ erDiagram
   exchange). Balances count it on both sides; an account used on either side counts as used. A check constraint keeps
   the shape. The form suggests an exchange's second amount from `GET /api/rates?date=…`
   ([ADR 0023](decisions/0023-transfers-one-row.md)).
+- The Transactions list (F-020): `GET /api/transactions` pages the rows the filters find (period, account, category,
+  type) by offset, newest first; `GET /api/transactions/summary` gives what they come to (spent, received, each
+  day's and each category's) in the report currency at the NBU rate of each day, or in one picked account's currency.
+  The page keeps the filters in its address ([ADR 0024](decisions/0024-transactions-list-and-summary.md)).
 - Currencies are ISO 4217 codes (`char(3)`): the hryvnia and every currency the NBU publishes an official rate for,
   listed once in `Currencies.All` (Domain). The API sends the list with the accounts; the frontend only names them.
 

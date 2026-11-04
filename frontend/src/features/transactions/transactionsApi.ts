@@ -1,7 +1,13 @@
-import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  infiniteQueryOptions,
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { apiClient } from '../../shared/api/client';
 import type { components } from '../../shared/api/schema';
 import { accountsQuery } from '../accounts/accountsApi';
+import type { TransactionQuery } from './filters';
 
 type Schemas = components['schemas'];
 
@@ -70,16 +76,99 @@ const toChanges = (balances: Schemas['BalanceChange'][]): BalanceChange[] =>
 
 const transactionsKey = ['transactions'] as const;
 
-/** The Transactions page until F-020: the latest transactions, newest first (F-018). */
-export const latestTransactionsQuery = queryOptions({
-  queryKey: [...transactionsKey, 'latest'],
-  queryFn: async ({ signal }): Promise<Transaction[]> => {
-    const { data, response } = await apiClient.GET('/api/transactions', { signal });
-    if (!response.ok || !data)
-      throw new Error(`Couldn't load transactions: ${String(response.status)}`);
-    return data.items.map(toTransaction);
-  },
-});
+/** A page of the list: its transactions, and where the next page starts (none after the last). */
+export interface TransactionPage {
+  items: Transaction[];
+  next: number | null;
+}
+
+/** A day's totals in the summary's currency: the calendar's colour, the receipt's foot. */
+export interface DayTotal {
+  date: string;
+  spent: number;
+  received: number;
+  /** All its transactions the filters find, transfers too. */
+  count: number;
+  /** How many of them are transfers: a blue dot in the calendar, as income's is green. */
+  transfers: number;
+}
+
+/** A category's line in "Where it went". */
+export interface CategoryTotal {
+  categoryId: string;
+  name: string;
+  amount: number;
+}
+
+/**
+ * What the transactions the filters find come to (F-020), in `currency`: the report currency at the NBU rate of each
+ * day, or one picked account's own. The categories leave the picked one out of their filters; `ratesMissing` means
+ * some amounts in another currency had no rate and aren't counted.
+ */
+export interface TransactionSummary {
+  currency: string;
+  spent: number;
+  received: number;
+  count: number;
+  days: DayTotal[];
+  categories: CategoryTotal[];
+  ratesMissing: boolean;
+}
+
+/** The list loads this many at a time as it is scrolled. */
+export const PAGE_SIZE = 30;
+
+/** The Transactions page's list (F-020): the ones the filters find, newest first, a page at a time. */
+export const transactionPagesQuery = (query: TransactionQuery) =>
+  infiniteQueryOptions({
+    queryKey: [...transactionsKey, 'list', query],
+    initialPageParam: 0,
+    queryFn: async ({ pageParam, signal }): Promise<TransactionPage> => {
+      const { data, response } = await apiClient.GET('/api/transactions', {
+        params: { query: { ...query, offset: pageParam, limit: PAGE_SIZE } },
+        signal,
+      });
+      if (!response.ok || !data)
+        throw new Error(`Couldn't load transactions: ${String(response.status)}`);
+      return {
+        items: data.items.map(toTransaction),
+        next: data.next == null ? null : Number(data.next),
+      };
+    },
+    getNextPageParam: (last) => last.next ?? undefined,
+  });
+
+/** The Transactions page's totals, calendar and categories for the filters (F-020). */
+export const transactionSummaryQuery = (query: TransactionQuery) =>
+  queryOptions({
+    queryKey: [...transactionsKey, 'summary', query],
+    queryFn: async ({ signal }): Promise<TransactionSummary> => {
+      const { data, response } = await apiClient.GET('/api/transactions/summary', {
+        params: { query },
+        signal,
+      });
+      if (!response.ok || !data)
+        throw new Error(`Couldn't load the totals: ${String(response.status)}`);
+      return {
+        currency: data.currency,
+        spent: Number(data.spent),
+        received: Number(data.received),
+        count: Number(data.count),
+        days: data.days.map((day) => ({
+          date: day.date,
+          spent: Number(day.spent),
+          received: Number(day.received),
+          count: Number(day.count),
+          transfers: Number(day.transfers),
+        })),
+        categories: data.categories.map((category) => ({
+          ...category,
+          amount: Number(category.amount),
+        })),
+        ratesMissing: data.ratesMissing,
+      };
+    },
+  });
 
 /** What the form picks and offers when it opens: the last accounts and categories, the most used ones. */
 export const suggestionsQuery = queryOptions({

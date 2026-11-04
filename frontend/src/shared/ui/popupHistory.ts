@@ -100,3 +100,31 @@ export function usePopupHistory(opened: boolean, onClose: () => void) {
     };
   }, [opened]);
 }
+
+/** How long `afterPopupsClose` waits for the step to go before it runs anyway. */
+const STEP_GONE_WAIT_MS = 1000;
+
+/**
+ * Runs `callback` once no pop-up's step is the current history entry: at once, or when Back (the person's, or ours
+ * after a pop-up closed another way) has taken the step away. A page that keeps its state in the address changes it
+ * then, so the change lands on the page's own entry and not on the pop-up's, which Back drops (F-020's filters).
+ * Call it as the pop-up closes.
+ */
+export function afterPopupsClose(callback: () => void) {
+  if (depthOf(window.history.state) === 0) {
+    callback();
+    return;
+  }
+  const run = () => {
+    window.removeEventListener('popstate', run);
+    window.clearTimeout(timer);
+    callback();
+  };
+  window.addEventListener('popstate', run);
+  const timer = window.setTimeout(run, STEP_GONE_WAIT_MS);
+}
+
+/** Whether the current history entry is a pop-up's step: a page that keeps its state in the address waits then. */
+export function onPopupStep(): boolean {
+  return depthOf(window.history.state) > 0;
+}

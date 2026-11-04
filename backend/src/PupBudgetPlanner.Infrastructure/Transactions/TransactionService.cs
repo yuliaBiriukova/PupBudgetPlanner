@@ -7,15 +7,105 @@ using PupBudgetPlanner.Infrastructure.Persistence;
 
 namespace PupBudgetPlanner.Infrastructure.Transactions;
 
-internal sealed class TransactionService(AppDbContext dbContext, TimeProvider clock) : ITransactionService
+internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateService rates, TimeProvider clock)
+    : ITransactionService
 {
-    public async Task<LatestTransactions> LatestAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<TransactionPage> ListAsync(
+        Guid userId, TransactionFilter filter, int offset, int limit, CancellationToken cancellationToken)
     {
-        var items = await ItemsOf(dbContext.Transactions.Where(transaction => transaction.UserId == userId))
-            .Take(LatestTransactions.Limit)
+        // One more than asked: whether there is a next page
+        var items = await ItemsOf(Matching(userId, filter))
+            .Skip(offset)
+            .Take(limit + 1)
             .ToListAsync(cancellationToken);
 
-        return new LatestTransactions(items);
+        return items.Count > limit
+            ? new TransactionPage(items[..limit], offset + limit)
+            : new TransactionPage(items, null);
+    }
+
+    public async Task<TransactionSummary> SummaryAsync(
+        Guid userId, TransactionFilter filter, CancellationToken cancellationToken)
+    {
+        // The categories leave the picked one out of their filters (TransactionSummary): it is picked in memory
+        var rows = await (
+                from transaction in Matching(userId, filter with { CategoryId = null })
+                join account in dbContext.Accounts on transaction.AccountId equals account.Id
+                group transaction by new { transaction.Date, transaction.Type, account.Currency, transaction.CategoryId }
+                into same
+                select new SummaryRow(
+                    same.Key.Date,
+                    same.Key.Type,
+                    same.Key.Currency,
+                    same.Key.CategoryId,
+                    same.Count(),
+                    same.Sum(transaction => transaction.Amount)))
+            .ToListAsync(cancellationToken);
+
+        // One account: its own currency; else the person's report currency (F-016)
+        var currency = filter.AccountId is { } accountId
+            ? await dbContext.Accounts.AsNoTracking()
+                .Where(account => account.Id == accountId && account.UserId == userId)
+                .Select(account => account.Currency)
+                .SingleOrDefaultAsync(cancellationToken)
+            : null;
+        currency ??= await dbContext.Users.AsNoTracking()
+            .Where(user => user.Id == userId)
+            .Select(user => user.ReportCurrency)
+            .SingleOrDefaultAsync(cancellationToken) ?? ReportCurrency.Default;
+
+        // Only the days with an expense or an income in another currency need their rates
+        var ratesOf = new Dictionary<DateOnly, IReadOnlyDictionary<string, decimal>>();
+        foreach (var day in rows
+                     .Where(row => row.Type != TransactionType.Transfer && row.Currency != currency)
+                     .Select(row => row.Date)
+                     .Distinct())
+        {
+            ratesOf[day] = (await rates.RatesOnAsync(day, cancellationToken)).ToUah;
+        }
+
+        var categoryIds = rows.Select(row => row.CategoryId).OfType<Guid>().Distinct().ToList();
+        var names = await dbContext.Categories.AsNoTracking()
+            .Where(category => categoryIds.Contains(category.Id))
+            .ToDictionaryAsync(category => category.Id, category => category.Name, cancellationToken);
+
+        return TransactionSummary.Of(rows, currency, ratesOf, filter.CategoryId, filter.Type, names);
+    }
+
+    /// <summary>
+    /// The person's transactions the filters find; one account's are on it and the transfers it is the To of
+    /// (F-019).
+    /// </summary>
+    private IQueryable<Transaction> Matching(Guid userId, TransactionFilter filter)
+    {
+        var transactions = dbContext.Transactions.Where(transaction => transaction.UserId == userId);
+        if (filter.From is { } from)
+        {
+            transactions = transactions.Where(transaction => transaction.Date >= from);
+        }
+
+        if (filter.To is { } to)
+        {
+            transactions = transactions.Where(transaction => transaction.Date <= to);
+        }
+
+        if (filter.AccountId is { } accountId)
+        {
+            transactions = transactions.Where(transaction =>
+                transaction.AccountId == accountId || transaction.ToAccountId == accountId);
+        }
+
+        if (filter.CategoryId is { } categoryId)
+        {
+            transactions = transactions.Where(transaction => transaction.CategoryId == categoryId);
+        }
+
+        if (filter.Type is { } type)
+        {
+            transactions = transactions.Where(transaction => transaction.Type == type);
+        }
+
+        return transactions;
     }
 
     public async Task<TransactionSuggestions> SuggestionsAsync(Guid userId, CancellationToken cancellationToken)
@@ -178,8 +268,8 @@ internal sealed class TransactionService(AppDbContext dbContext, TimeProvider cl
     }
 
     /// <summary>
-    /// The transactions as the lists show them, the latest first: newest day, then the last added. A transfer has no
-    /// category; an expense or an income no To account.
+    /// The transactions as the lists show them, the latest first: newest day, then the last added (the id keeps pages
+    /// apart when two were added at once). A transfer has no category; an expense or an income no To account.
     /// </summary>
     private IQueryable<TransactionItem> ItemsOf(IQueryable<Transaction> transactions) =>
         from transaction in transactions.AsNoTracking()
@@ -188,7 +278,7 @@ internal sealed class TransactionService(AppDbContext dbContext, TimeProvider cl
         from category in categories.DefaultIfEmpty()
         join toAccount in dbContext.Accounts on transaction.ToAccountId equals toAccount.Id into toAccounts
         from toAccount in toAccounts.DefaultIfEmpty()
-        orderby transaction.Date descending, transaction.CreatedAt descending
+        orderby transaction.Date descending, transaction.CreatedAt descending, transaction.Id descending
         select new TransactionItem(
             transaction.Id,
             transaction.Type,

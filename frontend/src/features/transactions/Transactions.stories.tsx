@@ -8,6 +8,7 @@ import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
 import { useTransactionForm } from './transactionForm';
 import { TransactionFormProvider } from './TransactionFormProvider';
 import { TransactionsPage } from './TransactionsPage';
+import { fakePage, fakeSummary } from './transactionsFakeApi';
 import { latestTransactions, SUGGESTIONS } from './transactionsTestData';
 
 interface ScreenProps {
@@ -58,7 +59,12 @@ function TransactionsScreen({
         ? 'pending'
         : data === 'error'
           ? { status: 500 }
-          : { json: { items: data === 'empty' ? [] : latestTransactions() } },
+          : (_, query) => ({
+              json: fakePage(data === 'empty' ? [] : latestTransactions(), query),
+            }),
+    '/api/transactions/summary': (_, query) => ({
+      json: fakeSummary(data === 'empty' ? [] : latestTransactions(), query),
+    }),
     '/api/accounts': answer(formData === 'no-accounts' ? EMPTY : OVERVIEW),
     '/api/categories': answer(DEFAULT_CATEGORIES),
     '/api/transactions/suggestions': answer(SUGGESTIONS),
