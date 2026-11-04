@@ -1,8 +1,11 @@
-// Design check for HTML prototypes (docs/changes/**/prototypes/*.html), run with Playwright and axe-core.
-// Usage (in frontend/): npm run design:check -- ../docs/changes/features/F-xxx-name/prototypes/variant-1.html
+// Design check for prototypes, run with Playwright and axe-core: Storybook prototype stories (I-021) and the older
+// HTML prototypes (docs/changes/**/prototypes/*.html).
+// Usage (in frontend/, Storybook running): npm run design:check -- "http://localhost:6006/iframe.html?id=<story-id>"
+// or npm run design:check -- ../docs/changes/features/F-xxx-name/prototypes/variant-1.html
 // Options: --out <folder> (default test-results/design-check). Exit code 1 when issues are found.
 // Pages of the running app are checked too: pass their http(s) addresses, and --storage <file> with a Playwright
 // storage state for pages that need a signed-in person.
+// A story is opened once per color scheme with the toolbar's colorScheme global, and named after its id.
 //
 // A prototype gets the full check when it exposes these optional globals: go(pageId) with PAGES [{ id }],
 // state.schemePref + applyScheme() for light/dark, setView(name), coldStart() / endColdStart() for the
@@ -28,13 +31,22 @@ const storageIndex = args.indexOf('--storage');
 const STORAGE = storageIndex >= 0 ? resolve(args.splice(storageIndex, 2)[1]) : undefined;
 const isUrl = (f) => /^https?:\/\//.test(f);
 const FILES = args.map((f) => (isUrl(f) ? f : resolve(f)));
+// A Storybook story's own page: Mantine follows the toolbar's global there, not the system's scheme
+const isStory = (f) => isUrl(f) && new URL(f).pathname.endsWith('/iframe.html');
+const storyIn = (f, scheme) => {
+  const url = new URL(f);
+  url.searchParams.set('globals', `colorScheme:${scheme}`);
+  return url.href;
+};
 const nameOf = (f) =>
-  isUrl(f)
-    ? new URL(f).pathname.replace(/\W+/g, '-').replace(/^-|-$/g, '') || 'home'
-    : basename(f, '.html');
+  isStory(f)
+    ? (new URL(f).searchParams.get('id') ?? 'story')
+    : isUrl(f)
+      ? new URL(f).pathname.replace(/\W+/g, '-').replace(/^-|-$/g, '') || 'home'
+      : basename(f, '.html');
 if (FILES.length === 0) {
   console.error(
-    'Usage: npm run design:check -- <prototype.html | http://localhost:5173/page> [more] [--out folder] [--storage state.json]',
+    'Usage: npm run design:check -- <http://localhost:6006/iframe.html?id=story | prototype.html | http://localhost:5173/page> [more] [--out folder] [--storage state.json]',
   );
   process.exit(2);
 }
@@ -271,7 +283,11 @@ for (const file of FILES) {
             state.schemePref = s;
             applyScheme();
           }, scheme);
-        else await page.emulateMedia({ colorScheme: scheme });
+        else if (isStory(file)) {
+          await page.goto(storyIn(file, scheme));
+          await page.waitForLoadState('networkidle');
+          await prepare();
+        } else await page.emulateMedia({ colorScheme: scheme });
         for (const p of pages) {
           if (p) await page.evaluate((id) => go(id), p);
           const where = [`${vp.name}px`, mode, scheme, p].filter(Boolean).join(' ');

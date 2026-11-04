@@ -25,7 +25,9 @@ This file tells Claude (and any human contributor) how we work on this project.
   - **What is approved:** the description file (goal, acceptance criteria, tasks); for a 🎨 change also the
     **final prototype**; for a bugfix the root cause and the planned fix.
   - **What is implementation:** code, tests, migrations and configuration in `backend/`, `frontend/` and the
-    deployment files. Planning docs, references, prototypes and reproducing a bug are not, and go ahead freely.
+    deployment files. Planning docs, references, prototypes (including prototype stories in
+    `frontend/src/prototypes/`, which never edit the app's files) and reproducing a bug are not, and go ahead
+    freely.
   - **What is approval:** the owner's explicit words in chat or on the PR, e.g. "approved, build it". Picking
     options in a design round, comments on a prototype or "looks good" are **not** approval to build: build the
     final prototype from them, show it and ask "Approve for implementation?". A change the owner asks for in so
@@ -71,8 +73,8 @@ This file tells Claude (and any human contributor) how we work on this project.
 - IDs are numbered separately per type and never reused.
 - **Every change gets its own folder** in `docs/changes/<type>/` holding all related files: the
   description file **named like the folder** (`F-018-quick-add-income-expense/F-018-quick-add-income-expense.md`,
-  from the templates in [docs/changes/README.md](docs/changes/README.md)), HTML design prototypes,
-  screenshots, notes.
+  from the templates in [docs/changes/README.md](docs/changes/README.md)), links to its prototype stories,
+  screenshots, notes (the stories themselves live in `frontend/src/prototypes/`).
 - **When a new feature, improvement or bugfix is added to the plan**, create its folder and description
   file right away, together with its row in `docs/BACKLOG.md` (and `docs/ROADMAP.md` if it changes a milestone).
 - **Priority** `High` · `Medium` · `Low` (scale in [docs/changes/README.md](docs/changes/README.md#priority))
@@ -151,12 +153,20 @@ This file tells Claude (and any human contributor) how we work on this project.
   that needs the owner's sign-in (banking apps, Claude's UI and the like), and don't ask the owner to sign in
   anywhere for references. Note in the change's description file which references were used and what was taken
   from each.
-- Before building any screen, propose **3 design variants as HTML prototypes**: self-contained
-  `.html` files (open directly in a browser, mobile and desktop layouts) saved in the change folder:
-  `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.
+- Before building any screen, propose **3 design variants as Storybook stories** built from the app's own parts,
+  so they look like the real UI (I-021, ADR 0025):
+  - In `frontend/src/prototypes/<ID-name>/`, titled `Prototypes/<ID> <name>` (`Variant 1: Dropdown` …): the real
+    screen with the app's components, `theme.ts`, the design system and the fake API the screen stories use, plus
+    only the new part. Never edit the app's files for a prototype; copy a part into the prototype folder instead.
+  - The owner sees them in Storybook (`npm run storybook` in `frontend/`): give the story links, phone and desktop,
+    light and dark are switched there.
+  - The change folder keeps the story links and, once it's approved, the final prototype's screenshots (375 and
+    1440 px, light and dark) in `prototypes/`.
+  - When the change is built, delete its prototype stories; the real stories replace them.
+  - Earlier changes keep their HTML prototypes.
 - **Test everything with Playwright before showing it** — design variants before they are proposed, real
   screens before every commit — so the owner doesn't have to find UI issues by hand. Run the design check
-  (prototypes) or the E2E tests (app), then take screenshots of every affected screen and state at phone
+  (prototype stories) or the E2E tests (app), then take screenshots of every affected screen and state at phone
   (375 px) and desktop (1440 px) width, light and dark, and **look at them** (zoom into buttons, nav and rows).
   Typical misses this catches (both from the first F-010 build): text on the primary button not visible
   (same color as the button), and the app name cut off in the sidebar at its default width.

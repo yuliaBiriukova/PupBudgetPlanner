@@ -2,6 +2,27 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-04 (I-021: Prototypes in Storybook)
+
+**Done**
+- I-021, asked for by the owner: from now on a design round's variants and final prototype are Storybook stories in
+  `frontend/src/prototypes/<ID-name>/` (*Prototypes / <ID> <name>*), made of the real screen, components, theme and
+  fake data with only the new part added, so they look like the app. A prototype never edits the app's files; it is
+  deleted when the change is built, and the final prototype's screenshots stay in the change folder.
+  [ADR 0025](decisions/0025-prototypes-in-storybook.md).
+- Rules updated in `CLAUDE.md`, `DESIGN_RULES.md` §2, `docs/changes/README.md` and the `design-screen` skill.
+- The design check takes a story's address: light and dark through the Storybook global, screenshots named after the
+  story. Tried on *Transactions / Transactions list / This month*: 0 issues; the 375 and 1440 px shots in both
+  schemes looked at.
+- Test data: none.
+
+**Decisions**
+- Picked by the owner in chat: stories (not HTML exported from Storybook, not HTML with the theme's tokens); prototype
+  stories deleted after the build. Earlier changes keep their HTML prototypes.
+
+**Next**
+- The next 🎨 change (I-016 or another) is the first round made of stories.
+
 ## 2026-11-04 (I-017: Note suggestions)
 
 **Done**

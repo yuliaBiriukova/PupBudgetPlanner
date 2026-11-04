@@ -58,11 +58,15 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
    by app) and other examples open on the internet. Only references that open without the owner's sign-in — no
    banking apps or Claude's UI. The references used and what each one gave are listed in the change's
    description file.
-2. Every new screen starts with **3 design variants as HTML prototypes** — self-contained `.html` files
-   that open in any browser and show mobile and desktop layouts. They live in the change folder:
-   `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.
+2. Every new screen starts with **3 design variants as Storybook stories** built from the app's own parts, so a
+   prototype looks exactly like the real UI (I-021, [ADR 0025](decisions/0025-prototypes-in-storybook.md)). They
+   live in `frontend/src/prototypes/<ID-name>/` under *Prototypes / <ID> <name>*: the real screen with its
+   components, `theme.ts`, the design system and fake data, plus only the new part. A prototype never edits the
+   app's files. The change folder keeps the story links and the approved final prototype's screenshots; the
+   prototype stories are deleted when the change is built. (Changes before I-021 have HTML prototypes.)
    Design work follows the **`design-screen`** skill (`.claude/skills/design-screen/`), and every variant passes
-   the Playwright + axe design check before it is shown: `npm run design:check -- <file.html>` in `frontend/`.
+   the Playwright + axe design check before it is shown, on the story's address with Storybook running:
+   `npm run design:check -- "http://localhost:6006/iframe.html?id=<story-id>"` in `frontend/` (HTML files too).
    The same check runs on pages of the running app: pass their addresses (`http://localhost:5173/people`) and,
    for signed-in pages, `--storage <file>` with a Playwright storage state.
    Its screenshots are also looked at, not just its exit code.
