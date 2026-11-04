@@ -107,9 +107,14 @@ const add = (rows: Values[], length: number): Values =>
  * The year report the API gives for `year` against `now`: the months after this one have no numbers. `rate` turns it
  * into dollars (a rough one, enough for a story).
  */
-export function fakeYearReport(year: number, now: string = today(), rate = 1): ApiReport {
+export function fakeYearReport(
+  year: number,
+  now: string = today(),
+  rate = 1,
+  firstMonth: string = FIRST_MONTH,
+): ApiReport {
   const thisMonth = dayjs(now).startOf('month');
-  const first = dayjs(FIRST_MONTH);
+  const first = dayjs(firstMonth);
   const months = Array.from({ length: 12 }, (_, m) => dayjs(new Date(year, m, 1)));
   const state = (month: dayjs.Dayjs) =>
     month.isBefore(thisMonth) ? 'Passed' : month.isSame(thisMonth) ? 'Current' : 'Future';
@@ -153,8 +158,15 @@ export function fakeYearReport(year: number, now: string = today(), rate = 1): A
   const income = add(totals.Income, 12);
   const expenses = add(totals.Expense, 12);
   const net = income.map((value, m) => (value === null ? null : value - (expenses[m] ?? 0)));
-  const other = net.map((value, m) => (value === null ? null : (700 + 40 * m) / rate));
-  const startBalance = 590_000 / rate;
+  // A person who started this year: nothing on the accounts before, the opening balances in their first month
+  const opening = 590_000 / rate;
+  const startsLater = first.isAfter(months[0] ?? first);
+  const other = net.map((value, m) => {
+    const month = months[m];
+    if (value === null || !month || month.isBefore(first)) return value === null ? null : 0;
+    return (700 + 40 * m) / rate + (startsLater && month.isSame(first, 'month') ? opening : 0);
+  });
+  const startBalance = startsLater ? 0 : opening;
   let balance = startBalance;
   const balances = net.map((value, m) => {
     if (value === null) return null;
@@ -180,7 +192,7 @@ export function fakeYearReport(year: number, now: string = today(), rate = 1): A
       balance: line(balances, false, false),
       startBalance,
     },
-    firstMonth: FIRST_MONTH,
+    firstMonth,
   };
 }
 

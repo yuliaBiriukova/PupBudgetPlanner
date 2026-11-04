@@ -144,6 +144,13 @@
   display: none;
 }
 
+/* With the months before the first entry folded, the card is as wide as the table, up to the page's width, so a year
+   with few columns isn't stretched across the page; the whole year fills it */
+.frame[data-folded] {
+  width: fit-content;
+  max-width: 100%;
+}
+
 /* The gutter is the scroll area's own padding: the rows stop before it, the bar sits in it */
 .frame :global(.mantine-ScrollArea-root) {
   box-sizing: border-box;
@@ -383,6 +390,50 @@
   width: 12px;
   height: 12px;
   border-radius: 4px;
+}
+
+/* The months before the first entry, folded into one column (owner's review of PR #60): its rows empty, a rule on
+   its right; unfolded, it stays as a narrow column that folds them back */
+/* As narrow as its words: a table wider than its columns gives the room to the months, not to it */
+.table .before {
+  width: 1px;
+  min-width: 44px;
+  box-shadow: inset -1px 0 var(--pup-color-rule);
+  text-align: left;
+}
+
+.summary .before {
+  box-shadow: inset -1px 0 var(--pup-slip-track);
+}
+
+.beforeButton {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -8px -6px;
+  padding: 0 6px;
+  border-radius: var(--mantine-radius-sm);
+  color: var(--mantine-color-dimmed);
+  font: inherit;
+  text-align: left;
+}
+
+.beforeButton:hover {
+  background: var(--pup-color-hover);
+}
+
+.beforeButton .monthLabel {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+  color: var(--mantine-color-text);
+}
+
+.beforeButton[aria-expanded='true'] {
+  align-items: center;
 }
 
 /* A month's heading opens the month */

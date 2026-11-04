@@ -20,11 +20,21 @@ const LOADED = { timeout: 4000 };
 
 const thisYear = dayjs(today()).year();
 const thisMonth = today().slice(0, 7);
+/** A person whose first entry is this month: the months before it are folded (none in January). */
+const startedThisMonth = (year: number, now: string, rate: number) =>
+  fakeYearReport(year, now, rate, `${thisMonth}-01`);
+const january = dayjs(today()).month() === 0;
 
 /** What the page asked the API for, in order. */
 let asked: string[] = [];
 
-function useReports(year = fakeYearReport) {
+function useReports(
+  year: (
+    year: number,
+    now: string,
+    rate: number,
+  ) => ReturnType<typeof fakeYearReport> = fakeYearReport,
+) {
   asked = [];
   server.use(
     http.get('/api/reports/year', ({ request }) => {
@@ -115,6 +125,17 @@ describe('Reports on the phone', () => {
     });
   });
 
+  it.skipIf(january)('shows the months before the first entry as one row', async () => {
+    useReports(startedThisMonth);
+    renderApp('/reports');
+
+    const months = await screen.findByRole('list', { name: 'Months' }, LOADED);
+    const before = dayjs(today()).subtract(1, 'month').format('MMMM');
+    expect(within(months).getByText(new RegExp(`^January( – ${before})?$`))).toBeInTheDocument();
+    expect(within(months).getByText('Before your first entry')).toBeInTheDocument();
+    expect(within(months).queryByText('Jan')).not.toBeInTheDocument();
+  });
+
   it('says there is nothing yet to a person who added nothing', async () => {
     useReports(emptyYearReport);
     renderApp('/reports');
@@ -161,6 +182,23 @@ describe('Reports on the desktop', () => {
       'href',
       `/transactions?year=${String(thisYear)}&category=${reportCategoryId(2, 0)}`,
     );
+  });
+
+  it.skipIf(january)('folds the months before the first entry into one column', async () => {
+    const user = userEvent.setup();
+    useReports(startedThisMonth);
+    renderApp('/reports');
+
+    const table = await screen.findByRole('table', {}, LOADED);
+    expect(within(table).queryByRole('button', { name: /^Jan\s*, open the month/ })).toBeNull();
+    const folded = within(table).getByRole('button', { name: /before your first entry/ });
+    await user.click(folded);
+
+    expect(
+      within(table).getByRole('button', { name: /^Jan\s*, open the month/ }),
+    ).toBeInTheDocument();
+    await user.click(within(table).getByRole('button', { name: /^Fold Jan/ }));
+    expect(within(table).queryByRole('button', { name: /^Jan\s*, open the month/ })).toBeNull();
   });
 
   it('opens a month from its heading', async () => {

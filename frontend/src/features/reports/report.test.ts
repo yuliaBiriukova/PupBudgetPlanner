@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   addressFrom,
   heatLevel,
+  monthsBefore,
   periodName,
   plain,
   reportParams,
@@ -151,5 +152,17 @@ describe('the report on screen', () => {
     expect(signed(12300, 'UAH')).toBe('+12 300 ₴');
     expect(signed(-40, 'USD')).toBe('−$40');
     expect(signed(0.2, 'UAH')).toBe('0 ₴');
+  });
+});
+
+describe('the months before the first entry', () => {
+  it('are counted from the start of the year up to the first month with data', () => {
+    expect(monthsBefore(toReport(fakeYearReport(2026, NOW, 1, '2026-11-01')))).toBe(10);
+    expect(monthsBefore(toReport(fakeYearReport(2026, NOW, 1, '2026-01-01')))).toBe(0);
+    expect(monthsBefore(toReport(fakeYearReport(2026, NOW, 1, '2024-05-01')))).toBe(0);
+  });
+
+  it('are none without any data', () => {
+    expect(monthsBefore({ ...toReport(fakeYearReport(2026, NOW)), firstMonth: null })).toBe(0);
   });
 });

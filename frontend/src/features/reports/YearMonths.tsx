@@ -6,14 +6,14 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { formatMoney } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
-import { currentIndex, signed, transactionsLink } from './report';
+import { currentIndex, monthsBefore, signed, transactionsLink } from './report';
 import type { Report } from './reportsApi';
 import classes from './YearMonths.module.css';
 
 /**
  * The year on the phone (F-022, option C): the year so far on the slip, the months as rows — what came in and went out
  * as two bars, the NET — each opening its month; under them where the year went, the groups with their total and usual
- * month, each opening its categories, and a category its transactions.
+ * month, each opening its categories, and a category its transactions. The months before the first entry are one row.
  */
 export function YearMonths({
   report,
@@ -30,6 +30,8 @@ export function YearMonths({
   const [open, setOpen] = useState<string | null>(null);
   const spent = s.expenses.total ?? 0;
   const current = currentIndex(report);
+  const before = monthsBefore(report);
+  const monthName = (m: number) => dayjs(report.months[m]?.month).format('MMMM');
   // This year: what is on the accounts now; an earlier year: at its end
   const balanceAt = current >= 0 ? current : report.months.length - 1;
   const width = (value: number, whole: number) =>
@@ -57,7 +59,14 @@ export function YearMonths({
       </section>
 
       <ul className={classes.months} aria-label={t('reports.phone.months')}>
+        {before > 0 && (
+          <li className={classes.monthLater}>
+            <span>{before > 1 ? `${monthName(0)} – ${monthName(before - 1)}` : monthName(0)}</span>
+            <span>{t('reports.phone.before')}</span>
+          </li>
+        )}
         {report.months.map((month, m) => {
+          if (m < before) return null;
           const income = s.income.months[m] ?? null;
           const expenses = s.expenses.months[m] ?? null;
           const net = s.net.months[m] ?? null;

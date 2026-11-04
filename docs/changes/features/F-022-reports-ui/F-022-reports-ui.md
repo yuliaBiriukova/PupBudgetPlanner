@@ -47,6 +47,11 @@ Read the monthly and yearly report on the phone and on the desktop.
   prototype's lines weren't links); after a save or a delete and after the report currency changes, the reports are
   fetched again. States the prototype didn't show: loading, couldn't load (Try again), nothing yet (a new person),
   nothing in a month, and a note when some amounts had no NBU rate.
+- **The months before the first entry folded** (owner's review of PR #60, 2026-11-04: "if there are no data for all
+  month, maybe collapse them?"; picked "one folded column"): in the year's table the months before the person's first
+  month with data are one narrow column, "Jan – Oct · before your first entry", with no bars, dashes or zeros; a tap
+  unfolds them, and a narrow column at their start folds them back. On the phone they are one row, "January – October ·
+  Before your first entry". A month with nothing after the first entry still shows as it is.
 
 ## Design
 

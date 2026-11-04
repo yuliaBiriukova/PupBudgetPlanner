@@ -1,12 +1,19 @@
 import { ScrollArea, UnstyledButton, VisuallyHidden } from '@mantine/core';
-import { IconChevronDown } from '@tabler/icons-react';
+import { IconChevronDown, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { currencySign, wholeAmount } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
-import { currentIndex, heatLevel, plain, transactionsLink, type ReportPeriod } from './report';
+import {
+  currentIndex,
+  heatLevel,
+  monthsBefore,
+  plain,
+  transactionsLink,
+  type ReportPeriod,
+} from './report';
 import type { Report, ReportCategory, ReportGroup, ReportLine } from './reportsApi';
 import classes from './Reports.module.css';
 
@@ -26,7 +33,7 @@ type Cells = (amounts: ReportLine, options?: CellOptions) => ReactNode;
  * months, Total and Avg, the summary rows at the foot on the slip's charcoal; income and expenses as bars over the
  * months; a month over the category's usual in four reds; the currency named once in the corner. The group column
  * stays put while the months scroll; the table is as tall as its rows. A month's heading opens the month, a category's
- * amount its transactions.
+ * amount its transactions. The months before the person's first entry are one folded column that a tap unfolds.
  */
 export function YearTable({
   report,
@@ -41,6 +48,13 @@ export function YearTable({
   const current = currentIndex(report);
   const year = Number(months[0]?.month.slice(0, 4));
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
+  // The months before the first entry: one column, "Jan – Oct · before your first entry" (owner's review of PR #60)
+  const before = monthsBefore(report);
+  const [unfolded, setUnfolded] = useState(false);
+  const hidden = (m: number) => !unfolded && m < before;
+  const shownMonths = months.length - (unfolded ? 0 : before);
+  const beforeCell = (key: string) =>
+    before > 0 ? <td key={key} className={classes.before} aria-hidden="true" /> : null;
   const viewport = useRef<HTMLDivElement>(null);
   // Wider than the screen: the sideways bar, always on, in a gutter of its own (owner, 2026-11-04). The table is as
   // tall as its rows and the page scrolls; it has no bar of its own up and down (owner, the same day)
@@ -113,7 +127,9 @@ export function YearTable({
     const { category } = options;
     return (
       <>
+        {beforeCell('before')}
         {amounts.months.map((value, m) => {
+          if (hidden(m)) return null;
           const month = months[m];
           const nothing = value !== null && wholeAmount(value) === 0;
           const level = options.heat && value !== null && average ? heatLevel(value, average) : 0;
@@ -174,9 +190,15 @@ export function YearTable({
   const { income, expenses } = report.summary;
   const most = Math.max(1, ...[...income.months, ...expenses.months].map((value) => value ?? 0));
   const counted = report.monthsCounted;
+  const firstName = monthName(0);
+  const beforeRange = before > 1 ? `${firstName} – ${monthName(before - 1)}` : firstName;
 
   return (
-    <div className={classes.frame} data-x={wide || undefined}>
+    <div
+      className={classes.frame}
+      data-x={wide || undefined}
+      data-folded={(before > 0 && !unfolded) || undefined}
+    >
       <ScrollArea.Autosize
         className={classes.sheet}
         scrollbars="x"
@@ -203,7 +225,11 @@ export function YearTable({
                   </span>
                 </span>
               </th>
+              {before > 0 && (
+                <th className={cx(classes.chartCell, classes.before)} aria-hidden="true" />
+              )}
               {months.map((month, m) => {
+                if (hidden(m)) return null;
                 const inValue = income.months[m] ?? null;
                 const outValue = expenses.months[m] ?? null;
                 return (
@@ -235,7 +261,34 @@ export function YearTable({
               <th className={classes.name} scope="col">
                 {t('reports.table.inCurrency', { sign: currencySign(currency), code: currency })}
               </th>
+              {before > 0 && (
+                <th className={classes.before} scope="col">
+                  <UnstyledButton
+                    className={classes.beforeButton}
+                    aria-expanded={unfolded}
+                    aria-label={
+                      unfolded ? t('reports.table.foldBefore', { months: beforeRange }) : undefined
+                    }
+                    onClick={() => {
+                      setUnfolded(!unfolded);
+                    }}
+                  >
+                    {unfolded ? (
+                      <IconChevronLeft size={16} stroke={1.7} />
+                    ) : (
+                      <>
+                        <span className={classes.monthLabel}>
+                          {beforeRange}
+                          <IconChevronRight size={14} stroke={1.7} aria-hidden />
+                        </span>
+                        <span className={classes.avgNote}>{t('reports.table.before')}</span>
+                      </>
+                    )}
+                  </UnstyledButton>
+                </th>
+              )}
               {months.map((month, m) => {
+                if (hidden(m)) return null;
                 const label = (
                   <>
                     <span className={classes.monthLabel}>{monthName(m)}</span>
@@ -294,7 +347,7 @@ export function YearTable({
           <tbody>
             <tr className={classes.spacer} aria-hidden="true">
               <td className={classes.name} />
-              <td colSpan={months.length + 2} />
+              <td colSpan={shownMonths + (before > 0 ? 1 : 0) + 2} />
             </tr>
           </tbody>
           <tbody className={classes.summary}>
@@ -328,15 +381,18 @@ export function YearTable({
               <th className={cx(classes.name, classes.balance)} scope="row">
                 {t('reports.table.balance')}
               </th>
-              {report.summary.balance.months.map((value, m) => (
-                <td
-                  key={months[m]?.month ?? m}
-                  className={cx(classes.month, classes.balance)}
-                  data-current={m === current || undefined}
-                >
-                  {value === null ? '' : plain(value)}
-                </td>
-              ))}
+              {beforeCell('before')}
+              {report.summary.balance.months.map((value, m) =>
+                hidden(m) ? null : (
+                  <td
+                    key={months[m]?.month ?? m}
+                    className={cx(classes.month, classes.balance)}
+                    data-current={m === current || undefined}
+                  >
+                    {value === null ? '' : plain(value)}
+                  </td>
+                ),
+              )}
               <td className={classes.total} />
               <td className={classes.avg} />
             </tr>

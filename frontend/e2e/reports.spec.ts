@@ -179,10 +179,16 @@ test('entered transactions appear in the report, and a category opens its transa
     // The year as months: this one with what came in and went out, opening its month
     const months = page.getByRole('list', { name: 'Months' });
     await expect(months).toContainText(/In 20\s000\s₴, out 1\s234\s₴/);
+    // The months before the person's first entry (this month) are one row
+    if (monthIndex > 0) await expect(months).toContainText('Before your first entry');
     await months.getByRole('button', { name: /now/ }).click();
   } else {
     // The year's table: a group unfolds into its categories, a month's heading opens the month
     const table = page.getByRole('table');
+    // The months before the person's first entry (this month) are one folded column
+    if (monthIndex > 0) {
+      await expect(table.getByRole('button', { name: /before your first entry/ })).toBeVisible();
+    }
     await table.getByRole('button', { name: 'Daily living' }).click();
     await expect(table.getByRole('row', { name: /^Groceries/ })).toContainText(/1\s234/);
     await table

@@ -145,6 +145,17 @@ export function signed(value: number, currency: string): string {
   return wholeAmount(value) > 0 ? `+${text}` : text;
 }
 
+/**
+ * How many of the report's first months are before the person's first month with data: the year shows them folded
+ * into one column (owner's review of PR #60). None without any data (the page says there is nothing yet).
+ */
+export function monthsBefore(report: Report): number {
+  if (report.firstMonth === null) return 0;
+  const first = monthOf(report.firstMonth);
+  const index = report.months.findIndex((month) => monthOf(month.month) >= first);
+  return index < 0 ? report.months.length : index;
+}
+
 /** The report's month that is under way (Kyiv's today), or −1 when the report has none. */
 export function currentIndex(report: Report): number {
   return report.months.findIndex((month) => month.state === 'Current');

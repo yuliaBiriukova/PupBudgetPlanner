@@ -11,7 +11,8 @@ import { emptyYearReport, fakeMonthReport, fakeYearReport } from './reportsTestD
 interface ReportsProps {
   /** The page's address: its period and currency (`month=2026-10`, `currency=USD`). */
   search?: string;
-  data?: 'year' | 'none' | 'loading' | 'error';
+  /** `started`: a person whose first entry is this month, so the months before it are folded. */
+  data?: 'year' | 'started' | 'none' | 'loading' | 'error';
 }
 
 /** The Reports page (F-022) over a test year in the spreadsheet's shape, with a fake API. */
@@ -27,7 +28,12 @@ function ReportsScreen({ search = '', data = 'year' }: ReportsProps) {
     '/api/reports/year': answer((query) =>
       data === 'none'
         ? emptyYearReport(Number(query.get('year')))
-        : fakeYearReport(Number(query.get('year')), today(), rate(query)),
+        : fakeYearReport(
+            Number(query.get('year')),
+            today(),
+            rate(query),
+            data === 'started' ? `${today().slice(0, 7)}-01` : undefined,
+          ),
     ),
     '/api/reports/month': answer((query) =>
       fakeMonthReport(query.get('month') ?? '', today(), rate(query)),
@@ -92,6 +98,29 @@ export const YearDesktopDark: Story = { globals: { ...desktop, colorScheme: 'dar
 
 /** The tablet: the same table, scrolling sideways with its bar on, the period beside the title. */
 export const YearTablet: Story = { globals: tablet };
+
+/** A person who started this month: the months before it are one folded column, a tap unfolds them. */
+export const YearStartedDesktop: Story = {
+  args: { data: 'started' },
+  globals: desktop,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const folded = await canvas.findByRole('button', { name: /before your first entry/ });
+    await userEvent.click(folded);
+    await expect(folded).toHaveAttribute('aria-expanded', 'true');
+    await expect(
+      canvas.getByRole('button', { name: /^Jan\s*, open the month/ }),
+    ).toBeInTheDocument();
+    // And back: the story ends folded
+    await userEvent.click(canvas.getByRole('button', { name: /^Fold / }));
+    await expect(
+      canvas.queryByRole('button', { name: /^Jan\s*, open the month/ }),
+    ).not.toBeInTheDocument();
+  },
+};
+
+/** The same on the phone: the months before the first entry are one row. */
+export const YearStartedPhone: Story = { args: { data: 'started' } };
 
 /** In another currency for this visit: the pill says USD. */
 export const YearInDollars: Story = { args: { search: 'currency=USD' }, globals: desktop };

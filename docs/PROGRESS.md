@@ -23,6 +23,11 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   screenshots of the year, month, empty, couldn't-load and loading states at 375 and 1440 px, light and dark, looked
   at; walked through in the Browser pane against this branch's API (unfold, a cell to Transactions and Back, a month,
   dollars, the phone's sheet).
+- The owner's review of PR #60 ("if there are no data for all month, maybe collapse them?"), with the look picked from
+  three: the months before the first entry are one folded column in the year's table ("Jan – Oct · before your first
+  entry", a tap unfolds them, a narrow column folds them back; while folded the card is as wide as its columns) and
+  one row on the phone. Unit tests, stories (a person who started this month), the E2E check and screenshots at 375
+  and 1440 px, light and dark, folded and unfolded; design check 0 issues.
 - Test data: a test person `e2e-manual-…@example.com` with two accounts and two years of transactions, and an
   `E2E manual F-022` invite link, for the walk-through; the E2E runs' own people. The E2E clean-up deleted the people
   (with their data) and cancelled the invite links.
