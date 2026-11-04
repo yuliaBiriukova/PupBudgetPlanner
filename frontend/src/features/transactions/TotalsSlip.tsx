@@ -121,8 +121,6 @@ export const TotalsSlip = forwardRef<HTMLElement, TotalsSlipProps>(function Tota
   const stepButton = (step: -1 | 1, target: Period | null) => (
     <ActionIcon
       variant="subtle"
-      size={44}
-      radius="xl"
       className={classes.step}
       disabled={!target}
       aria-label={t(`transactions.totals.${step < 0 ? 'previous' : 'next'}${unit}`)}
@@ -160,7 +158,7 @@ export const TotalsSlip = forwardRef<HTMLElement, TotalsSlipProps>(function Tota
           aria-label={swipe ? t('shell.addTransaction') : undefined}
           onClick={onAdd}
         >
-          <IconPlus size={20} stroke={1.8} aria-hidden />
+          <IconPlus size={20} stroke={1.7} aria-hidden />
           <span className={classes.addLabel}>{t('shell.addTransaction')}</span>
         </UnstyledButton>
       </div>

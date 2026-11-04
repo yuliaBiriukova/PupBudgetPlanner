@@ -15,8 +15,8 @@ interface ColorSchemeToggleProps {
 
 /** Switches between light and dark mode; the first visit follows the system setting. */
 export function ColorSchemeToggle({
-  variant = 'default',
-  size = 'xl',
+  variant = 'subtle',
+  size = 44,
   className,
 }: ColorSchemeToggleProps) {
   const { t } = useTranslation();
@@ -35,7 +35,7 @@ export function ColorSchemeToggle({
         setColorScheme(isDark ? 'light' : 'dark');
       }}
     >
-      {isDark ? <IconSun size={20} stroke={1.6} /> : <IconMoon size={20} stroke={1.6} />}
+      {isDark ? <IconSun size={20} stroke={1.7} /> : <IconMoon size={20} stroke={1.7} />}
     </ActionIcon>
   );
 }

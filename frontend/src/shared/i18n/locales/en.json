@@ -326,6 +326,7 @@
       "restore": "Restore",
       "restoreLabel": "Restore {{name}}",
       "restored": "{{name}} is back",
+      "copy": "You already have “{{name}}” in use. Rename it first, then restore this one.",
       "delete": "Delete",
       "deleteLabel": "Delete {{name}}"
     },
@@ -375,6 +376,7 @@
     },
     "validation": {
       "name": "Give the account a name.",
+      "copy": "You already have this account. Give it another name.",
       "tooLong": "Use at most {{max}} characters.",
       "newSource": "Name the new source.",
       "bank": "Pick your bank or type its name.",
@@ -542,6 +544,7 @@
       "note": "Note",
       "notePlaceholder": "Silpo, lunch with Vlad",
       "notePlaceholderTransfer": "Cash for the market, savings",
+      "noteSuggestions": "Notes you used before",
       "save": "Save",
       "saveExpense": "Save expense",
       "saveIncome": "Save income",

@@ -1,11 +1,11 @@
-/* Sign in / Create account switch: two pills, the open one raised */
+/* Sign in / Create account: two links as the app's pill switch (theme.ts, I-019), the open one raised */
 .switch {
   display: grid;
   grid-template-columns: 1fr 1fr;
   margin-bottom: 20px;
   padding: 4px;
   border-radius: 999px;
-  background: var(--pup-color-switch);
+  background: var(--pup-color-choice);
 }
 
 .switchLink {
@@ -14,6 +14,7 @@
   min-height: 44px;
   border-radius: 999px;
   color: var(--mantine-color-dimmed);
+  font-size: 14px;
   font-weight: 500;
   text-decoration: none;
 }
@@ -38,16 +39,6 @@
   margin-bottom: 6px;
   font-size: 14px;
   font-weight: 500;
-}
-
-.input {
-  height: 52px;
-  min-height: 52px;
-  padding-inline: 16px;
-  border-color: var(--pup-color-field-border);
-  border-radius: 12px;
-  background: var(--pup-color-surface);
-  font-size: 16px;
 }
 
 /* The border and the message carry the error; what the person typed keeps the normal text color */

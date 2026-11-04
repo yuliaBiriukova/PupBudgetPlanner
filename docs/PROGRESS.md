@@ -2,6 +2,143 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-04 (I-020: No two accounts alike)
+
+**Done**
+- Built [I-020](changes/improvements/I-020-no-duplicate-accounts/I-020-no-duplicate-accounts.md) on
+  `improvement/I-020-no-duplicate-accounts`, approved by the owner in chat ("approved build"). An exact copy of an
+  account in use (name ignoring case and spaces, currency, source, own source or bank) is refused when adding,
+  editing or restoring; archived accounts don't count. The rule is in the Domain (`Account.CopyIn`); the form finds
+  a copy before sending and shows the API's answer (400 on `name`, 409 on restore) the same way.
+- A partial unique index `ix_accounts_no_copies_in_use` (migration `NoCopiesOfAccounts`, SQL: EF Core can't model an
+  expression index) catches two saves at the same moment. Decided while building: when a database already has
+  copies, the migration skips the index with a warning instead of failing the deploy or changing anyone's accounts
+  ([ADR 0026](decisions/0026-no-copies-of-accounts.md)). The migration ran on `dev`; whether it made the index there
+  couldn't be read from here (no database access), so the owner checks `dev` and production with the PR's query.
+- Checked: backend build and tests, frontend lint, format, typecheck, build, unit tests, `build-storybook`, the full
+  E2E suite (desktop and phone), the design check on Accounts (0 issues), screenshots of the New account form with the
+  copy error and of the refused restore at 375 and 1440 px, light and dark, looked at; walked through in the Browser
+  pane.
+- Test data: a test person `e2e-manual-…@example.com` with three accounts and an `E2E manual I-020` invite link, for
+  the walk-through; the E2E runs' own people. The E2E clean-up deleted the people (with their accounts) and cancelled
+  the invite links; the test person can no longer sign in.
+
+**Next**
+- Owner: review the PR; check `dev` and production for the index and for existing copies.
+## 2026-11-04 (I-021: Prototypes in Storybook)
+
+**Done**
+- I-021, asked for by the owner: from now on a design round's variants and final prototype are Storybook stories in
+  `frontend/src/prototypes/<ID-name>/` (*Prototypes / <ID> <name>*), made of the real screen, components, theme and
+  fake data with only the new part added, so they look like the app. A prototype never edits the app's files; it is
+  deleted when the change is built, and the final prototype's screenshots stay in the change folder.
+  [ADR 0025](decisions/0025-prototypes-in-storybook.md).
+- Rules updated in `CLAUDE.md`, `DESIGN_RULES.md` §2, `docs/changes/README.md` and the `design-screen` skill.
+- The design check takes a story's address: light and dark through the Storybook global, screenshots named after the
+  story. Tried on *Transactions / Transactions list / This month*: 0 issues; the 375 and 1440 px shots in both
+  schemes looked at.
+- Test data: none.
+
+**Decisions**
+- Picked by the owner in chat: stories (not HTML exported from Storybook, not HTML with the theme's tokens); prototype
+  stories deleted after the build. Earlier changes keep their HTML prototypes.
+
+**Next**
+- The next 🎨 change (I-016 or another) is the first round made of stories.
+
+## 2026-11-04 (I-017: Note suggestions)
+
+**Done**
+- Started I-017 (note suggestions) on `improvement/I-017-note-suggestions`; status In progress. No code: the change
+  isn't approved yet.
+- References (Baymard on autocomplete, the phone keyboards' word strip, the browser's and Mantine's autocomplete, the
+  app's own lists and receipts) in the description file. Monefy and Wallet weren't looked at: not open without signing in.
+- Three prototypes on the form as built: [variant 1 · The app's dropdown](changes/improvements/I-017-note-suggestions/prototypes/variant-1.html),
+  [variant 2 · Pills by the keys](changes/improvements/I-017-note-suggestions/prototypes/variant-2.html),
+  [variant 3 · From your receipts](changes/improvements/I-017-note-suggestions/prototypes/variant-3.html) (the
+  category comes with the note: more than the criteria ask). In all three the app's keys fold away on the phone while a
+  note is typed, so the phone's keyboard and the list have room.
+- Checked: the design check on all three, 0 issues after fixes (the phone list drawn outside the sheet, an empty list
+  still marked as one, a 35 px Undo, the account field's name); screenshots of all five screens at 375 and 1440 px,
+  light and dark, looked at (fixed: the typed part too faint to tell apart, now grey; Undo's gaps; a list cut off with
+  no fade).
+- Test data: none.
+
+- The owner chose variant 1, with the notes that start with what was typed first. Built as the
+  [final prototype](changes/improvements/I-017-note-suggestions/prototypes/variant-4.html) ("si": Silpo, Simcard
+  top-up, Silpo, wine for Friday, then Physio session, Kids' music lesson); the criteria say so. Design check 0 issues;
+  all five screens at 375 and 1440 px, light and dark, looked at.
+
+- The owner approved the final prototype ("the prototype is approved, build it"); recorded in the description file and
+  DESIGN_RULES "Screen decisions" before the build.
+- Built: `GET /api/transactions/notes` (the person's own notes of the form's type, grouped in the database, matched and
+  ordered by the pure `NoteSuggestions.Of`: starts-with first, then use and date, case ignored in Ukrainian too, at most
+  5); the Note field as a Mantine `Combobox` in the app's dropdown look (`NoteField.tsx`), asked for after a 200 ms
+  pause; on the phone the app's keys fold to one Save while the note is typed (a tap on the amount brings them back), the
+  Note field scrolls to the top with the list under it down to Save, and a full sheet follows the phone's keyboard
+  (`useKeyboardInset`). Stories: suggestions on the phone and the desktop, light and dark, Ukrainian, none, loading.
+- Checked: see the PR (tests, E2E, screenshots at 375 / 520-high and 1440 px, light and dark, looked at; fixed on the
+  way: the desktop list shrinking instead of turning up above the field, the phone's list faded by the form's own fade).
+  Not tried on a real phone: Playwright has no phone keyboard.
+- Test data: the E2E run's `e2e-notes-…@example.com` people (and the spec's others), deleted by its clean-up.
+
+**Next**
+- Owner: review the PR; try the Note field on a phone (the keyboard and Save above it).
+
+## 2026-11-04 (Plan: I-020)
+
+**Done**
+- The owner asked whether accounts with the same name, currency, bank and source should be possible; today nothing
+  stops it. Planned as [I-020](changes/improvements/I-020-no-duplicate-accounts/I-020-no-duplicate-accounts.md)
+  (Medium, Todo) on `plan/i020-no-duplicate-accounts`: an exact copy of an account in use is refused (name compared
+  ignoring case and spaces) when adding, editing or restoring; another currency, bank or source stays allowed;
+  archived accounts don't count; the backend checks it too, with a unique index. No prototypes: the messages use the
+  app's existing error and notification.
+- Test data: none.
+
+**Next**
+- Owner: review and approve I-020 (the wording of the two messages, and the archived-accounts rule) before it is
+  built on `improvement/I-020-no-duplicate-accounts`.
+
+## 2026-11-04 (I-019: One look for every element)
+
+**Done**
+- The owner found the sidebar's Add transaction unlike the app's other buttons and asked for every UI element to be
+  aligned: planned as [I-019](changes/improvements/I-019-ui-consistency/I-019-ui-consistency.md) (Medium, proposed).
+  Audit from the code: buttons in five heights (36 px, Mantine's default, is the most used, below the touch target),
+  seven not pills, three Cancel styles, the red Delete built three times; four builds of the pill switch in two colour
+  sets; pills with two borders; the 52 px field style copied into six screens; icon buttons in three sizes and two
+  shapes; three icon strokes. Proposal and open points in the description file.
+- The owner asked for the design system in Storybook ("add design system to storybook"), approved by the request:
+  *Design system / Foundations* (colour tokens of both schemes side by side, read from `theme.ts`; type; corners and
+  spacing measured in the browser; icons) and *Design system / Components* (buttons, icon buttons, switches, pills and
+  chips, fields, check boxes and menus, each variant built with the app's own props and styles, with where it is used
+  and "Differs" on what I-019 aligns). Settings' `Choice` is exported for it; no screen changed.
+- Checked: types, lint and format; all 10 pages render at 375 and 1440 px, light and dark, with no errors and no
+  sideways scroll; screenshots looked at (fixed: the colour groups' names repeated in each column).
+- Test data: none.
+
+- The owner's answers: Cancel the grey word everywhere; the keypad's keys as pills (a comparison of today, pill and
+  circle keys, [keypad-round-keys.html](changes/improvements/I-019-ui-consistency/prototypes/keypad-round-keys.html));
+  44 px for every button, 52 px only on sign-in. The [before / after page](changes/improvements/I-019-ui-consistency/prototypes/before-after.html)
+  showed every element today and after; its design check flags only the "Today" column (36 and 40 px buttons, and the
+  menu's Delete in Mantine's red at 3.2:1 contrast). The owner approved it ("Approved, build it"); recorded in the
+  description file and DESIGN_RULES "Screen decisions" before the build.
+- Built: the look is set once in `theme.ts` (button variants `quiet`, `danger`, `danger-quiet`; 44 px pills and icon
+  circles; one field; one `SegmentedControl` switch; 44 px menu items) and `shared/ui/Pills.module.css`; every screen
+  moved to it, the copied styles removed. Storybook *Design system / Components* now shows the one look; DESIGN_RULES
+  has a "Components" section.
+- Checked: types, lint and format; unit tests (227); the full E2E suite (56 passed, 6 skipped as before; it caught the
+  rail's + off the icons' axis, fixed and its test re-run); the app and Storybook build; screenshots of every changed
+  screen's stories at 375 and 1440 px, light and dark, looked at.
+- Test data: the E2E runs' own people, removed by their teardown; nothing made by hand.
+- Kept as they are, on purpose: Continue with Google's outline (the brand's button), People's selection bar (light
+  buttons on its dark bar), the form's Today / Yesterday (picks, not buttons), the phone tab bar's round + (52 px), the
+  48 px search fields inside the currency and category lists, and the read-only invite link field.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-03 (F-020: Transactions list)
 
 **Done**

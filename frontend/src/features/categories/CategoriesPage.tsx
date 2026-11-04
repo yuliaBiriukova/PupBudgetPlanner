@@ -119,7 +119,6 @@ export function CategoriesPage() {
           <h2 className={classes.emptyTitle}>{t('categories.empty.title')}</h2>
           <p className={classes.dim}>{t('categories.empty.text')}</p>
           <Button
-            radius="xl"
             mt={18}
             leftSection={<IconRefresh size={20} stroke={1.7} />}
             onClick={() => {

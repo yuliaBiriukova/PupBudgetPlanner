@@ -100,40 +100,21 @@
   margin-top: 2px;
 }
 
-/* The type switch in the title row: a pill track, the picked type raised in its color */
-.switch {
-  padding: 4px;
-  border-radius: 999px;
-  background: var(--pup-color-choice);
-}
-
-.switchIndicator {
-  border-radius: 999px;
-  background: var(--pup-color-choice-active);
-  box-shadow: var(--pup-shadow-switch);
-}
-
-.switchLabel {
-  min-height: 44px;
+/* The type switch in the title row: the app's pill switch (theme.ts, I-019), the picked type in its colour; three
+   options fit the phone's title row with 12 px at their sides */
+.typeSwitch :global(.mantine-SegmentedControl-label) {
   padding: 0 12px;
-  color: var(--mantine-color-dimmed);
-  font-weight: 500;
-  line-height: 44px;
 }
 
-.switchLabel:hover {
-  color: var(--mantine-color-text);
-}
-
-.switch[data-type='Expense'] .switchLabel[data-active] {
+.typeSwitch[data-type='Expense'] :global(.mantine-SegmentedControl-label)[data-active] {
   color: var(--pup-color-expense);
 }
 
-.switch[data-type='Income'] .switchLabel[data-active] {
+.typeSwitch[data-type='Income'] :global(.mantine-SegmentedControl-label)[data-active] {
   color: var(--pup-color-income);
 }
 
-.switch[data-type='Transfer'] .switchLabel[data-active] {
+.typeSwitch[data-type='Transfer'] :global(.mantine-SegmentedControl-label)[data-active] {
   color: var(--pup-color-transfer);
 }
 
@@ -528,53 +509,14 @@
   }
 }
 
-/* Category: the most used as pills that wrap, never past the pop-up's edge (owner, 2026-11-01) */
-.pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+/* Category: the most used as the shared pills (Pills.module.css), wrapping, never past the pop-up's edge (owner,
+   2026-11-01) */
 
-.pill {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 16px;
-  border: 1px solid var(--pup-color-rule);
-  border-radius: 999px;
-  background: var(--pup-color-surface);
-  color: var(--mantine-color-text);
-  white-space: nowrap;
-}
-
-.pill:hover {
-  background: var(--pup-color-hover);
-}
-
-.pill[aria-checked='true'] {
-  border-color: var(--mantine-primary-color-filled);
-  background: var(--mantine-primary-color-filled);
-  color: var(--pup-color-on-primary);
-  font-weight: 500;
-}
-
-.pill:focus-visible,
 .day:focus-visible,
 .field:focus-visible,
 .listItem:focus-visible {
   outline: 2px solid var(--mantine-color-text);
   outline-offset: 2px;
-}
-
-/* The note: the same field as the app's other forms (the account form's Name), not Mantine's small default */
-.noteInput {
-  height: 52px;
-  min-height: 52px;
-  border-color: var(--pup-color-field-border);
-  background: var(--pup-color-surface);
-  font-size: 16px;
 }
 
 /* The lists in a dropdown or a sheet: accounts and categories, as the app's other dropdowns (the currency list) */
@@ -594,11 +536,10 @@
   padding: 8px;
 }
 
+/* A list's search: the app's field (theme.ts), 48 px to leave room for the list */
 .searchInput {
   height: 48px;
   min-height: 48px;
-  border-color: var(--pup-color-field-border);
-  font-size: 16px;
 }
 
 .searchInput::-webkit-search-cancel-button {
@@ -664,6 +605,52 @@
   color: inherit;
 }
 
+/* The Note field's suggestions (I-017): the app's dropdown, one line a row, the row picked with the keys in the
+   accent. What was typed is quiet grey and the rest of the note, what the list adds, stands out */
+.suggestionsScroll {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
+.suggestions {
+  padding: 6px;
+}
+
+.dropdown .suggestion {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: var(--mantine-radius-sm);
+  color: var(--mantine-color-text);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.dropdown .suggestion:hover {
+  background: var(--pup-color-hover);
+}
+
+.dropdown .suggestion[data-combobox-selected] {
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+}
+
+.typed {
+  color: var(--mantine-color-dimmed);
+  font-weight: 400;
+}
+
+.suggestion[data-combobox-selected] .typed {
+  color: inherit;
+}
+
+/* The phone's Save while the note is typed: the app's keys fold away and the phone's keyboard takes their place */
+.saveAlone {
+  height: 52px;
+  font-size: 16px;
+}
+
 .none {
   margin: 0;
   padding: 12px 10px;
@@ -689,7 +676,7 @@
   display: grid;
   place-items: center;
   height: 52px;
-  border-radius: var(--mantine-radius-md);
+  border-radius: 999px;
   background: var(--pup-color-choice);
   color: var(--mantine-color-text);
   font-family: var(--pup-font-display);
@@ -709,7 +696,7 @@
 
 .keys .save {
   height: 52px;
-  border-radius: var(--mantine-radius-md);
+  border-radius: 999px;
   font-size: 16px;
 }
 

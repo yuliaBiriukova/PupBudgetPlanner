@@ -1,0 +1,188 @@
+/* The Storybook "Design system" pages (I-019): the app's tokens and elements as a reference */
+
+.page {
+  display: grid;
+  gap: 40px;
+  max-width: 1120px;
+}
+
+.intro {
+  max-width: 720px;
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+}
+
+.section {
+  display: grid;
+  gap: 16px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--pup-font-display);
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.sectionNote {
+  max-width: 720px;
+  margin: -8px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+/* Colours: the light and the dark scheme side by side, each column with its scheme's own variables */
+.schemes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.scheme {
+  display: grid;
+  align-content: start;
+  gap: 24px;
+  padding: 20px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-xl);
+  background: var(--mantine-color-body);
+  color: var(--mantine-color-text);
+}
+
+.schemeTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.group {
+  display: grid;
+  gap: 12px;
+}
+
+.swatch {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.chip {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-md);
+}
+
+.token {
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.value {
+  color: var(--mantine-color-dimmed);
+}
+
+/* Type, corners, spacing, icons: a sample with its spec under it */
+.samples {
+  display: grid;
+  gap: 20px;
+}
+
+.sample {
+  display: grid;
+  gap: 4px;
+}
+
+.spec {
+  color: var(--mantine-color-dimmed);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.tile {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 88px;
+}
+
+.cornerBox {
+  width: 72px;
+  height: 72px;
+  border: 1px solid var(--pup-color-field-border);
+  background: var(--pup-color-tint);
+}
+
+.spaceRow {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.spaceBar {
+  height: 16px;
+  border-radius: var(--mantine-radius-xs);
+  background: var(--pup-color-accent);
+}
+
+/* Components: one row per element, the sample on the left, its name and where it is used on the right */
+.specs {
+  display: grid;
+  border-top: 1px solid var(--pup-color-rule);
+}
+
+.specRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--pup-color-rule);
+}
+
+@media (min-width: 62em) {
+  .specRow {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 4fr);
+    gap: 24px;
+    align-items: center;
+  }
+}
+
+.specSample {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.specText {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.specName {
+  font-weight: 500;
+}
+
+.specWhere {
+  color: var(--mantine-color-dimmed);
+}
+
+/* The sidebar's own colour behind the sidebar's Add button, as it is seen in the app */
+.sidebarBox {
+  padding: 12px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-sidebar);
+}

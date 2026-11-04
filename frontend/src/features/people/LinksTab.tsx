@@ -71,8 +71,7 @@ export function LinksTab() {
         <div role="alert">
           <p className={classes.nobodyText}>{t('people.errors.loadLinks')}</p>
           <Button
-            radius="xl"
-            variant="default"
+            variant="quiet"
             onClick={() => {
               void invitations.refetch();
             }}
@@ -179,9 +178,7 @@ function WaitingLink({ invitation }: { invitation: Invitation }) {
         {t('people.links.daysLeft', { count: daysUntil(invitation.expiresAt) })}
       </p>
       <Button
-        radius="xl"
-        variant="subtle"
-        color="gray"
+        variant="quiet"
         className={classes.cancel}
         loading={cancel.isPending}
         aria-label={t('people.links.cancelLabel', { note })}

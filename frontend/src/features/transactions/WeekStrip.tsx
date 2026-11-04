@@ -44,8 +44,6 @@ export function WeekStrip({ value, onChange, week, onWeekChange }: WeekStripProp
           <ActionIcon
             variant="subtle"
             color="gray"
-            size={44}
-            radius="xl"
             className={classes.headButton}
             aria-label={t('transactions.form.weekBefore')}
             onClick={() => {
@@ -57,8 +55,6 @@ export function WeekStrip({ value, onChange, week, onWeekChange }: WeekStripProp
           <ActionIcon
             variant="subtle"
             color="gray"
-            size={44}
-            radius="xl"
             className={classes.headButton}
             aria-label={t('transactions.form.weekAfter')}
             disabled={lastDay >= now}
@@ -81,8 +77,6 @@ export function WeekStrip({ value, onChange, week, onWeekChange }: WeekStripProp
               <ActionIcon
                 variant="subtle"
                 color="gray"
-                size={44}
-                radius="xl"
                 className={classes.headButton}
                 aria-label={t('transactions.form.pickDay')}
                 aria-haspopup="dialog"
@@ -149,7 +143,6 @@ function Calendar({ value, onPick }: { value: string; onPick: (day: string) => v
           <Button
             key={day}
             variant="default"
-            radius="xl"
             size="md"
             className={classes.quickDay}
             data-picked={day === value || undefined}

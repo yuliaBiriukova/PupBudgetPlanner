@@ -54,12 +54,11 @@ export function useDeleteQuestion(
     title: t('accounts.delete.title', { name }),
     footer: (
       <>
-        <Button radius="xl" variant="subtle" color="gray" onClick={keep}>
+        <Button variant="quiet" onClick={keep}>
           {t('accounts.delete.keep')}
         </Button>
         <Button
-          radius="xl"
-          className={classes.dangerButton}
+          variant="danger"
           disabled={!ready}
           loading={remove.isPending}
           leftSection={<IconTrash size={20} stroke={1.7} />}

@@ -76,7 +76,7 @@ export function AmountKeys({ value, onKey, onSave, saving }: AmountKeysProps) {
           {face(key)}
         </UnstyledButton>
       ))}
-      <Button radius="md" className={classes.save} loading={saving} onClick={onSave}>
+      <Button className={classes.save} loading={saving} onClick={onSave}>
         {t('transactions.form.save')}
       </Button>
     </div>

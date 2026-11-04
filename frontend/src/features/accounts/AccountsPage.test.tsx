@@ -163,6 +163,54 @@ describe('the Accounts page', () => {
     expect(sent).toEqual([]);
   });
 
+  it('won’t add a copy of an account in use: says so under the name and sends nothing (I-020)', async () => {
+    const sent = accountsServer();
+    renderApp('/accounts');
+
+    await screen.findByRole('group', { name: 'Totals' }, LOADED);
+    await userEvent.click(screen.getByRole('button', { name: 'Add account' }));
+    const form = await screen.findByRole('dialog', { name: 'New account' });
+    await userEvent.type(within(form).getByLabelText('Name'), 'mono black ');
+    await userEvent.click(within(form).getByRole('button', { name: 'Add account' }));
+
+    expect(
+      within(form).getByText('You already have this account. Give it another name.'),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(within(form).getByLabelText('Name')).toHaveFocus();
+    });
+    expect(sent).toEqual([]);
+  });
+
+  it('shows a copy the API found (saved meanwhile elsewhere) under the name too', async () => {
+    accountsServer();
+    server.use(
+      http.post('/api/accounts', () =>
+        HttpResponse.json(
+          {
+            status: 400,
+            errors: { name: ['You already have this account. Give it another name.'] },
+          },
+          { status: 400 },
+        ),
+      ),
+    );
+    renderApp('/accounts');
+
+    await screen.findByRole('group', { name: 'Totals' }, LOADED);
+    await userEvent.click(screen.getByRole('button', { name: 'Add account' }));
+    const form = await screen.findByRole('dialog', { name: 'New account' });
+    await userEvent.type(within(form).getByLabelText('Name'), 'Mono white');
+    await userEvent.click(within(form).getByRole('button', { name: 'Add account' }));
+
+    expect(
+      await within(form).findByText('You already have this account. Give it another name.'),
+    ).toBeInTheDocument();
+    expect(
+      within(form).queryByText('That didn’t go through. Try again in a moment.'),
+    ).not.toBeInTheDocument();
+  });
+
   it('clears a zero opening balance when the field is focused', async () => {
     accountsServer();
     renderApp('/accounts');
@@ -234,6 +282,24 @@ describe('the Accounts page', () => {
       '/api/accounts/mono-usd/archive',
       '/api/accounts/old-usd/restore',
     ]);
+  });
+
+  it('won’t restore an archived account while one in use is just like it (I-020)', async () => {
+    accountsServer();
+    server.use(
+      http.post('/api/accounts/:id/restore', () => new HttpResponse(null, { status: 409 })),
+    );
+    renderApp('/accounts');
+
+    await userEvent.click(await screen.findByRole('button', { name: /Archived/ }, LOADED));
+    await userEvent.click(screen.getByRole('button', { name: 'Restore Old Privat dollars' }));
+
+    expect(
+      await screen.findByText(
+        'You already have “Old Privat dollars” in use. Rename it first, then restore this one.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Old Privat dollars is back')).not.toBeInTheDocument();
   });
 
   it('deletes from the end of the edit form once the name is typed; Keep it goes back to the form', async () => {

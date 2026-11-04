@@ -54,9 +54,7 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
         title={t('people.newLink.readyTitle')}
         footer={
           <Button
-            radius="xl"
-            variant="subtle"
-            color="gray"
+            variant="quiet"
             onClick={() => {
               close();
               onDone();
@@ -82,7 +80,6 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
             style={canShare ? undefined : { gridTemplateColumns: '1fr' }}
           >
             <Button
-              radius="xl"
               leftSection={
                 copied ? <IconCheck size={20} stroke={1.7} /> : <IconCopy size={20} stroke={1.7} />
               }
@@ -97,8 +94,7 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
             </Button>
             {canShare && (
               <Button
-                radius="xl"
-                variant="default"
+                variant="quiet"
                 leftSection={<IconShare size={20} stroke={1.7} />}
                 onClick={() => {
                   void navigator.share({ url, title: t('app.shortName') }).catch(() => undefined);
@@ -127,11 +123,10 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
       title={t('people.newLink.title')}
       footer={
         <>
-          <Button radius="xl" variant="subtle" color="gray" onClick={close}>
+          <Button variant="quiet" onClick={close}>
             {t('people.cancel')}
           </Button>
           <Button
-            radius="xl"
             type="submit"
             form={formId}
             loading={create.isPending}
@@ -162,7 +157,6 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
           onChange={(event) => {
             setNote(event.currentTarget.value);
           }}
-          classNames={{ input: classes.field }}
           data-autofocus
         />
         {create.isError && (
@@ -229,11 +223,10 @@ export function BlockDialog({ people, onClose, onDone }: ConfirmProps) {
       }
       footer={
         <>
-          <Button radius="xl" variant="subtle" color="gray" onClick={onClose}>
+          <Button variant="quiet" onClick={onClose}>
             {t('people.cancel')}
           </Button>
           <Button
-            radius="xl"
             loading={action.isPending}
             leftSection={<IconBan size={20} stroke={1.7} />}
             onClick={() => {
@@ -295,12 +288,11 @@ export function DeleteDialog({ people, onClose, onDone }: ConfirmProps) {
       }
       footer={
         <>
-          <Button radius="xl" variant="subtle" color="gray" onClick={close}>
+          <Button variant="quiet" onClick={close}>
             {t('people.cancel')}
           </Button>
           <Button
-            radius="xl"
-            className={classes.dangerButton}
+            variant="danger"
             disabled={!ready}
             loading={action.isPending}
             leftSection={<IconTrash size={20} stroke={1.7} />}
@@ -339,7 +331,6 @@ export function DeleteDialog({ people, onClose, onDone }: ConfirmProps) {
       )}
       <TextInput
         mt={18}
-        classNames={{ input: classes.field }}
         label={
           one ? t('people.delete.typeEmail', { email: one.email }) : t('people.delete.typeWord')
         }

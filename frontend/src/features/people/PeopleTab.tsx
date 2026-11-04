@@ -152,7 +152,6 @@ export function PeopleTab() {
             </div>
           }
           rightSectionWidth={searching ? 136 : query ? 52 : 0}
-          classNames={{ input: classes.searchInput }}
         />
       </div>
 
@@ -168,8 +167,7 @@ export function PeopleTab() {
         <div role="alert">
           <p className={classes.nobodyText}>{t('people.errors.load')}</p>
           <Button
-            radius="xl"
-            variant="default"
+            variant="quiet"
             onClick={() => {
               void people.refetch();
             }}
@@ -186,8 +184,7 @@ export function PeopleTab() {
           </h2>
           <p className={classes.nobodyText}>{t('people.search.noneText')}</p>
           <Button
-            radius="xl"
-            variant="default"
+            variant="quiet"
             onClick={() => {
               setQuery('');
             }}
@@ -399,13 +396,11 @@ function PersonRow({
       </p>
       <div className={classes.acts}>
         {!person.isYou && (
-          <Menu position="bottom-end" radius="md" shadow="md" width={230}>
+          <Menu position="bottom-end" shadow="md" width={230}>
             <Menu.Target>
               <ActionIcon
                 variant="subtle"
                 color="gray"
-                size={44}
-                radius="xl"
                 aria-label={t('people.actionsFor', { name: person.displayName })}
               >
                 <IconDots size={20} stroke={1.7} />
@@ -416,24 +411,18 @@ function PersonRow({
                 <Menu.Item
                   leftSection={<IconLockOpen size={20} stroke={1.7} />}
                   onClick={onUnblock}
-                  mih={44}
                 >
                   {t('people.unblock.action')}
                 </Menu.Item>
               ) : (
-                <Menu.Item
-                  leftSection={<IconBan size={20} stroke={1.7} />}
-                  onClick={onBlock}
-                  mih={44}
-                >
+                <Menu.Item leftSection={<IconBan size={20} stroke={1.7} />} onClick={onBlock}>
                   {t('people.block.action')}
                 </Menu.Item>
               )}
               <Menu.Item
-                color="red"
+                color="var(--pup-color-danger)"
                 leftSection={<IconTrash size={20} stroke={1.7} />}
                 onClick={onDelete}
-                mih={44}
               >
                 {t('people.delete.action')}
               </Menu.Item>
@@ -460,12 +449,10 @@ function SortMenu({ sort, onSort }: SortMenuProps) {
 
   return (
     <div className={classes.sortRow}>
-      <Menu position="bottom-end" radius="md" shadow="md" width={240}>
+      <Menu position="bottom-end" shadow="md" width={240}>
         <Menu.Target>
           <Button
-            variant="subtle"
-            color="gray"
-            radius="xl"
+            variant="quiet"
             className={classes.sortMenuButton}
             leftSection={<IconArrowsSort size={20} stroke={1.7} />}
           >
@@ -478,7 +465,6 @@ function SortMenu({ sort, onSort }: SortMenuProps) {
             return (
               <Menu.Item
                 key={orderKey(order)}
-                mih={44}
                 aria-current={current || undefined}
                 rightSection={current ? <IconCheck size={20} stroke={1.7} /> : null}
                 onClick={() => {
@@ -518,7 +504,6 @@ function BulkBar({ picked, atMax, onBlock, onUnblock, onDelete, onClear }: BulkB
       </span>
       {anyActive ? (
         <Button
-          radius="xl"
           variant="default"
           className={classes.bulkButton}
           leftSection={<IconBan size={20} stroke={1.7} />}
@@ -528,7 +513,6 @@ function BulkBar({ picked, atMax, onBlock, onUnblock, onDelete, onClear }: BulkB
         </Button>
       ) : (
         <Button
-          radius="xl"
           variant="default"
           className={classes.bulkButton}
           leftSection={<IconLockOpen size={20} stroke={1.7} />}
@@ -538,7 +522,6 @@ function BulkBar({ picked, atMax, onBlock, onUnblock, onDelete, onClear }: BulkB
         </Button>
       )}
       <Button
-        radius="xl"
         variant="default"
         className={classes.bulkButton}
         leftSection={<IconTrash size={20} stroke={1.7} />}
@@ -548,8 +531,6 @@ function BulkBar({ picked, atMax, onBlock, onUnblock, onDelete, onClear }: BulkB
       </Button>
       <ActionIcon
         variant="transparent"
-        size={44}
-        radius="xl"
         className={classes.bulkClear}
         aria-label={t('people.bulk.clear')}
         onClick={onClear}

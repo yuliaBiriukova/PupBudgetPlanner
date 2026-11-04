@@ -490,8 +490,7 @@
 }
 
 .chipClear:focus-visible,
-.select:focus-visible,
-.pills button:focus-visible {
+.select:focus-visible {
   outline: 2px solid var(--mantine-color-text);
   outline-offset: 2px;
 }
@@ -512,46 +511,18 @@
   font-weight: 500;
 }
 
-.pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.pills button {
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--pup-color-rule);
-  border-radius: 999px;
-  color: var(--mantine-color-text);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.pills button:hover {
-  background: var(--pup-color-hover);
-}
-
-.pills button[aria-pressed='true'] {
-  border-color: var(--pup-color-accent);
-  background: var(--pup-color-active-bg);
-  color: var(--pup-color-accent);
-}
-
-.pills button[aria-pressed='true'][data-type='Expense'] {
-  border-color: var(--pup-color-expense);
+/* A picked type filter in the type's colour (the pills are the shared ones, Pills.module.css) */
+.typePill[aria-pressed='true'][data-type='Expense'] {
   background: var(--pup-color-error-bg);
   color: var(--pup-color-expense);
 }
 
-.pills button[aria-pressed='true'][data-type='Income'] {
-  border-color: var(--pup-color-income);
+.typePill[aria-pressed='true'][data-type='Income'] {
   background: var(--pup-color-income-bg);
   color: var(--pup-color-income);
 }
 
-.pills button[aria-pressed='true'][data-type='Transfer'] {
-  border-color: var(--pup-color-transfer);
+.typePill[aria-pressed='true'][data-type='Transfer'] {
   background: var(--pup-color-tint);
   color: var(--pup-color-transfer);
 }
@@ -1273,7 +1244,6 @@
 }
 
 .emptyButton {
-  min-height: 48px;
   margin-top: 18px;
 }
 

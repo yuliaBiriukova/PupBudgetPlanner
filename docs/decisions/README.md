@@ -29,6 +29,8 @@ decision — write a new ADR that supersedes it.
 | [0022](0022-transactions-and-balances.md) | Transactions: balances summed by the database, suggestions worked out in memory, no deleting a used account | Accepted |
 | [0023](0023-transfers-one-row.md) | Transfers: one row with both accounts; the form's rate from the API, the amounts from the person | Accepted |
 | [0024](0024-transactions-list-and-summary.md) | Transactions list: filters in the address, pages by offset, a separate summary at each day's rate | Accepted |
+| [0025](0025-prototypes-in-storybook.md) | Prototypes are Storybook stories built from the app's own parts | Accepted |
+| [0026](0026-no-copies-of-accounts.md) | No two accounts in use alike: checked in the Domain, backed by a partial unique index | Accepted |
 
 Template for new ADRs:
 

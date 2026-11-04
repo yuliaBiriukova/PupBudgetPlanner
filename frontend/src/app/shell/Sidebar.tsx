@@ -149,7 +149,7 @@ export function Sidebar({ state, user, onAdd, onSignOut }: SidebarProps) {
             onClick={toggle}
           >
             <Logo />
-            <IconLayoutSidebarLeftExpand className={classes.expandIcon} size={20} stroke={1.6} />
+            <IconLayoutSidebarLeftExpand className={classes.expandIcon} size={20} stroke={1.7} />
           </UnstyledButton>
         </RailTip>
         <BrandName className={cx(classes.label, classes.name)} />
@@ -158,17 +158,16 @@ export function Sidebar({ state, user, onAdd, onSignOut }: SidebarProps) {
           className={cx(classes.collapseButton, classes.fade)}
           variant="subtle"
           color="gray"
-          size="xl"
           aria-label={t('shell.collapseSidebar')}
           onClick={toggle}
         >
-          <IconLayoutSidebarLeftCollapse size={20} stroke={1.6} />
+          <IconLayoutSidebarLeftCollapse size={20} stroke={1.7} />
         </ActionIcon>
       </div>
 
       <RailTip label={t('shell.addTransaction')} collapsed={collapsed}>
         <UnstyledButton className={classes.add} onClick={onAdd}>
-          <IconPlus size={20} stroke={1.8} />
+          <IconPlus size={20} stroke={1.7} />
           <span className={classes.label}>{t('shell.addTransaction')}</span>
         </UnstyledButton>
       </RailTip>
@@ -179,7 +178,7 @@ export function Sidebar({ state, user, onAdd, onSignOut }: SidebarProps) {
           {SECTIONS.map(({ id, path, icon: Icon }) => (
             <RailTip key={id} label={t(`nav.${id}`)} collapsed={collapsed}>
               <UnstyledButton component={NavLink} to={path} className={classes.link}>
-                <Icon size={20} stroke={1.6} />
+                <Icon size={20} stroke={1.7} />
                 <span className={classes.label}>{t(`nav.${id}`)}</span>
               </UnstyledButton>
             </RailTip>
@@ -190,7 +189,7 @@ export function Sidebar({ state, user, onAdd, onSignOut }: SidebarProps) {
               {ADMIN_SECTIONS.map(({ id, path, icon: Icon }) => (
                 <RailTip key={id} label={t(`nav.${id}`)} collapsed={collapsed}>
                   <UnstyledButton component={NavLink} to={path} className={classes.link}>
-                    <Icon size={20} stroke={1.6} />
+                    <Icon size={20} stroke={1.7} />
                     <span className={classes.label}>{t(`nav.${id}`)}</span>
                   </UnstyledButton>
                 </RailTip>
@@ -210,16 +209,15 @@ export function Sidebar({ state, user, onAdd, onSignOut }: SidebarProps) {
           </>
         )}
         <div className={cx(classes.footTools, classes.fade)}>
-          <ColorSchemeToggle variant="subtle" size={36} />
+          <ColorSchemeToggle />
           {user && (
             <ActionIcon
               variant="subtle"
               color="gray"
-              size={36}
               aria-label={t('shell.signOut')}
               onClick={onSignOut}
             >
-              <IconLogout size={20} stroke={1.6} />
+              <IconLogout size={20} stroke={1.7} />
             </ActionIcon>
           )}
         </div>

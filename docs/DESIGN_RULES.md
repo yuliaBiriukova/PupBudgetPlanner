@@ -58,11 +58,15 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
    by app) and other examples open on the internet. Only references that open without the owner's sign-in — no
    banking apps or Claude's UI. The references used and what each one gave are listed in the change's
    description file.
-2. Every new screen starts with **3 design variants as HTML prototypes** — self-contained `.html` files
-   that open in any browser and show mobile and desktop layouts. They live in the change folder:
-   `docs/changes/features/F-xxx-name/prototypes/variant-1.html` … `variant-3.html`.
+2. Every new screen starts with **3 design variants as Storybook stories** built from the app's own parts, so a
+   prototype looks exactly like the real UI (I-021, [ADR 0025](decisions/0025-prototypes-in-storybook.md)). They
+   live in `frontend/src/prototypes/<ID-name>/` under *Prototypes / <ID> <name>*: the real screen with its
+   components, `theme.ts`, the design system and fake data, plus only the new part. A prototype never edits the
+   app's files. The change folder keeps the story links and the approved final prototype's screenshots; the
+   prototype stories are deleted when the change is built. (Changes before I-021 have HTML prototypes.)
    Design work follows the **`design-screen`** skill (`.claude/skills/design-screen/`), and every variant passes
-   the Playwright + axe design check before it is shown: `npm run design:check -- <file.html>` in `frontend/`.
+   the Playwright + axe design check before it is shown, on the story's address with Storybook running:
+   `npm run design:check -- "http://localhost:6006/iframe.html?id=<story-id>"` in `frontend/` (HTML files too).
    The same check runs on pages of the running app: pass their addresses (`http://localhost:5173/people`) and,
    for signed-in pages, `--storage <file>` with a Playwright storage state.
    Its screenshots are also looked at, not just its exit code.
@@ -87,6 +91,28 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
   headings and amounts, Manrope 400/500 for text (F-010).
 - **Light and dark mode** supported from the start (follows the system setting, can be switched).
 - **Icons:** Tabler Icons, one size scale (16 / 20 / 24).
+- **Design system in Storybook:** *Design system / Foundations* shows every token (colours of both schemes, read from
+  `theme.ts`, type, corners, spacing, icons); *Design system / Components* shows every kind of element as the app
+  has it. Look there before styling a new element (I-019).
+
+### Components (I-019, owner, 2026-11-04)
+
+Each element has one look, set once in `theme.ts` or a shared style; a screen doesn't restyle it.
+
+- **Buttons** are 44 px pills (the theme's default; no `radius` or height on a button). Only the sign-in screens'
+  button is 52 px, full width under their 52 px fields. Four kinds: the charcoal *primary* (the default, one per
+  place); `variant="quiet"`, the grey word, for second choices (Cancel, Keep it, Clear all) and actions in rows;
+  `variant="danger"`, the red pill that confirms a delete; `variant="danger-quiet"`, the red word with its icon for
+  Delete in rows and forms. No outlined buttons (Continue with Google keeps its outline, the brand's sign-in button).
+- **Icon buttons** are 44 px circles (`ActionIcon`'s default), with an `aria-label`. Icons have a 1.7 stroke.
+- **One pill switch**: Mantine's `SegmentedControl` from the theme, 44 px, on the `choice` track with the picked option
+  raised in the text colour; the transaction type keeps its colour. Built switches (Settings, sign-in) look the same.
+- **Pills you pick**: `shared/ui/Pills.module.css`, 44 px with the fields' border, the picked one in the accent's tint;
+  a picked type in its colour.
+- **Fields**: 52 px, 16 px text and 16 px inside, the surface behind them and the fields' border, from the theme. A
+  list's search is the same field at 48 px.
+- **Menus**: 44 px items; Delete in the app's danger colour, never Mantine's `red` (it fails AA contrast).
+- **The phone keypad**: 52 px pill keys and a pill Save.
 
 ## 4. Layout and responsiveness
 
@@ -144,3 +170,5 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
 | Quick add: expense and income (F-018) | Variant 7 (final, after 5 rounds and 3 reviews): one form for expense and income (Transfer joins with F-019), the type as a pill switch in its title row; in order the day (a week strip, Monday first, with ‹ › and a calendar button), the account (a field with its bank or cash and its balance, opening the app's dropdown or a sheet), the amount (a calculator display: right-aligned in the type's color, no sign; a sum as arithmetic with its result on top), the category (the most used as pills, 6 on the phone and 8 on the desktop, and "All categories" with a search), the note. On the phone the app's own keys (digits, 00, ⌫, + − =, Save) under the scrolling form; on the desktop the amount is typed and the dialog has Cancel / Save. The last account used for the type and the category last used with that account come picked. A + on every account card opens the form with that account: a split edge, a column on the card's right after a thin rule in the card's colors, tinted in the card's own color under the pointer (variant 9, approved 2026-11-01 at the PR review). The Transactions page lists the latest transactions by day until F-020; a row opens the form to change or delete it | 2026-11-01 | Approved by the owner before the build. The calendar is Mantine's (`@mantine/dates`). See the [F-018 description](changes/features/F-018-quick-add-income-expense/F-018-quick-add-income-expense.md#round-5-final-prototype-2026-11-01) |
 | Transfers and currency exchange (F-019) | Final prototype (F-018's variant 7 as built, with Transfer finished): Transfer as the third type in the switch; From and To where the account field is, side by side, with a swap button between them (it swaps an exchange's two amounts too); the To list leaves out the From account; between accounts of one currency one amount in the transfer's blue, no category; between currencies ("Exchange") the From amount big and the To amount smaller, suggested at the NBU rate of the picked day (the latest earlier one, said so; none → typed), with "At the NBU rate of …: $1 = … ₴" or "Your rate: … NBU: …" and "Use the NBU rate"; rates as the app writes them (one unit of the currency worth more, two decimals); the notification counts both balances and both cards light up; list rows "Transfer" / "Exchange" with the accounts and an arrow, the amount in blue without a sign (`$100 → 4 490 ₴`); Delete says what both balances go back to. No fee field; a transfer may take an account below zero | 2026-11-02 | Approved by the owner before the build. See the [F-019 description](changes/features/F-019-transfers-and-exchange/F-019-transfers-and-exchange.md#final-prototype-2026-11-02) |
 | Transactions list (F-020) | Variant 8, revised (after 3 rounds): the period's spent and received big on a dark slip with a torn edge (light grey in dark mode), a bar for how much of what came in is spent and what's left; the month as its title with ‹ ›, the title opening the period list (This month, Last month, This year, All time, Custom range); on the phone a swipe on the totals moves the month, and on the phone and tablet a slim totals bar stays on top once they scroll away; a folding calendar, each day as deep a red as it cost (four steps by the month's quarters) with a green dot on days with income and a blue one on days with a transfer (both in the legend; owner's review of PR #49, 2026-11-03): closed one week, open the month, a tapped day shows only its receipt; "Where it went" bars with each category's amount and share (with Income picked, income's own in green, "Where it came from"), a tap shows only that category; every day a till receipt (dotted leaders, the day's total at the foot). Desktop: the calendar and the categories in a sticky left column whose list scrolls inside it, the filters (account, type, a picked category) over the receipts. Tablet: Account, Type and By category buttons. Phone: one Filters button with a count, the picked filters as chips with ×, one sheet. The calendar opens closed on the phone and open on the desktop and is remembered on the device; the filters are in the page's address. Variant 9 (owner's review, approved 2026-11-03): Add transaction on the slip, a light pill at the end of the month row, a round + on the phone and on a slip narrower than 560 px | 2026-11-03 | Approved by the owner before the build, with the open points' proposals. See the [F-020 description](changes/features/F-020-transactions-list/F-020-transactions-list.md#round-3-2026-11-03) |
+| One look for every element (I-019) | Before / after page: every button a 44 px pill (52 px only on the sign-in screens), four kinds (primary charcoal, grey word for Cancel / Keep and row actions, red pill to confirm a delete, red word in rows), no outlined buttons; the sidebar's Add the primary pill (a 44 px circle in the rail); icon buttons 44 px circles, strokes 1.7; one pill switch on the `choice` track, the picked option raised in the text colour (the transaction type in its colour); one selectable pill (fields' border, picked in the accent's tint); one field style set in the theme; pill keys on the phone keypad; the menu's Delete in the app's red | 2026-11-04 | Approved by the owner before the build. See the [I-019 description](changes/improvements/I-019-ui-consistency/I-019-ui-consistency.md) |
+| Note suggestions (I-017) | Final prototype (variant 1 with the starts-first order): the person's earlier notes in the app's dropdown under the Note field, one line a row, over the form (above the field on the desktop when there's no room below), what was typed quiet grey and the rest standing out; at most 5, first the notes that start with what was typed, then those that have it further on, each part by use and then date; ↓ ↑ Enter, Escape closes it, a row picked on pointer down; no list for an empty field or when nothing matches, the last rows kept while the next load. On the phone, while the note is typed, the app's keys fold away (a tap on the amount brings them back), the form scrolls the Note field to its top and the list hangs under it, down to Save | 2026-11-04 | Approved by the owner before the build. See the [I-017 description](changes/improvements/I-017-note-suggestions/I-017-note-suggestions.md#round-2-final-prototype-2026-11-04) |

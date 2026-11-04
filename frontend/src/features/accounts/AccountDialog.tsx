@@ -15,12 +15,14 @@ import { CurrencyPicker } from '../../shared/ui/CurrencyPicker';
 import { cx } from '../../shared/ui/cx';
 import { ResponsiveDialog } from '../../shared/ui/ResponsiveDialog';
 import { AccountCard, CardStyleMini } from './AccountCard';
+import pills from '../../shared/ui/Pills.module.css';
 import classes from './Accounts.module.css';
 import {
   amountOnBlur,
   amountOnFocus,
   bankSuggestions,
   blankForm,
+  copyOf,
   formFor,
   previewBalance,
   sourceKind,
@@ -40,6 +42,7 @@ import {
 import { yourCurrencies } from './accountGroups';
 import { useDeleteQuestion } from './useDeleteQuestion';
 import {
+  AccountCopyError,
   CARD_STYLES,
   useArchiveAccount,
   useSaveAccount,
@@ -126,22 +129,36 @@ export function AccountDialog({
           overview.sources.find((s) => `own:${s.id}` === values.source)?.name ??
           '');
 
+  /** Marks the mistakes; the first may be scrolled away (the phone): its field takes the focus, once it is marked. */
+  const show = (found: FormErrors) => {
+    setErrors(found);
+    requestAnimationFrame(() => {
+      form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+    });
+  };
+
   const submit = () => {
     const found = validateForm(values);
-    setErrors(found);
     if (Object.keys(found).length > 0) {
-      // The first mistake may be scrolled away (the phone): its field takes the focus, once it is marked
-      requestAnimationFrame(() => {
-        form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
-      });
+      show(found);
       return;
     }
+    const body = toRequest(values, overview);
+    // No two accounts in use alike (I-020): found here, before anything is sent
+    if (copyOf(body, overview.accounts, account?.id)) {
+      show({ name: { key: 'copy' } });
+      return;
+    }
+    setErrors({});
     if (save.isPending) return;
     save.mutate(
-      { id: account?.id, body: toRequest(values, overview) },
+      { id: account?.id, body },
       {
         onSuccess: (saved) => {
           onSaved(saved, !account);
+        },
+        onError: (error) => {
+          if (error instanceof AccountCopyError) show({ name: { key: 'copy' } });
         },
       },
     );
@@ -169,11 +186,10 @@ export function AccountDialog({
         title={t('accounts.archive.title', { name: account.name })}
         footer={
           <>
-            <Button radius="xl" variant="subtle" color="gray" onClick={onClose}>
+            <Button variant="quiet" onClick={onClose}>
               {t('accounts.archive.cancel')}
             </Button>
             <Button
-              radius="xl"
               loading={archive.isPending}
               leftSection={<IconArchive size={20} stroke={1.7} />}
               onClick={() => {
@@ -222,10 +238,10 @@ export function AccountDialog({
       }
       footer={
         <div className={classes.formFooter}>
-          <Button radius="xl" variant="subtle" color="gray" onClick={onClose}>
+          <Button variant="quiet" onClick={onClose}>
             {t('accounts.form.cancel')}
           </Button>
-          <Button radius="xl" type="submit" form={formId} loading={save.isPending}>
+          <Button type="submit" form={formId} loading={save.isPending}>
             {account ? t('accounts.form.save') : t('accounts.form.add')}
           </Button>
         </div>
@@ -371,7 +387,7 @@ export function AccountDialog({
           classNames={{ label: classes.label, input: classes.input, error: classes.error }}
         />
 
-        {save.isError && (
+        {save.isError && !(save.error instanceof AccountCopyError) && (
           <p className={classes.formError} role="alert">
             {t('accounts.errors.save')}
           </p>
@@ -387,8 +403,7 @@ export function AccountDialog({
             <span className={classes.endName}>{t('accounts.form.end.archive')}</span>
             <span className={classes.endText}>{t('accounts.form.end.archiveText')}</span>
             <Button
-              radius="xl"
-              variant="default"
+              variant="quiet"
               className={classes.endButton}
               leftSection={<IconArchive size={20} stroke={1.7} />}
               onClick={() => {
@@ -409,9 +424,7 @@ export function AccountDialog({
               // Only an account without transactions can be deleted; one with them can be archived (I-011)
               disabled={hasTransactions}
               aria-describedby={hasTransactions ? deleteTextId : undefined}
-              radius="xl"
-              variant="outline"
-              color="var(--mantine-color-error)"
+              variant="danger-quiet"
               className={classes.endButton}
               leftSection={<IconTrash size={20} stroke={1.7} />}
               onClick={() => {
@@ -461,13 +474,13 @@ function SourceField({
       }}
       classNames={{ label: classes.label }}
     >
-      <div className={classes.pills}>
+      <div className={pills.pills}>
         {choices.map((choice) => (
           <Radio.Card
             key={choice.value}
             value={choice.value}
             withBorder={false}
-            className={classes.pill}
+            className={pills.pill}
           >
             {choice.label}
           </Radio.Card>
@@ -479,7 +492,7 @@ function SourceField({
               change(withNewSource(values, ''));
             }}
           >
-            <IconPlus size={16} stroke={1.8} aria-hidden />
+            <IconPlus size={16} stroke={1.7} aria-hidden />
             {t('accounts.form.newSource')}
           </UnstyledButton>
         )}
@@ -538,9 +551,9 @@ function BankField({ values, banks, errors, errorText, change }: FieldProps & { 
       classNames={{ label: classes.label, error: classes.error }}
     >
       {(banks.length > 0 || !typing) && (
-        <div className={classes.pills}>
+        <div className={pills.pills}>
           {banks.map((bank) => (
-            <Radio.Card key={bank} value={bank} withBorder={false} className={classes.pill}>
+            <Radio.Card key={bank} value={bank} withBorder={false} className={pills.pill}>
               {bank}
             </Radio.Card>
           ))}
@@ -551,7 +564,7 @@ function BankField({ values, banks, errors, errorText, change }: FieldProps & { 
                 change({ ...values, newBank: '' });
               }}
             >
-              <IconPlus size={16} stroke={1.8} aria-hidden />
+              <IconPlus size={16} stroke={1.7} aria-hidden />
               {t('accounts.form.anotherBank')}
             </UnstyledButton>
           )}

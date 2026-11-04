@@ -94,8 +94,6 @@ export function TransferAccounts({
         {side('from', from)}
         <ActionIcon
           variant="subtle"
-          size={44}
-          radius="xl"
           className={classes.swap}
           aria-label={t('transactions.form.swap')}
           disabled={!to}

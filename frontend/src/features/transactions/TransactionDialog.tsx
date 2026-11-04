@@ -1,15 +1,8 @@
-import {
-  ActionIcon,
-  Button,
-  SegmentedControl,
-  Skeleton,
-  TextInput,
-  UnstyledButton,
-} from '@mantine/core';
+import { ActionIcon, Button, SegmentedControl, Skeleton, UnstyledButton } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconAlertCircle, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useId, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { DESKTOP_QUERY } from '../../app/shell/sections';
@@ -23,6 +16,7 @@ import { AmountKeys } from './AmountKeys';
 import { CategoryField } from './CategoryField';
 import { mondayOf, today } from './days';
 import { DeleteTransactionDialog } from './DeleteTransactionDialog';
+import { NoteField } from './NoteField';
 import { suggestedToAmount } from './exchange';
 import {
   categoriesFor,
@@ -36,6 +30,7 @@ import {
   type CategoryOption,
 } from './formDefaults';
 import { RateLine } from './RateLine';
+import { scrollParentOf } from './scrollParent';
 import classes from './TransactionForm.module.css';
 import {
   isExchange,
@@ -57,8 +52,8 @@ export type FormRequest =
 
 const TYPES: readonly TransactionType[] = ['Expense', 'Income', 'Transfer'];
 
-/** The longest note the API keeps (`Transaction.NoteMaxLength`). */
-const NOTE_MAX_LENGTH = 200;
+/** On the phone the Note field scrolls up to this far under the sheet's title while the note is typed (I-017). */
+const NOTE_TOP_GAP = 16;
 
 interface FormState {
   type: TransactionType;
@@ -252,6 +247,37 @@ function TransactionForm({
   const [form, setForm] = useState(() => usable && initialState(request, usable));
   const [errors, setErrors] = useState<FormErrors>({});
   const save = useSaveTransaction();
+  // On the phone, while the note is typed the app's keys fold away for the phone's keyboard; a tap on the amount brings
+  // them back (I-017)
+  const [typingNote, setTypingNote] = useState(false);
+  const noteTyped = typingNote && !isDesktop;
+  const noteBlock = useRef<HTMLDivElement>(null);
+  const noteRoom = useRef<HTMLDivElement>(null);
+
+  // The form scrolls the Note field to its top, so the list under it has the room down to Save: the room under the
+  // form is what the field needs to get there, and follows the sheet as the phone's keyboard comes and goes
+  useEffect(() => {
+    const block = noteBlock.current;
+    const room = noteRoom.current;
+    const scroller = scrollParentOf(block);
+    if (!noteTyped || !block || !room || !scroller) return;
+    let frame = 0;
+    const fit = () => {
+      room.style.height = `${String(Math.max(0, scroller.clientHeight - block.offsetHeight - NOTE_TOP_GAP))}px`;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        scroller.scrollTop +=
+          block.getBoundingClientRect().top - scroller.getBoundingClientRect().top - NOTE_TOP_GAP;
+      });
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(scroller);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [noteTyped]);
 
   // The data arrived after the dialog opened: the form starts now
   if (!form && usable) setForm(initialState(request, usable));
@@ -278,7 +304,7 @@ function TransactionForm({
       body = (
         <div className={classes.empty}>
           <p>{t('transactions.form.noAccounts')}</p>
-          <Button component={Link} to="/accounts" radius="xl" onClick={onClose}>
+          <Button component={Link} to="/accounts" onClick={onClose}>
             {t('transactions.form.goToAccounts')}
           </Button>
         </div>
@@ -491,14 +517,8 @@ function TransactionForm({
       }}
       data={TYPES.map((item) => ({ value: item, label: t(`transactions.types.${item}`) }))}
       fullWidth
-      radius="xl"
-      withItemsBorders={false}
       data-type={form.type}
-      classNames={{
-        root: classes.switch,
-        indicator: classes.switchIndicator,
-        label: classes.switchLabel,
-      }}
+      className={classes.typeSwitch}
     />
   );
 
@@ -506,8 +526,6 @@ function TransactionForm({
     <ActionIcon
       variant="subtle"
       color="gray"
-      size={44}
-      radius="xl"
       aria-label={t(`transactions.form.deleteLabel.${word}`)}
       onClick={onDelete}
     >
@@ -519,23 +537,25 @@ function TransactionForm({
     <>
       {editing && (
         <Button
-          variant="subtle"
-          radius="xl"
-          color="var(--mantine-color-error)"
-          leftSection={<IconTrash size={16} stroke={1.7} />}
+          variant="danger-quiet"
+          leftSection={<IconTrash size={20} stroke={1.7} />}
           onClick={onDelete}
         >
           {t('transactions.form.delete')}
         </Button>
       )}
       <span className={classes.spacer} />
-      <Button variant="default" radius="xl" onClick={onClose}>
+      <Button variant="quiet" onClick={onClose}>
         {t('transactions.form.cancel')}
       </Button>
-      <Button radius="xl" loading={save.isPending} onClick={submit}>
+      <Button loading={save.isPending} onClick={submit}>
         {editing ? t('transactions.form.saveChanges') : t(`transactions.form.save${type}`)}
       </Button>
     </>
+  ) : noteTyped ? (
+    <Button className={classes.saveAlone} loading={save.isPending} onClick={submit}>
+      {editing ? t('transactions.form.saveChanges') : t(`transactions.form.save${type}`)}
+    </Button>
   ) : (
     <AmountKeys
       value={keysOn === 'to' ? toText : form.amount}
@@ -610,6 +630,7 @@ function TransactionForm({
           }
           target={!isDesktop && exchange && keysOn === 'amount'}
           onTarget={() => {
+            setTypingNote(false);
             if (form.keys !== 'amount') change({ keys: 'amount' });
           }}
         />
@@ -626,6 +647,7 @@ function TransactionForm({
             secondary
             target={!isDesktop && keysOn === 'to'}
             onTarget={() => {
+              setTypingNote(false);
               if (form.keys !== 'to') change({ keys: 'to' });
             }}
             selectOnFocus={!form.toByHand}
@@ -660,35 +682,33 @@ function TransactionForm({
             error={errors.category}
           />
         )}
-        <div className={classes.block}>
+        <div className={classes.block} ref={noteBlock}>
           <div className={classes.blockHead}>
             <label className={classes.label} htmlFor={noteId}>
               {t('transactions.form.note')}
             </label>
           </div>
-          <TextInput
+          <NoteField
             id={noteId}
             value={form.note}
-            maxLength={NOTE_MAX_LENGTH}
+            onChange={(note) => {
+              change({ note });
+            }}
+            type={form.type}
             placeholder={t(
               transfer
                 ? 'transactions.form.notePlaceholderTransfer'
                 : 'transactions.form.notePlaceholder',
             )}
-            autoComplete="off"
-            classNames={{ input: classes.noteInput }}
-            onChange={(event) => {
-              change({ note: event.currentTarget.value });
+            onEnter={submit}
+            onFocus={() => {
+              setTypingNote(true);
             }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                submit();
-              }
-            }}
+            inSheet={!isDesktop}
           />
         </div>
       </div>
+      {noteTyped && <div ref={noteRoom} aria-hidden="true" />}
     </ResponsiveDialog>
   );
 }

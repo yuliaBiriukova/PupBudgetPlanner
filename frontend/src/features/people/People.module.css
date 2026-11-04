@@ -15,7 +15,6 @@
 .newButton {
   order: 3;
   width: 100%;
-  min-height: 52px;
 }
 
 .tabs {
@@ -86,12 +85,6 @@
   font-size: 14px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-}
-
-.searchInput {
-  height: 52px;
-  border-color: var(--pup-color-field-border);
-  font-size: 16px;
 }
 
 .legend {
@@ -244,11 +237,6 @@ label.pick {
   align-items: center;
   margin: 0;
   font-weight: 500;
-}
-
-.field {
-  height: 52px;
-  font-size: 16px;
 }
 
 .email {
@@ -563,11 +551,6 @@ label.pick {
   text-overflow: ellipsis;
 }
 
-.linkButtons > *,
-.dialogButton {
-  min-height: 48px;
-}
-
 .linkButtons {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -593,25 +576,10 @@ label.pick {
   overflow-wrap: anywhere;
 }
 
-.dangerButton {
-  --button-bg: var(--pup-color-danger);
-  --button-hover: var(--pup-color-danger-hover);
-  --button-color: var(--pup-color-on-danger);
-}
-
-/* Until the confirmation is typed: the same red, faded, so it still reads as the delete button */
-.dangerButton:disabled,
-.dangerButton[data-disabled] {
-  background: var(--pup-color-danger);
-  color: var(--pup-color-on-danger);
-  opacity: 0.45;
-}
-
 @media (min-width: $mantine-breakpoint-sm) {
   .newButton {
     order: 0;
     width: auto;
-    min-height: 48px;
   }
 
   .bulk {

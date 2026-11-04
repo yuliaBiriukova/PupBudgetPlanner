@@ -1,17 +1,17 @@
 # Changes
 
 Every feature, improvement and bugfix has **its own folder** here with all related files:
-the description file (named like the folder), HTML design prototypes, screenshots and notes.
+the description file (named like the folder), links to its prototype stories, screenshots and notes. The
+prototype stories themselves live in `frontend/src/prototypes/<ID-name>/` (I-021); changes before I-021 have HTML
+prototypes here.
 
 ```
 docs/changes/
 ├─ features/
-│  └─ F-010-app-shell/
-│     ├─ F-010-app-shell.md
+│  └─ F-030-short-name/
+│     ├─ F-030-short-name.md
 │     └─ prototypes/
-│        ├─ variant-1.html
-│        ├─ variant-2.html
-│        └─ variant-3.html
+│        └─ final-375-light.png …   (the approved final prototype's screenshots)
 ├─ improvements/
 │  └─ I-001-short-name/
 │     └─ I-001-short-name.md
@@ -38,8 +38,10 @@ docs/changes/
 - Every improvement, bugfix and feature added after the initial plan has a [priority](#priority).
 - Keep the status in the description file in sync with the backlog. The pull request already sets the status
   to `Done` (description file, backlog, roadmap, progress); merging it is the owner's job.
-- Screens: references first (well-made apps, the internet, Mobbin), then 3 HTML prototypes in `prototypes/`;
-  the references used and the chosen variant are recorded in the description file.
+- Screens: references first (well-made apps, the internet, Mobbin), then 3 prototype stories in Storybook
+  (`frontend/src/prototypes/<ID-name>/`, built from the app's own parts); the references used, the story links
+  and the chosen variant are recorded in the description file, the final prototype's screenshots in
+  `prototypes/`. The prototype stories are deleted when the change is built.
 - **Approval before implementation.** No backend or frontend code until the owner has explicitly approved the
   description file and, for screens, the final prototype (for a bugfix: the root cause and the planned fix).
   Picking options in a design round is not approval. The date goes into the `Approved` row; until then it says
@@ -67,7 +69,7 @@ Claude proposes the priority from this table; the owner has the last word.
 | Priority | High / Medium / Low |
 | Status | Todo / In progress / Review / Done / Blocked / Dropped |
 | Branch | `feature/F-000-short-name` |
-| Design | 3 HTML prototypes required / not needed |
+| Design | 3 prototype stories required / not needed |
 | Approved | — (date the owner approved the description and the final prototype) |
 
 ## Goal
@@ -81,7 +83,8 @@ Why we do this, in one or two sentences.
 
 ## Design
 References (Mobbin, other apps, the internet): link — what we take from it.
-Prototypes: `prototypes/`. Chosen variant: — · Final prototype approved: —
+Prototype stories: *Prototypes / <ID> <name>* in Storybook (`frontend/src/prototypes/<ID-name>/`).
+Chosen variant: — · Final prototype approved: — (screenshots in `prototypes/`)
 
 ## Tests
 - Unit:

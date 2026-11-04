@@ -275,6 +275,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Brings it back, unless an account in use looks just like it (409, I-020). */
         post: {
             parameters: {
                 query?: never;
@@ -295,6 +296,15 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1516,6 +1526,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/transactions/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The Note field's suggestions (I-017): the person's own earlier notes of the type that have text
+         *     in them, ignoring case, at most 5, the ones that start with it first. None for an empty text.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    type?: components["schemas"]["TransactionType"];
+                    text?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UsedNote"][];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/transactions/{id}": {
         parameters: {
             query?: never;
@@ -2056,6 +2117,14 @@ export interface components {
          * @enum {unknown}
          */
         TransactionType: "Expense" | "Income" | "Transfer";
+        /** @description One note as the person wrote it, how many transactions have it and when the last of them was added. */
+        UsedNote: {
+            note: string;
+            /** Format: int32 */
+            uses: number | string;
+            /** Format: date-time */
+            lastUsed: string;
+        };
         /**
          * @description The signed-in person's settings (F-016). The email can't be changed yet. The theme isn't here: it is kept on each
          *     device, so a phone can be dark while the laptop is light.

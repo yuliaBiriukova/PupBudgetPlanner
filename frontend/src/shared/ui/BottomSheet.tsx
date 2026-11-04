@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import classes from './BottomSheet.module.css';
 import { FadingScrollArea } from './FadingScrollArea';
+import { useKeyboardInset } from './useKeyboardInset';
 import { usePopupHistory } from './popupHistory';
 import { useSheetSwipe } from './useSheetSwipe';
 
@@ -50,6 +51,8 @@ export function BottomSheet({
   const { t } = useTranslation();
   usePopupHistory(opened, onClose);
   const { setContent, setOverlay, setScroller } = useSheetSwipe(onClose);
+  // A full sheet (a form) stays above the phone's keyboard, its buttons in sight (I-017)
+  const keyboard = useKeyboardInset(opened && !!full);
 
   // classNames, not className: Drawer.Content passes className to the full-screen inner box too
   return (
@@ -64,6 +67,15 @@ export function BottomSheet({
         ref={setContent}
         data-tall={tall ? true : undefined}
         data-full={full ? true : undefined}
+        data-keyboard={keyboard ? true : undefined}
+        style={
+          keyboard
+            ? {
+                '--sheet-visible-height': `${String(keyboard.height)}px`,
+                '--sheet-keyboard': `${String(keyboard.bottom)}px`,
+              }
+            : undefined
+        }
       >
         {/* The handle and the title are where a swipe starts (data-sheet-drag) */}
         <div className={classes.grabZone} data-sheet-drag aria-hidden="true">
@@ -90,7 +102,7 @@ export function BottomSheet({
               <Drawer.Title className={classes.title}>{title}</Drawer.Title>
             )}
             {actions}
-            <Drawer.CloseButton size="xl" aria-label={t('common.close')} />
+            <Drawer.CloseButton size="xl" radius="xl" aria-label={t('common.close')} />
           </Drawer.Header>
         )}
         {top && <div className={classes.top}>{top}</div>}

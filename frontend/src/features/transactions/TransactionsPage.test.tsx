@@ -15,7 +15,7 @@ import type {
   Transaction,
   TransactionSuggestions,
 } from './transactionsApi';
-import { fakePage, fakeSummary, twoMonths } from './transactionsFakeApi';
+import { EXPENSE_NOTES, fakeNotes, fakePage, fakeSummary, twoMonths } from './transactionsFakeApi';
 import { categoryId } from './transactionsTestData';
 
 /** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
@@ -133,6 +133,9 @@ function transactionsServer({
       HttpResponse.json(fakeSummary(latest, new URL(request.url).searchParams)),
     ),
     http.get('/api/transactions/suggestions', () => HttpResponse.json(suggestions)),
+    http.get('/api/transactions/notes', ({ request }) =>
+      HttpResponse.json(fakeNotes(EXPENSE_NOTES, new URL(request.url).searchParams)),
+    ),
     http.get('/api/rates', () => HttpResponse.json(rates)),
     http.post('/api/transactions', async ({ request }) => {
       const body = (await request.json()) as SaveTransactionRequest;
@@ -585,6 +588,130 @@ describe('adding a transaction', () => {
     await waitFor(() => {
       expect((sent[0]?.body as SaveTransactionRequest).date < addDays(today(), -6)).toBe(true);
     });
+  });
+});
+
+describe('the Note field’s suggestions (I-017)', () => {
+  /** Mono black with Groceries picked: the form can be saved once it has an amount. */
+  const PICKED: TransactionSuggestions = {
+    ...NONE,
+    lastCategories: [{ type: 'Expense', accountId: 'mono', categoryId: categoryId('Groceries') }],
+  };
+
+  /** The rows of the list under the Note field, once it shows. */
+  async function suggestions() {
+    const list = await screen.findByRole('listbox', { name: 'Notes you used before' }, LOADED);
+    return within(list)
+      .getAllByRole('option')
+      .map((option) => option.textContent);
+  }
+
+  it('lists the earlier notes that start with what is typed first; a click picks one and it is saved', async () => {
+    const sent = transactionsServer({ suggestions: PICKED });
+    renderApp('/transactions');
+
+    const form = await openForm();
+    await userEvent.type(within(form).getByLabelText('Amount'), '612');
+    const note = within(form).getByLabelText('Note');
+    await userEvent.type(note, 'si');
+    expect(await suggestions()).toEqual([
+      'Silpo',
+      'Simcard top-up',
+      'Silpo, wine for Friday',
+      'Physio session',
+      'Kids’ music lesson',
+    ]);
+    await userEvent.click(screen.getByRole('option', { name: 'Silpo, wine for Friday' }));
+    expect(note).toHaveValue('Silpo, wine for Friday');
+    expect(note).toHaveFocus();
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await userEvent.click(within(form).getByRole('button', { name: 'Save expense' }));
+
+    await waitFor(() => {
+      expect(sent.map((item) => (item.body as SaveTransactionRequest).note)).toEqual([
+        'Silpo, wine for Friday',
+      ]);
+    });
+  });
+
+  it('ignores case in Ukrainian too and never suggests what is typed already', async () => {
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    const note = within(form).getByLabelText('Note');
+    await userEvent.type(note, 'ат');
+    expect(await suggestions()).toEqual([
+      'АТБ',
+      'Батарейки',
+      'Квартплата за жовтень',
+      'Вата і бинт',
+    ]);
+    await userEvent.clear(note);
+    await userEvent.type(note, 'SILPO');
+    await waitFor(async () => {
+      expect(await suggestions()).toEqual(['Silpo, wine for Friday']);
+    });
+    await userEvent.clear(note);
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('picks with the arrow keys and Enter; Escape closes the list, not the form; Enter saves what is typed', async () => {
+    const sent = transactionsServer({ suggestions: PICKED });
+    renderApp('/transactions');
+
+    const form = await openForm();
+    await userEvent.type(within(form).getByLabelText('Amount'), '90');
+    const note = within(form).getByLabelText('Note');
+    await userEvent.type(note, 'si');
+    await suggestions();
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}{Enter}');
+    expect(note).toHaveValue('Simcard top-up');
+    expect(sent).toEqual([]);
+
+    await userEvent.clear(note);
+    await userEvent.type(note, 'ta');
+    await suggestions();
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Add expense' })).toBeInTheDocument();
+    // Typing on without picking keeps exactly what was typed
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(sent.map((item) => (item.body as SaveTransactionRequest).note)).toEqual(['ta']);
+    });
+  });
+
+  it('asks for the notes of the form’s type only', async () => {
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    await userEvent.click(within(form).getByText('Income'));
+    const income = await screen.findByRole('dialog', { name: 'Add income' });
+    await userEvent.type(within(income).getByLabelText('Note'), 'si');
+    // The fake API has expense notes only
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('folds the phone keys away while the note is typed; a tap on the amount brings them back', async () => {
+    setScreenWidth(375);
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    expect(within(form).getByRole('group', { name: 'Amount keys' })).toBeInTheDocument();
+    await userEvent.click(within(form).getByLabelText('Note'));
+    expect(within(form).queryByRole('group', { name: 'Amount keys' })).not.toBeInTheDocument();
+    expect(within(form).getByRole('button', { name: 'Save expense' })).toBeInTheDocument();
+    await userEvent.type(within(form).getByLabelText('Note'), 'si');
+    expect(await suggestions()).toHaveLength(5);
+
+    await userEvent.click(within(form).getByLabelText('Amount'));
+    expect(within(form).getByRole('group', { name: 'Amount keys' })).toBeInTheDocument();
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 });
 

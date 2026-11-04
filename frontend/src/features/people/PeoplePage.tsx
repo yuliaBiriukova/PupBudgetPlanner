@@ -36,9 +36,8 @@ export function PeoplePage({ tab }: { tab: 'people' | 'links' }) {
           {t('nav.people')}
         </Title>
         <Button
-          radius="xl"
           className={classes.newButton}
-          leftSection={<IconPlus size={20} stroke={1.8} />}
+          leftSection={<IconPlus size={20} stroke={1.7} />}
           onClick={newLink.open}
         >
           {t('people.newLink.button')}

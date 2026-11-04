@@ -1,3 +1,5 @@
+using PupBudgetPlanner.Domain.Transactions;
+
 namespace PupBudgetPlanner.Application.Transactions;
 
 /// <summary>
@@ -15,6 +17,13 @@ public interface ITransactionService
 
     /// <summary>What the form picks and offers when it opens.</summary>
     Task<TransactionSuggestions> SuggestionsAsync(Guid userId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The person's own earlier notes of the type that have <paramref name="text"/> in them (I-017), at most
+    /// <see cref="NoteSuggestions.MaxCount"/>, in <see cref="NoteSuggestions"/>' order.
+    /// </summary>
+    Task<IReadOnlyList<UsedNote>> NotesAsync(
+        Guid userId, TransactionType type, string text, CancellationToken cancellationToken);
 
     Task<SaveTransactionResult> CreateAsync(
         Guid userId, SaveTransactionRequest request, CancellationToken cancellationToken);

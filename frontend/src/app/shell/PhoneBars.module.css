@@ -74,7 +74,7 @@
   margin-left: auto;
   border-radius: var(--mantine-radius-xl);
   background: var(--mantine-primary-color-filled);
-  color: var(--mantine-primary-color-contrast);
+  color: var(--pup-color-on-primary);
 }
 
 .add:hover {

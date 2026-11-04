@@ -21,6 +21,14 @@
   height: 90dvh;
 }
 
+/* The phone's keyboard is up (a note being typed, I-017): the sheet fills what it leaves, its buttons above it */
+.content[data-full][data-keyboard] {
+  height: var(--sheet-visible-height);
+  max-height: none;
+  margin-bottom: var(--sheet-keyboard);
+  padding-bottom: 0;
+}
+
 /* Pinned between the title and the content: 16 px under the title like the content would be (8 px from the title's
    centring + these 8, I-012); the body's own 8 px follow it */
 .top {
@@ -120,5 +128,4 @@
 
 .footer > * {
   width: 100%;
-  min-height: 48px;
 }
