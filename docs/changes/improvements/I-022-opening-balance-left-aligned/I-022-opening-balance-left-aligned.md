@@ -39,4 +39,4 @@ the number should start at the left like the rest of the form.
 ## Notes
 
 - If I-023 (the opening balance as a calculator) is built first, this goes into it and is closed with it.
-- Open point: the sign stays on the right (proposed) or moves to the left before the number (`€ 500`)?
+- Answered by the owner (2026-11-04): the sign stays at the field's right edge, the number starts at the left.

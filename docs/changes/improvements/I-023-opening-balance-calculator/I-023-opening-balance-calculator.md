@@ -4,7 +4,7 @@
 |---|---|
 | Type | Improvement |
 | Milestone | M2 — Accounts & categories |
-| Priority | Medium (saves adding up by hand when an account is set up from several amounts) |
+| Priority | Low (set by the owner, 2026-11-04: adding up by hand is a workaround) |
 | Status | Todo |
 | Branch | `improvement/I-023-opening-balance-calculator` (planned on `plan/prod-testing-fixes`) |
 | Design | 🎨 3 prototype stories (how a sum and its result show in the field; the phone's keys or not) |
@@ -24,8 +24,11 @@ envelopes, a card plus a deposit) is typed as a sum, not added up elsewhere.
 - [ ] A balance below zero still works (a credit card's debt): `-5000`, and a sum that ends below zero (`-5000-300`).
 - [ ] A sum that can't be worked out (`8000+`) is a mistake under the field, as an amount that isn't a number is now.
 - [ ] Whole amounts as now (the opening balance has no cents, ADR 0018).
-- [ ] On the phone the sum can be typed: with the phone's keyboard (`+` and `−` reachable) or the app's own keys, as
-      the chosen variant says.
+- [ ] On the phone the sum is typed with the app's own keys, as in the quick-add form (digits, 00, ⌫, + − =); the
+      phone's keyboard stays closed for this field.
+- [ ] The keys don't open by themselves when the account form opens (new or edit): they show only after a tap on the
+      opening balance, and go away when another field is tapped or the balance is done. The name is usually typed
+      first, with the phone's keyboard.
 
 ## Tasks
 
@@ -33,7 +36,7 @@ envelopes, a card plus a deposit) is typed as a sum, not added up elsewhere.
       `frontend/src/prototypes/I-023-opening-balance-calculator/` (*Prototypes / I-023 Opening balance calculator*),
       in the real account form. Candidates: the plain field with the result under it as a hint ("= 8 575 €"); the
       field with the sum small and the result big (the quick-add display's two lines, number from the left, I-022);
-      the quick-add display itself with the app's keys on the phone.
+      the quick-add display itself. All three with the app's keys on the phone, shown after a tap on the balance.
 - [ ] Owner's approval of the final prototype (I-003).
 - [ ] Reuse `amount.ts` (`evaluate`, `isSum`, `showExpression`) from the transactions feature; move it to `shared` if
       both features use it, and let it start with a minus.
@@ -49,5 +52,7 @@ envelopes, a card plus a deposit) is typed as a sum, not added up elsewhere.
 
 - Together with I-022: the number starts at the left in the chosen variant, unless the owner picks the right-aligned
   quick-add display; then I-022 is closed with this change.
-- Open point: on the phone, the app's own keys (as the quick-add form) or the phone's number keyboard with `+` / `−`
-  (iOS's decimal keyboard has no `+`, so `inputmode="text"` or the app's keys would be needed)?
+- Answered by the owner (2026-11-04): on the phone the app's own keys, as in the quick-add form, but not opened as the
+  form opens.
+- The quick-add form's keys (`AmountKeys.tsx`) need a minus at the start for a debt; the quick-add amount never starts
+  with one.

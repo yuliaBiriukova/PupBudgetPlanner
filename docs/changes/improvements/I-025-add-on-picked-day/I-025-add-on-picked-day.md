@@ -4,7 +4,7 @@
 |---|---|
 | Type | Improvement |
 | Milestone | M3 — Transactions |
-| Priority | Medium (adding a forgotten past transaction takes extra clicks to change the day) |
+| Priority | High (set by the owner, 2026-11-04: adding a forgotten past transaction is the main reason to pick a day) |
 | Status | Todo |
 | Branch | `improvement/I-025-add-on-picked-day` (planned on `plan/prod-testing-fixes`) |
 | Design | not needed (the form and the page look as now; only the form's starting day changes) |
@@ -43,6 +43,6 @@ opens the form on today (We 4) and the day has to be picked again. The owner exp
 
 ## Notes
 
-- Open point: a month in the past picked without a day (say October): should the form start on that month's last day
-  instead of today? Proposed: no, today; only a picked day counts.
+- Answered by the owner (2026-11-04): a past month picked without a day opens the form on today; only a picked day
+  counts.
 - The screenshots were shared in chat; not stored in the repo (they show real amounts).
