@@ -90,7 +90,7 @@ export function BottomSheet({
               <Drawer.Title className={classes.title}>{title}</Drawer.Title>
             )}
             {actions}
-            <Drawer.CloseButton size="xl" aria-label={t('common.close')} />
+            <Drawer.CloseButton size="xl" radius="xl" aria-label={t('common.close')} />
           </Drawer.Header>
         )}
         {top && <div className={classes.top}>{top}</div>}

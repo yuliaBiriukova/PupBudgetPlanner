@@ -1,0 +1,41 @@
+/* Pills you pick (I-019): 44 px, the fields' border, the picked one in the accent's tint. One look for a radio card
+   ([data-checked]), a role="radio" button ([aria-checked]) and a pressed button ([aria-pressed]); a screen can colour
+   its picked pill (the transaction types), the inner ring follows the text colour */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--pup-color-field-border);
+  border-radius: 999px;
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pill:hover:not([data-checked], [aria-checked='true'], [aria-pressed='true']) {
+  background: var(--pup-color-hover);
+}
+
+.pill:is([data-checked], [aria-checked='true'], [aria-pressed='true']) {
+  border-color: currentColor;
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.pill:focus-visible {
+  outline: 2px solid var(--mantine-color-text);
+  outline-offset: 2px;
+}

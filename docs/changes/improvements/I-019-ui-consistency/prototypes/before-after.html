@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I-019 · Before and after</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Unbounded:wght@300&display=swap">
+<style>
+/* ---------- Preview bar (review aid, not part of the design) ---------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: #d7dade; font-family: system-ui, sans-serif; }
+.pv-bar { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px; background: #1b1e24; color: #e9ecef; font-size: 13px; }
+.pv-bar b { font-weight: 600; margin-right: auto; }
+.pv-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pv-group > span { color: #9aa1ab; margin-right: 2px; }
+.pv-bar button { min-height: 44px; font: inherit; color: #e9ecef; background: #2c313a; border: 1px solid #3d434d; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.pv-bar button:hover { background: #363c47; }
+.pv-bar button[aria-pressed='true'] { background: #e9ecef; color: #1b1e24; border-color: #e9ecef; }
+.pv-bar button:focus-visible { outline: 2px solid #8ec1ec; outline-offset: 2px; }
+
+/* ---------- Tokens: the app's theme (theme.ts); "mantine-…" are Mantine's own colours the app uses today ---------- */
+.app {
+  --bg: #f5f6f7; --surface: #fcfcfd; --text: #1c1e21; --muted: #57585b; --rule: #d7d8d9; --hover: #e8e9ea;
+  --primary: #26292e; --primary-hover: #363a40; --on-primary: #f5f6f7; --accent: #2a62a3; --active-bg: #e7ecf1;
+  --field-border: #7c828a; --sidebar: #ebedf0;
+  --choice: #ebedf0; --raised: #fcfcfd; --switch: #ebedf0; --choice-active: #fcfcfd; --shadow-switch: 0 1px 3px rgba(15, 17, 20, .14);
+  --danger: #b3261e; --danger-hover: #9c211a; --on-danger: #fcfcfd; --error-bg: #fbeceb;
+  --income: #1f7a4d; --income-bg: #e4f1ea; --transfer: var(--accent);
+  --mantine-default-bg: #ffffff; --mantine-default-border: #b4b9bf; --mantine-default-text: #000000; --mantine-input-bg: #ffffff;
+  --mantine-red: #fa5252; --sidebar-add-text: #ffffff;
+  --font-display: 'Unbounded', system-ui, sans-serif; --font-text: 'Manrope', system-ui, sans-serif;
+}
+.app[data-scheme='dark'] {
+  --bg: #121315; --surface: #1b1c1e; --text: #e9eaec; --muted: #a4a5a7; --rule: #37383a; --hover: #212224;
+  --primary: #e9eaec; --primary-hover: #d3d6da; --on-primary: #121315; --accent: #8ec1ec; --active-bg: #262f37;
+  --field-border: #71747b; --sidebar: #18191b;
+  --choice: #26272a; --raised: #2e3035; --switch: #121315; --choice-active: #262f37; --shadow-switch: none;
+  --danger: #f2958c; --danger-hover: #f6b8b2; --on-danger: #121315; --error-bg: #3a1d1b;
+  --income: #7fd1a4; --income-bg: #1b2d23;
+  --mantine-default-bg: #1b1c1e; --mantine-default-border: #37383a; --mantine-default-text: #ffffff; --mantine-input-bg: #1b1c1e;
+  --sidebar-add-text: #000000;
+}
+.app { min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; color-scheme: light; }
+.app[data-scheme='dark'] { color-scheme: dark; }
+.app :where(h1, h2, h3, p) { margin: 0; }
+.app :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.app svg { flex: none; }
+
+/* ---------- The page: one section per element, one row per change ---------- */
+.wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 40px; }
+.intro { display: grid; gap: 8px; max-width: 760px; }
+.intro h1 { font: 300 28px/1.2 var(--font-display); }
+.intro p { color: var(--muted); font-size: 15px; }
+.section { display: grid; gap: 12px; }
+.section > h2 { font: 300 20px/1.3 var(--font-display); }
+.section > p { color: var(--muted); font-size: 14px; max-width: 760px; }
+.rows { border-top: 1px solid var(--rule); }
+.row { display: grid; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.what { display: grid; gap: 4px; font-size: 14px; }
+.what b { font-weight: 500; }
+.what span { color: var(--muted); }
+.side { display: grid; gap: 8px; min-width: 0; }
+.side > small { color: var(--muted); font-size: 12px; font-weight: 500; }
+.side[data-side='after'] > small { color: var(--accent); }
+.sample { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-width: 0; }
+@media (min-width: 900px) {
+  .row { grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 4fr); gap: 24px; align-items: center; }
+}
+
+/* ---------- Elements as they are today (built like the app's CSS and Mantine's defaults) ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 18px; border: 1px solid transparent; font: 500 14px/1 var(--font-text); white-space: nowrap; cursor: pointer; }
+.btn svg { width: 20px; height: 20px; }
+.btn.icon16 svg { width: 16px; height: 16px; }
+.btn:has(svg:first-child) { padding-left: 12px; }
+.h36 { height: 36px; } .h40 { height: 40px; } .h44 { height: 44px; } .h48 { height: 48px; } .h52 { height: 52px; }
+.r12 { border-radius: 12px; } .pill { border-radius: 999px; }
+.primary { background: var(--primary); color: var(--on-primary); }
+.primary:hover { background: var(--primary-hover); }
+.word { background: transparent; color: var(--text); }
+.word:hover { background: var(--hover); }
+.outlined { background: var(--mantine-default-bg); border-color: var(--mantine-default-border); color: var(--mantine-default-text); }
+.danger { background: var(--danger); color: var(--on-danger); }
+.danger:hover { background: var(--danger-hover); }
+.danger-outline { background: transparent; border-color: var(--danger); color: var(--danger); }
+.danger-word { background: transparent; color: var(--danger); }
+.danger-word:hover { background: var(--error-bg); }
+.big { font-size: 16px; }
+.sidebar-box { display: grid; padding: 12px; border-radius: 12px; background: var(--sidebar); }
+.add-today { display: flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 14px; border: 0; border-radius: 12px; background: var(--primary); color: var(--sidebar-add-text); font: 500 16px/1 var(--font-text); cursor: pointer; }
+.add-today svg, .add-after svg { width: 20px; height: 20px; }
+.add-after { display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--primary); color: var(--on-primary); font: 500 14px/1 var(--font-text); cursor: pointer; }
+.add-after:hover { background: var(--primary-hover); }
+.rail .add-today { width: 48px; padding: 0; }
+.rail .add-after { width: 44px; padding: 0; justify-self: center; }
+
+.ibtn { display: inline-grid; place-items: center; padding: 0; border: 1px solid transparent; background: transparent; color: var(--text); cursor: pointer; }
+.ibtn:hover { background: var(--hover); }
+.ibtn svg { width: 20px; height: 20px; }
+.ibtn.s36 { width: 36px; height: 36px; } .ibtn.s40 { width: 40px; height: 40px; } .ibtn.s44 { width: 44px; height: 44px; }
+.ibtn.round { border-radius: 999px; } .ibtn.r12 { border-radius: 12px; }
+.ibtn.boxed { background: var(--mantine-default-bg); border-color: var(--mantine-default-border); color: var(--mantine-default-text); }
+.ibtn.boxed-after { background: var(--surface); border-color: var(--rule); }
+
+.keys { display: grid; grid-template-columns: repeat(4, 64px); gap: 8px; }
+.key { display: grid; place-items: center; height: 52px; padding: 0; border: 0; background: var(--choice); color: var(--text); font: 300 22px/1 var(--font-display); cursor: pointer; }
+.key svg { width: 24px; height: 24px; }
+.key.save { background: var(--primary); color: var(--on-primary); font: 500 16px/1 var(--font-text); }
+
+.track { display: inline-flex; padding: 4px; border-radius: 999px; }
+.track > span { display: grid; place-items: center; padding: 0 16px; border-radius: 999px; color: var(--muted); font-size: 14px; font-weight: 500; white-space: nowrap; }
+.track > span[data-on] { color: var(--text); }
+.track.t-switch { background: var(--switch); }
+.track.t-switch > span[data-on] { background: var(--raised); box-shadow: var(--shadow-switch); }
+.track.t-choice { background: var(--choice); }
+.track.t-choice > span[data-on] { background: var(--choice-active); box-shadow: var(--shadow-switch); }
+.track.t-choice.accent > span[data-on] { color: var(--accent); }
+.track.t-after { background: var(--choice); }
+.track.t-after > span[data-on] { background: var(--raised); box-shadow: var(--shadow-switch); }
+.track > span.h40 { height: 40px; } .track > span.h44 { height: 44px; }
+.track > span[data-on].expense { color: var(--danger); }
+
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pp { display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 16px; border: 1px solid var(--rule); border-radius: 999px; background: var(--surface); color: var(--text); font-size: 14px; font-weight: 500; white-space: nowrap; }
+.pp svg { width: 16px; height: 16px; }
+.pp.fb { border-color: var(--field-border); }
+.pp.p14 { padding: 0 14px; background: transparent; }
+.pp.big { font-size: 16px; font-weight: 400; }
+.pp[data-on].tint { border-color: var(--accent); background: var(--active-bg); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pp[data-on].charcoal { border-color: var(--primary); background: var(--primary); color: var(--on-primary); }
+.pp[data-on].expense { border-color: var(--danger); background: var(--error-bg); color: var(--danger); }
+
+.field { display: grid; gap: 4px; width: 260px; max-width: 100%; }
+.field label { font-size: 14px; font-weight: 500; }
+.field input { height: 52px; padding: 0 12px; border: 1px solid var(--field-border); border-radius: 12px; background: var(--surface); color: var(--text); font: 400 16px var(--font-text); }
+.field input.mantine-bg { background: var(--mantine-input-bg); }
+.field input.mantine-border { border-color: var(--mantine-default-border); background: var(--mantine-input-bg); }
+.field input.p16 { padding: 0 16px; }
+
+.menu { display: grid; width: 220px; padding: 4px; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); box-shadow: 0 8px 24px rgba(15, 17, 20, .1); }
+.menu span { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 12px; border-radius: 8px; font-size: 14px; }
+.menu span svg { width: 20px; height: 20px; }
+.menu .m-red { color: var(--mantine-red); }
+.menu .m-danger { color: var(--danger); }
+
+.strokes { display: flex; gap: 12px; }
+.strokes svg { width: 24px; height: 24px; }
+</style>
+</head>
+<body>
+<div class="pv-bar">
+  <b>I-019 · Before and after</b>
+  <div class="pv-group"><span>Scheme</span>
+    <button type="button" data-scheme-btn="light" aria-pressed="true">Light</button>
+    <button type="button" data-scheme-btn="dark" aria-pressed="false">Dark</button>
+  </div>
+</div>
+<div class="app" id="app" data-scheme="light"></div>
+
+<script>
+const I = (d, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${extra || 1.7}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const P = {
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  x: '<path d="M18 6L6 18M6 6l12 12"/>',
+  back: '<path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-11l-5-5a1.5 1.5 0 0 1 0-2l5-5zM12 10l4 4m0-4l-4 4"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>',
+  archive: '<path d="M3 4h18v4H3zM5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4"/>',
+  logout: '<path d="M14 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2M9 12h12l-3-3M18 15l3-3"/>',
+  dots: '<path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3"/>',
+  collapse: '<path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM9 4v16M15 10l-2 2 2 2"/>',
+  moon: '<path d="M12 3h.393a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 3z"/>',
+  check: '<path d="M5 12l5 5L20 7"/>',
+  ban: '<path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0M5.7 5.7l12.6 12.6"/>',
+  restore: '<path d="M3.06 13a9 9 0 1 0 .49-4.087M3 4v5h5"/>',
+  receipt: '<path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-3-2-2 2-2-2-2 2-2-2-3 2M9 7h6M9 11h6M13 15h2"/>',
+};
+const icon = (name, stroke) => I(P[name], stroke);
+
+const keys = shape => `<div class="keys">${['7', '8', '9', icon('back')].map(k => `<button type="button" class="key ${shape}" aria-label="${k.length > 2 ? 'Delete the last digit' : k}">${k}</button>`).join('')}${['00', '0', '='].map(k => `<button type="button" class="key ${shape}">${k}</button>`).join('')}<button type="button" class="key save ${shape}">Save</button></div>`;
+
+const SECTIONS = [
+  {
+    title: 'Buttons',
+    note: 'After: every button is a pill, 44 px high; only the sign-in screens keep 52 px, under their 52 px fields (owner, 2026-11-04). The keypad\'s keys stay 52 px: they are keys, not buttons on a page. Primary in charcoal; Cancel and other second choices as a grey word (owner, 2026-11-04); Delete in red, one shared style. Set once in the theme.',
+    rows: [
+      {
+        name: 'Pop-up buttons', where: 'Cancel and Save at the foot of every dialog and sheet',
+        before: `<button type="button" class="btn word h36 pill">Cancel</button><button type="button" class="btn primary h36 pill">Save</button><button type="button" class="btn outlined h36 pill">Cancel</button><button type="button" class="btn primary h36 pill">Save</button>`,
+        beforeNote: '36 px (below the 44 px touch target); Cancel a grey word in some pop-ups, an outlined pill in others',
+        after: `<button type="button" class="btn word h44 pill">Cancel</button><button type="button" class="btn primary h44 pill">Save</button>`,
+        afterNote: '44 px; Cancel always the grey word',
+      },
+      {
+        name: 'A page\'s main action', where: 'New account, New invite link, the empty Transactions page',
+        before: `<button type="button" class="btn primary h52 pill">${icon('plus')}New account</button><button type="button" class="btn primary h48 pill">Add transaction</button>`,
+        beforeNote: '52 px, but 48 px on the empty Transactions page',
+        after: `<button type="button" class="btn primary h44 pill">${icon('plus')}New account</button><button type="button" class="btn primary h44 pill">Add transaction</button>`,
+        afterNote: '44 px, as every button in the app (owner, 2026-11-04)',
+      },
+      {
+        name: 'Sidebar: Add transaction', where: 'The desktop sidebar, full and collapsed',
+        before: `<div class="sidebar-box" style="width:240px"><button type="button" class="add-today">${icon('plus', 1.8)}Add transaction</button></div><div class="sidebar-box rail" style="width:72px"><button type="button" class="add-today" aria-label="Add transaction">${icon('plus', 1.8)}</button></div>`,
+        beforeNote: 'Its own button: 12 px corners, 40 px high, 16 px text; a square in the rail',
+        after: `<div class="sidebar-box" style="width:240px"><button type="button" class="add-after">${icon('plus')}Add transaction</button></div><div class="sidebar-box rail" style="width:72px"><button type="button" class="add-after" aria-label="Add transaction">${icon('plus')}</button></div>`,
+        afterNote: 'The app\'s primary pill, 44 px; a 44 px circle in the rail',
+      },
+      {
+        name: 'Not found, start screen', where: 'Go home, Try again',
+        before: `<button type="button" class="btn primary h36 r12">Try again</button>`,
+        beforeNote: '12 px corners, 36 px',
+        after: `<button type="button" class="btn primary h44 pill">Try again</button>`,
+        afterNote: 'Pill, 44 px',
+      },
+      {
+        name: 'Sign-in', where: 'Sign in, Create account, the invite page',
+        before: `<button type="button" class="btn primary h52 pill big" style="width:220px">Sign in</button>`,
+        beforeNote: '52 px pill, 16 px text',
+        after: `<button type="button" class="btn primary h52 pill big" style="width:220px">Sign in</button>`,
+        afterNote: 'No change: the one 52 px button, full width under the 52 px fields (F-011)',
+      },
+      {
+        name: 'Phone keypad', where: 'Under the transaction form on the phone (a part of it)',
+        before: keys('r12'),
+        beforeNote: 'Keys and Save with 12 px corners',
+        after: keys('pill'),
+        afterNote: 'Pill keys and Save (owner\'s pick, variant A)',
+      },
+      {
+        name: 'Archive or delete', where: 'The end of the account form',
+        before: `<button type="button" class="btn outlined h44 pill">${icon('archive')}Archive</button><button type="button" class="btn danger-outline h44 pill">${icon('trash')}Delete for good</button>`,
+        beforeNote: 'Outlined pills with an icon',
+        after: `<button type="button" class="btn word h44 pill">${icon('archive')}Archive</button><button type="button" class="btn danger-word h44 pill">${icon('trash')}Delete for good</button>`,
+        afterNote: 'A grey word and a red word, each with its icon: no outlined buttons left',
+      },
+      {
+        name: 'Asking before a delete', where: 'Delete an account, people, a transaction',
+        before: `<button type="button" class="btn word h36 pill">Keep it</button><button type="button" class="btn danger h36 pill">Delete for good</button><button type="button" class="btn outlined h36 pill">Keep it</button><button type="button" class="btn danger h36 pill">Delete</button>`,
+        beforeNote: '36 px; the red built three times, Keep it in two styles',
+        after: `<button type="button" class="btn word h44 pill">Keep it</button><button type="button" class="btn danger h44 pill">Delete for good</button>`,
+        afterNote: 'One red pill, 44 px, next to the grey word',
+      },
+      {
+        name: 'Actions in rows', where: 'Restore and Delete on an archived account, Delete in the transaction form',
+        before: `<button type="button" class="btn word h36 pill">${icon('restore')}Restore</button><button type="button" class="btn danger-word h36 pill">${icon('trash')}Delete</button><button type="button" class="btn danger-word h36 pill icon16">${icon('trash')}Delete</button>`,
+        beforeNote: '36 px; the trash icon 20 or 16 px',
+        after: `<button type="button" class="btn word h44 pill">${icon('restore')}Restore</button><button type="button" class="btn danger-word h44 pill">${icon('trash')}Delete</button>`,
+        afterNote: '44 px; icons 20 px',
+      },
+    ],
+  },
+  {
+    title: 'Icon buttons',
+    note: 'After: every icon button is a 44 px circle, the shell\'s ones too.',
+    rows: [
+      {
+        name: 'Icon buttons', where: 'Sign out, clear a search, collapse the sidebar, the sun / moon toggle, ⋯ on a row',
+        before: `<button type="button" class="ibtn s36 r12" aria-label="Sign out">${icon('logout', 1.6)}</button><button type="button" class="ibtn s40 round" aria-label="Clear">${icon('x')}</button><button type="button" class="ibtn s44 r12" aria-label="Collapse the sidebar">${icon('collapse', 1.6)}</button><button type="button" class="ibtn s44 r12 boxed" aria-label="Switch to dark mode">${icon('moon', 1.6)}</button><button type="button" class="ibtn s44 round" aria-label="Actions">${icon('dots')}</button>`,
+        beforeNote: '36, 40 and 44 px; 12 px corners or round',
+        after: `<button type="button" class="ibtn s44 round" aria-label="Sign out">${icon('logout')}</button><button type="button" class="ibtn s44 round" aria-label="Clear">${icon('x')}</button><button type="button" class="ibtn s44 round" aria-label="Collapse the sidebar">${icon('collapse')}</button><button type="button" class="ibtn s44 round boxed-after" aria-label="Switch to dark mode">${icon('moon')}</button><button type="button" class="ibtn s44 round" aria-label="Actions">${icon('dots')}</button>`,
+        afterNote: 'All 44 px circles; the toggle keeps its outline, in the app\'s rule colour',
+      },
+      {
+        name: 'Icon stroke', where: 'Every icon',
+        before: `<span class="strokes">${[1.6, 1.7, 1.8].map(s => icon('receipt', s)).join('')}</span>`,
+        beforeNote: '1.6, 1.7 or 1.8 from screen to screen',
+        after: `<span class="strokes">${[1.7, 1.7, 1.7].map(s => icon('receipt', s)).join('')}</span>`,
+        afterNote: '1.7 everywhere (most icons have it already)',
+      },
+    ],
+  },
+  {
+    title: 'Switches',
+    note: 'After: one pill switch for all four, 44 px, in one set of colours that shows in dark mode too: the picked option raised, in the text colour. The transaction type keeps its colour (Expense red, Income green, Transfer blue).',
+    rows: [
+      {
+        name: 'Group by', where: 'Accounts',
+        before: `<span class="track t-switch"><span class="h40" data-on>Currency</span><span class="h40">Source</span></span>`,
+        beforeNote: '40 px; its track is the page\'s colour in dark mode',
+        after: `<span class="track t-after"><span class="h44" data-on>Currency</span><span class="h44">Source</span></span>`,
+        afterNote: '44 px, the shared switch',
+      },
+      {
+        name: 'Report currency, theme', where: 'Settings',
+        before: `<span class="track t-choice accent"><span class="h44">Light</span><span class="h44">Dark</span><span class="h44" data-on>System</span></span>`,
+        beforeNote: 'The picked option in the accent',
+        after: `<span class="track t-after"><span class="h44">Light</span><span class="h44">Dark</span><span class="h44" data-on>System</span></span>`,
+        afterNote: 'The shared switch',
+      },
+      {
+        name: 'Sign in / Create account', where: 'The sign-in screens',
+        before: `<span class="track t-switch"><span class="h44" data-on>Sign in</span><span class="h44">Create account</span></span>`,
+        beforeNote: 'Its own build; the track is the page\'s colour in dark mode',
+        after: `<span class="track t-after"><span class="h44" data-on>Sign in</span><span class="h44">Create account</span></span>`,
+        afterNote: 'The shared switch',
+      },
+      {
+        name: 'Transaction type', where: 'The transaction form\'s title row',
+        before: `<span class="track t-choice"><span class="h44 expense" data-on>Expense</span><span class="h44">Income</span><span class="h44">Transfer</span></span>`,
+        beforeNote: 'Its own build',
+        after: `<span class="track t-after"><span class="h44 expense" data-on>Expense</span><span class="h44">Income</span><span class="h44">Transfer</span></span>`,
+        afterNote: 'The shared switch, the type in its colour',
+      },
+    ],
+  },
+  {
+    title: 'Pills you pick',
+    note: 'After: one pill, 44 px, with the fields\' border (it shows in dark mode too), 16 px at the sides and 14 px text; the picked one in the accent\'s tint. A picked type filter keeps the type\'s colour.',
+    rows: [
+      {
+        name: 'Bank or source', where: 'The account form',
+        before: `<span class="pills"><span class="pp fb tint" data-on>Monobank</span><span class="pp fb">PrivatBank</span><span class="pp fb">Cash</span></span>`,
+        beforeNote: 'Already this style',
+        after: `<span class="pills"><span class="pp fb tint" data-on>Monobank</span><span class="pp fb">PrivatBank</span><span class="pp fb">Cash</span></span>`,
+        afterNote: 'No change',
+      },
+      {
+        name: 'Category', where: 'The transaction form',
+        before: `<span class="pills"><span class="pp big charcoal" data-on>${icon('check', 1.8)}Groceries</span><span class="pp big">Eating out</span></span>`,
+        beforeNote: 'The rule\'s border, 16 px text, picked in charcoal',
+        after: `<span class="pills"><span class="pp fb tint" data-on>${icon('check', 1.8)}Groceries</span><span class="pp fb">Eating out</span></span>`,
+        afterNote: 'The shared pill; the tick stays',
+      },
+      {
+        name: 'Filters', where: 'The phone\'s Filters sheet',
+        before: `<span class="pills"><span class="pp p14 expense" data-on>Expense</span><span class="pp p14">Income</span><span class="pp p14">Transfer</span></span>`,
+        beforeNote: 'The rule\'s border, 14 px at the sides',
+        after: `<span class="pills"><span class="pp fb expense" data-on>Expense</span><span class="pp fb">Income</span><span class="pp fb">Transfer</span></span>`,
+        afterNote: 'The shared pill, the type in its colour',
+      },
+    ],
+  },
+  {
+    title: 'Fields and menus',
+    note: 'After: one field style set in the theme (52 px, 16 px text, the surface behind it, the fields\' border, 16 px inside), not six copies; the menu\'s Delete in the app\'s red.',
+    rows: [
+      {
+        name: 'Fields', where: 'Settings\' Name, Type delete to confirm, sign-in',
+        before: `<span class="field"><label for="b1">Name</label><input id="b1" class="mantine-bg" value="Yulia"></span><span class="field"><label for="b2">Type delete to confirm</label><input id="b2" class="mantine-border"></span>`,
+        beforeNote: 'Mantine\'s background or its lighter border; sign-in alone has 16 px inside',
+        after: `<span class="field"><label for="a1">Name</label><input id="a1" class="p16" value="Yulia"></span><span class="field"><label for="a2">Type delete to confirm</label><input id="a2" class="p16"></span>`,
+        afterNote: 'One style',
+      },
+      {
+        name: 'Row menu', where: '⋯ on a person\'s row',
+        before: `<span class="menu"><span>${icon('ban')}Block</span><span class="m-red">${icon('trash')}Delete</span></span>`,
+        beforeNote: 'Delete in Mantine\'s red',
+        after: `<span class="menu"><span>${icon('ban')}Block</span><span class="m-danger">${icon('trash')}Delete</span></span>`,
+        afterNote: 'Delete in the app\'s red, as on every Delete button',
+      },
+    ],
+  },
+];
+
+const state = { scheme: 'light', schemePref: 'light' };
+
+function render() {
+  document.querySelectorAll('[data-scheme-btn]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.schemeBtn === state.scheme)));
+  const app = document.getElementById('app');
+  app.dataset.scheme = state.scheme;
+  app.innerHTML = `<main class="wrap">
+    <div class="intro">
+      <h1>One look for every element</h1>
+      <p>Each row: the element as it is today, and how it looks after I-019. Only these rows change; everything else stays. The same as the Storybook pages Design system / Components, which show where each one is used.</p>
+    </div>
+    ${SECTIONS.map(s => `<section class="section">
+      <h2>${s.title}</h2>
+      <p>${s.note}</p>
+      <div class="rows">${s.rows.map(r => `<div class="row">
+        <div class="what"><b>${r.name}</b><span>${r.where}</span></div>
+        <div class="side" data-side="before"><small>Today · ${r.beforeNote}</small><div class="sample">${r.before}</div></div>
+        <div class="side" data-side="after"><small>After · ${r.afterNote}</small><div class="sample">${r.after}</div></div>
+      </div>`).join('')}</div>
+    </section>`).join('')}
+  </main>`;
+}
+
+document.addEventListener('click', e => {
+  const scheme = e.target.closest('[data-scheme-btn]');
+  if (scheme) { state.schemePref = scheme.dataset.schemeBtn; applyScheme(); }
+});
+
+window.state = state;
+window.applyScheme = () => { state.scheme = state.schemePref === 'dark' ? 'dark' : 'light'; render(); };
+// Opens in the system's scheme and follows it when it changes; the bar's buttons switch it by hand
+const systemDark = matchMedia('(prefers-color-scheme: dark)');
+const followSystem = () => { state.schemePref = systemDark.matches ? 'dark' : 'light'; applyScheme(); };
+systemDark.addEventListener('change', followSystem);
+followSystem();
+</script>
+</body>
+</html>

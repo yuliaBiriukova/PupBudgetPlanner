@@ -94,17 +94,19 @@
   right: 0;
 }
 
+/* The app's primary button (I-019): a 44 px pill, a 44 px circle in the rail, on the icons' axis */
 .add {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 40px;
+  height: 44px;
   margin-bottom: 14px;
-  padding: 0 14px;
-  border-radius: var(--mantine-radius-md);
+  padding: 0 18px;
+  border-radius: 999px;
   background: var(--mantine-primary-color-filled);
-  color: var(--mantine-primary-color-contrast);
+  color: var(--pup-color-on-primary);
+  font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
   transition: gap 240ms;
@@ -114,8 +116,14 @@
   background: var(--mantine-primary-color-filled-hover);
 }
 
+/* The hidden label still takes room, so the icon is placed from the start: 12 px in centres it in the circle */
 .sidebar[data-collapsed] .add {
+  justify-content: flex-start;
   gap: 0;
+  width: 44px;
+  margin-inline: 2px;
+  padding: 0 0 0 12px;
+  overflow: hidden;
 }
 
 /* Reaches the sidebar's edges, so the open section's edge bar (12 px out) isn't clipped by the scrolling box */

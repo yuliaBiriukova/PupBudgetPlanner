@@ -23,14 +23,13 @@ export function TopBar({ user }: { user?: ShellUser }) {
       <span className={classes.topBrand}>
         <Brand />
       </span>
-      <ColorSchemeToggle variant="subtle" />
+      <ColorSchemeToggle />
       {user && (
         <ActionIcon
           component={Link}
           to="/settings"
           variant="subtle"
           color="gray"
-          size="xl"
           aria-label={t('nav.settings')}
         >
           <Avatar size={32} radius="xl" color="gray" aria-hidden="true">
@@ -59,7 +58,7 @@ export function TabBar({ onAdd, onMore, user }: TabBarProps) {
     <nav className={classes.tabs} aria-label={t('nav.main')}>
       {TAB_SECTIONS.map(({ id, path, icon: Icon }) => (
         <NavLink key={id} to={path} className={classes.tab}>
-          <Icon size={24} stroke={1.6} />
+          <Icon size={24} stroke={1.7} />
           <span className={classes.tabLabel}>{t(`nav.${id}`)}</span>
         </NavLink>
       ))}
@@ -69,7 +68,7 @@ export function TabBar({ onAdd, onMore, user }: TabBarProps) {
         aria-haspopup="dialog"
         onClick={onMore}
       >
-        <IconDots size={24} stroke={1.6} />
+        <IconDots size={24} stroke={1.7} />
         <span className={classes.tabLabel}>{t('nav.more')}</span>
       </UnstyledButton>
       <UnstyledButton
@@ -77,7 +76,7 @@ export function TabBar({ onAdd, onMore, user }: TabBarProps) {
         aria-label={t('shell.addTransaction')}
         onClick={onAdd}
       >
-        <IconPlus size={24} stroke={1.8} />
+        <IconPlus size={24} stroke={1.7} />
       </UnstyledButton>
     </nav>
   );
@@ -101,7 +100,7 @@ export function MoreSheet({ opened, onClose, user, onSignOut }: MoreSheetProps) 
       {moreSectionsFor(user).map(({ id, path, icon: Icon }) => (
         // replace: the section takes the sheet's history step, so Back from it goes to the page under the sheet (I-015)
         <NavLink key={id} to={path} replace className={classes.menuItem} onClick={onClose}>
-          <Icon size={20} stroke={1.6} />
+          <Icon size={20} stroke={1.7} />
           {t(`nav.${id}`)}
         </NavLink>
       ))}
@@ -111,7 +110,7 @@ export function MoreSheet({ opened, onClose, user, onSignOut }: MoreSheetProps) 
           setColorScheme(isDark ? 'light' : 'dark');
         }}
       >
-        {isDark ? <IconSun size={20} stroke={1.6} /> : <IconMoon size={20} stroke={1.6} />}
+        {isDark ? <IconSun size={20} stroke={1.7} /> : <IconMoon size={20} stroke={1.7} />}
         {isDark ? t('colorScheme.light') : t('colorScheme.dark')}
       </UnstyledButton>
       {user && (
@@ -122,7 +121,7 @@ export function MoreSheet({ opened, onClose, user, onSignOut }: MoreSheetProps) 
             onSignOut?.();
           }}
         >
-          <IconLogout size={20} stroke={1.6} />
+          <IconLogout size={20} stroke={1.7} />
           {t('shell.signOut')}
         </UnstyledButton>
       )}

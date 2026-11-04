@@ -157,9 +157,8 @@ export function TransactionsPage() {
     list = (
       <Empty title={t('transactions.list.emptyTitle')} text={t('transactions.list.emptyText')}>
         <Button
-          radius="xl"
           className={classes.emptyButton}
-          leftSection={<IconPlus size={20} stroke={1.8} />}
+          leftSection={<IconPlus size={20} stroke={1.7} />}
           onClick={() => {
             form.add();
           }}
@@ -192,8 +191,7 @@ export function TransactionsPage() {
         }
       >
         <Button
-          variant="default"
-          radius="xl"
+          variant="quiet"
           className={classes.emptyButton}
           leftSection={<IconX size={20} stroke={1.7} />}
           onClick={() => {
@@ -236,8 +234,7 @@ export function TransactionsPage() {
             {month && previous && (
               <div className={classes.listEndButton}>
                 <Button
-                  variant="default"
-                  radius="xl"
+                  variant="quiet"
                   onClick={() => {
                     set(withPeriod(filters, previous));
                   }}

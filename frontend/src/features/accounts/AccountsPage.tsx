@@ -106,9 +106,8 @@ export function AccountsPage() {
   // The form needs the person's banks and sources: it opens once the accounts are loaded
   const addButton = (
     <Button
-      radius="xl"
       className={classes.addButton}
-      leftSection={<IconPlus size={20} stroke={1.8} />}
+      leftSection={<IconPlus size={20} stroke={1.7} />}
       disabled={!accounts.isSuccess}
       onClick={() => {
         openForm({ kind: 'new', preset: {} });
@@ -183,9 +182,8 @@ export function AccountsPage() {
             <h2 className={classes.emptyTitle}>{t('accounts.empty.title')}</h2>
             <p className={classes.dim}>{t('accounts.empty.text')}</p>
             <Button
-              radius="xl"
               mt={18}
-              leftSection={<IconPlus size={20} stroke={1.8} />}
+              leftSection={<IconPlus size={20} stroke={1.7} />}
               onClick={() => {
                 openForm({ kind: 'new', preset: {} });
               }}
@@ -213,13 +211,7 @@ export function AccountsPage() {
                 { value: 'currency', label: t('accounts.byCurrency') },
                 { value: 'source', label: t('accounts.bySource') },
               ]}
-              radius="xl"
-              withItemsBorders={false}
-              classNames={{
-                root: classes.switch,
-                indicator: classes.switchIndicator,
-                label: classes.switchLabel,
-              }}
+              className={classes.switch}
             />
           </div>
           <Totals overview={overview} fresh={fresh} />
@@ -576,9 +568,7 @@ function Archived({
               </span>
               <span className={classes.archivedActions}>
                 <Button
-                  radius="xl"
-                  variant="subtle"
-                  color="gray"
+                  variant="quiet"
                   leftSection={<IconRestore size={20} stroke={1.7} />}
                   aria-label={t('accounts.archived.restoreLabel', { name: account.name })}
                   loading={restore.isPending && restore.variables.id === account.id}
@@ -601,9 +591,7 @@ function Archived({
                 {/* An archived account with transactions keeps only Restore (I-011) */}
                 {account.transactionCount === 0 && (
                   <Button
-                    radius="xl"
-                    variant="subtle"
-                    color="var(--mantine-color-error)"
+                    variant="danger-quiet"
                     leftSection={<IconTrash size={20} stroke={1.7} />}
                     aria-label={t('accounts.archived.deleteLabel', { name: account.name })}
                     onClick={() => {

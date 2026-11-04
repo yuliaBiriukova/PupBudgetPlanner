@@ -54,12 +54,6 @@
   font-weight: 500;
 }
 
-.input {
-  height: 52px;
-  border-color: var(--pup-color-field-border);
-  font-size: 16px;
-}
-
 .error {
   margin-top: 6px;
 }
@@ -90,8 +84,8 @@
   font-size: 14px;
 }
 
-/* A segmented choice: the sign-in switch's look (F-011) with its own tokens, which show on the page in dark mode too;
-   the picked pill raised in the accent */
+/* A segmented choice: the app's pill switch (theme.ts, I-019) as native radios, the picked pill raised in the text
+   colour */
 .choice {
   display: grid;
   grid-auto-columns: minmax(0, 1fr);
@@ -112,6 +106,7 @@
   padding: 0 12px;
   border-radius: 999px;
   color: var(--mantine-color-dimmed);
+  font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
@@ -122,9 +117,9 @@
 }
 
 .option[data-checked] {
-  background: var(--pup-color-choice-active);
+  background: var(--pup-color-switch-active);
   box-shadow: var(--pup-shadow-switch);
-  color: var(--pup-color-accent);
+  color: var(--mantine-color-text);
 }
 
 .option:has(.radio:focus-visible) {
