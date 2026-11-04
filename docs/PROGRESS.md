@@ -2,6 +2,18 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-04 (B-004: Deleted account's transactions, dropped)
+
+**Done**
+- The owner reported that deleting an account deleted its transactions too: planned as
+  [B-004](changes/bugfixes/B-004-deleted-account-keeps-transactions/B-004-deleted-account-keeps-transactions.md)
+  (High). The code doesn't allow it: the database, the API (409) and the form all refuse to delete an account that
+  has transactions (I-011's rule). The owner couldn't reproduce it and closed it as not a bug: `Dropped`.
+- Test data: none.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-04 (I-019: One look for every element)
 
 **Done**

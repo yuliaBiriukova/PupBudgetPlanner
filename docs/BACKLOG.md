@@ -114,3 +114,4 @@ owner asks for one.
 | [B-001](changes/bugfixes/B-001-flaky-server-wake-test/B-001-flaky-server-wake-test.md) | Flaky "server answers quickly" unit test | High | Done |
 | [B-002](changes/bugfixes/B-002-stale-tab-icon/B-002-stale-tab-icon.md) | Tab icon still shows the Vite template icon | Medium | Done |
 | [B-003](changes/bugfixes/B-003-account-cards-too-big/B-003-account-cards-too-big.md) | Account cards bigger than in the prototype on the desktop | Medium | Done |
+| [B-004](changes/bugfixes/B-004-deleted-account-keeps-transactions/B-004-deleted-account-keeps-transactions.md) | Deleting an account deletes its transactions (not a bug: couldn't be reproduced) | High | Dropped |
