@@ -392,18 +392,13 @@
   border-radius: 4px;
 }
 
-/* The months before the first entry, folded into one column (owner's review of PR #60): its rows empty, a rule on
-   its right; unfolded, it stays as a narrow column that folds them back */
-/* As narrow as its words: a table wider than its columns gives the room to the months, not to it */
+/* The months before the first entry, folded into one column (owner's review of PR #60): its rows empty, no rule of
+   its own (a half rule looked broken); unfolded, it stays as a narrow column that folds them back. As narrow as its
+   words: a table wider than its columns gives the room to the months, not to it */
 .table .before {
   width: 1px;
   min-width: 44px;
-  box-shadow: inset -1px 0 var(--pup-color-rule);
   text-align: left;
-}
-
-.summary .before {
-  box-shadow: inset -1px 0 var(--pup-slip-track);
 }
 
 .beforeButton {
