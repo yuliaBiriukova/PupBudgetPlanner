@@ -434,10 +434,14 @@ function FitColumn({ fit, children }: { fit: boolean; children: ReactNode }) {
     measure();
     main.addEventListener('scroll', measure, { passive: true });
     window.addEventListener('resize', measure);
+    // The totals above it load or change height without a scroll: the column moves, so it fits again (B-007)
+    const observer = new ResizeObserver(measure);
+    if (main.firstElementChild) observer.observe(main.firstElementChild);
     return () => {
       cancelAnimationFrame(frame);
       main.removeEventListener('scroll', measure);
       window.removeEventListener('resize', measure);
+      observer.disconnect();
     };
   }, [fit]);
 

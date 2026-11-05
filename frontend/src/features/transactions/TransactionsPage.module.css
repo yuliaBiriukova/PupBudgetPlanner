@@ -942,9 +942,19 @@
 
   /* The list scrolls in the column; its bar sits in the gap beside it, and it keeps the wheel at both ends */
   .whereScroll {
+    display: flex;
     flex: 1;
+    flex-direction: column;
     min-height: 0;
     margin: 0 -20px 0 -8px;
+  }
+
+  /* The column has only a max-height, so the viewport's own height: 100% would grow to the whole list and leave
+     nothing to scroll (B-007): it takes the scroll area's room instead */
+  .whereScroll > :global(.mantine-ScrollArea-viewport) {
+    flex: 1;
+    height: auto;
+    min-height: 0;
   }
 
   .whereScroll .bars {
