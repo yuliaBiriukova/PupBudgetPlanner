@@ -111,7 +111,7 @@ owner asks for one.
 | [I-022](changes/improvements/I-022-opening-balance-left-aligned/I-022-opening-balance-left-aligned.md) | Opening balance typed from the left, like the form's other fields | Low | Todo |
 | [I-023](changes/improvements/I-023-opening-balance-calculator/I-023-opening-balance-calculator.md) | 🎨 Opening balance works as a calculator (`8000+575`); the app's keys on the phone | Low | Todo |
 | [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) | 🎨 The quick-add form's account list shows each account's currency (and bank) | Medium | Todo |
-| [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) | Add transaction opens on the day picked in the Transactions calendar | High | Todo |
+| [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) | Add transaction opens on the day picked in the Transactions calendar | High | Done |
 | [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) | Prototypes in Storybook that open like a page: filling the window, one story per variant, the screen size from the toolbar | High | Todo |
 
 ## Bugfixes

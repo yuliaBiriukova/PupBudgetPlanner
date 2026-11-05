@@ -46,9 +46,12 @@ import {
 import { TransferAccounts } from './TransferAccounts';
 import { WeekStrip } from './WeekStrip';
 
-/** What the form opens for: a new transaction (from an account's card, with that account), or a change. */
+/**
+ * What the form opens for: a new transaction (from an account's card, with that account; on the day the Transactions
+ * page shows, I-025), or a change.
+ */
 export type FormRequest =
-  { kind: 'add'; accountId?: string } | { kind: 'edit'; transaction: Transaction };
+  { kind: 'add'; accountId?: string; date?: string } | { kind: 'edit'; transaction: Transaction };
 
 const TYPES: readonly TransactionType[] = ['Expense', 'Income', 'Transfer'];
 
@@ -184,11 +187,11 @@ function initialState(request: FormRequest, data: FormData): FormState {
   }
   const type: TransactionType = 'Expense';
   const accountId = accountFor(request, data, type);
-  const now = today();
+  const date = request.date ?? today();
   return {
     type,
-    date: now,
-    week: mondayOf(now),
+    date,
+    week: mondayOf(date),
     accountId,
     categoryId: lastCategory(
       data.suggestions,

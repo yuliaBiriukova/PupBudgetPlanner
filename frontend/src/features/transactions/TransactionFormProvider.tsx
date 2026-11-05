@@ -1,7 +1,7 @@
 import { notifications } from '@mantine/notifications';
 import { IconCheck } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Fragment, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CountUp } from '../../shared/ui/CountUp';
 import { accountsQuery, type AccountsOverview } from '../accounts/accountsApi';
@@ -24,6 +24,8 @@ export function TransactionFormProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [dialog, setDialog] = useState<{ request: FormRequest; opened: boolean; key: number }>();
   const [lastChange, setLastChange] = useState<LastChange>();
+  // Read only when a button opens the form, so the pages don't re-render when it changes
+  const dayOnScreen = useRef<string>(undefined);
 
   const api = useMemo<TransactionFormApi>(() => {
     const open = (request: FormRequest) => {
@@ -31,10 +33,17 @@ export function TransactionFormProvider({ children }: { children: ReactNode }) {
     };
     return {
       add: (options) => {
-        open({ kind: 'add', accountId: options?.accountId });
+        open({
+          kind: 'add',
+          accountId: options?.accountId,
+          date: options?.date ?? dayOnScreen.current,
+        });
       },
       edit: (transaction) => {
         open({ kind: 'edit', transaction });
+      },
+      showDay: (day) => {
+        dayOnScreen.current = day;
       },
       lastChange,
     };
