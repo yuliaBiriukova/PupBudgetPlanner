@@ -8,6 +8,13 @@ test.use({ storageState: { cookies: [], origins: [] } });
 
 const form = en.transactions.form;
 
+/** The phone's keys that are named, not labelled with what they type. */
+const KEY_NAMES: Record<string, string> = {
+  '.': form.key.point,
+  '+': form.key.plus,
+  '-': form.key.minus,
+};
+
 /** Types the amount: on the app's own keys on the phone, into the display on the desktop. */
 async function typeAmount(dialog: Locator, isMobile: boolean, amount: string) {
   if (!isMobile) {
@@ -15,7 +22,8 @@ async function typeAmount(dialog: Locator, isMobile: boolean, amount: string) {
     return;
   }
   const keys = dialog.getByRole('group', { name: form.keys });
-  for (const key of amount) await keys.getByRole('button', { name: key, exact: true }).click();
+  for (const key of amount)
+    await keys.getByRole('button', { name: KEY_NAMES[key] ?? key, exact: true }).click();
 }
 
 /** Clears the amount: Backspace on the phone's keys, the field emptied on the desktop. */
@@ -536,4 +544,46 @@ test('the account list shows each account’s bank and currency, the one used la
   await expect(amount.locator('xpath=ancestor::div[1]')).toContainText('$');
   await typeAmount(dialog, isMobile, '15');
   await expect(amount.locator('xpath=ancestor::div[1]')).not.toContainText('₴');
+});
+
+test('a receipt’s cents added up on the amount: the sum is saved rounded, on the phone’s keys in a phone’s order', async ({
+  page,
+  isMobile,
+}) => {
+  const response = await signUpThroughApi(page.request, newPerson('cents'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+
+  await page.goto('/transactions');
+  const adds = page.getByRole('button', { name: en.shell.addTransaction });
+  await (isMobile ? adds.last() : adds.first()).click();
+  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  if (isMobile) {
+    // 1 2 3 on top, ⌫ right above Save (I-027)
+    const keys = dialog.getByRole('group', { name: form.keys });
+    const box = async (name: string) => {
+      const found = await keys.getByRole('button', { name, exact: true }).boundingBox();
+      if (!found) throw new Error(`No ${name} key`);
+      return found;
+    };
+    expect((await box('1')).y).toBeLessThan((await box('7')).y);
+    const back = await box(form.key.back);
+    const save = await box(form.save);
+    expect(back.x).toBe(save.x);
+    expect(back.y).toBeLessThan(save.y);
+  }
+  await typeAmount(dialog, isMobile, '12.30+45.80');
+  await expect(dialog).toContainText('= 58 ₴');
+  await dialog.getByRole('button', { name: form.allCategories }).click();
+  await page.getByLabel(form.searchCategories).fill('groc');
+  await page
+    .getByRole('dialog', { name: form.category })
+    .getByRole('button', { name: 'Groceries' })
+    .click();
+  await saveButton(dialog, isMobile, form.saveExpense).click();
+
+  await expect(page.getByText('Expense saved. Mono black:')).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: /^Today, / }).getByRole('button', { name: /Groceries/ }),
+  ).toContainText('−58 ₴');
 });
