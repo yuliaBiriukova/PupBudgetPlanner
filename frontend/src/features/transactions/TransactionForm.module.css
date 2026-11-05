@@ -705,12 +705,47 @@
 }
 
 .keys {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   margin: -8px -16px -16px;
-  padding: 12px 16px 16px;
+  padding: 16px 16px 16px;
   border-top: 1px solid var(--pup-color-rule);
+  /* They slide up from the sheet's edge as they come and down as they fold (200 ms, useKeysSwipe's FOLD_MS); while a
+     finger drags them they follow it at once. The browser doesn't pan here, so every move goes to the keys (I-028) */
+  touch-action: none;
+  transition: transform 200ms ease;
+  animation: keysUp 200ms ease-out;
+}
+
+.keys[data-dragging] {
+  transition: none;
+}
+
+@keyframes keysUp {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keys {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* The sheet's grab handle on the keys' top edge, 6 px under the rule: they can be swiped down (I-028) */
+.keysHandle {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 36px;
+  height: 4px;
+  margin-left: -18px;
+  border-radius: 4px;
+  background: var(--pup-color-rule);
 }
 
 .key {

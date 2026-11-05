@@ -2,6 +2,40 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-05 (I-028: The phone keys fold away with Back or a swipe down, not the form)
+
+**Done**
+- [I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md) on `improvement/I-028-fold-away-keys`.
+  Design: 3 prototype stories (nothing shown, a handle, a ⌄ and keypad key); the owner chose variant 1 with variant
+  2's handle on the keys. The final prototype was approved on 2026-11-05 ("Approved, build it"); its screenshots are
+  in the change's `prototypes/`, the prototype stories are deleted.
+- On the phone the quick-add form opens with its keys folded and one full-width Save, adding and changing alike. A tap
+  on the amount brings them up, sliding from the sheet's edge with the sheet's grab handle on top. Back folds them
+  before it closes the form; a swipe down on them folds them (the sheets' quarter and flick), a short one slides them
+  back without pressing a key; a tap on the Note folds them as before. Nothing typed is lost. The desktop is
+  unchanged.
+- `popupHistory.ts`: the keys have a history step of their own over the sheet's. Closing a pop-up another way now takes
+  away the steps over it too, in one traversal (a browser may drop a second one sent before the first lands), so the
+  form closed with the keys up (×, Save, a swipe, Delete) leaves no extra Back.
+- `useKeysSwipe.ts`: the keys' swipe, reusing the sheets' `shouldClose`.
+- `BottomSheet`: the sheet is clipped (`overflow: clip`) instead of hidden. Storybook's quick-add story pressed a key
+  while the keys were still sliding in, and the browser scrolled the whole sheet up to that key, its title out of
+  sight; a clipped box can't be scrolled. Seen only in Storybook's quick clicks: Playwright couldn't reproduce it in the
+  app, so no E2E test guards it.
+- Tests: `TransactionsPage.test.tsx` (folded at the start, adding and changing; Back folds, then closes; no step left
+  after × or Save; none on the desktop), `useKeysSwipe.test.tsx` (fold, flick, slide back without pressing, a wobbly
+  press), `popupHistory.test.tsx` (a pop-up and one inside it closed together, in either order: fails on the old code),
+  an E2E test (phone: folded, up on a tap, Back twice, the swipe, × leaves no step); the E2E helpers tap the amount
+  before the keys. Stories: *Add phone* opens folded, *Sum on the keys* and *Exchange phone* tap the amount first.
+- Checked: see the PR; the final prototype in the Browser pane and Playwright; the app's form at 375 px (opened,
+  keys up, mid-swipe, folded) and 1440 px, light and dark, in Playwright screenshots, looked at.
+- Test data: the E2E runs' `e2e-fold-keys-…`, `e2e-i028-shots-…` and other `e2e-…@example.com` people (with their
+  accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. I-027 (the keys' order) changes the same `AmountKeys.tsx`; whichever is merged second takes the
+  other's change. B-009 (the gap under the Note) is next to it in `TransactionDialog.tsx`.
+
 ## 2026-11-05 (Plan: the phone keys and the Note — I-027, I-028, B-009)
 
 **Done**

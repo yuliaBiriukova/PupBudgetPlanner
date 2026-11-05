@@ -8,12 +8,16 @@ test.use({ storageState: { cookies: [], origins: [] } });
 
 const form = en.transactions.form;
 
-/** Types the amount: on the app's own keys on the phone, into the display on the desktop. */
+/**
+ * Types the amount: on the app's own keys on the phone, which come up on a tap on the amount (I-028), into the display
+ * on the desktop.
+ */
 async function typeAmount(dialog: Locator, isMobile: boolean, amount: string) {
   if (!isMobile) {
     await dialog.getByLabel(form.amount, { exact: true }).fill(amount);
     return;
   }
+  await dialog.getByLabel(form.amount, { exact: true }).click();
   const keys = dialog.getByRole('group', { name: form.keys });
   for (const key of amount) await keys.getByRole('button', { name: key, exact: true }).click();
 }
@@ -24,6 +28,7 @@ async function clearAmount(dialog: Locator, isMobile: boolean, digits: number) {
     await dialog.getByLabel(form.amount, { exact: true }).fill('');
     return;
   }
+  await dialog.getByLabel(form.amount, { exact: true }).click();
   for (let i = 0; i < digits; i++)
     await dialog.getByRole('button', { name: form.key.back }).click();
 }
@@ -175,6 +180,7 @@ test('a person exchanges $100 for hryvnias at the bank’s rate; both balances c
   const to = dialog.getByLabel('To Mono black');
   // A sign before the number: $414 fits, its first 4 not cut under the $ (B-006)
   if (isMobile) {
+    await from.click();
     const keys = dialog.getByRole('group', { name: form.keys });
     for (const key of '414') await keys.getByRole('button', { name: key, exact: true }).click();
     await expectNumberFits(from);
@@ -536,4 +542,60 @@ test('the account list shows each account’s bank and currency, the one used la
   await expect(amount.locator('xpath=ancestor::div[1]')).toContainText('$');
   await typeAmount(dialog, isMobile, '15');
   await expect(amount.locator('xpath=ancestor::div[1]')).not.toContainText('₴');
+});
+
+test('the phone keys come up on a tap on the amount and fold away with Back or a swipe down, not the form', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'The desktop has no keys: the amount is typed');
+  const response = await signUpThroughApi(page.request, newPerson('fold-keys'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+
+  await page.goto('/transactions');
+  await page.getByRole('button', { name: en.shell.addTransaction }).first().click();
+  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  const keys = dialog.getByRole('group', { name: form.keys });
+  const amount = dialog.getByLabel(form.amount, { exact: true });
+
+  // Folded until the amount is tapped: Save alone
+  await expect(dialog.getByRole('button', { name: form.saveExpense })).toBeVisible();
+  await expect(keys).toBeHidden();
+  await typeAmount(dialog, isMobile, '45');
+  await expect(keys).toBeVisible();
+
+  // Back folds the keys and keeps the amount; the next Back closes the form, on the same page
+  await page.goBack();
+  await expect(keys).toBeHidden();
+  await expect(dialog).toBeVisible();
+  await expect(amount).toHaveValue('45');
+  await page.goBack();
+  await expect(dialog).toBeHidden();
+  await expect(page).toHaveURL(/\/transactions$/);
+
+  // A swipe down on the keys folds them; the form stays with its amount. Measured once they have slid in
+  await page.getByRole('button', { name: en.shell.addTransaction }).first().click();
+  await typeAmount(dialog, isMobile, '7');
+  await expect(keys).toBeInViewport({ ratio: 1 });
+  const box = await keys.boundingBox();
+  if (!box) throw new Error('no keys');
+  const x = box.x + box.width / 2;
+  const y = box.y + 80;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  for (let i = 1; i <= 15; i++) await page.mouse.move(x, y + i * 10);
+  await page.mouse.up();
+  await expect(keys).toBeHidden();
+  await expect(dialog).toBeVisible();
+  await expect(amount).toHaveValue('7');
+
+  // Closed with the keys up, the form leaves no step: Back goes to the page before
+  await amount.click();
+  await expect(keys).toBeVisible();
+  await dialog.getByRole('button', { name: en.common.close }).click();
+  await expect(dialog).toBeHidden();
+  await expect
+    .poll(() => page.evaluate(() => JSON.stringify(window.history.state)))
+    .not.toContain('pupPopups');
 });

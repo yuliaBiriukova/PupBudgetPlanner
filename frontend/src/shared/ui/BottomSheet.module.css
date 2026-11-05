@@ -1,11 +1,14 @@
 /* A phone sheet: as tall as its content up to 90 % of the screen, rounded on top only, with a grab handle. The
-   handle, title and buttons stay put; only the content between them scrolls (I-004) */
+   handle, title and buttons stay put; only the content between them scrolls (I-004). Clipped, not hidden: a hidden
+   box can still be scrolled by the browser, and a key focused while the transaction form's keys slide in from below
+   scrolled the whole sheet up, its title out of sight (I-028); `hidden` stays for browsers without `clip` */
 .content {
   display: flex;
   flex-direction: column;
   height: auto;
   max-height: 90dvh;
   overflow: hidden;
+  overflow: clip;
   padding-bottom: env(safe-area-inset-bottom);
   border-radius: var(--mantine-radius-xl) var(--mantine-radius-xl) 0 0;
   background: var(--pup-color-surface);

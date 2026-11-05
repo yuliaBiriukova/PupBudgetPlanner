@@ -1,4 +1,4 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, render, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { POPUPS_KEY, usePopupHistory } from './popupHistory';
 
@@ -116,6 +116,36 @@ describe('usePopupHistory', () => {
     more.closeByButton();
     await settle();
     expect(pageNow()).toBe('categories');
+  });
+
+  it('takes away the steps of a pop-up and one inside it closed together, in either order (I-028)', async () => {
+    // The transaction form's sheet with its keys up: the keys' step over the sheet's
+    function Form({ opened, keysUp }: { opened: boolean; keysUp: boolean }) {
+      usePopupHistory(opened && keysUp, () => undefined);
+      return <Sheet opened={opened} />;
+    }
+    function Sheet({ opened }: { opened: boolean }) {
+      usePopupHistory(opened, () => undefined);
+      return null;
+    }
+
+    // Closed with the X: React cleans up the sheet (inside) first
+    const view = render(<Form opened keysUp={false} />);
+    view.rerender(<Form opened keysUp />);
+    expect(popupsNow()).toBe(2);
+    view.rerender(<Form opened={false} keysUp />);
+    await settle();
+    expect(pageNow()).toBe(page);
+    expect(popupsNow()).toBeUndefined();
+
+    // Gone from the page: React cleans up the form's keys first
+    view.rerender(<Form opened keysUp />);
+    expect(popupsNow()).toBe(2);
+    view.unmount();
+    await settle();
+    await settle();
+    expect(pageNow()).toBe(page);
+    expect(popupsNow()).toBeUndefined();
   });
 
   it('adds the step of a pop-up opened while the last one is still going back after the first', async () => {

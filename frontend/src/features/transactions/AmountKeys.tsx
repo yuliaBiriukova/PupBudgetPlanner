@@ -31,13 +31,16 @@ interface AmountKeysProps {
   onKey: (key: AmountKey) => void;
   onSave: () => void;
   saving: boolean;
+  /** The keys' box, for the swipe that folds them (I-028). */
+  keysRef?: (element: HTMLDivElement | null) => void;
 }
 
 /**
  * The app's own keys on the phone (F-018 final prototype): the phone's keyboard never covers the form. + and − add up
- * a receipt, = works the sum out, Save saves.
+ * a receipt, = works the sum out, Save saves. They come up on a tap on the amount and slide from the sheet's edge, the
+ * sheet's grab handle on top: a swipe down or Back folds them (I-028).
  */
-export function AmountKeys({ value, onKey, onSave, saving }: AmountKeysProps) {
+export function AmountKeys({ value, onKey, onSave, saving, keysRef }: AmountKeysProps) {
   const { t } = useTranslation();
   const labels: Partial<Record<AmountKey, string>> = {
     back: t('transactions.form.key.back'),
@@ -62,7 +65,13 @@ export function AmountKeys({ value, onKey, onSave, saving }: AmountKeysProps) {
   };
 
   return (
-    <div className={classes.keys} role="group" aria-label={t('transactions.form.keys')}>
+    <div
+      ref={keysRef}
+      className={classes.keys}
+      role="group"
+      aria-label={t('transactions.form.keys')}
+    >
+      <div className={classes.keysHandle} aria-hidden="true" />
       {KEYS.map((key) => (
         <UnstyledButton
           key={key}
