@@ -407,6 +407,16 @@ test('on the desktop, a month with many categories: Where it went scrolls in its
   await page.mouse.wheel(0, 2000);
   // Not 1: the row's last fraction of a pixel can round under the fade's edge
   await expect(last).toBeInViewport({ ratio: 0.9 });
+
+  // At the page's end the column ends with the receipts, so the calendar's top isn't pushed under the window's (B-008)
+  await receipt.hover();
+  await page.mouse.wheel(0, 3000);
+  await expect(
+    page.getByText(en.transactions.list.endOfMonth.replace('{{period}}.', '')),
+  ).toBeInViewport();
+  const calendar = page.getByRole('region', { name: en.transactions.calendar.title });
+  await expect.poll(async () => (await calendar.boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(16);
+
   await last.click();
   await expect(page).toHaveURL(/category=/);
   await expect(last).toHaveAttribute('aria-pressed', 'true');

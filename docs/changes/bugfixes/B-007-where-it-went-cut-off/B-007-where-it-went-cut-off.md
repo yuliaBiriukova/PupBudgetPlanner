@@ -64,4 +64,5 @@ Nothing else changes: the phone and the tablet keep "Where it went" in the Filte
 - The screenshot was shared in chat; not stored in the repo (it shows real amounts).
 - Seen in the screenshots, not part of this bug and not changed: at the very end of the page, when the receipts are
   not much taller than the column, the sticky column is pushed up by its grid and the calendar's top edge goes under
-  the window's top (the column is capped by the window, not by where the receipts end). It was there before this fix.
+  the window's top (the column is capped by the window, not by where the receipts end). It was there before this fix;
+  fixed in [B-008](../B-008-calendar-cut-off-at-page-end/B-008-calendar-cut-off-at-page-end.md).
