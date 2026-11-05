@@ -50,7 +50,7 @@ Read the monthly and yearly report on the phone and on the desktop.
 - **The months before the first entry folded** (owner's review of PR #60, 2026-11-04: "if there are no data for all
   month, maybe collapse them?"; picked "one folded column"): in the year's table the months before the person's first
   month with data are one narrow column, "Jan – Oct · before your first entry", with no bars, dashes or zeros; a tap
-  unfolds them, and a ‹ right before Jan folds them back. On the phone they are one row, "January – October ·
+  unfolds them, and a narrow column at their start folds them back. On the phone they are one row, "January – October ·
   Before your first entry". A month with nothing after the first entry still shows as it is.
 
 ## Design

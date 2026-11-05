@@ -393,8 +393,8 @@
 }
 
 /* The months before the first entry, folded into one column (owner's review of PR #60): its rows empty, no rule of
-   its own (a half rule looked broken); unfolded, the column goes and January's heading folds them back. As narrow as
-   its words: a table wider than its columns gives the room to the months, not to it */
+   its own (a half rule looked broken); unfolded, it stays as a narrow column that folds them back. As narrow as its
+   words: a table wider than its columns gives the room to the months, not to it */
 .table .before {
   width: 1px;
   min-width: 44px;
@@ -427,22 +427,8 @@
   color: var(--mantine-color-text);
 }
 
-/* Unfolded, they fold back from a ‹ in January's heading, right before Jan */
-.foldBack {
-  display: inline-flex;
+.beforeButton[aria-expanded='true'] {
   align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  min-height: 44px;
-  margin: -8px 2px -8px -6px;
-  border-radius: var(--mantine-radius-sm);
-  color: var(--mantine-color-dimmed);
-  vertical-align: middle;
-}
-
-.foldBack:hover {
-  background: var(--pup-color-hover);
-  color: var(--mantine-color-text);
 }
 
 /* A month's heading opens the month */
