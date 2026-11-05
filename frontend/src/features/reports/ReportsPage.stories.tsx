@@ -107,7 +107,6 @@ export const YearStartedDesktop: Story = {
     const canvas = within(canvasElement);
     const folded = await canvas.findByRole('button', { name: /before your first entry/ });
     await userEvent.click(folded);
-    await expect(folded).toHaveAttribute('aria-expanded', 'true');
     await expect(
       canvas.getByRole('button', { name: /^Jan\s*, open the month/ }),
     ).toBeInTheDocument();

@@ -51,10 +51,11 @@ export function YearTable({
   // The months before the first entry: one column, "Jan – Oct · before your first entry" (owner's review of PR #60)
   const before = monthsBefore(report);
   const [unfolded, setUnfolded] = useState(false);
-  const hidden = (m: number) => !unfolded && m < before;
-  const shownMonths = months.length - (unfolded ? 0 : before);
+  const folded = before > 0 && !unfolded;
+  const hidden = (m: number) => folded && m < before;
+  const shownMonths = months.length - (folded ? before : 0);
   const beforeCell = (key: string) =>
-    before > 0 ? <td key={key} className={classes.before} aria-hidden="true" /> : null;
+    folded ? <td key={key} className={classes.before} aria-hidden="true" /> : null;
   const viewport = useRef<HTMLDivElement>(null);
   // Wider than the screen: the sideways bar, always on, in a gutter of its own (owner, 2026-11-04). The table is as
   // tall as its rows and the page scrolls; it has no bar of its own up and down (owner, the same day)
@@ -225,7 +226,7 @@ export function YearTable({
                   </span>
                 </span>
               </th>
-              {before > 0 && (
+              {folded && (
                 <th className={cx(classes.chartCell, classes.before)} aria-hidden="true" />
               )}
               {months.map((month, m) => {
@@ -261,29 +262,20 @@ export function YearTable({
               <th className={classes.name} scope="col">
                 {t('reports.table.inCurrency', { sign: currencySign(currency), code: currency })}
               </th>
-              {before > 0 && (
+              {folded && (
                 <th className={classes.before} scope="col">
                   <UnstyledButton
                     className={classes.beforeButton}
-                    aria-expanded={unfolded}
-                    aria-label={
-                      unfolded ? t('reports.table.foldBefore', { months: beforeRange }) : undefined
-                    }
+                    aria-expanded={false}
                     onClick={() => {
-                      setUnfolded(!unfolded);
+                      setUnfolded(true);
                     }}
                   >
-                    {unfolded ? (
-                      <IconChevronLeft size={16} stroke={1.7} />
-                    ) : (
-                      <>
-                        <span className={classes.monthLabel}>
-                          {beforeRange}
-                          <IconChevronRight size={14} stroke={1.7} aria-hidden />
-                        </span>
-                        <span className={classes.avgNote}>{t('reports.table.before')}</span>
-                      </>
-                    )}
+                    <span className={classes.monthLabel}>
+                      {beforeRange}
+                      <IconChevronRight size={14} stroke={1.7} aria-hidden />
+                    </span>
+                    <span className={classes.avgNote}>{t('reports.table.before')}</span>
                   </UnstyledButton>
                 </th>
               )}
@@ -304,6 +296,19 @@ export function YearTable({
                     scope="col"
                     data-current={m === current || undefined}
                   >
+                    {/* Unfolded, the months before the first entry fold back from January's heading */}
+                    {before > 0 && unfolded && m === 0 && (
+                      <UnstyledButton
+                        className={classes.foldBack}
+                        aria-expanded
+                        aria-label={t('reports.table.foldBefore', { months: beforeRange })}
+                        onClick={() => {
+                          setUnfolded(false);
+                        }}
+                      >
+                        <IconChevronLeft size={16} stroke={1.7} />
+                      </UnstyledButton>
+                    )}
                     {month.state !== 'Future' ? (
                       <UnstyledButton
                         className={classes.monthButton}
