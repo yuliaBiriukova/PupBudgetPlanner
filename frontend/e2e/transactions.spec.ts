@@ -360,3 +360,54 @@ test('a note used before is suggested while typing the next one; two letters and
     page.getByRole('region', { name: /^Today, / }).getByRole('button', { name: /−450 ₴/ }),
   ).toContainText('Mono black, Silpo, wine for Friday');
 });
+
+test('on the desktop, a month with many categories: Where it went scrolls in its column and the last one can be picked', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'Where it went is in the Filters sheet on the phone');
+  // A short window, so the list has to scroll (B-007)
+  await page.setViewportSize({ width: 1440, height: 720 });
+  const response = await signUpThroughApi(page.request, newPerson('where'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 50000, 'Bank');
+  const categories = (await (await page.request.get('/api/categories')).json()) as {
+    groups: { kind: string; categories: { name: string }[] }[];
+  };
+  const names = categories.groups
+    .filter((group) => group.kind === 'Expense')
+    .flatMap((group) => group.categories)
+    .slice(0, 14)
+    .map((category) => category.name);
+  expect(names).toHaveLength(14);
+  // Largest first, so the last one added is the list's last
+  for (const [index, name] of names.entries()) {
+    await addExpense(page, 'Mono black', name, 1000 - index * 50, `Test ${String(index)}`);
+  }
+
+  await page.goto('/transactions');
+  const where = page.getByRole('region', { name: en.transactions.where.spent });
+  const last = where.getByRole('listitem').last().getByRole('button');
+  await expect(last).toContainText(names.at(-1) ?? '');
+  // Down the page, over the receipts: the column sticks and ends inside the window
+  const receipt = page.getByRole('region', { name: /^Today, / });
+  await receipt.hover();
+  await page.mouse.wheel(0, 600);
+  await expect(receipt).not.toBeInViewport({ ratio: 1 });
+  await expect(last).not.toBeInViewport();
+  const bottom = async () => {
+    const box = await where.boundingBox();
+    return (box?.y ?? 0) + (box?.height ?? 0);
+  };
+  await expect.poll(bottom).toBeLessThanOrEqual(720);
+
+  // The wheel over the list scrolls it, not the page, and the last category comes into view
+  const listBox = await where.getByRole('list').boundingBox();
+  await page.mouse.move((listBox?.x ?? 0) + (listBox?.width ?? 0) / 2, (await bottom()) - 40);
+  await page.mouse.wheel(0, 2000);
+  // Not 1: the row's last fraction of a pixel can round under the fade's edge
+  await expect(last).toBeInViewport({ ratio: 0.9 });
+  await last.click();
+  await expect(page).toHaveURL(/category=/);
+  await expect(last).toHaveAttribute('aria-pressed', 'true');
+});

@@ -4,10 +4,10 @@
 |---|---|
 | Type | Bugfix |
 | Priority | High (categories at the bottom can't be seen or picked on the main page) |
-| Status | Todo |
+| Status | Done |
 | Branch | `bugfix/B-007-where-it-went-cut-off` (planned on `plan/prod-testing-fixes`) |
 | Found in | 2026-11-04, production, owner's testing (desktop, Transactions page) |
-| Approved | — (date the owner approved the root cause and the planned fix) |
+| Approved | 2026-11-05 (root cause and fix, owner: "Approved, build it") |
 
 ## Steps to reproduce
 
@@ -26,23 +26,42 @@ the page's own scroll doesn't bring the rest into view.
 
 ## Root cause
 
-Not confirmed yet. Suspected (`TransactionsPage.module.css`, `.left` and `.where`): the left column is `position:
-sticky` and its height is capped at the window's visible height, set from a script as the page scrolls; "Where it went"
-should take the rest and scroll in its `FadingScrollArea`. If the cap is not set (or set before the calendar's height is
-known), or the scroll area gets no height of its own (`min-height: 0` missing in the flex column), the list overflows and
-is clipped instead of scrolling. To check: with the calendar folded and unfolded, a short and a tall window.
+Confirmed 2026-11-05 (Storybook, the desktop's Transactions page, the column capped by hand at 600 px as the app's
+script does): the column and "Where it went" shrink as planned, and the list's scroll area gets 91 px; but the scroll
+area's inner viewport (Mantine `ScrollArea`) stays 240 px, the whole list. The viewport's height is `100%` of the scroll
+area, and a percentage only works against a set height: the column has only a `max-height`, so nothing in the chain has
+one, and the viewport grows to its content. With nothing to scroll inside it, the wheel does nothing, and the scroll
+area (`overflow: hidden`) cuts the rest off. The sticky column stays put as the page scrolls, so the page's scroll
+doesn't help either. The F-020 checks had few categories, so the list never had to scroll.
+
+A smaller one, found reading the code: the cap is measured when the page opens and on scroll or resize. If the totals
+above the column change height later (the month's figures arriving), the cap is a little off until the next scroll.
 
 ## Fix
 
-Planned after the cause is confirmed: the scroll area takes the column's remaining height (`flex: 1; min-height: 0`) and
-the column's height follows the window and the calendar's fold, so the list scrolls inside it with its fades; every
-category reachable.
+Approved 2026-11-05:
+
+1. `TransactionsPage.module.css`, `.whereScroll` (the desktop only): the scroll area is a flex column and its viewport
+   takes the room it has (`flex: 1; min-height: 0`) instead of `height: 100%`, so the viewport is the scroll area's
+   height and the list scrolls inside it, with its fades and the bar. Tried in place: the viewport becomes 91 px with
+   240 px to scroll.
+2. `FitColumn` (`TransactionsPage.tsx`): also measures again when the page's content changes size (a
+   `ResizeObserver`), so the column ends 16 px above the window's bottom after the totals load too.
+
+Nothing else changes: the phone and the tablet keep "Where it went" in the Filters sheet and dropdown.
 
 ## Tests
 
-- Unit or E2E (Playwright, desktop): a month with many categories → the last category can be scrolled to and picked.
-- Screens checked in Playwright screenshots (1440 px and a short window, light and dark; calendar folded and unfolded).
+- [x] E2E (Playwright, desktop, a 1440 × 720 window, `e2e/transactions.spec.ts`): a month with spending in 14
+  categories; down the page the last category is out of view; the wheel over the list brings it into view, and a click
+  on it picks it (the address has the category). Without the CSS fix the test fails there (the wheel brings nothing
+  into view); with it, it passes.
+- [x] Screens checked in Playwright screenshots (1440 × 900 and 1440 × 720, light and dark; calendar folded and
+  unfolded; at the top, down the page and at the list's end) and looked at.
 
 ## Notes
 
 - The screenshot was shared in chat; not stored in the repo (it shows real amounts).
+- Seen in the screenshots, not part of this bug and not changed: at the very end of the page, when the receipts are
+  not much taller than the column, the sticky column is pushed up by its grid and the calendar's top edge goes under
+  the window's top (the column is capped by the window, not by where the receipts end). It was there before this fix.

@@ -2,6 +2,28 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-05 (B-007: "Where it went" cut off, fixed)
+
+**Done**
+- [B-007](changes/bugfixes/B-007-where-it-went-cut-off/B-007-where-it-went-cut-off.md) on
+  `bugfix/B-007-where-it-went-cut-off`, approved by the owner on 2026-11-05 ("Approved, build it"). Cause: the list's
+  scroll viewport took `height: 100%` of a column that has only a `max-height`, so it grew to the whole list and had
+  nothing to scroll; the scroll area clipped the rest. Fix: on the desktop the viewport takes the scroll area's room
+  (flex), and the column fits the window again when the page's content changes size.
+- New E2E test (desktop, 1440 × 720, 14 categories): the wheel brings the last category into view and a click picks
+  it; it fails without the fix.
+- Checked: frontend lint, format, typecheck, build, unit tests; the full E2E suite (desktop and phone); screenshots at
+  1440 × 900 and 1440 × 720, light and dark, calendar folded and unfolded, looked at; backend build and tests (the
+  backend isn't changed). The E2E suite ran against this branch's own API: the one already running on 5297 was built
+  before F-022 and failed the Reports tests.
+- Seen, not changed (noted in the description file): at the very end of a short page the sticky column is pushed up
+  and the calendar's top edge goes under the window's top; it was there before.
+- Test data: the E2E runs' `e2e-where-…` and `e2e-shots-…@example.com` people (with their accounts and transactions);
+  the E2E clean-up deleted them.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-05 (B-006: The currency sign no longer runs into the amount)
 
 **Done**
