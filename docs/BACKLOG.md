@@ -113,6 +113,8 @@ owner asks for one.
 | [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) | 🎨 The quick-add form's account list shows each account's currency (and bank) | Medium | Done |
 | [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) | Add transaction opens on the day picked in the Transactions calendar | High | Done |
 | [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) | Prototypes in Storybook that open like a page: filling the window, one story per variant, the screen size from the toolbar | High | Done |
+| [I-027](changes/improvements/I-027-calculator-key-order/I-027-calculator-key-order.md) | The phone keys in a phone's order: 1 2 3 on top, ⌫ above Save, `.` for cents | Medium | Todo |
+| [I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md) | 🎨 The phone keys show on a tap on the amount and fold away with Back or a swipe down, not the whole form | Medium | Todo |
 
 ## Bugfixes
 
@@ -126,3 +128,4 @@ owner asks for one.
 | [B-006](changes/bugfixes/B-006-currency-sign-overlaps-amount/B-006-currency-sign-overlaps-amount.md) | The currency sign overlaps the amount in the calculator display | High | Done |
 | [B-007](changes/bugfixes/B-007-where-it-went-cut-off/B-007-where-it-went-cut-off.md) | "Where it went" is cut off and doesn't scroll (Transactions, desktop) | High | Done |
 | [B-008](changes/bugfixes/B-008-calendar-cut-off-at-page-end/B-008-calendar-cut-off-at-page-end.md) | The calendar's top is cut off at the end of the Transactions page (desktop) | High | Done |
+| [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) | An empty gap under the Note while it is typed on the phone | Medium | Todo |
