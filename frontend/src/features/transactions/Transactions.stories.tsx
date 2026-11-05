@@ -156,15 +156,15 @@ export const AddDesktopDark: Story = {
   globals: { ...desktop, colorScheme: 'dark' },
 };
 
-/** A receipt added up on the keys: arithmetic on the display, its result on the top line. */
+/** A receipt added up on the keys, cents too (I-027): arithmetic on the display, its whole result on the top line. */
 export const SumOnTheKeys: Story = {
   args: { form: 'add' },
   play: async () => {
     const form = await within(document.body).findByRole('dialog', { name: 'Add expense' });
     const keys = await within(form).findByRole('group', { name: 'Amount keys' });
-    for (const key of ['1', '2', '00', 'Plus', '3', '5', '0'])
+    for (const key of ['1', '2', 'Point', '3', '0', 'Plus', '4', '5', 'Point', '8', '0'])
       await userEvent.click(within(keys).getByRole('button', { name: key }));
-    await expect(form).toHaveTextContent('= 1 550 ₴');
+    await expect(form).toHaveTextContent('= 58 ₴');
   },
 };
 
