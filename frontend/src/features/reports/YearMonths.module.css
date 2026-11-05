@@ -86,9 +86,8 @@
   grid-template-columns: 44px minmax(0, 1fr) auto 16px;
   gap: 2px 12px;
   align-items: center;
-  width: calc(100% + 16px);
+  width: 100%;
   min-height: 56px;
-  margin: 0 -8px;
   padding: 6px 8px;
   border-radius: var(--mantine-radius-md);
   color: var(--mantine-color-text);
@@ -136,11 +135,14 @@
   font-size: 13px;
 }
 
+/* The rows that open something are lit under the pointer within the page's edges, their words 8 px in; the rows
+   that open nothing keep the same inset, so the months line up (owner, 2026-11-05) */
 .monthLater {
   display: flex;
   justify-content: space-between;
   min-height: 44px;
   align-items: center;
+  padding: 0 8px;
   color: var(--mantine-color-dimmed);
   font-size: 14px;
 }
@@ -157,9 +159,8 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 4px 12px;
   align-items: baseline;
-  width: calc(100% + 16px);
+  width: 100%;
   min-height: 56px;
-  margin: 0 -8px;
   padding: 8px;
   border-radius: var(--mantine-radius-md);
   color: var(--mantine-color-text);
@@ -202,7 +203,6 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0 12px;
   min-height: 44px;
-  margin: 0 -8px;
   padding: 6px 8px;
   border-radius: var(--mantine-radius-sm);
   color: var(--mantine-color-text);
