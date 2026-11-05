@@ -33,6 +33,26 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the PR.
 
+## 2026-11-05 (I-025: Add transaction on the day picked in the calendar)
+
+**Done**
+- [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) on
+  `improvement/I-025-add-on-picked-day`; the owner approved the planned fix on 2026-11-05 ("Approved, build it").
+- While the Transactions page shows one day, every Add transaction (the slip's, the sidebar's, the phone bar's +, the
+  empty page's) opens the form on it: the page tells the form's provider the day on screen (`useFormDay`), and a new
+  transaction starts on the request's date. Without a picked day, and on other pages, the form starts on today.
+- Unit tests (picked day from the sidebar and the slip, saved with its date; today again once unpicked or on Accounts)
+  and an E2E test (desktop and phone: a day of last month tapped, the shell's button, saved on that day's receipt);
+  both fail without the fix.
+- Checked: frontend lint, format, typecheck, build, unit tests, `build-storybook`; the full E2E suite (desktop and
+  phone) against this branch's API; backend build and tests (the backend isn't changed); screenshots of the picked day
+  and the form opened from it at 375 and 1440 px, light and dark, looked at.
+- Test data: the E2E runs' `e2e-picked-day-…`, `e2e-shots-…` and other `e2e-…@example.com` people (with their data);
+  the E2E clean-up deleted them and cancelled their invite links.
+
+**Next**
+- Owner: review the PR. Next in the backlog: I-026 (High).
+
 ## 2026-11-05 (B-008: The calendar's top cut off at the page's end, fixed)
 
 **Done**
