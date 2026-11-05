@@ -13,7 +13,6 @@ When a question is answered, move it to "Answered" with the answer and date, and
 
 | ID | Question | Answer | Date |
 |----|----------|--------|------|
-| Q-013 | On the phone: the app's own keys for the amount, or the phone's number keyboard on a tap on the amount? | The app's keys, folded until the amount is tapped; Back or a swipe folds them ([I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md)) | 2026-11-05 |
 | Q-012 | Accounts already created on production before invite-only sign-up | They keep access and show "Before invites"; after the release the admin looks through the People page and blocks or deletes anyone unknown (F-028) | 2026-10-29 |
 | Q-001 | Group of the default "Emergency" category | Health | 2026-10-27 |
 | Q-002 | Keep the free API awake during the day with an external ping? | Yes: every 14 min, 07:00–23:00 Kyiv (F-009) | 2026-10-27 |

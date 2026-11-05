@@ -67,7 +67,7 @@ the person the keys can go):
 
 Asked with this change: would the phone's own number keyboard on a tap on the amount suit the form better than the
 app's keys? **Answered by the owner (2026-11-05): keep the app's keys**, folded until the amount is tapped (this
-change); Q-013 is answered. Why it was proposed:
+change). Why it was proposed:
 
 - **For the app's keys:** the amount is a calculator (`1200+350−100`), and the phone's number keyboards can't type
   it: iOS's decimal pad has no + or −, and Android's depends on the keyboard (Gboard's number pad has them, Samsung's
@@ -83,7 +83,7 @@ change); Q-013 is answered. Why it was proposed:
 ## Answered (owner, 2026-11-05)
 
 1. **When the keys show:** always folded when the form opens, adding or changing; up on a tap on the amount.
-2. **Q-013:** keep the app's keys.
+2. **The app's keys or the phone's keyboard:** keep the app's keys.
 
 ## Notes
 

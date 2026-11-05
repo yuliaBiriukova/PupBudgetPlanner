@@ -13,7 +13,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   - [I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md) (Medium, 🎨): Back or a swipe down
     folds the keys instead of closing the form; the keys start folded and come up on a tap on the amount (owner,
     2026-11-05). With it the owner's question, the app's keys or the phone's number keyboard: the owner keeps the
-    app's keys (Q-013, answered 2026-11-05).
+    app's keys.
   - [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) (Medium): an empty gap under the Note while
     it is typed on the phone. Likely cause, read from the code: I-017's room for the suggestions is added even when
     there is no list; to be confirmed by reproducing it.
