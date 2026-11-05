@@ -521,7 +521,7 @@ describe('adding a transaction', () => {
     await userEvent.click(within(form).getByLabelText('Amount'));
     const keys = within(form).getByRole('group', { name: 'Amount keys' });
     expect(within(keys).getByRole('button', { name: 'Work out the sum' })).toBeDisabled();
-    for (const key of ['1', '2', '00', 'Plus', '3', '5', '0'])
+    for (const key of ['1', '2', '0', '0', 'Plus', '3', '5', '0'])
       await userEvent.click(within(keys).getByRole('button', { name: key }));
     expect(within(form).getByLabelText('Amount')).toHaveValue('1 200 + 350');
     await userEvent.click(within(keys).getByRole('button', { name: 'Work out the sum' }));
@@ -531,6 +531,67 @@ describe('adding a transaction', () => {
 
     await waitFor(() => {
       expect(sent.map((item) => (item.body as SaveTransactionRequest).amount)).toEqual([155]);
+    });
+  });
+
+  it('has the phone keys in a phone’s order, ⌫ above Save (I-027)', async () => {
+    setScreenWidth(375);
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    await userEvent.click(within(form).getByLabelText('Amount'));
+    const keys = within(form).getByRole('group', { name: 'Amount keys' });
+    // Row by row, as Tab goes through them
+    expect(
+      within(keys)
+        .getAllByRole('button')
+        .map((key) => key.getAttribute('aria-label') ?? key.textContent),
+    ).toEqual([
+      '1',
+      '2',
+      '3',
+      'Plus',
+      '4',
+      '5',
+      '6',
+      'Minus',
+      '7',
+      '8',
+      '9',
+      'Delete the last digit',
+      'Point',
+      '0',
+      'Work out the sum',
+      'Save',
+    ]);
+  });
+
+  it('adds up cents on the phone keys and saves the sum rounded (I-027)', async () => {
+    setScreenWidth(375);
+    const sent = transactionsServer({
+      suggestions: {
+        ...NONE,
+        lastCategories: [
+          { type: 'Expense', accountId: 'mono', categoryId: categoryId('Groceries') },
+        ],
+      },
+    });
+    renderApp('/transactions');
+
+    const form = await openForm();
+    await userEvent.click(within(form).getByLabelText('Amount'));
+    const keys = within(form).getByRole('group', { name: 'Amount keys' });
+    for (const key of ['1', '2', 'Point', '3', '0', 'Plus', '4', '5', 'Point', '8', '0'])
+      await userEvent.click(within(keys).getByRole('button', { name: key }));
+    expect(within(form).getByLabelText('Amount')).toHaveValue('12.30 + 45.80');
+    expect(form).toHaveTextContent('= 58 ₴');
+    await userEvent.click(within(keys).getByRole('button', { name: 'Work out the sum' }));
+    expect(within(form).getByLabelText('Amount')).toHaveValue('58');
+    await userEvent.click(within(keys).getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(sent.map((item) => (item.body as SaveTransactionRequest).amount)).toEqual([58]);
     });
   });
 

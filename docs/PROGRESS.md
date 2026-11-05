@@ -33,8 +33,33 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
 
 **Next**
-- Owner: review the PR. I-027 (the keys' order) changes the same `AmountKeys.tsx`; whichever is merged second takes the
-  other's change. B-009 (the gap under the Note) is next to it in `TransactionDialog.tsx`.
+- Owner: review the PR. Built on I-027's keys (merged from `develop`: the phone's order and `.`); its E2E test now taps the
+  amount before measuring the keys. Next in the same part of the form: B-009 (the gap under the Note).
+
+## 2026-11-05 (I-027: The phone keys in a phone's order, `.` for cents)
+
+**Done**
+- [I-027](changes/improvements/I-027-calculator-key-order/I-027-calculator-key-order.md) on
+  `improvement/I-027-calculator-key-order`. No variants (the owner gave the order from their reference picture); the
+  owner saw one final prototype story (the real form, the keys copied into it) and approved it on 2026-11-05
+  ("Approved, build it"). Its screenshots are in the change's `prototypes/`; the story is deleted.
+- On the phone the keys are 1 2 3 + / 4 5 6 − / 7 8 9 ⌫ / . 0 = Save, ⌫ right above Save. `.` replaces `00` and types
+  cents: one point a number, 2 digits after it, `0.` when first, a point with nothing after it dropped. The display
+  shows `12.30 + 45.80` with `= 58` on top; =, Save and the saved amount are whole (ADR 0018). A lone `12.30` is
+  saved as 12. The desktop is unchanged.
+- Unit tests (`amount.test.ts`; the order and a sum with cents saved as 58 in `TransactionsPage.test.tsx`, both
+  failing without the change) and an E2E test (phone: the order; phone and desktop: `12.30+45.80` saved as −58 ₴).
+  The `SumOnTheKeys` story adds up cents.
+- Checked: frontend lint, format, typecheck, build, unit tests (283 / 283), `build-storybook`; backend build and tests
+  (the backend isn't changed); the full E2E suite, desktop and phone (71 passed, 9 skipped for the other screen size);
+  screenshots of the expense, income and exchange forms with the keys at 375 px and the desktop form at 1440 px, light
+  and dark, looked at. The design check on the prototype found only what it finds on the app's own quick-add story
+  (an open dialog over the page, the page behind it), none on the keys.
+- Test data: the E2E runs' `e2e-cents-…` and other `e2e-…@example.com` people (with their accounts); the E2E clean-up
+  deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Next in the backlog: I-028 (Medium, 🎨, the same keys) and B-009.
 
 ## 2026-11-05 (Plan: the phone keys and the Note — I-027, I-028, B-009)
 

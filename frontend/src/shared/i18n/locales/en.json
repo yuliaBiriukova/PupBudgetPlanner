@@ -531,7 +531,8 @@
         "back": "Delete the last digit",
         "minus": "Minus",
         "plus": "Plus",
-        "equals": "Work out the sum"
+        "equals": "Work out the sum",
+        "point": "Point"
       },
       "category": "Category",
       "allCategories": "All categories",

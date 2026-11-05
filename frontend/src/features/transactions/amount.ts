@@ -2,8 +2,8 @@ import { wholeAmount } from '../../shared/format/money';
 
 /**
  * The amount field is a calculator (F-018 final prototype): it holds an amount (`250`) or a sum being typed
- * (`1200+350-100`), kept without spaces, with `-` for minus. Amounts are whole (ADR 0018): cents typed on the desktop
- * are rounded.
+ * (`1200+350-100`), kept without spaces, with `-` for minus. Amounts are whole (ADR 0018): cents typed (on the desktop,
+ * or with the phone's `.` key, I-027) are rounded.
  */
 
 /** A no-break space: a group of three digits never lands on a line of its own. */
@@ -13,10 +13,13 @@ const TRUE_MINUS = '−';
 /** The database keeps 16 digits before the point (`numeric(18,2)`). */
 const AMOUNT_LIMIT = 1e16;
 
-/** The most digits one number takes on the keys: up to 999 999 999. */
+/** The most digits one number takes on the keys before the point: up to 999 999 999. */
 export const MAX_DIGITS = 9;
 
-/** The key pad's keys: digits, `00`, delete the last, minus, plus and work the sum out. */
+/** The most digits after the point: cents. */
+const MAX_CENTS = 2;
+
+/** The key pad's keys: digits, the point, delete the last, minus, plus and work the sum out. */
 export type AmountKey =
   | '0'
   | '1'
@@ -28,7 +31,7 @@ export type AmountKey =
   | '7'
   | '8'
   | '9'
-  | '00'
+  | 'point'
   | 'back'
   | 'minus'
   | 'plus'
@@ -76,7 +79,10 @@ export function fromTyped(text: string): string {
 
 /** The field after a key on the pad. */
 export function pressKey(expression: string, key: AmountKey): string {
-  const lastNumber = /\d+$/.exec(expression)?.[0] ?? '';
+  const lastNumber = /[\d.]+$/.exec(expression)?.[0] ?? '';
+  const [whole = '', cents] = lastNumber.split('.');
+  // A point with nothing after it is dropped once the number is done
+  const done = expression.endsWith('.') ? expression.slice(0, -1) : expression;
   switch (key) {
     case 'back':
       return expression.slice(0, -1);
@@ -84,21 +90,22 @@ export function pressKey(expression: string, key: AmountKey): string {
     case 'minus': {
       const sign = key === 'plus' ? '+' : '-';
       // A sign after a number; a second sign in a row takes the first one's place
-      if (/\d$/.test(expression)) return expression + sign;
-      if (/[+-]$/.test(expression)) return expression.slice(0, -1) + sign;
-      return expression;
+      if (/\d$/.test(done)) return done + sign;
+      if (/[+-]$/.test(done)) return done.slice(0, -1) + sign;
+      return done;
     }
     case 'equals': {
-      const result = evaluate(expression);
+      const result = evaluate(done);
       return result !== null && result > 0 ? String(result) : expression;
     }
-    case '00':
-      return lastNumber && lastNumber !== '0' && lastNumber.length <= MAX_DIGITS - 2
-        ? `${expression}00`
-        : expression;
+    case 'point':
+      // One point a number; first in a number it is 0.
+      if (cents !== undefined) return expression;
+      return lastNumber ? `${expression}.` : `${expression}0.`;
     default:
-      if (lastNumber.length >= MAX_DIGITS) return expression;
+      if (cents !== undefined) return cents.length >= MAX_CENTS ? expression : expression + key;
+      if (whole.length >= MAX_DIGITS) return expression;
       // A lone 0 is replaced, not followed: 0 then 5 is 5
-      return lastNumber === '0' ? expression.slice(0, -1) + key : expression + key;
+      return whole === '0' ? expression.slice(0, -1) + key : expression + key;
   }
 }

@@ -6,21 +6,21 @@ import classes from './TransactionForm.module.css';
 
 const ICON = { size: 24, stroke: 1.7 } as const;
 
-/** In the calculator's order: 7 8 9 ⌫ / 4 5 6 − / 1 2 3 + / 00 0 = Save. */
+/** In a phone's order (I-027, the owner's reference): 1 2 3 + / 4 5 6 − / 7 8 9 ⌫ / . 0 = Save. */
 const KEYS: AmountKey[] = [
-  '7',
-  '8',
-  '9',
-  'back',
-  '4',
-  '5',
-  '6',
-  'minus',
   '1',
   '2',
   '3',
   'plus',
-  '00',
+  '4',
+  '5',
+  '6',
+  'minus',
+  '7',
+  '8',
+  '9',
+  'back',
+  'point',
   '0',
   'equals',
 ];
@@ -47,6 +47,7 @@ export function AmountKeys({ value, onKey, onSave, saving, keysRef }: AmountKeys
     minus: t('transactions.form.key.minus'),
     plus: t('transactions.form.key.plus'),
     equals: t('transactions.form.key.equals'),
+    point: t('transactions.form.key.point'),
   };
 
   const face = (key: AmountKey) => {
@@ -59,6 +60,8 @@ export function AmountKeys({ value, onKey, onSave, saving, keysRef }: AmountKeys
         return <IconPlus {...ICON} />;
       case 'equals':
         return <IconEqual {...ICON} />;
+      case 'point':
+        return '.';
       default:
         return key;
     }
