@@ -11,9 +11,15 @@ public sealed record CurrencyTotal(string Currency, int Accounts, decimal Total)
 /// <summary>
 /// One account's transactions of one type, counted and summed (by the database). <paramref name="Incoming"/> marks
 /// the transfers that came into the account (F-019): <paramref name="Amount"/> is then what it got, their To amounts.
+/// <paramref name="LastAddedAt"/> is when the latest of them was added (I-024).
 /// </summary>
 public sealed record TransactionSum(
-    Guid AccountId, TransactionType Type, int Count, decimal Amount, bool Incoming = false);
+    Guid AccountId,
+    TransactionType Type,
+    int Count,
+    decimal Amount,
+    bool Incoming = false,
+    DateTimeOffset? LastAddedAt = null);
 
 /// <summary>
 /// Balances and totals on the Accounts page (F-014). Pure, so it is tested without a database. Transactions (F-018)
@@ -32,6 +38,16 @@ public static class BalanceSheet
 
     private static decimal MovementOf(TransactionSum sum) =>
         sum.Incoming ? sum.Amount : Transaction.MovementOf(sum.Type, sum.Amount);
+
+    /// <summary>
+    /// When each account was last used: its latest transaction added, of any type, a transfer's for both its accounts
+    /// (I-024). The quick-add form lists the account used last first. An account with no transactions has none.
+    /// </summary>
+    public static IReadOnlyDictionary<Guid, DateTimeOffset> LastUsedOf(IEnumerable<TransactionSum> sums) =>
+        sums
+            .Where(sum => sum.LastAddedAt is not null)
+            .GroupBy(sum => sum.AccountId)
+            .ToDictionary(group => group.Key, group => group.Max(sum => sum.LastAddedAt!.Value));
 
     /// <summary>Each account's opening balance plus its movement; an account with no transactions has none.</summary>
     public static IReadOnlyList<AccountBalance> BalancesOf(

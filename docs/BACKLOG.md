@@ -110,7 +110,7 @@ owner asks for one.
 | [I-021](changes/improvements/I-021-prototypes-in-storybook/I-021-prototypes-in-storybook.md) | Prototypes as Storybook stories built from the app's own parts, so they look like the real UI | High | Done |
 | [I-022](changes/improvements/I-022-opening-balance-left-aligned/I-022-opening-balance-left-aligned.md) | Opening balance typed from the left, like the form's other fields | Low | Todo |
 | [I-023](changes/improvements/I-023-opening-balance-calculator/I-023-opening-balance-calculator.md) | 🎨 Opening balance works as a calculator (`8000+575`); the app's keys on the phone | Low | Todo |
-| [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) | 🎨 The quick-add form's account list shows each account's currency (and bank) | Medium | Todo |
+| [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) | 🎨 The quick-add form's account list shows each account's currency (and bank) | Medium | Done |
 | [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) | Add transaction opens on the day picked in the Transactions calendar | High | Done |
 | [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) | Prototypes in Storybook that open like a page: filling the window, one story per variant, the screen size from the toolbar | High | Done |
 | [I-027](changes/improvements/I-027-calculator-key-order/I-027-calculator-key-order.md) | The phone keys in a phone's order: 1 2 3 on top, ⌫ above Save, `.` for cents | Medium | Todo |

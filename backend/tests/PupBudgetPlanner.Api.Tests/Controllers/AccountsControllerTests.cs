@@ -22,7 +22,7 @@ public sealed class AccountsControllerTests
 
     private static readonly AccountItem Item = new(
         AccountId, "Wallet", "UAH", SourceKind.Cash, null, null, null, null, 1_200m, new DateOnly(2026, 1, 1),
-        1_200m, CardStyle.Envelope, null, 0);
+        1_200m, CardStyle.Envelope, null, 0, null);
 
     private readonly IAccountService accounts = Substitute.For<IAccountService>();
     private readonly AccountsController controller;

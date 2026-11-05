@@ -24,6 +24,31 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the planning PR; approve each change before it is built.
 
+## 2026-11-05 (I-024: The account list tells same-named accounts apart)
+
+**Done**
+- [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) on
+  `improvement/I-024-account-list-currency`. Design: 3 prototype stories (a code tag, two lines like the field, grouped
+  by currency); the owner chose grouping by currency with changes, then asked for no groups and the account used last
+  first. The final prototype was approved on 2026-11-05 ("Approved, build it"); its screenshots are in the change's
+  `prototypes/`, the prototype stories are deleted.
+- Each row of the quick-add form's account list (and Transfer's From and To lists) is the name and then its bank, Cash
+  or own source in grey as one line that wraps, and on the right the balance with the currency's code (`$640 USD`).
+  The list shows the account whose latest transaction was added most recently first, accounts without transactions
+  last (oldest first). The closed fields don't change.
+- Backend: the accounts API returns `lastUsedAt` per account, when its latest transaction was added (a transfer's for
+  both its accounts), from the same database query as the balances and counts. `BalanceSheet.LastUsedOf` with an
+  xUnit test; the API types regenerated.
+- Frontend: `byLastUse` (unit test), the rows in `AccountList` (component test), stories *Transactions / Account list*
+  (phone and desktop, light and dark), an E2E test (two "Mono", the dollar one picked by its row: the amount is in `$`).
+- Checked: see the PR; screenshots of the Account sheet and dropdown and Transfer's To list in the app at 375 and
+  1440 px, light and dark, looked at; the design check on the new story finds nothing.
+- Test data: the E2E runs' `e2e-account-list-…`, `e2e-i024-shots-…` and other `e2e-…@example.com` people (with their
+  accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Next in the backlog: B-004 (Medium, 🎨).
+
 ## 2026-11-05 (B-005: The account list's scroll bar no longer covers the balances)
 
 **Done**
