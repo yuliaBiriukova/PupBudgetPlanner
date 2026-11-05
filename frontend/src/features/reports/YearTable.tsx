@@ -52,7 +52,6 @@ export function YearTable({
   const before = monthsBefore(report);
   const [unfolded, setUnfolded] = useState(false);
   const hidden = (m: number) => !unfolded && m < before;
-  const shownMonths = months.length - (unfolded ? 0 : before);
   const beforeCell = (key: string) =>
     before > 0 ? <td key={key} className={classes.before} aria-hidden="true" /> : null;
   const viewport = useRef<HTMLDivElement>(null);
@@ -344,12 +343,6 @@ export function YearTable({
               }}
             />
           ))}
-          <tbody>
-            <tr className={classes.spacer} aria-hidden="true">
-              <td className={classes.name} />
-              <td colSpan={shownMonths + (before > 0 ? 1 : 0) + 2} />
-            </tr>
-          </tbody>
           <tbody className={classes.summary}>
             <tr>
               <th className={classes.name} scope="row">

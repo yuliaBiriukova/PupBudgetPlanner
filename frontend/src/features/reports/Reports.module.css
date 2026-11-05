@@ -508,12 +508,6 @@
   font-weight: 500;
 }
 
-.spacer th,
-.spacer td {
-  height: 16px;
-  padding: 0;
-}
-
 /* What the reds mean, above the table */
 .heatKey {
   display: flex;
