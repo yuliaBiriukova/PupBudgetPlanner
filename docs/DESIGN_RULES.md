@@ -66,7 +66,11 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
    prototype looks exactly like the real UI (I-021, [ADR 0025](decisions/0025-prototypes-in-storybook.md)). They
    live in `frontend/src/prototypes/<ID-name>/` under *Prototypes / <ID> <name>*: the real screen with its
    components, `theme.ts`, the design system and fake data, plus only the new part. A prototype never edits the
-   app's files. The change folder keeps the story links and the approved final prototype's screenshots; the
+   app's files. **One story per variant**, its states reached inside the page (only loading or error get a story of
+   their own), and no story sets the viewport or the colour scheme. The owner gets links that open the page
+   filling the window: `http://localhost:6006/?path=/story/<story-id>&nav=false&panel=false&globals=viewport.value:!undefined`;
+   the toolbar switches Phone 375 × 812, Tablet 768 × 1024, Desktop 1440 × 900 and Light / Dark (I-026).
+   The change folder keeps the story links and the approved final prototype's screenshots; the
    prototype stories are deleted when the change is built. (Changes before I-021 have HTML prototypes.)
    Design work follows the **`design-screen`** skill (`.claude/skills/design-screen/`), and every variant passes
    the Playwright + axe design check before it is shown, on the story's address with Storybook running:

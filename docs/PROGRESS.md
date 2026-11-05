@@ -2,6 +2,37 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-05 (I-026: Prototypes in Storybook open like a page)
+
+**Done**
+- [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) on
+  `improvement/I-026-prototype-viewing`, approved by the owner on 2026-11-05 ("Approved, build it") after the plan was
+  brought up to date: F-022 had been built, so no prototype stories were left to reshape, and point 4 (prototypes
+  filling the window by default) was dropped, since the link already does it.
+- The link `http://localhost:6006/?path=/story/<id>&nav=false&panel=false&globals=viewport.value:!undefined` opens
+  a story filling the window without the sidebar and panel. The viewport list is now Phone 375 × 812, Tablet
+  768 × 1024, Desktop 1440 × 900 (the design check's sizes); the grid / backgrounds, measure and outline buttons are
+  off.
+- The design-screen skill doesn't point the design check at a state through `&args=` in the address: that didn't
+  change the Reports stories' state. States reached inside the page are clicked through in Playwright and their
+  screenshots looked at instead.
+- The rule (one story per variant, no `globals` in a prototype story, links in that form, Storybook checked running
+  first) is in `CLAUDE.md`, `DESIGN_RULES.md` §2, `docs/changes/README.md` and the `design-screen` skill.
+- Found in the build: Escape, also pressed inside the page, brought Storybook's sidebar and panel back (its
+  shortcuts). At the owner's request Storybook's shortcuts are off (`.storybook/manager.ts`); checked in the Browser
+  pane.
+- Seen, not changed: Escape doesn't close the Reports page's currency list while the focus is on its pill (also
+  outside Storybook's frame).
+- Checked: frontend lint, format, build, `storybook build`, unit tests (in the full run 4 tests of
+  `AuthPages.test.tsx` and `TransactionsPage.test.tsx` hit the 5 s timeout while other heavy jobs ran on the machine;
+  both files pass on their own, 48 / 48, and no code they load is changed); this branch's Storybook in the Browser pane (link, toolbar,
+  Phone / Tablet / Desktop, Light / Dark); the design check on a Reports story (0 issues). Backend and app code not
+  changed.
+- Test data: none.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-05 (B-008: The calendar's top cut off at the page's end, fixed)
 
 **Done**

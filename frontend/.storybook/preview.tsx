@@ -51,11 +51,13 @@ const preview: Preview = {
   },
   parameters: {
     layout: 'padded',
+    // The design check's sizes (I-026). Storybook's own "Reset viewport" is the window's size, which a prototype
+    // link opens with (`globals=viewport.value:!undefined`).
     viewport: {
       options: {
-        mobile: { name: 'Mobile', styles: { width: '375px', height: '812px' }, type: 'mobile' },
+        mobile: { name: 'Phone', styles: { width: '375px', height: '812px' }, type: 'mobile' },
         tablet: { name: 'Tablet', styles: { width: '768px', height: '1024px' }, type: 'tablet' },
-        desktop: { name: 'Desktop', styles: { width: '1280px', height: '800px' }, type: 'desktop' },
+        desktop: { name: 'Desktop', styles: { width: '1440px', height: '900px' }, type: 'desktop' },
       },
     },
     controls: {
