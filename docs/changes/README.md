@@ -39,9 +39,11 @@ docs/changes/
 - Keep the status in the description file in sync with the backlog. The pull request already sets the status
   to `Done` (description file, backlog, roadmap, progress); merging it is the owner's job.
 - Screens: references first (well-made apps, the internet, Mobbin), then 3 prototype stories in Storybook
-  (`frontend/src/prototypes/<ID-name>/`, built from the app's own parts); the references used, the story links
-  and the chosen variant are recorded in the description file, the final prototype's screenshots in
-  `prototypes/`. The prototype stories are deleted when the change is built.
+  (`frontend/src/prototypes/<ID-name>/`, built from the app's own parts, one story per variant); the references
+  used, the story links (in the form that opens the page filling the window, see
+  [DESIGN_RULES §2](../DESIGN_RULES.md#2-process)) and the chosen variant are recorded in the description
+  file, the final prototype's screenshots in `prototypes/`. The prototype stories are deleted when the change is
+  built.
 - **Approval before implementation.** No backend or frontend code until the owner has explicitly approved the
   description file and, for screens, the final prototype (for a bugfix: the root cause and the planned fix).
   Picking options in a design round is not approval. The date goes into the `Approved` row; until then it says
