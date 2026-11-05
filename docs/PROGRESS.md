@@ -2,6 +2,26 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-05 (Plan: the phone keys and the Note — I-027, I-028, B-009)
+
+**Done**
+- Planned on `plan/quick-add-keys` the owner's list from production; nothing built. Each has its folder, description
+  file and backlog row, all `Todo`:
+  - [I-027](changes/improvements/I-027-calculator-key-order/I-027-calculator-key-order.md) (Medium): the phone keys in
+    a phone's order, 1 2 3 on top and ⌫ above Save, from the owner's reference picture. Open: × ÷ and `.` (proposed:
+    no; amounts are whole).
+  - [I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md) (Medium, 🎨): Back or a swipe down
+    folds the keys instead of closing the form. With it the owner's question, the app's keys or the phone's number
+    keyboard: proposed to keep the app's keys (Q-013), since the phone's number keyboards can't type a sum.
+  - [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) (Medium): an empty gap under the Note while
+    it is typed on the phone. Likely cause, read from the code: I-017's room for the suggestions is added even when
+    there is no list; to be confirmed by reproducing it.
+- Priorities proposed by Claude, for the owner to confirm.
+- Test data: none.
+
+**Next**
+- Owner: answer the open points (I-027's keys, I-028's changed transaction, Q-013) and review the planning PR.
+
 ## 2026-11-05 (B-005: The account list's scroll bar no longer covers the balances)
 
 **Done**

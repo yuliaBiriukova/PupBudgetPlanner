@@ -8,6 +8,7 @@ When a question is answered, move it to "Answered" with the answer and date, and
 |----|----------|----------|--------|
 | Q-010 | Deleting an account: right away or after a grace period; how to confirm; a family owner with other members; export first? | Right away; password or Google again plus a typed word; hand the family over first; export once M11 has it. Details in [F-027](changes/features/F-027-delete-account/F-027-delete-account.md#open-points) | F-027 |
 | Q-011 | Default categories for people outside the family: the current set is the owner's own (Bank commission, English / Piano lessons, Driving, Spotify, Emergency) | A generic set: drop or rename the personal ones (Spotify → Music & streaming, Salon/Barber → Personal care, Medicine/Drugs/Skincare → Medicine); consider Car, Pets, Kids, Taxi. Decide together with adding own categories (M9) | Opening sign-up beyond the family |
+| Q-013 | On the phone: the app's own keys for the amount, or the phone's number keyboard on a tap on the amount? | Keep the app's keys (the phone's number keyboards can't type a sum; Save stays put; nothing jumps) and let them fold away with Back or a swipe. Details in [I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md#phone-keyboard-or-the-apps-keys-owners-question-2026-11-05) | I-028 |
 
 ## Answered
 
