@@ -52,6 +52,10 @@ Read the monthly and yearly report on the phone and on the desktop.
   month with data are one narrow column, "Jan – Oct · before your first entry", with no bars, dashes or zeros; a tap
   unfolds them, and a narrow column at their start folds them back. On the phone they are one row, "January – October ·
   Before your first entry". A month with nothing after the first entry still shows as it is.
+- **Rows and blocks within the page's edges** (owner's review, 2026-11-05): on the phone the year's rows are lit under the
+  pointer within the same edges as the slip, their words 8 px in. The same review moved the Transactions page's
+  calendar (F-020) inside the page's edges below 375 px, where it stuck out 4 px on each side; its days come 1 px apart
+  instead, so they stay 44 px wide down to a 360 px phone (fixed in this PR, the owner's choice).
 
 ## Design
 

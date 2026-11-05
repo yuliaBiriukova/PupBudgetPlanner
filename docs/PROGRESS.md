@@ -28,6 +28,9 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   entry", a tap unfolds them, a narrow column folds them back; while folded the card is as wide as its columns) and
   one row on the phone. Unit tests, stories (a person who started this month), the E2E check and screenshots at 375
   and 1440 px, light and dark, folded and unfolded; design check 0 issues.
+- More of the owner's review, 2026-11-05: the fold buttons' hovers round and clear of the borders, the ‹ closer to Jan;
+  the phone's rows lit within the page's edges; and, in this PR at the owner's choice, the Transactions calendar kept
+  within the page's edges below 375 px (its days 1 px apart, 44 px wide down to 360 px).
 - Test data: a test person `e2e-manual-…@example.com` with two accounts and two years of transactions, and an
   `E2E manual F-022` invite link, for the walk-through; the E2E runs' own people. The E2E clean-up deleted the people
   (with their data) and cancelled the invite links.

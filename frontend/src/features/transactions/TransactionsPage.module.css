@@ -768,15 +768,16 @@
   content: '';
 }
 
-/* Below 375 px the frame sits 4 px closer to the screen's edges and 6 px inside, so the days stay 44 px wide */
+/* Below 375 px the frame keeps to the page's edges like the other blocks (owner, 2026-11-05, F-022's review) and the
+   days come closer, 6 px inside and 1 px apart, so they stay 44 px wide down to a 360 px phone */
 @media (max-width: 23.4375em) {
-  .fold {
-    margin-right: -4px;
-    margin-left: -4px;
-  }
-
   .calendar {
     padding: 0 6px 4px;
+  }
+
+  .weekdays,
+  .grid {
+    gap: 1px;
   }
 }
 
