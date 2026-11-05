@@ -24,6 +24,32 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the PR.
 
+## 2026-11-05 (B-006: The currency sign no longer runs into the amount)
+
+**Done**
+- Reproduced [B-006](changes/bugfixes/B-006-currency-sign-overlaps-amount/B-006-currency-sign-overlaps-amount.md) in
+  the quick-add stories: `135 ₴` and `$414` touch their sign on the desktop and the phone. The suspected cause (no gap)
+  was wrong. The invisible copy that sets the amount input's width measured proportional digits while the input draws
+  tabular ones; Unbounded's `1` and `4` are much narrower proportional, so the box came out 4–5 px too narrow and the
+  number ran up to the sign (`$414`: its first `4` cut under the `$`). The owner approved the cause and the fix
+  ("Approved, build it").
+- Fixed in `TransactionForm.module.css`: the copy uses tabular digits like the input, and its trailing space (which put
+  the extra room between a `$` and the number) became 2 px at the end of both, for the caret.
+- A story `Transactions/Amount display` with `135 ₴`, `$414`, `1 250 000 ₴`, `€0`, a sum and an exchange's two amounts,
+  its play function checking that each fits its box; `transactions.spec.ts` checks `135 ₴` and `$414` fit (desktop and
+  phone), and fails by 4 px and 5 px with the old CSS.
+- Checked: frontend lint, format, typecheck, build, unit tests, `build-storybook`; the full E2E suite (desktop and
+  phone); the design check on the new story (two findings that were there before the fix: the empty input is under
+  44 px wide and has no focus ring of its own, while the whole display is the tap target and draws the ring);
+  screenshots of the form with `135 ₴`, the exchange with `$414` and the story at 375 and 1440 px, light and dark,
+  looked at and zoomed in. Backend untouched.
+- Noted in B-006, not fixed: in the Browser pane the exchange stories' scripted typing sometimes leaves `100` in the
+  From field while the form holds nothing (`$10`, To `0`); typing by hand works.
+- Test data: the E2E runs' own people; the E2E clean-up deleted them (with their data) and cancelled their invite links.
+
+**Next**
+- Owner: review the PR. Then B-007 and I-025 (High).
+
 ## 2026-11-04 (F-022: Reports screen, built)
 
 **Done**

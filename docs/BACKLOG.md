@@ -123,5 +123,5 @@ owner asks for one.
 | [B-003](changes/bugfixes/B-003-account-cards-too-big/B-003-account-cards-too-big.md) | Account cards bigger than in the prototype on the desktop | Medium | Done |
 | [B-004](changes/bugfixes/B-004-currency-search-not-typing/B-004-currency-search-not-typing.md) | 🎨 Can't type in the currency search of the account form (3 variants of the picker) | Medium | Todo |
 | [B-005](changes/bugfixes/B-005-account-list-scroll-bar/B-005-account-list-scroll-bar.md) | The account list's scroll bar covers the balances | Medium | Todo |
-| [B-006](changes/bugfixes/B-006-currency-sign-overlaps-amount/B-006-currency-sign-overlaps-amount.md) | The currency sign overlaps the amount in the calculator display | High | Todo |
+| [B-006](changes/bugfixes/B-006-currency-sign-overlaps-amount/B-006-currency-sign-overlaps-amount.md) | The currency sign overlaps the amount in the calculator display | High | Done |
 | [B-007](changes/bugfixes/B-007-where-it-went-cut-off/B-007-where-it-went-cut-off.md) | "Where it went" is cut off and doesn't scroll (Transactions, desktop) | High | Done |
