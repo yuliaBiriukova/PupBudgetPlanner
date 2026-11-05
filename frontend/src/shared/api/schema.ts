@@ -1773,7 +1773,8 @@ export interface components {
          * @description One account on the Accounts page. SourceName is set for an own source and
          *     BankName for a bank; Cash and Bank themselves are named by the app.
          *     TransactionCount keeps an account with transactions from being deleted or changing its
-         *     currency (I-011, F-018).
+         *     currency (I-011, F-018). LastUsedAt is when its latest transaction was added (a transfer's
+         *     for both its accounts), none without transactions: the quick-add form lists the account used last first (I-024).
          */
         AccountItem: {
             /** Format: uuid */
@@ -1798,6 +1799,8 @@ export interface components {
             archivedAt: null | string;
             /** Format: int32 */
             transactionCount: number | string;
+            /** Format: date-time */
+            lastUsedAt: null | string;
         };
         /**
          * @description Everything the Accounts page shows: the accounts in use (oldest first), the archived ones (last archived first),

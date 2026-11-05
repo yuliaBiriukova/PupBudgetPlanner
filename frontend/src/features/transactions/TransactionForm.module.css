@@ -609,6 +609,43 @@
   color: inherit;
 }
 
+/* The account rows (I-024): the name and then its bank or cash in grey as one line of text that wraps when the row is
+   too narrow (the row grows a line, nothing is cut off); the balance and the currency's code on the right in one
+   line */
+.accountItem {
+  padding-block: 8px;
+}
+
+.accountName {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.accountSource {
+  margin-left: 4px;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.accountMoney {
+  display: flex;
+  flex: none;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.accountCode {
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.listItem[aria-pressed='true'] .accountSource,
+.listItem[aria-pressed='true'] .accountCode {
+  color: inherit;
+}
+
 /* The Note field's suggestions (I-017): the app's dropdown, one line a row, the row picked with the keys in the
    accent. What was typed is quiet grey and the rest of the note, what the list adds, stands out */
 .suggestionsScroll {

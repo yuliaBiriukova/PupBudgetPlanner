@@ -56,6 +56,25 @@ public sealed class BalanceSheetTests
     }
 
     [Fact]
+    public void An_account_was_last_used_when_its_latest_transaction_of_any_type_was_added()
+    {
+        var card = New("UAH", 1_000m);
+        var dollars = New("USD", 500m);
+        var unused = New("EUR", 0m);
+
+        // An expense and an income on the card, then $100 moved from the dollars to the card
+        var lastUsed = BalanceSheet.LastUsedOf([
+            new TransactionSum(card.Id, TransactionType.Expense, 3, 1_032m, LastAddedAt: Now.AddDays(-2)),
+            new TransactionSum(card.Id, TransactionType.Income, 1, 500m, LastAddedAt: Now.AddDays(-5)),
+            new TransactionSum(dollars.Id, TransactionType.Transfer, 1, 100m, LastAddedAt: Now),
+            new TransactionSum(card.Id, TransactionType.Transfer, 1, 4_490m, Incoming: true, LastAddedAt: Now),
+        ]);
+
+        lastUsed.Should().BeEquivalentTo(new Dictionary<Guid, DateTimeOffset> { [card.Id] = Now, [dollars.Id] = Now });
+        lastUsed.Should().NotContainKey(unused.Id);
+    }
+
+    [Fact]
     public void Each_currency_has_its_total_and_a_debt_counts_against_it()
     {
         var accounts = new[] { New("UAH", 48_211m), New("UAH", -4_312m), New("USD", 1_240m) };
