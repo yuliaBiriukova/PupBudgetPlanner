@@ -1,4 +1,4 @@
-# I-028 · The phone keys fold away with Back or a swipe down, not the whole form
+# I-028 · The phone keys show on a tap on the amount and fold away with Back or a swipe down
 
 | | |
 |---|---|
@@ -15,16 +15,20 @@
 On the phone the quick-add form opens with the app's keys under it (F-018), and they stay there: they fold away only
 while the Note is typed (I-017). The owner wants to put them away to see the form, the way a phone's keyboard goes away
 with Back or a swipe down. Today both of those close the whole form (I-015), and what was typed is gone (owner,
-2026-11-05, production).
+2026-11-05, production). The keys start folded and come up on a tap on the amount, like a phone's keyboard on a field
+(owner, 2026-11-05).
 
 ## Acceptance criteria
 
+- [ ] **The form opens with the keys folded**, adding and changing alike: one full-width Save at the bottom, as while
+      the Note is typed (I-017).
+- [ ] **A tap on the amount brings the keys up** (an exchange: on the display tapped); tapping the Note folds them for
+      the phone's keyboard, as now.
 - [ ] **Back** with the keys up folds them; the form stays open. The next Back closes the form, as now (I-015).
 - [ ] **A swipe down on the keys** folds them; the keys follow the finger and slide back if let go early (the same
       quarter and flick as the sheets, I-015). A swipe on the sheet's handle or title still closes the form.
-- [ ] Folded, the keys leave one full-width Save at the bottom, as while the Note is typed (I-017).
-- [ ] A tap on the amount brings the keys back (an exchange: on the display tapped).
-- [ ] The keys open with the form, as now (the amount is typed first); see open point 1 for a changed transaction.
+- [ ] The amount shows it is tapped to type (its `0` placeholder and the ring as now); the variants try how clear
+      that is with the keys folded.
 - [ ] Folding the keys loses nothing: the amount, the category and the note stay as typed.
 - [ ] The history keeps no extra step: closing the form with the keys up (×, Save, a swipe) leaves Back to go to the
       previous page, as I-015 does.
@@ -44,7 +48,8 @@ with Back or a swipe down. Today both of those close the whole form (I-015), and
 
 ## Design
 
-What the 3 variants try (all with Back and the swipe; they differ in what tells the person the keys can go):
+What the 3 variants try (all start folded, with the tap on the amount, Back and the swipe; they differ in what tells
+the person the keys can go):
 
 1. **Nothing shown:** Back and the swipe only, like a phone's keyboard.
 2. **A handle on the keys:** a small grab handle on the rule above the keys, as on the sheets.
@@ -52,16 +57,17 @@ What the 3 variants try (all with Back and the swipe; they differ in what tells 
 
 ## Tests
 
-- Unit: Back folds the keys, then closes the form; a tap on the amount brings them back; no history step left after
+- Unit: the form opens with the keys folded (adding and changing); Back folds the keys, then closes the form; a tap on the amount brings them back; no history step left after
   Save or ×; the swipe's fold / slide-back decision.
-- E2E (Playwright, phone): Back folds the keys and the form stays with its amount; Back again closes it; a swipe down
-  on the keys folds them; a tap on the amount brings them back.
+- E2E (Playwright, phone): the form opens folded; a tap on the amount brings the keys up; Back folds them and the
+  form stays with its amount; Back again closes it; a swipe down on the keys folds them.
 - Screens checked in Playwright screenshots (375 px, light and dark): keys up, folded, mid-swipe.
 
 ## Phone keyboard or the app's keys? (owner's question, 2026-11-05)
 
 Asked with this change: would the phone's own number keyboard on a tap on the amount suit the form better than the
-app's keys? Proposed: **keep the app's keys, and let them fold away (this change)** — Q-013.
+app's keys? **Answered by the owner (2026-11-05): keep the app's keys**, folded until the amount is tapped (this
+change); Q-013 is answered. Why it was proposed:
 
 - **For the app's keys:** the amount is a calculator (`1200+350−100`), and the phone's number keyboards can't type
   it: iOS's decimal pad has no + or −, and Android's depends on the keyboard (Gboard's number pad has them, Samsung's
@@ -74,11 +80,10 @@ app's keys? Proposed: **keep the app's keys, and let them fold away (this change
 - What tips it: the sum. Without the app's keys, `+` and `−` would have to be buttons of their own beside the amount.
   This change takes away the keys' one drawback the owner met: they can't be put away.
 
-## Open points (for the owner)
+## Answered (owner, 2026-11-05)
 
-1. **Changing a transaction:** the keys open too (as now), or folded, since the category or the note is usually what
-   changes? Proposed: folded when changing, up when adding.
-2. **Q-013:** keep the app's keys (proposed above).
+1. **When the keys show:** always folded when the form opens, adding or changing; up on a tap on the amount.
+2. **Q-013:** keep the app's keys.
 
 ## Notes
 
