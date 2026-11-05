@@ -6,6 +6,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { DESKTOP_QUERY } from '../../app/shell/sections';
+import { usePopupHistory } from '../../shared/ui/popupHistory';
 import { ResponsiveDialog } from '../../shared/ui/ResponsiveDialog';
 import { accountsQuery, type Account, type AccountsOverview } from '../accounts/accountsApi';
 import { categoriesQuery, type CategoriesOverview } from '../categories/categoriesApi';
@@ -44,6 +45,7 @@ import {
   type TransactionType,
 } from './transactionsApi';
 import { TransferAccounts } from './TransferAccounts';
+import { useKeysSwipe } from './useKeysSwipe';
 import { WeekStrip } from './WeekStrip';
 
 /**
@@ -107,8 +109,8 @@ interface TransactionDialogProps {
 /**
  * Quick add (F-018, final prototype variant 7): one form for an expense, an income or a transfer (F-019), and for
  * changing one. In order the day, the account (From and To for a transfer), the amount (two for an exchange), the
- * category and the note. On the phone a full sheet with the app's own keys under the scrolling form; on the desktop a
- * dialog where the amount is typed, with Cancel and Save.
+ * category and the note. On the phone a full sheet with the app's own keys under the scrolling form, folded until the
+ * amount is tapped (I-028); on the desktop a dialog where the amount is typed, with Cancel and Save.
  */
 export function TransactionDialog({
   request,
@@ -250,12 +252,31 @@ function TransactionForm({
   const [form, setForm] = useState(() => usable && initialState(request, usable));
   const [errors, setErrors] = useState<FormErrors>({});
   const save = useSaveTransaction();
-  // On the phone, while the note is typed the app's keys fold away for the phone's keyboard; a tap on the amount brings
-  // them back (I-017)
+  // On the phone, while the note is typed the phone's keyboard is up (I-017)
   const [typingNote, setTypingNote] = useState(false);
   const noteTyped = typingNote && !isDesktop;
   const noteBlock = useRef<HTMLDivElement>(null);
   const noteRoom = useRef<HTMLDivElement>(null);
+
+  // The app's keys on the phone start folded and come up on a tap on the amount; Back (a history step of their own over
+  // the sheet's), a swipe down on them and a tap on the Note fold them, and nothing typed is lost (I-028)
+  const [keysUp, setKeysUp] = useState(false);
+  const keysShown = keysUp && !isDesktop;
+  const showKeys = () => {
+    setTypingNote(false);
+    setKeysUp(true);
+  };
+  const keysFolded = () => {
+    setKeysUp(false);
+    // The caret leaves the amount with them: nothing types into it now
+    const active = document.activeElement;
+    if (active instanceof HTMLInputElement && active.getAttribute('inputmode') === 'none')
+      active.blur();
+  };
+  const { setKeys, foldAway } = useKeysSwipe(keysFolded);
+  usePopupHistory(opened && keysShown, () => {
+    foldAway(keysFolded);
+  });
 
   // The form scrolls the Note field to its top, so the list under it has the room down to Save: the room under the
   // form is what the field needs to get there, and follows the sheet as the phone's keyboard comes and goes
@@ -378,6 +399,9 @@ function TransactionForm({
       : null;
   const toText = form.toByHand ? form.toAmount : suggested === null ? '' : String(suggested);
   const keysOn = exchange && form.keys === 'to' ? 'to' : 'amount';
+  const saveLabel = editing
+    ? t('transactions.form.saveChanges')
+    : t(`transactions.form.save${type}`);
 
   const change = (next: Partial<FormState>) => {
     setForm({ ...form, ...next });
@@ -530,7 +554,11 @@ function TransactionForm({
       variant="subtle"
       color="gray"
       aria-label={t(`transactions.form.deleteLabel.${word}`)}
-      onClick={onDelete}
+      onClick={() => {
+        // Kept, the transaction's form comes back with its keys folded
+        setKeysUp(false);
+        onDelete();
+      }}
     >
       <IconTrash size={20} stroke={1.7} />
     </ActionIcon>
@@ -552,14 +580,10 @@ function TransactionForm({
         {t('transactions.form.cancel')}
       </Button>
       <Button loading={save.isPending} onClick={submit}>
-        {editing ? t('transactions.form.saveChanges') : t(`transactions.form.save${type}`)}
+        {saveLabel}
       </Button>
     </>
-  ) : noteTyped ? (
-    <Button className={classes.saveAlone} loading={save.isPending} onClick={submit}>
-      {editing ? t('transactions.form.saveChanges') : t(`transactions.form.save${type}`)}
-    </Button>
-  ) : (
+  ) : keysShown ? (
     <AmountKeys
       value={keysOn === 'to' ? toText : form.amount}
       saving={save.isPending}
@@ -570,7 +594,13 @@ function TransactionForm({
         } else setAmount(pressKey(form.amount, key));
       }}
       onSave={submit}
+      keysRef={setKeys}
     />
+  ) : (
+    // The keys folded: Save alone (as while the note is typed, I-017)
+    <Button className={classes.saveAlone} loading={save.isPending} onClick={submit}>
+      {saveLabel}
+    </Button>
   );
 
   return (
@@ -631,9 +661,9 @@ function TransactionForm({
           label={
             exchange ? t('transactions.form.fromAccount', { account: account.name }) : undefined
           }
-          target={!isDesktop && exchange && keysOn === 'amount'}
+          target={keysShown && exchange && keysOn === 'amount'}
           onTarget={() => {
-            setTypingNote(false);
+            showKeys();
             if (form.keys !== 'amount') change({ keys: 'amount' });
           }}
         />
@@ -648,9 +678,9 @@ function TransactionForm({
             onEnter={submit}
             label={t('transactions.form.toAccount', { account: toAccount.name })}
             secondary
-            target={!isDesktop && keysOn === 'to'}
+            target={keysShown && keysOn === 'to'}
             onTarget={() => {
-              setTypingNote(false);
+              showKeys();
               if (form.keys !== 'to') change({ keys: 'to' });
             }}
             selectOnFocus={!form.toByHand}
@@ -706,6 +736,7 @@ function TransactionForm({
             onEnter={submit}
             onFocus={() => {
               setTypingNote(true);
+              setKeysUp(false);
             }}
             inSheet={!isDesktop}
           />

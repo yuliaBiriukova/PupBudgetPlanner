@@ -137,12 +137,16 @@ export const Loading: Story = { args: { data: 'loading' } };
 
 export const CouldNotLoad: Story = { args: { data: 'error' } };
 
-/** The form on the phone: the last account (Mono black) and its last category (Groceries) picked, the app's keys. */
+/**
+ * The form on the phone: the last account (Mono black) and its last category (Groceries) picked, the app's keys folded
+ * until the amount is tapped (I-028).
+ */
 export const AddPhone: Story = {
   args: { form: 'add' },
   play: async () => {
     const form = await within(document.body).findByRole('dialog', { name: 'Add expense' });
     await expect(await within(form).findByRole('radio', { name: 'Groceries' })).toBeChecked();
+    await expect(within(form).queryByRole('group', { name: 'Amount keys' })).toBeNull();
   },
 };
 
@@ -156,11 +160,15 @@ export const AddDesktopDark: Story = {
   globals: { ...desktop, colorScheme: 'dark' },
 };
 
-/** A receipt added up on the keys, cents too (I-027): arithmetic on the display, its whole result on the top line. */
+/**
+ * A receipt added up on the keys, cents too (I-027), up after a tap on the amount with their grab handle (I-028):
+ * arithmetic on the display, its whole result on the top line.
+ */
 export const SumOnTheKeys: Story = {
   args: { form: 'add' },
   play: async () => {
     const form = await within(document.body).findByRole('dialog', { name: 'Add expense' });
+    await userEvent.click(await within(form).findByLabelText('Amount'));
     const keys = await within(form).findByRole('group', { name: 'Amount keys' });
     for (const key of ['1', '2', 'Point', '3', '0', 'Plus', '4', '5', 'Point', '8', '0'])
       await userEvent.click(within(keys).getByRole('button', { name: key }));
@@ -313,6 +321,7 @@ export const ExchangePhone: Story = {
   args: { form: 'add' },
   play: async () => {
     const form = await openTransfer();
+    await userEvent.click(within(form).getByLabelText('From Mono dollars'));
     const keys = within(form).getByRole('group', { name: 'Amount keys' });
     for (const key of ['1', '0', '0'])
       await userEvent.click(within(keys).getByRole('button', { name: key }));
