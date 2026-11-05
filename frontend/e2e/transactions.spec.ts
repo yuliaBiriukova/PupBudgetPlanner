@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import dayjs from 'dayjs';
 import en from '../src/shared/i18n/locales/en.json' with { type: 'json' };
 import { antiforgery, newPerson, signUpThroughApi } from './auth.ts';
 
@@ -359,6 +360,49 @@ test('a note used before is suggested while typing the next one; two letters and
   await expect(
     page.getByRole('region', { name: /^Today, / }).getByRole('button', { name: /−450 ₴/ }),
   ).toContainText('Mono black, Silpo, wine for Friday');
+});
+
+test('a day picked in the calendar: Add transaction starts on it, and the saved one is on its receipt', async ({
+  page,
+  isMobile,
+}) => {
+  const response = await signUpThroughApi(page.request, newPerson('picked-day'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+  // The 15th of last month: always in the past, and on another week than today
+  const day = dayjs().subtract(1, 'month').date(15);
+
+  await page.goto(`/transactions?month=${day.format('YYYY-MM')}`);
+  const calendar = page.getByRole('region', { name: en.transactions.calendar.title });
+  await expect(calendar).toBeVisible();
+  // Folded on the phone: the whole month first
+  const unfold = calendar.getByRole('button', { name: /show the whole month$/ });
+  if (await unfold.isVisible()) await unfold.click();
+  await calendar
+    .getByRole('button', { name: new RegExp(`^${day.format('dddd D MMMM')}:`) })
+    .click();
+  await expect(page.getByText(`Only ${day.format('dddd, D MMM')}`)).toBeVisible();
+
+  // The shell's button: the sidebar's on the desktop, the tab bar's + on the phone
+  const adds = page.getByRole('button', { name: en.shell.addTransaction });
+  await (isMobile ? adds.last() : adds.first()).click();
+  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  await expect(dialog.getByRole('radio', { name: day.format('dddd, D MMM YYYY') })).toBeChecked();
+  await typeAmount(dialog, isMobile, '120');
+  await dialog.getByRole('button', { name: form.allCategories }).click();
+  await page.getByLabel(form.searchCategories).fill('groc');
+  await page
+    .getByRole('dialog', { name: form.category })
+    .getByRole('button', { name: 'Groceries' })
+    .click();
+  await saveButton(dialog, isMobile, form.saveExpense).click();
+
+  await expect(page.getByText('Expense saved. Mono black:')).toBeVisible();
+  await expect(
+    page
+      .getByRole('region', { name: new RegExp(`, ${day.format('D MMM')}$`) })
+      .getByRole('button', { name: /Groceries/ }),
+  ).toContainText('−120 ₴');
 });
 
 test('on the desktop, a month with many categories: Where it went scrolls in its column and the last one can be picked', async ({

@@ -1,5 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import dayjs from 'dayjs';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { formatMoney } from '../../shared/format/money';
@@ -368,6 +369,68 @@ describe('the Transactions page', () => {
     expect(
       await within(form).findByRole('button', { name: /^Account:/ }, LOADED),
     ).toHaveTextContent('Privat card');
+  });
+
+  it('adds on the day tapped in the calendar, from the sidebar and the slip (I-025)', async () => {
+    const sent = transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10');
+
+    const days = await screen.findByRole('region', { name: 'Days of October' }, LOADED);
+    await userEvent.click(
+      await within(days).findByRole('button', { name: /^Thursday 1 October/ }, LOADED),
+    );
+    expect(await screen.findByText('Only Thursday, 1 Oct')).toBeInTheDocument();
+
+    const fromSidebar = await openForm();
+    expect(within(fromSidebar).getByRole('radio', { name: 'Thursday, 1 Oct 2026' })).toBeChecked();
+    await userEvent.click(within(fromSidebar).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Add expense' })).not.toBeInTheDocument();
+    });
+
+    const totals = screen.getByRole('region', { name: 'Totals' });
+    await userEvent.click(within(totals).getByRole('button', { name: 'Add transaction' }));
+    const form = await screen.findByRole('dialog', { name: 'Add expense' });
+    await within(form).findByText('Amount');
+    expect(within(form).getByRole('radio', { name: 'Thursday, 1 Oct 2026' })).toBeChecked();
+    await userEvent.type(within(form).getByLabelText('Amount'), '45');
+    await userEvent.click(within(form).getByRole('radio', { name: 'Rent' }));
+    await userEvent.click(within(form).getByRole('button', { name: 'Save expense' }));
+
+    await waitFor(() => {
+      expect((sent[0]?.body as SaveTransactionRequest).date).toBe('2026-10-01');
+    });
+  });
+
+  it('adds on today again once the day is unpicked or the page left (I-025)', async () => {
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10&day=2026-10-01');
+    const todays = dayjs(today()).format('dddd, D MMM YYYY');
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Show all of October' }, LOADED),
+    );
+    const unpicked = await openForm();
+    expect(within(unpicked).getByRole('radio', { name: todays })).toBeChecked();
+    await userEvent.click(within(unpicked).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Add expense' })).not.toBeInTheDocument();
+    });
+
+    await userEvent.click(
+      await within(await screen.findByRole('region', { name: 'Days of October' })).findByRole(
+        'button',
+        { name: /^Thursday 1 October/ },
+      ),
+    );
+    expect(await screen.findByText('Only Thursday, 1 Oct')).toBeInTheDocument();
+    await userEvent.click(only(screen.getAllByRole('link', { name: 'Accounts' })));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Add a transaction from Privat card' }, LOADED),
+    );
+    const fromCard = await screen.findByRole('dialog', { name: 'Add expense' });
+    await within(fromCard).findByText('Amount');
+    expect(within(fromCard).getByRole('radio', { name: todays })).toBeChecked();
   });
 
   it('shows Add transaction on the phone’s slip as a round +, its name for screen readers', async () => {

@@ -35,7 +35,7 @@ import { scrollParentOf } from './scrollParent';
 import { SpendingCalendar } from './SpendingCalendar';
 import { MiniFigures, TotalsSlip } from './TotalsSlip';
 import { TransactionFilters } from './TransactionFilters';
-import { useTransactionForm } from './transactionForm';
+import { useFormDay, useTransactionForm } from './transactionForm';
 import classes from './TransactionsPage.module.css';
 import { transactionPagesQuery, transactionSummaryQuery } from './transactionsApi';
 import { useTransactionFilters } from './useTransactionFilters';
@@ -70,6 +70,8 @@ export function TransactionsPage() {
     accounts.data && allAccounts.map((account) => account.id),
     categories.data?.groups.flatMap((group) => group.categories.map((category) => category.id)),
   );
+  // A picked day: every Add transaction, the shell's too, starts on it (I-025)
+  useFormDay(filters.day);
 
   const summary = useQuery({
     ...transactionSummaryQuery(summaryQueryOf(filters)),
