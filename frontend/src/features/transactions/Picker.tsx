@@ -98,9 +98,11 @@ export function Picker({
       >
         {top && <div className={classes.dropdownSearch}>{top}</div>}
         {listHeight ? (
+          // The bar gets a gutter of its own while the list scrolls, so it never covers a balance (B-005)
           <FadingScrollArea
             autosize
             mah={listHeight}
+            offsetScrollbars="present"
             className={classes.listScroll}
             data-first={top ? undefined : true}
           >

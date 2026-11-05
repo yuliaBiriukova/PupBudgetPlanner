@@ -215,8 +215,9 @@ export function CurrencyPicker({
       <Popover.Target>{target}</Popover.Target>
       <Popover.Dropdown aria-label={sheetTitle} role="dialog">
         <div className={classes.dropdownSearch}>{searchField}</div>
-        {/* As tall as its rows up to 344 px with the search; then it scrolls (owner, 2026-10-31) */}
-        <FadingScrollArea autosize mah={272} className={classes.scroll}>
+        {/* As tall as its rows up to 344 px with the search; then it scrolls (owner, 2026-10-31), the bar in a gutter
+            of its own beside the rows (B-005) */}
+        <FadingScrollArea autosize mah={272} offsetScrollbars="present" className={classes.scroll}>
           {list}
         </FadingScrollArea>
       </Popover.Dropdown>
