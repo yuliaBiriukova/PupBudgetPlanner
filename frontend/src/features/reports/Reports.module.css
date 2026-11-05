@@ -427,8 +427,9 @@
   color: var(--mantine-color-text);
 }
 
+/* Unfolded, the ‹ sits at its column's right edge, a little closer to Jan (owner, 2026-11-05) */
 .beforeButton[aria-expanded='true'] {
-  align-items: center;
+  align-items: flex-end;
 }
 
 /* A month's heading opens the month */
