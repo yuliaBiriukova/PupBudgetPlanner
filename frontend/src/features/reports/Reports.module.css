@@ -427,12 +427,16 @@
   color: var(--mantine-color-text);
 }
 
-/* Unfolded, the ‹ sits at its column's right edge and reaches 20 px into January's, whose heading keeps to the right:
-   closer to Jan (owner, 2026-11-05) */
-.beforeButton[aria-expanded='true'] {
-  position: relative;
-  left: 20px;
-  align-items: flex-end;
+/* Unfolded, the column is only about half the ‹'s width, and its 44 px button reaches into January's empty left (the
+   heading keeps to the right): the ‹ close to both the group column and Jan (owner, 2026-11-05) */
+.table[data-unfolded] .before {
+  min-width: 0;
+  padding: 0;
+}
+
+.table[data-unfolded] .beforeButton {
+  align-items: center;
+  margin: 0 -20px 0 0;
 }
 
 /* A month's heading opens the month */

@@ -209,7 +209,7 @@ export function YearTable({
         viewportRef={viewport}
         viewportProps={{ tabIndex: 0 }}
       >
-        <table className={classes.table}>
+        <table className={classes.table} data-unfolded={(before > 0 && unfolded) || undefined}>
           <VisuallyHidden component="caption">
             {t('reports.table.caption', { currency })}
           </VisuallyHidden>
