@@ -2,6 +2,31 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-05 (B-005: The account list's scroll bar no longer covers the balances)
+
+**Done**
+- [B-005](changes/bugfixes/B-005-account-list-scroll-bar/B-005-account-list-scroll-bar.md) on
+  `bugfix/B-005-account-list-scroll-bar`. Cause: Mantine draws the scroll bar over the content, and the desktop
+  dropdown lists left the rows only their own 10 px padding beside it, so under the pointer the bar touched the
+  balances. The owner saw the fix as a prototype story (the real screens, the gutter turned on by the story) and
+  approved it on 2026-11-05 ("Approved, build it"); the prototype is deleted.
+- Fix: `offsetScrollbars="present"` on the `Picker`'s list (Account, Transfer from / to, Category, the Transactions
+  filter) and the currency list: a 12 px gutter for the bar while the list scrolls. Sheets, dialogs and the Note
+  field's suggestions already kept clear of the bar and don't change.
+- Unit tests (`Picker.test.tsx`, `CurrencyPicker.test.tsx`) and an E2E test (desktop, 10 accounts: every row ends at
+  the bar); all fail without the fix.
+- Checked: frontend lint, format, typecheck, build, unit tests (273 / 273), `build-storybook`; backend build and tests
+  (the backend isn't changed); the full E2E suite, desktop and phone (67 passed, 9 skipped for the other screen size);
+  screenshots of the Account, Category and currency dropdowns at 1440 px and the phone's Account sheet at 375 px, light
+  and dark, looked at. The design check on the quick-add and New account stories finds the same 96 issues with and
+  without the fix (an open dialog over the page, the desktop stories at other widths), so none are B-005's; not
+  looked into further here.
+- Test data: the E2E runs' `e2e-account-bar-…` and other `e2e-…@example.com` people (with their accounts); the E2E
+  clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Next in the backlog: B-004 and I-024 (Medium, both 🎨, on the account screens).
+
 ## 2026-11-05 (I-026: Prototypes in Storybook open like a page)
 
 **Done**

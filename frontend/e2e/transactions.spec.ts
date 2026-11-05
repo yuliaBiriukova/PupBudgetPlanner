@@ -465,3 +465,35 @@ test('on the desktop, a month with many categories: Where it went scrolls in its
   await expect(page).toHaveURL(/category=/);
   await expect(last).toHaveAttribute('aria-pressed', 'true');
 });
+
+test('on the desktop, a long account list scrolls with its bar beside the rows, not over the balances', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'The list is a sheet on the phone, its rows clear of the bar');
+  const response = await signUpThroughApi(page.request, newPerson('account-bar'));
+  expect(response.ok()).toBe(true);
+  // More accounts than fit in the list, so it scrolls (B-005)
+  for (let index = 0; index < 10; index += 1) {
+    await addAccount(page, `Account ${String(index)}`, 48211 + index, 'Bank');
+  }
+
+  await page.goto('/transactions');
+  await page.getByRole('button', { name: en.shell.addTransaction }).first().click();
+  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  await dialog.getByRole('button', { name: new RegExp(`^${form.account}:`) }).click();
+  const list = page.getByRole('dialog', { name: form.account });
+  const rows = list.getByRole('button');
+  await expect(rows).toHaveCount(10);
+  // Under the pointer the bar shows, widest
+  await rows.nth(1).hover();
+  await page.mouse.wheel(0, 100);
+  const bar = list.locator('.mantine-ScrollArea-scrollbar');
+  await expect(bar).toBeVisible();
+  const barLeft = (await bar.boundingBox())?.x ?? 0;
+  expect(barLeft).toBeGreaterThan(0);
+  for (const row of await rows.all()) {
+    const box = await row.boundingBox();
+    expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(barLeft);
+  }
+});
