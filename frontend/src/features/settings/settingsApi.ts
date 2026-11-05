@@ -3,6 +3,7 @@ import { apiClient } from '../../shared/api/client';
 import type { components } from '../../shared/api/schema';
 import { accountsTotalQuery } from '../accounts/accountsApi';
 import { currentUserQuery } from '../auth/authApi';
+import { reportsKey } from '../reports/reportsApi';
 
 /** The person's name, email and report currency (F-016); the theme is kept on the device, not here. */
 export type UserSettings = components['schemas']['UserSettings'];
@@ -37,7 +38,7 @@ export function useChangeName() {
   });
 }
 
-/** Saves the report currency; the total on Accounts (and here) is fetched again in it. */
+/** Saves the report currency; the total on Accounts (and here) and the reports are fetched again in it. */
 export function useChangeReportCurrency() {
   const queryClient = useQueryClient();
 
@@ -53,6 +54,7 @@ export function useChangeReportCurrency() {
     onSuccess: (settings) => {
       queryClient.setQueryData(settingsQuery.queryKey, settings);
       void queryClient.invalidateQueries({ queryKey: accountsTotalQuery.queryKey });
+      void queryClient.invalidateQueries({ queryKey: reportsKey });
     },
   });
 }

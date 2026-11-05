@@ -26,6 +26,11 @@
   padding: 8px 16px 32px;
 }
 
+/* A page that needs the room is wider than the others: the Reports page's year (F-022) */
+.content:has(> [data-wide]) {
+  max-width: 1600px;
+}
+
 @media (min-width: $mantine-breakpoint-sm) {
   /* The sidebar column; collapsing animates its width (not while dragging, which follows the pointer) */
   .root {

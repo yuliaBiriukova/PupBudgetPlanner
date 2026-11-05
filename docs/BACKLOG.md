@@ -57,7 +57,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 | ID | Feature | Status |
 |----|---------|--------|
 | [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) | Report engine | Done |
-| [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) | 🎨 Reports screen | Todo |
+| [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) | 🎨 Reports screen | Done |
 
 ### M5 — Family
 
@@ -112,6 +112,7 @@ owner asks for one.
 | [I-023](changes/improvements/I-023-opening-balance-calculator/I-023-opening-balance-calculator.md) | 🎨 Opening balance works as a calculator (`8000+575`); the app's keys on the phone | Low | Todo |
 | [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) | 🎨 The quick-add form's account list shows each account's currency (and bank) | Medium | Todo |
 | [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) | Add transaction opens on the day picked in the Transactions calendar | High | Todo |
+| [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) | Prototypes in Storybook that open like a page: filling the window, one story per variant, the screen size from the toolbar | High | Todo |
 
 ## Bugfixes
 

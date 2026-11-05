@@ -84,7 +84,7 @@ function ListPicker({
       listHeight={344}
       target={
         <UnstyledButton
-          className={classes.select}
+          className={pills.select}
           data-on={on || undefined}
           aria-haspopup="dialog"
           aria-expanded={open}
@@ -227,7 +227,7 @@ function WideFilters({
       )}
       {layout === 'desktop' && categoryName && (
         <UnstyledButton
-          className={classes.select}
+          className={pills.select}
           data-on
           aria-label={t('transactions.filters.showingOnly', { name: categoryName })}
           onClick={() => {
@@ -291,7 +291,7 @@ function PhoneFilters({
   return (
     <div className={classes.controls} role="group" aria-label={t('transactions.filters.label')}>
       <UnstyledButton
-        className={cx(classes.select, classes.filtersButton)}
+        className={cx(pills.select, classes.filtersButton)}
         data-on={on > 0 || undefined}
         aria-haspopup="dialog"
         aria-expanded={open}

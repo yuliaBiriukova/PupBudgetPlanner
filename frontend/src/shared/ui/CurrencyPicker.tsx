@@ -7,7 +7,14 @@ import {
   VisuallyHidden,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconCheck, IconSearch, IconSelector, IconX } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconChevronDown,
+  IconCoins,
+  IconSearch,
+  IconSelector,
+  IconX,
+} from '@tabler/icons-react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DESKTOP_QUERY } from '../../app/shell/sections';
@@ -15,6 +22,7 @@ import { useCurrencyName } from '../i18n/currencyNames';
 import { BottomSheet } from './BottomSheet';
 import { FadingScrollArea } from './FadingScrollArea';
 import classes from './CurrencyPicker.module.css';
+import pills from './Pills.module.css';
 
 interface CurrencyPickerProps {
   /** The picked currency: marked in the list, and on the button unless `placeholder` shows instead. */
@@ -36,12 +44,18 @@ interface CurrencyPickerProps {
   disabled?: boolean;
   /** The phone sheet's title. */
   sheetTitle: string;
+  /**
+   * A filter pill instead of the field (the Reports page, F-022): an icon, the code and a chevron, with the label only
+   * for screen readers; the list opens 300 px wide under the pill's end.
+   */
+  pill?: boolean;
 }
 
 /**
  * A currency field (F-016): a button that opens the list of currencies, the person's own first, then every NBU
  * currency, with a search by code or name. On the desktop a dropdown floating under the button, over the page or
- * the dialog, as tall as its rows; on the phone a sheet. Every currency field uses it (Settings, the account form).
+ * the dialog, as tall as its rows; on the phone a sheet. Every currency field uses it (Settings, the account form, the
+ * Reports page's pill).
  */
 export function CurrencyPicker({
   value,
@@ -55,6 +69,7 @@ export function CurrencyPicker({
   hint,
   disabled,
   sheetTitle,
+  pill = false,
 }: CurrencyPickerProps) {
   const { t } = useTranslation();
   const currencyName = useCurrencyName();
@@ -130,7 +145,23 @@ export function CurrencyPicker({
   );
 
   const shown = placeholder === undefined;
-  const target = (
+  const target = pill ? (
+    <UnstyledButton
+      ref={button}
+      className={pills.select}
+      aria-expanded={open}
+      aria-haspopup="dialog"
+      aria-label={`${label}: ${value}, ${currencyName(value)}`}
+      onClick={() => {
+        if (open) close();
+        else setOpen(true);
+      }}
+    >
+      <IconCoins size={16} stroke={1.7} aria-hidden />
+      <span>{value}</span>
+      <IconChevronDown size={16} stroke={1.7} aria-hidden />
+    </UnstyledButton>
+  ) : (
     <UnstyledButton
       ref={button}
       id={`${id}-button`}
@@ -168,12 +199,12 @@ export function CurrencyPicker({
           setQuery('');
         }
       }}
-      position="bottom-start"
+      position={pill ? 'bottom-end' : 'bottom-start'}
       offset={8}
       // Always under the button, as approved: with little room below it gets shorter and scrolls instead of
       // turning up over the field's label
       middlewares={{ flip: false, shift: false, size: { padding: 16 } }}
-      width="target"
+      width={pill ? 300 : 'target'}
       withinPortal
       // Its roles would give the button another id and lose the label; the button says aria-expanded itself
       withRoles={false}
@@ -199,7 +230,7 @@ export function CurrencyPicker({
     </>
   );
 
-  return hideLabel ? (
+  return hideLabel || pill ? (
     field
   ) : (
     <Input.Wrapper

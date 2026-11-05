@@ -19,7 +19,8 @@ public sealed class ReportsControllerTests
         [new ReportMonth(new DateOnly(2026, 10, 1), ReportMonthState.Passed, false, null)],
         null,
         [],
-        new ReportSummary(Line, Line, Line, Line, Line, 0m));
+        new ReportSummary(Line, Line, Line, Line, Line, 0m),
+        new DateOnly(2026, 1, 1));
 
     /// <summary>4 Nov 2026 in Kyiv.</summary>
     private sealed class November4 : TimeProvider

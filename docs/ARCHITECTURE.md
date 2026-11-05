@@ -152,8 +152,10 @@ erDiagram
   The page keeps the filters in its address ([ADR 0024](decisions/0024-transactions-list-and-summary.md)).
 - Reports (F-021): `GET /api/reports/year?year=…` and `GET /api/reports/month?month=yyyy-MM`, optional `currency`. One
   `Report` shape: the groups' and categories' months with Total and Avg, then Total income, Total expenses, NET, Other
-  changes and the real month-end balance; months still to come are `null`
-  ([ADR 0027](decisions/0027-report-engine.md)).
+  changes and the real month-end balance; months still to come are `null`; `firstMonth` is the person's first month
+  with data, so the Reports page (F-022) steps back only as far as there is something
+  ([ADR 0027](decisions/0027-report-engine.md)). The page keeps its period and currency in its address
+  (`/reports?month=2026-10&currency=USD`), and a category's amount links to the Transactions page's address for it.
 - Currencies are ISO 4217 codes (`char(3)`): the hryvnia and every currency the NBU publishes an official rate for,
   listed once in `Currencies.All` (Domain). The API sends the list with the accounts; the frontend only names them.
 

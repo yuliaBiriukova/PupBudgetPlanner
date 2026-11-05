@@ -149,7 +149,8 @@ public static class ReportBuilder
                 .ToList(),
             monthsCounted,
             groups,
-            summary);
+            summary,
+            data.FirstDay is { } firstDay ? MonthOf(firstDay) : null);
     }
 
     /// <summary>

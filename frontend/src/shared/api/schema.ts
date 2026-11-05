@@ -2073,8 +2073,9 @@ export interface components {
         /**
          * @description The spreadsheet-like report (F-021) in Currency, each amount at the NBU rate of its own day
          *     (business rule 1). MonthsCounted is what Avg divides by: the year's months from the person's first
-         *     month with data up to this one (none for a monthly report). Amounts are kept as worked out and rounded when shown
-         *     (ADR 0018).
+         *     month with data up to this one (none for a monthly report). FirstMonth is the first day of that
+         *     first month (none without any data), so the Reports screen steps back only as far as there is something (F-022).
+         *     Amounts are kept as worked out and rounded when shown (ADR 0018).
          */
         Report: {
             currency: string;
@@ -2083,6 +2084,8 @@ export interface components {
             monthsCounted: null | number | string;
             groups: components["schemas"]["ReportGroup"][];
             summary: components["schemas"]["ReportSummary"];
+            /** Format: date */
+            firstMonth: null | string;
         };
         /** @description A category's row. An archived one is a row only when the period has amounts on it. */
         ReportCategory: {

@@ -9,14 +9,23 @@ interface PickerProps {
   value?: string;
   /** Settings' look: no label above, "Another currency" until one from the list is picked. */
   settings?: boolean;
+  /** The Reports page's look: a filter pill with the code (F-022). */
+  pill?: boolean;
 }
 
 /** A currency field with its list (F-016): a dropdown on the desktop, a sheet on the phone. */
-function Picker({ value: start = 'UAH', settings = false }: PickerProps) {
+function Picker({ value: start = 'UAH', settings = false, pill = false }: PickerProps) {
   const [value, setValue] = useState(start);
   const other = !['UAH', 'USD', 'EUR'].includes(value);
   return (
-    <div style={{ maxWidth: 480, padding: 16 }}>
+    <div
+      style={{
+        maxWidth: 480,
+        padding: 16,
+        display: pill ? 'flex' : undefined,
+        justifyContent: 'flex-end',
+      }}
+    >
       <CurrencyPicker
         label={settings ? 'Another currency' : 'Currency'}
         hideLabel={settings}
@@ -27,6 +36,7 @@ function Picker({ value: start = 'UAH', settings = false }: PickerProps) {
         currencies={CURRENCIES}
         yours={['UAH', 'PLN', 'USD']}
         sheetTitle={settings ? 'Report currency' : 'Currency'}
+        pill={pill}
       />
     </div>
   );
@@ -85,3 +95,15 @@ export const NothingFound: Story = {
     await expect(screen.getByText(/No currency matches/)).toBeVisible();
   },
 };
+
+/** The Reports page's report currency (F-022): the filter pill, the list 300 px wide under its end. */
+export const Pill: Story = {
+  args: { pill: true },
+  globals: desktop,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: /^Currency: UAH/ }));
+    await expect(await screen.findByRole('list', { name: 'Yours' })).toBeVisible();
+  },
+};
+
+export const PillOnPhone: Story = { args: { pill: true } };

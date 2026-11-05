@@ -34,7 +34,6 @@
     "connected": "Connected"
   },
   "placeholder": {
-    "reports": "Monthly and yearly reports, like your spreadsheet, will be here.",
     "family": "Invite your family and see your money together here."
   },
   "colorScheme": {
@@ -722,6 +721,79 @@
       "show_one": "Show {{count}} transaction",
       "show_other": "Show {{count}} transactions",
       "nothing": "Nothing found"
+    }
+  },
+  "reports": {
+    "report": "Report",
+    "year": "Year",
+    "month": "Month",
+    "previousYear": "Previous year",
+    "nextYear": "Next year",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "currency": "Report currency",
+    "loading": "Loading the report",
+    "error": "Couldn’t load the report.",
+    "retry": "Try again",
+    "emptyTitle": "Nothing to report yet",
+    "emptyText": "Add an expense or an income: the report fills itself in as you go. The + is always at hand.",
+    "nothingTitle": "Nothing in {{period}}",
+    "nothingText": "No income or expenses were added in {{period}}.",
+    "ratesMissing": "Some amounts in other currencies aren’t counted: there is no NBU rate for their day yet.",
+    "table": {
+      "caption": "The year by month, in {{currency}}",
+      "inCurrency": "In {{sign}} {{code}}",
+      "income": "Income",
+      "expenses": "Expenses",
+      "now": "now",
+      "before": "before your first entry",
+      "foldBefore": "Fold {{months}}",
+      "openMonth": ", open the month",
+      "total": "Total",
+      "avg": "Avg",
+      "avgNote_one": "÷ {{count}} month",
+      "avgNote_other": "÷ {{count}} months",
+      "totalIncome": "Total income",
+      "totalExpenses": "Total expenses",
+      "net": "NET",
+      "otherChanges": "Other changes",
+      "balance": "Balance at month end",
+      "showTransactions": "{{amount}}: {{category}} in {{period}}, show the transactions"
+    },
+    "heat": {
+      "long": "A month over the category’s usual:",
+      "short": "Over the usual:",
+      "level1": "a quarter more",
+      "level2": "half more",
+      "level3": "twice",
+      "level4": "three times",
+      "level1Short": "+25%",
+      "level2Short": "+50%",
+      "level3Short": "×2",
+      "level4Short": "×3"
+    },
+    "phone": {
+      "yearSoFar": "The year so far",
+      "spent": "Spent",
+      "received": "Received",
+      "onAccountsNow": "On your accounts now",
+      "onAccountsAtEnd": "On your accounts at the year’s end",
+      "months": "Months",
+      "stillToCome": "Still to come",
+      "before": "Before your first entry",
+      "inOut": "In {{income}}, out {{expenses}}",
+      "whereYearWent": "Where the year went",
+      "usuallyMonth": "Usually {{amount}} a month",
+      "usually": "Usually {{amount}}"
+    },
+    "ledger": {
+      "title": "The month",
+      "start": "Balance at the start",
+      "income": "Income",
+      "expenses": "Expenses",
+      "otherChanges": "Other changes",
+      "end": "Balance at the end",
+      "note": "Other changes: the rates, exchanges and new accounts."
     }
   }
 }
