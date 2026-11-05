@@ -2,6 +2,25 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-05 (B-008: The calendar's top cut off at the page's end, fixed)
+
+**Done**
+- [B-008](changes/bugfixes/B-008-calendar-cut-off-at-page-end/B-008-calendar-cut-off-at-page-end.md) on
+  `bugfix/B-008-calendar-cut-off-at-page-end`. Found in B-007's screenshots (it was there before); the owner saw it in
+  the Browser pane and asked for the fix ("fix it in this scope"). B-007's PR (#62) was merged before the fix was in
+  it, so it is its own change, at the owner's choice. Cause: the sticky column is capped at the window, but its area
+  ends with the receipts, above the page's bottom padding, so at the page's end the browser pushed the column up by
+  16 px. Fix: the column also ends where the receipts end, never shorter than its parts' least height.
+- The B-007 E2E test also checks the calendar's top at the page's end (−12 px without the fix).
+- Checked: frontend lint, format, typecheck, build, unit tests; the full E2E suite (desktop and phone) against this
+  branch's own API; screenshots at the page's end at 1440 × 900 and 1440 × 720, light and dark, folded and unfolded,
+  looked at; walked through in the Browser pane, also with one category picked (short receipts). Backend not changed.
+- Test data: an `e2e-manual-…@example.com` person with 14 expenses for the Browser pane, the screenshots' and E2E
+  runs' own people (with their accounts and transactions); the E2E clean-up deleted them.
+
+**Next**
+- Owner: review the PR. Then I-025 (High).
+
 ## 2026-11-05 (B-007: "Where it went" cut off, fixed)
 
 **Done**

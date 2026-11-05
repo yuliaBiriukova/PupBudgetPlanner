@@ -406,9 +406,25 @@ function useMiniBar(slip: RefObject<HTMLElement | null>, on: boolean) {
 /** The room the fitted column keeps under it and over it once it sticks. */
 const COLUMN_GAP_PX = 16;
 
+/** The least the column's parts take: the calendar as it is, "Where it went" at its min-height. */
+function leastHeight(column: HTMLElement): number {
+  return Array.from(column.children).reduce((sum, part) => {
+    const style = getComputedStyle(part);
+    const min = parseFloat(style.minHeight);
+    return (
+      sum +
+      (Number.isNaN(min) || min === 0 ? part.getBoundingClientRect().height : min) +
+      parseFloat(style.marginTop) +
+      parseFloat(style.marginBottom)
+    );
+  }, 0);
+}
+
 /**
  * The desktop's left column: sticky, and ending 16 px above the window's bottom at every scroll position, so the whole
- * of "Where it went" is on screen and its list scrolls inside it (variant 8, owner's review).
+ * of "Where it went" is on screen and its list scrolls inside it (variant 8, owner's review). It ends no lower than
+ * the receipts beside it: a sticky column taller than the room left at the page's end is pushed up, its top under the
+ * window's (B-008).
  */
 function FitColumn({ fit, children }: { fit: boolean; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -428,15 +444,18 @@ function FitColumn({ fit, children }: { fit: boolean; children: ReactNode }) {
       frame = requestAnimationFrame(() => {
         const box = main.getBoundingClientRect();
         const top = Math.max(el.getBoundingClientRect().top, box.top + COLUMN_GAP_PX);
-        el.style.maxHeight = `${String(Math.round(box.bottom - top - COLUMN_GAP_PX))}px`;
+        const receipts = el.nextElementSibling?.getBoundingClientRect().bottom ?? Infinity;
+        const bottom = Math.min(box.bottom - COLUMN_GAP_PX, receipts);
+        el.style.maxHeight = `${String(Math.round(Math.max(bottom - top, leastHeight(el))))}px`;
       });
     };
     measure();
     main.addEventListener('scroll', measure, { passive: true });
     window.addEventListener('resize', measure);
-    // The totals above it load or change height without a scroll: the column moves, so it fits again (B-007)
+    // The totals above it (B-007) or the receipts beside it (B-008) change height without a scroll: it fits again
     const observer = new ResizeObserver(measure);
     if (main.firstElementChild) observer.observe(main.firstElementChild);
+    if (el.nextElementSibling) observer.observe(el.nextElementSibling);
     return () => {
       cancelAnimationFrame(frame);
       main.removeEventListener('scroll', measure);
