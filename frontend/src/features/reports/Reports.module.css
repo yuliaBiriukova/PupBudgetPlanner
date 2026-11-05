@@ -409,8 +409,8 @@
   min-width: 44px;
   min-height: 44px;
   margin: -8px -6px;
-  padding: 0 6px;
-  border-radius: var(--mantine-radius-sm);
+  padding: 0 8px;
+  border-radius: var(--mantine-radius-md);
   color: var(--mantine-color-dimmed);
   font: inherit;
   text-align: left;
@@ -427,8 +427,8 @@
   color: var(--mantine-color-text);
 }
 
-/* Unfolded, the column is only about half the ‹'s width, and its 44 px button reaches into January's empty left (the
-   heading keeps to the right): the ‹ close to both the group column and Jan (owner, 2026-11-05) */
+/* Unfolded, the column is 16 px wide and the ‹ (a 44 px circle, like the icon buttons) reaches into January's empty
+   left (the heading keeps to the right): close to both the group column and Jan (owner, 2026-11-05) */
 .table[data-unfolded] .before {
   min-width: 0;
   padding: 0;
@@ -436,7 +436,11 @@
 
 .table[data-unfolded] .beforeButton {
   align-items: center;
-  margin: 0 -20px 0 0;
+  width: 44px;
+  height: 44px;
+  margin: 0 -28px 0 0;
+  padding: 0;
+  border-radius: 50%;
 }
 
 /* A month's heading opens the month */
