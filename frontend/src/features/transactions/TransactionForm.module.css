@@ -435,7 +435,9 @@
   font-size: 22px;
 }
 
-/* The input grows with what it holds: an invisible copy of the text sets the width */
+/* The input grows with what it holds: an invisible copy of the text sets the width. It is measured as the input draws
+   it (tabular digits), or `135` and `414` come out wider than their box and run into the sign (B-006); 2 px at the end
+   on both keep the caret in sight */
 .sizer {
   display: inline-grid;
   min-width: 0;
@@ -443,10 +445,12 @@
 }
 
 .sizer::after {
-  content: attr(data-value) ' ';
+  content: attr(data-value);
   grid-area: 1 / 1;
   overflow: hidden;
+  padding-inline-end: 2px;
   font: inherit;
+  font-variant-numeric: tabular-nums;
   letter-spacing: inherit;
   white-space: pre;
   visibility: hidden;
@@ -458,7 +462,7 @@
   grid-area: 1 / 1;
   width: 0;
   min-width: 100%;
-  padding: 0;
+  padding: 0 2px 0 0;
   border: 0;
   background: none;
   color: inherit;

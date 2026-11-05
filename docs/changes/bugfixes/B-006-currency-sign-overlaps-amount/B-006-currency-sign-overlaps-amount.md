@@ -4,10 +4,10 @@
 |---|---|
 | Type | Bugfix |
 | Priority | High (a visible defect on the main form: the amount being saved is hard to read) |
-| Status | In progress |
+| Status | Done |
 | Branch | `bugfix/B-006-currency-sign-overlaps-amount` (planned on `plan/prod-testing-fixes`) |
 | Found in | 2026-11-04, production, owner's testing (quick-add form) |
-| Approved | — (date the owner approved the root cause and the planned fix) |
+| Approved | 2026-11-05, the root cause and the planned fix ("Approved, build it") |
 
 ## Steps to reproduce
 
@@ -60,13 +60,18 @@ Applies to the big and the secondary (an exchange's To) display, phone and deskt
 Tried live in the stories: `135` and `414` fit their boxes exactly (no scrolling), the `₴` and the `$` clear of the
 digits.
 
+Built as planned (`TransactionForm.module.css`, `.sizer::after` and `.amountInput`).
+
 ## Tests
 
-- Screens checked in Playwright screenshots (375 and 1440 px, light and dark): `135 ₴`, `$414`, `1 250 000 ₴`, `€0`, a
-  sum, an exchange's two amounts; zoomed in on the sign.
-- A Storybook story with these amounts, so the design check covers them.
-- E2E (jsdom doesn't lay out text, so not a unit test): the amount's text never overflows its box (`scrollWidth` ≤
-  `clientWidth`) for `135 ₴`, `$414`, `1 250 000 ₴`.
+- [x] Screens checked in Playwright screenshots (375 and 1440 px, light and dark): the quick-add form with `135 ₴`, the
+      exchange with `$414`, and the new story (`135 ₴`, `$414`, `1 250 000 ₴`, `€0`, a sum, an exchange's two
+      amounts); zoomed in on the sign. Every amount fits its box exactly.
+- [x] A Storybook story with these amounts, so the design check covers them: `Transactions/Amount display`, its play
+      function checks that no amount is wider than its box.
+- [x] E2E (jsdom doesn't lay out text, so not a unit test): `transactions.spec.ts` checks the amount's text doesn't
+      overflow its box (`scrollWidth` ≤ `clientWidth`) for `135 ₴` and `$414`, desktop and phone. With the old CSS it
+      fails by 4 px and 5 px.
 
 ## Notes
 
@@ -74,3 +79,6 @@ digits.
 - Seen while reproducing, not part of this bug: in the Browser pane the exchange stories' typing (`userEvent.type`)
   sometimes leaves `100` in the From field while the form holds nothing (`$10` shown, To `0`). Typing by hand works.
   A story quirk to look at if it shows up in the design check.
+- The design check reports the amount input as under 44 px wide while empty, and without a focus ring of its own. Both
+  were there before (38 px wide then, 28 px now): the whole display is the tap target (a tap anywhere on it focuses
+  the input) and draws the focus ring (`:focus-within`).

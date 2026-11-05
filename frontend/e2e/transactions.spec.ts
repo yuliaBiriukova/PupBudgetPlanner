@@ -27,6 +27,13 @@ async function clearAmount(dialog: Locator, isMobile: boolean, digits: number) {
     await dialog.getByRole('button', { name: form.key.back }).click();
 }
 
+/** The number fits its display: not scrolled under the currency sign (B-006: `135 ₴`, `$414`). */
+async function expectNumberFits(input: Locator) {
+  await expect
+    .poll(() => input.evaluate((field: HTMLInputElement) => field.scrollWidth - field.clientWidth))
+    .toBeLessThanOrEqual(0);
+}
+
 /** Save: on the phone the keys' Save, or the type's own once the keys fold away for a note (I-017). */
 const saveButton = (dialog: Locator, isMobile: boolean, desktopName: string) =>
   dialog.getByRole('button', {
@@ -71,6 +78,10 @@ test('a person adds an expense from an account’s card, changes it, deletes it,
   await page.getByRole('button', { name: 'Add a transaction from Wallet' }).click();
   let dialog = page.getByRole('dialog', { name: 'Add expense' });
   await expect(dialog.getByRole('button', { name: /^Account:/ })).toContainText('Wallet');
+  // Narrow digits in the display font fit their box, the ₴ clear of them (B-006)
+  await typeAmount(dialog, isMobile, '135');
+  await expectNumberFits(dialog.getByLabel(form.amount, { exact: true }));
+  await clearAmount(dialog, isMobile, 3);
   await typeAmount(dialog, isMobile, '250');
   // No transactions yet: the category is found in All categories
   await dialog.getByRole('button', { name: form.allCategories }).click();
@@ -161,6 +172,17 @@ test('a person exchanges $100 for hryvnias at the bank’s rate; both balances c
   // $100 out; the bank gave 4 490 ₴ (the NBU's suggestion is replaced)
   const from = dialog.getByLabel('From Mono dollars');
   const to = dialog.getByLabel('To Mono black');
+  // A sign before the number: $414 fits, its first 4 not cut under the $ (B-006)
+  if (isMobile) {
+    const keys = dialog.getByRole('group', { name: form.keys });
+    for (const key of '414') await keys.getByRole('button', { name: key, exact: true }).click();
+    await expectNumberFits(from);
+    for (let i = 0; i < 3; i++) await keys.getByRole('button', { name: form.key.back }).click();
+  } else {
+    await from.fill('414');
+    await expectNumberFits(from);
+    await from.fill('');
+  }
   if (isMobile) {
     const keys = dialog.getByRole('group', { name: form.keys });
     for (const key of '100') await keys.getByRole('button', { name: key, exact: true }).click();
