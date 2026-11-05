@@ -222,16 +222,17 @@ test('a person exchanges $100 for hryvnias at the bank’s rate; both balances c
   await expect(page.getByRole('button', { name: /^Mono black/ })).toContainText('1 000 ₴');
 });
 
-/** Adds a transaction of today through the API, as the form would. */
+/** Adds a transaction of today through the API, as the form would; `currency` tells same-named accounts apart. */
 async function addExpense(
   page: Page,
   accountName: string,
   categoryName: string,
   amount: number,
   note: string,
+  currency?: string,
 ) {
   const accounts = (await (await page.request.get('/api/accounts')).json()) as {
-    accounts: { id: string; name: string }[];
+    accounts: { id: string; name: string; currency: string }[];
   };
   const categories = (await (await page.request.get('/api/categories')).json()) as {
     groups: { kind: string; categories: { id: string; name: string }[] }[];
@@ -241,7 +242,9 @@ async function addExpense(
     data: {
       type: 'Expense',
       date: new Date().toLocaleDateString('sv', { timeZone: 'Europe/Kyiv' }),
-      accountId: accounts.accounts.find((item) => item.name === accountName)?.id,
+      accountId: accounts.accounts.find(
+        (item) => item.name === accountName && (!currency || item.currency === currency),
+      )?.id,
       categoryId: categories.groups
         .filter((group) => group.kind === 'Expense')
         .flatMap((group) => group.categories)
@@ -496,4 +499,41 @@ test('on the desktop, a long account list scrolls with its bar beside the rows, 
     const box = await row.boundingBox();
     expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(barLeft);
   }
+});
+
+test('the account list shows each account’s bank and currency, the one used last first; the dollar “Mono” picked by its row', async ({
+  page,
+  isMobile,
+}) => {
+  const response = await signUpThroughApi(page.request, newPerson('account-list'));
+  expect(response.ok()).toBe(true);
+  // An account per currency in one bank, with the same name (I-024)
+  await addAccount(page, 'Mono', 1000, 'Bank');
+  await addAccount(page, 'Mono', 500, 'Bank', 'USD');
+  await addAccount(page, 'Wallet', 300, 'Cash');
+  // The dollar Mono used, then the Wallet: the Wallet is used last, the hryvnia Mono never
+  await addExpense(page, 'Mono', 'Groceries', 20, 'Silpo', 'USD');
+  await addExpense(page, 'Wallet', 'Eating out', 80, 'Lunch');
+
+  await page.goto('/transactions');
+  await page.getByRole('button', { name: en.shell.addTransaction }).first().click();
+  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  const field = dialog.getByRole('button', { name: new RegExp(`^${form.account}:`) });
+  await expect(field).toContainText('Wallet');
+  await field.click();
+  const list = page.getByRole('list', { name: form.accounts });
+  const rows = list.getByRole('button');
+  await expect(rows).toHaveCount(3);
+  await expect(rows.nth(0)).toContainText(/Wallet\s*Cash\s*220\s₴\s*UAH/);
+  await expect(rows.nth(1)).toContainText(/Mono\s*Monobank\s*\$480\s*USD/);
+  await expect(rows.nth(2)).toContainText(/Mono\s*Monobank\s*1\s000\s₴\s*UAH/);
+  await expect(rows.nth(0)).toHaveAttribute('aria-pressed', 'true');
+
+  // The dollar Mono, told apart by its code: the amount is in dollars
+  await rows.nth(1).click();
+  await expect(field).toContainText('$480');
+  const amount = dialog.getByLabel(form.amount, { exact: true });
+  await expect(amount.locator('xpath=ancestor::div[1]')).toContainText('$');
+  await typeAmount(dialog, isMobile, '15');
+  await expect(amount.locator('xpath=ancestor::div[1]')).not.toContainText('₴');
 });

@@ -29,6 +29,15 @@ export function categoriesFor(groups: CategoryGroup[], type: TransactionType): C
     .flatMap((group) => group.categories.map((category) => ({ ...category, group: group.name })));
 }
 
+/**
+ * The accounts as the form's lists show them (I-024, owner 2026-11-05): the one whose latest transaction was added
+ * most recently first, of any type; the accounts without transactions after them, in their order (oldest first).
+ */
+export function byLastUse(accounts: Account[]): Account[] {
+  const usedAt = (account: Account) => (account.lastUsedAt ? Date.parse(account.lastUsedAt) : 0);
+  return [...accounts].sort((a, b) => usedAt(b) - usedAt(a));
+}
+
 /** The account last used for the type while it is in use; otherwise the first account in use. */
 export function defaultAccount(
   accounts: Account[],

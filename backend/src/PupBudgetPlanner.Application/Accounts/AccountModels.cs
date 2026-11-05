@@ -7,7 +7,8 @@ namespace PupBudgetPlanner.Application.Accounts;
 /// One account on the Accounts page. <paramref name="SourceName"/> is set for an own source and
 /// <paramref name="BankName"/> for a bank; Cash and Bank themselves are named by the app.
 /// <paramref name="TransactionCount"/> keeps an account with transactions from being deleted or changing its
-/// currency (I-011, F-018).
+/// currency (I-011, F-018). <paramref name="LastUsedAt"/> is when its latest transaction was added (a transfer's
+/// for both its accounts), none without transactions: the quick-add form lists the account used last first (I-024).
 /// </summary>
 public sealed record AccountItem(
     Guid Id,
@@ -23,7 +24,8 @@ public sealed record AccountItem(
     decimal Balance,
     CardStyle CardStyle,
     DateTimeOffset? ArchivedAt,
-    int TransactionCount);
+    int TransactionCount,
+    DateTimeOffset? LastUsedAt);
 
 public enum SaveAccountOutcome
 {
