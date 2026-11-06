@@ -839,6 +839,33 @@ describe('the Note field’s suggestions (I-017)', () => {
     expect(within(form).getByRole('group', { name: 'Amount keys' })).toBeInTheDocument();
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
+
+  it('on the phone makes room under the form only while earlier notes are listed, no empty gap (B-009)', async () => {
+    setScreenWidth(375);
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    const room = () => form.querySelector('[data-note-room]');
+    const note = within(form).getByLabelText('Note');
+    // A note never used before: no list, so no room
+    await userEvent.type(note, 'кфс');
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(room()).not.toBeInTheDocument();
+
+    await userEvent.clear(note);
+    await userEvent.type(note, 'si');
+    expect(await suggestions()).toHaveLength(5);
+    expect(room()).toBeInTheDocument();
+
+    // Typed on past every earlier note: the list and its room go
+    await userEvent.type(note, 'xq');
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+    expect(room()).not.toBeInTheDocument();
+  });
 });
 
 describe('the phone keys (I-028)', () => {
