@@ -12,7 +12,14 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - The owner's choices: groups change too, not only categories; a removed category with transactions is hidden (past
   transactions and reports keep it), one without is deleted; the generic default set (Q-011) stays after the MVP.
 - Q-003 answered again (yes, in the MVP); PRODUCT, ROADMAP (M5, M9), BACKLOG, OPEN_QUESTIONS and the M5 features'
-  milestone updated. Docs only; nothing built, F-029 stays `Todo`.
+  milestone updated. Nothing built for F-029; it stays `Todo`.
+- The PR's E2E job failed in the I-020 accounts test (the app code is `develop`'s). The owner asked to fix it here:
+  [B-010](changes/bugfixes/B-010-loose-toast-match-e2e/B-010-loose-toast-match-e2e.md). The test's loose
+  `getByText('Mono black added')` also matched the earlier "mono black added" toast while it was still shown; both
+  checks now match exactly. `e2e/accounts.spec.ts` 8 / 8 against this checkout's API (5298) and app (5174), since
+  another chat's servers held the usual ports; frontend lint and format pass.
+- Test data: the E2E run's `e2e-accounts-…` people (with their accounts); the E2E clean-up deleted them. Nothing made by
+  hand.
 
 **Next**
 - Owner: review the planning PR. Then F-029: references and 3 prototype stories on
