@@ -108,7 +108,7 @@ owner asks for one.
 | [I-019](changes/improvements/I-019-ui-consistency/I-019-ui-consistency.md) | 🎨 One look for buttons and other UI elements across the app (the sidebar's Add transaction first) | Medium | Done |
 | [I-020](changes/improvements/I-020-no-duplicate-accounts/I-020-no-duplicate-accounts.md) | No two accounts in use with the same name, currency, source and bank | Medium | Done |
 | [I-021](changes/improvements/I-021-prototypes-in-storybook/I-021-prototypes-in-storybook.md) | Prototypes as Storybook stories built from the app's own parts, so they look like the real UI | High | Done |
-| [I-022](changes/improvements/I-022-opening-balance-left-aligned/I-022-opening-balance-left-aligned.md) | Opening balance typed from the left, like the form's other fields | Low | Todo |
+| [I-022](changes/improvements/I-022-opening-balance-left-aligned/I-022-opening-balance-left-aligned.md) | Opening balance typed from the left, like the form's other fields | Low | Done |
 | [I-023](changes/improvements/I-023-opening-balance-calculator/I-023-opening-balance-calculator.md) | 🎨 Opening balance works as a calculator (`8000+575`); the app's keys on the phone | Low | Todo |
 | [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) | 🎨 The quick-add form's account list shows each account's currency (and bank) | Medium | Done |
 | [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) | Add transaction opens on the day picked in the Transactions calendar | High | Done |

@@ -40,6 +40,11 @@ test('a person adds accounts and sees their balances and totals, then archives o
   await form.getByRole('radio', { name: en.accounts.cash }).click();
   await expect(form.getByRole('radio', { name: en.accounts.form.styles.Envelope })).toBeChecked();
   await form.getByLabel(en.accounts.form.opening).fill('500');
+  // The amount starts at the left like the name, not at the currency sign (I-022)
+  const nameAlign = await form
+    .getByLabel(en.accounts.form.name, { exact: true })
+    .evaluate((input) => getComputedStyle(input).textAlign);
+  await expect(form.getByLabel(en.accounts.form.opening)).toHaveCSS('text-align', nameAlign);
   await form.getByRole('button', { name: en.accounts.form.add }).click();
   await expect(page.getByText('Dollars at home added')).toBeVisible();
 

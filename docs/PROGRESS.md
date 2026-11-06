@@ -2,6 +2,29 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-06 (I-022: The opening balance typed from the left)
+
+**Done**
+- [I-022](changes/improvements/I-022-opening-balance-left-aligned/I-022-opening-balance-left-aligned.md) on
+  `improvement/I-022-opening-balance-left-aligned`. No design round (one field's alignment); the owner approved the
+  description on 2026-11-06 ("Approved, build it").
+- In the New account and Edit account forms the opening balance now starts at the left, where the Name and Opening date
+  text start; the currency sign stays at the field's right edge. The cause was `text-align: right` on the field's
+  `.amountInput` in `Accounts.module.css`, used by no other field. The quick-add form's display is unchanged.
+- DESIGN_RULES: amounts typed in a form field start at the left; only the quick-add display is right-aligned. I-023's
+  note now says I-022 came first.
+- E2E: `accounts.spec.ts` checks the opening balance is aligned like the Name field (fails on the old rule: `right`).
+- Checked: frontend lint, format, typecheck, unit tests (292 / 292), build, `build-storybook`; backend build and tests
+  (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone (72 passed, 10 skipped for the other
+  screen size); screenshots of New account (with `1500` and with `-12500` typed) and Edit account at 375 and 1440 px,
+  light and dark, looked at; the design check on the account form's stories (New account, Edit, with mistakes): Edit
+  0 issues, the New account stories report the same 46 / 45 as on `develop` (the open dialog over the page).
+- Test data: the E2E runs' `e2e-accounts-…`, `e2e-i022-shots-…` and other `e2e-…@example.com` people (with their
+  accounts); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Next in the backlog: B-009 (the gap under the Note, Medium).
+
 ## 2026-11-05 (I-028: The phone keys fold away with Back or a swipe down, not the form)
 
 **Done**
