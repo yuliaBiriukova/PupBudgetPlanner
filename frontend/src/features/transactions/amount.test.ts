@@ -40,15 +40,16 @@ describe('the amount field', () => {
 });
 
 describe('the amount keys', () => {
-  it('type digits, 00 and a sum, and = works it out', () => {
-    expect(press('1', '2', '00')).toBe('1200');
-    expect(press('1', '2', '00', 'plus', '3', '5', '0')).toBe('1200+350');
-    expect(press('1', '2', '00', 'plus', '3', '5', '0', 'equals')).toBe('1550');
+  it('type digits and a sum, and = works it out', () => {
+    expect(press('1', '2', '0', '0')).toBe('1200');
+    expect(press('1', '2', '0', '0', 'plus', '3', '5', '0')).toBe('1200+350');
+    expect(press('1', '2', '0', '0', 'plus', '3', '5', '0', 'equals')).toBe('1550');
   });
 
-  it('take away the last digit or sign', () => {
+  it('take away the last digit, point or sign', () => {
     expect(press('1', '2', 'plus', 'back')).toBe('12');
     expect(press('1', '2', 'back', 'back', 'back')).toBe('');
+    expect(press('1', '2', 'point', 'back')).toBe('12');
   });
 
   it('replace a sign typed right after another and ignore one before any number', () => {
@@ -56,19 +57,54 @@ describe('the amount keys', () => {
     expect(press('minus')).toBe('');
   });
 
-  it('replace a lone 0 and skip 00 before a number', () => {
+  it('replace a lone 0', () => {
     expect(press('0', '5')).toBe('5');
-    expect(press('00')).toBe('');
-    expect(press('0', '00')).toBe('0');
+    expect(press('5', 'plus', '0', '7')).toBe('5+7');
   });
 
-  it('stop at 9 digits a number', () => {
+  it('stop at 9 digits before the point', () => {
     const nine = press('1', '2', '3', '4', '5', '6', '7', '8', '9');
     expect(pressKey(nine, '1')).toBe(nine);
-    expect(press('1', '2', '3', '4', '5', '6', '7', '8', '00')).toBe('12345678');
+    expect(press('1', '2', '3', '4', '5', '6', '7', '8', '9', 'point', '5', '0')).toBe(
+      '123456789.50',
+    );
   });
 
   it('leave a sum of zero or less as it is on =', () => {
-    expect(press('3', '00', 'minus', '5', '00', 'equals')).toBe('300-500');
+    expect(press('3', '0', '0', 'minus', '5', '0', '0', 'equals')).toBe('300-500');
+  });
+});
+
+describe('the point key (I-027)', () => {
+  it('types cents: one point a number, at most 2 digits after it', () => {
+    expect(press('1', '2', 'point', '3', '0')).toBe('12.30');
+    expect(press('1', '2', 'point', 'point', '3')).toBe('12.3');
+    expect(press('1', '2', 'point', '3', '0', '5')).toBe('12.30');
+    expect(press('1', 'point', '5', 'plus', '2', 'point', '2', '5')).toBe('1.5+2.25');
+  });
+
+  it('gives 0. first in a number', () => {
+    expect(press('point', '5')).toBe('0.5');
+    expect(press('7', 'plus', 'point')).toBe('7+0.');
+    expect(press('0', 'point', '5')).toBe('0.5');
+  });
+
+  it('drops a point with nothing after it once the number is done', () => {
+    expect(press('7', 'point', 'minus', '2')).toBe('7-2');
+    expect(press('7', 'plus', '2', 'point', 'equals')).toBe('9');
+  });
+
+  it('rounds the sum once worked out, and the amount', () => {
+    expect(press('1', '2', 'point', '3', '0', 'plus', '4', '5', 'point', '8', '0', 'equals')).toBe(
+      '58',
+    );
+    expect(evaluate(press('1', '2', 'point', '5'))).toBe(13);
+  });
+
+  it('shows the cents as typed', () => {
+    expect(
+      showExpression(press('1', '2', 'point', '3', '0', 'plus', '4', '5', 'point', '8', '0')),
+    ).toBe('12.30 + 45.80');
+    expect(showExpression(press('1', '2', '0', '0', 'point', '5'))).toBe('1 200.5');
   });
 });

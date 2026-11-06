@@ -13,7 +13,7 @@ interface TransferAccountsProps {
   from: Account;
   /** Where it goes; none until picked (the person has no other account). */
   to?: Account;
-  /** The accounts in use, oldest first. */
+  /** The accounts in use, oldest first; the lists show the one used last first (I-024). */
   accounts: Account[];
   onFrom: (accountId: string) => void;
   onTo: (accountId: string) => void;

@@ -9,6 +9,12 @@ const config: StorybookConfig = {
   core: {
     disableTelemetry: true,
   },
+  // A quieter toolbar for looking at a design (I-026): no grid and backgrounds, measure or outline buttons.
+  features: {
+    backgrounds: false,
+    measure: false,
+    outline: false,
+  },
   // Storybook's own bundles (docs, axe) are large by design; only the app's chunks are worth warning about.
   viteFinal: (viteConfig) => mergeConfig(viteConfig, { build: { chunkSizeWarningLimit: 2000 } }),
 };

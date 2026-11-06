@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { account } from '../accounts/accountsTestData';
 import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
 import {
+  byLastUse,
   categoriesFor,
   defaultAccount,
   defaultTo,
@@ -18,6 +19,28 @@ const id = (name: string) => EXPENSES.find((category) => category.name === name)
 const names = (list: CategoryOption[]) => list.map((category) => category.name);
 
 const NONE: TransactionSuggestions = { lastAccounts: [], lastCategories: [], mostUsed: [] };
+
+describe('the account lists', () => {
+  it('show the account used last first, and the accounts never used last, oldest first', () => {
+    const accounts = [
+      account('mono', 'Mono', { lastUsedAt: '2026-11-04T12:05:00+00:00' }),
+      account('unused', 'Mono', { currency: 'EUR' }),
+      account('mono-usd', 'Mono', { currency: 'USD', lastUsedAt: '2026-11-05T09:12:00.123Z' }),
+      account('also-unused', 'Privat'),
+      account('cash', 'Wallet', { lastUsedAt: '2026-11-04T18:40:00+02:00' }),
+    ];
+
+    expect(byLastUse(accounts).map((item) => item.id)).toEqual([
+      'mono-usd',
+      'cash',
+      'mono',
+      'unused',
+      'also-unused',
+    ]);
+    // The accounts as given stay as they are (oldest first)
+    expect(accounts[0]?.id).toBe('mono');
+  });
+});
 
 describe('the form picks', () => {
   it('the account last used for the type while it is in use, else the first one', () => {

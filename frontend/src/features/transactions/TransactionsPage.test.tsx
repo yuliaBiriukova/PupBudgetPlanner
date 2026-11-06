@@ -1,5 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import dayjs from 'dayjs';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { formatMoney } from '../../shared/format/money';
@@ -370,6 +371,68 @@ describe('the Transactions page', () => {
     ).toHaveTextContent('Privat card');
   });
 
+  it('adds on the day tapped in the calendar, from the sidebar and the slip (I-025)', async () => {
+    const sent = transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10');
+
+    const days = await screen.findByRole('region', { name: 'Days of October' }, LOADED);
+    await userEvent.click(
+      await within(days).findByRole('button', { name: /^Thursday 1 October/ }, LOADED),
+    );
+    expect(await screen.findByText('Only Thursday, 1 Oct')).toBeInTheDocument();
+
+    const fromSidebar = await openForm();
+    expect(within(fromSidebar).getByRole('radio', { name: 'Thursday, 1 Oct 2026' })).toBeChecked();
+    await userEvent.click(within(fromSidebar).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Add expense' })).not.toBeInTheDocument();
+    });
+
+    const totals = screen.getByRole('region', { name: 'Totals' });
+    await userEvent.click(within(totals).getByRole('button', { name: 'Add transaction' }));
+    const form = await screen.findByRole('dialog', { name: 'Add expense' });
+    await within(form).findByText('Amount');
+    expect(within(form).getByRole('radio', { name: 'Thursday, 1 Oct 2026' })).toBeChecked();
+    await userEvent.type(within(form).getByLabelText('Amount'), '45');
+    await userEvent.click(within(form).getByRole('radio', { name: 'Rent' }));
+    await userEvent.click(within(form).getByRole('button', { name: 'Save expense' }));
+
+    await waitFor(() => {
+      expect((sent[0]?.body as SaveTransactionRequest).date).toBe('2026-10-01');
+    });
+  });
+
+  it('adds on today again once the day is unpicked or the page left (I-025)', async () => {
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10&day=2026-10-01');
+    const todays = dayjs(today()).format('dddd, D MMM YYYY');
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Show all of October' }, LOADED),
+    );
+    const unpicked = await openForm();
+    expect(within(unpicked).getByRole('radio', { name: todays })).toBeChecked();
+    await userEvent.click(within(unpicked).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Add expense' })).not.toBeInTheDocument();
+    });
+
+    await userEvent.click(
+      await within(await screen.findByRole('region', { name: 'Days of October' })).findByRole(
+        'button',
+        { name: /^Thursday 1 October/ },
+      ),
+    );
+    expect(await screen.findByText('Only Thursday, 1 Oct')).toBeInTheDocument();
+    await userEvent.click(only(screen.getAllByRole('link', { name: 'Accounts' })));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Add a transaction from Privat card' }, LOADED),
+    );
+    const fromCard = await screen.findByRole('dialog', { name: 'Add expense' });
+    await within(fromCard).findByText('Amount');
+    expect(within(fromCard).getByRole('radio', { name: todays })).toBeChecked();
+  });
+
   it('shows Add transaction on the phone’s slip as a round +, its name for screen readers', async () => {
     setScreenWidth(375);
     transactionsServer({ latest: MONTH, overview: USED });
@@ -455,9 +518,10 @@ describe('adding a transaction', () => {
     renderApp('/transactions');
 
     const form = await openForm();
+    await userEvent.click(within(form).getByLabelText('Amount'));
     const keys = within(form).getByRole('group', { name: 'Amount keys' });
     expect(within(keys).getByRole('button', { name: 'Work out the sum' })).toBeDisabled();
-    for (const key of ['1', '2', '00', 'Plus', '3', '5', '0'])
+    for (const key of ['1', '2', '0', '0', 'Plus', '3', '5', '0'])
       await userEvent.click(within(keys).getByRole('button', { name: key }));
     expect(within(form).getByLabelText('Amount')).toHaveValue('1 200 + 350');
     await userEvent.click(within(keys).getByRole('button', { name: 'Work out the sum' }));
@@ -467,6 +531,67 @@ describe('adding a transaction', () => {
 
     await waitFor(() => {
       expect(sent.map((item) => (item.body as SaveTransactionRequest).amount)).toEqual([155]);
+    });
+  });
+
+  it('has the phone keys in a phone’s order, ⌫ above Save (I-027)', async () => {
+    setScreenWidth(375);
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    await userEvent.click(within(form).getByLabelText('Amount'));
+    const keys = within(form).getByRole('group', { name: 'Amount keys' });
+    // Row by row, as Tab goes through them
+    expect(
+      within(keys)
+        .getAllByRole('button')
+        .map((key) => key.getAttribute('aria-label') ?? key.textContent),
+    ).toEqual([
+      '1',
+      '2',
+      '3',
+      'Plus',
+      '4',
+      '5',
+      '6',
+      'Minus',
+      '7',
+      '8',
+      '9',
+      'Delete the last digit',
+      'Point',
+      '0',
+      'Work out the sum',
+      'Save',
+    ]);
+  });
+
+  it('adds up cents on the phone keys and saves the sum rounded (I-027)', async () => {
+    setScreenWidth(375);
+    const sent = transactionsServer({
+      suggestions: {
+        ...NONE,
+        lastCategories: [
+          { type: 'Expense', accountId: 'mono', categoryId: categoryId('Groceries') },
+        ],
+      },
+    });
+    renderApp('/transactions');
+
+    const form = await openForm();
+    await userEvent.click(within(form).getByLabelText('Amount'));
+    const keys = within(form).getByRole('group', { name: 'Amount keys' });
+    for (const key of ['1', '2', 'Point', '3', '0', 'Plus', '4', '5', 'Point', '8', '0'])
+      await userEvent.click(within(keys).getByRole('button', { name: key }));
+    expect(within(form).getByLabelText('Amount')).toHaveValue('12.30 + 45.80');
+    expect(form).toHaveTextContent('= 58 ₴');
+    await userEvent.click(within(keys).getByRole('button', { name: 'Work out the sum' }));
+    expect(within(form).getByLabelText('Amount')).toHaveValue('58');
+    await userEvent.click(within(keys).getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(sent.map((item) => (item.body as SaveTransactionRequest).amount)).toEqual([58]);
     });
   });
 
@@ -702,6 +827,7 @@ describe('the Note field’s suggestions (I-017)', () => {
     renderApp('/transactions');
 
     const form = await openForm();
+    await userEvent.click(within(form).getByLabelText('Amount'));
     expect(within(form).getByRole('group', { name: 'Amount keys' })).toBeInTheDocument();
     await userEvent.click(within(form).getByLabelText('Note'));
     expect(within(form).queryByRole('group', { name: 'Amount keys' })).not.toBeInTheDocument();
@@ -712,6 +838,132 @@ describe('the Note field’s suggestions (I-017)', () => {
     await userEvent.click(within(form).getByLabelText('Amount'));
     expect(within(form).getByRole('group', { name: 'Amount keys' })).toBeInTheDocument();
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('on the phone makes room under the form only while earlier notes are listed, no empty gap (B-009)', async () => {
+    setScreenWidth(375);
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    const room = () => form.querySelector('[data-note-room]');
+    const note = within(form).getByLabelText('Note');
+    // A note never used before: no list, so no room
+    await userEvent.type(note, 'кфс');
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(room()).not.toBeInTheDocument();
+
+    await userEvent.clear(note);
+    await userEvent.type(note, 'si');
+    expect(await suggestions()).toHaveLength(5);
+    expect(room()).toBeInTheDocument();
+
+    // Typed on past every earlier note: the list and its room go
+    await userEvent.type(note, 'xq');
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    });
+    expect(room()).not.toBeInTheDocument();
+  });
+});
+
+describe('the phone keys (I-028)', () => {
+  const keysOf = (form: HTMLElement) => within(form).queryByRole('group', { name: 'Amount keys' });
+  const popupsNow = () => (window.history.state as Record<string, unknown> | null)?.pupPopups;
+  beforeEach(() => {
+    setScreenWidth(375);
+  });
+
+  it('start folded, adding and changing, and come up on a tap on the amount', async () => {
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    expect(keysOf(form)).not.toBeInTheDocument();
+    expect(within(form).getByRole('button', { name: 'Save expense' })).toBeInTheDocument();
+    await userEvent.click(within(form).getByLabelText('Amount'));
+    expect(keysOf(form)).toBeInTheDocument();
+    await userEvent.click(within(form).getByRole('button', { name: 'Close' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Add expense' })).not.toBeInTheDocument();
+    });
+
+    const receipt = screen.getByRole('region', { name: /^Today, / });
+    await userEvent.click(only(within(receipt).getAllByRole('button', { name: /Groceries/ })));
+    const edit = await screen.findByRole('dialog', { name: 'Edit expense' });
+    expect(keysOf(edit)).not.toBeInTheDocument();
+    expect(within(edit).getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
+  });
+
+  it('fold with Back and keep what was typed; the next Back closes the form', async () => {
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    await userEvent.click(within(form).getByLabelText('Amount'));
+    const keys = keysOf(form);
+    if (!keys) throw new Error('no keys');
+    for (const key of ['4', '5'])
+      await userEvent.click(within(keys).getByRole('button', { name: key }));
+    expect(popupsNow()).toBe(2);
+
+    window.history.back();
+    await waitFor(() => {
+      expect(keysOf(form)).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole('dialog', { name: 'Add expense' })).toBeInTheDocument();
+    expect(within(form).getByLabelText('Amount')).toHaveValue('45');
+    expect(popupsNow()).toBe(1);
+
+    window.history.back();
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Add expense' })).not.toBeInTheDocument();
+    });
+    expect(popupsNow()).toBeUndefined();
+  });
+
+  it('leave no history step when the form closes with them up', async () => {
+    transactionsServer({
+      suggestions: {
+        ...NONE,
+        lastCategories: [
+          { type: 'Expense', accountId: 'mono', categoryId: categoryId('Groceries') },
+        ],
+      },
+    });
+    renderApp('/transactions');
+
+    let form = await openForm();
+    await userEvent.click(within(form).getByLabelText('Amount'));
+    expect(popupsNow()).toBe(2);
+    await userEvent.click(within(form).getByRole('button', { name: 'Close' }));
+    await waitFor(() => {
+      expect(popupsNow()).toBeUndefined();
+    });
+
+    // Saved with the keys' Save
+    form = await openForm();
+    await userEvent.click(within(form).getByLabelText('Amount'));
+    const keys = keysOf(form);
+    if (!keys) throw new Error('no keys');
+    await userEvent.click(within(keys).getByRole('button', { name: '7' }));
+    await userEvent.click(within(keys).getByRole('button', { name: 'Save' }));
+    expect(await screen.findByText(/Expense saved\./)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(popupsNow()).toBeUndefined();
+    });
+  });
+
+  it('stay on the desktop as they are: none', async () => {
+    setScreenWidth(1280);
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    await userEvent.click(within(form).getByLabelText('Amount'));
+    expect(keysOf(form)).not.toBeInTheDocument();
+    expect(within(form).getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
   });
 });
 
@@ -902,6 +1154,7 @@ describe('transfers', () => {
     renderApp('/transactions');
 
     const form = await openTransfer();
+    await userEvent.click(within(form).getByLabelText('From Mono dollars'));
     const keys = within(form).getByRole('group', { name: 'Amount keys' });
     for (const key of ['1', '0', '0'])
       await userEvent.click(within(keys).getByRole('button', { name: key }));

@@ -3,7 +3,8 @@ import { useEffect, useRef } from 'react';
 /**
  * Back closes the top pop-up (I-015). Opening a pop-up adds one step to the browser's history, on the same address;
  * Back takes it away and closes the pop-up. Closing it any other way (the X, Cancel, Save, a swipe) takes the step
- * away too, so the next Back leaves the page, and Forward onto such a step does nothing.
+ * away too, with the steps of anything open over it that closes with it (the transaction form's keys, I-028), so the
+ * next Back leaves the page, and Forward onto such a step does nothing.
  */
 
 /** The number of pop-ups open at a history step, kept next to the router's own state. */
@@ -16,9 +17,14 @@ interface OpenPopup {
 
 /** The open pop-ups, bottom first. */
 const openPopups: OpenPopup[] = [];
-/** Our own history.back() calls whose popstate hasn't come yet. */
+/** Our own history.go() calls whose popstate hasn't come yet. */
 let ourBacks = 0;
-/** Steps to add once our pending back has landed, so they don't land under it. */
+/** The number of pop-ups at the step our pending backs land on. */
+let landing = 0;
+/**
+ * What waits for our pending back to land, in order: steps to add, so they don't land under it, and further steps
+ * back (a browser may drop a second traversal sent before the first one lands).
+ */
 const waiting: (() => void)[] = [];
 let listening = false;
 
@@ -27,25 +33,47 @@ function depthOf(state: unknown): number {
   return Number((state as Record<string, unknown>)[POPUPS_KEY]) || 0;
 }
 
-function goBack() {
+/** The number of pop-ups at the current step, or at the one our pending backs land on. */
+function depthNow(): number {
+  return ourBacks > 0 ? landing : depthOf(window.history.state);
+}
+
+/** Goes back to the step with `depth` pop-ups, past every step over it in one go. */
+function goBackTo(depth: number) {
+  if (ourBacks > 0) {
+    if (depth >= landing) return;
+    landing = depth;
+    waiting.push(() => {
+      goBackTo(depth);
+    });
+    return;
+  }
+  const steps = depthOf(window.history.state) - depth;
+  if (steps <= 0) return;
   ourBacks++;
-  window.history.back();
+  landing = depth;
+  window.history.go(-steps);
+}
+
+/** Runs what waited for our back, until one of them goes back again. */
+function runWaiting() {
+  while (ourBacks === 0) {
+    const next = waiting.shift();
+    if (!next) return;
+    next();
+  }
 }
 
 function onPopState(event: PopStateEvent) {
   if (ourBacks > 0) {
     ourBacks--;
-    if (ourBacks === 0) {
-      waiting.splice(0).forEach((push) => {
-        push();
-      });
-    }
+    if (ourBacks === 0) runWaiting();
     return;
   }
   const depth = depthOf(event.state);
   if (depth > openPopups.length) {
     // Forward onto a pop-up closed earlier: it stays closed, the step is skipped
-    goBack();
+    goBackTo(depth - 1);
     return;
   }
   // Back: the pop-ups above the step close, the top one first
@@ -95,8 +123,10 @@ export function usePopupHistory(opened: boolean, onClose: () => void) {
         waiting.splice(queued, 1);
         return;
       }
-      // Closed another way than Back: take its step away, unless a link moved on from it already
-      if (depthOf(window.history.state) === popup.depth) goBack();
+      // Closed another way than Back: take its step away with any over it, unless a link moved on from it already.
+      // React cleans up a pop-up inside another first (the form's sheet before the form's keys, I-028): the sheet's
+      // back takes the keys' step too, and the keys then find theirs gone
+      if (depthNow() >= popup.depth) goBackTo(popup.depth - 1);
     };
   }, [opened]);
 }

@@ -34,12 +34,28 @@ test('a person adds accounts and sees their balances and totals, then archives o
   form = page.getByRole('dialog', { name: en.accounts.form.newTitle });
   await form.getByLabel(en.accounts.form.name, { exact: true }).fill('Dollars at home');
   await form.getByRole('button', { name: en.accounts.form.currency }).click();
-  // The list opens over the form (a dropdown on the desktop, a sheet on the phone, F-016), not inside it
-  await page.getByLabel(en.currencyPicker.search).fill('dollar');
-  await page.getByRole('button', { name: /USD\s*US dollar/ }).click();
+  // The list opens over the form (a dropdown on the desktop, a sheet on the phone, F-016), not inside it, with its
+  // search in focus: the keys alone type in it, and Enter picks the first match (B-004)
+  const search = page.getByLabel(en.currencyPicker.search);
+  await expect(search).toBeFocused();
+  await page.keyboard.type('dollar');
+  await expect(search).toHaveValue('dollar');
+  await expect(page.getByRole('button', { name: /^EUR/ })).toHaveCount(0);
+  await search.clear();
+  await page.keyboard.type('usd');
+  await page.keyboard.press('Enter');
+  await expect(search).toBeHidden();
+  await expect(form.getByRole('button', { name: en.accounts.form.currency })).toContainText(
+    'US dollar',
+  );
   await form.getByRole('radio', { name: en.accounts.cash }).click();
   await expect(form.getByRole('radio', { name: en.accounts.form.styles.Envelope })).toBeChecked();
   await form.getByLabel(en.accounts.form.opening).fill('500');
+  // The amount starts at the left like the name, not at the currency sign (I-022)
+  const nameAlign = await form
+    .getByLabel(en.accounts.form.name, { exact: true })
+    .evaluate((input) => getComputedStyle(input).textAlign);
+  await expect(form.getByLabel(en.accounts.form.opening)).toHaveCSS('text-align', nameAlign);
   await form.getByRole('button', { name: en.accounts.form.add }).click();
   await expect(page.getByText('Dollars at home added')).toBeVisible();
 

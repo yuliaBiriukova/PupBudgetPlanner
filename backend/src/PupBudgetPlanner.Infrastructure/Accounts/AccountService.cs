@@ -32,12 +32,14 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         var bankNames = banks.ToDictionary(bank => bank.Id, bank => bank.Name);
         var balances = BalanceSheet.BalancesOf(accounts, BalanceSheet.MovementsOf(sums));
         var counts = CountsOf(sums);
+        var lastUsed = BalanceSheet.LastUsedOf(sums);
         var items = balances
             .Select(balance => ToItem(
                 balance,
                 balance.Account.SourceId is { } sourceId ? sourceNames.GetValueOrDefault(sourceId) : null,
                 balance.Account.BankId is { } bankId ? bankNames.GetValueOrDefault(bankId) : null,
-                counts.GetValueOrDefault(balance.Account.Id)))
+                counts.GetValueOrDefault(balance.Account.Id),
+                lastUsed.TryGetValue(balance.Account.Id, out var usedAt) ? usedAt : null))
             .ToList();
 
         return new AccountsOverview(
@@ -277,11 +279,16 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             BalanceSheet.BalancesOf([account], BalanceSheet.MovementsOf(sums))[0],
             sourceName,
             bankName,
-            sums.Sum(sum => sum.Count));
+            sums.Sum(sum => sum.Count),
+            BalanceSheet.LastUsedOf(sums).TryGetValue(account.Id, out var usedAt) ? usedAt : null);
     }
 
     private static AccountItem ToItem(
-        AccountBalance balance, string? sourceName, string? bankName, int transactionCount)
+        AccountBalance balance,
+        string? sourceName,
+        string? bankName,
+        int transactionCount,
+        DateTimeOffset? lastUsedAt)
     {
         var account = balance.Account;
         return new AccountItem(
@@ -298,6 +305,7 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             balance.Balance,
             account.CardStyle,
             account.ArchivedAt,
-            transactionCount);
+            transactionCount,
+            lastUsedAt);
     }
 }

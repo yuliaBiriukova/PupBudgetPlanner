@@ -56,8 +56,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 | ID | Feature | Status |
 |----|---------|--------|
-| [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) | Report engine | Todo |
-| [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) | 🎨 Reports screen | Todo |
+| [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) | Report engine | Done |
+| [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) | 🎨 Reports screen | Done |
 
 ### M5 — Family
 
@@ -108,6 +108,13 @@ owner asks for one.
 | [I-019](changes/improvements/I-019-ui-consistency/I-019-ui-consistency.md) | 🎨 One look for buttons and other UI elements across the app (the sidebar's Add transaction first) | Medium | Done |
 | [I-020](changes/improvements/I-020-no-duplicate-accounts/I-020-no-duplicate-accounts.md) | No two accounts in use with the same name, currency, source and bank | Medium | Done |
 | [I-021](changes/improvements/I-021-prototypes-in-storybook/I-021-prototypes-in-storybook.md) | Prototypes as Storybook stories built from the app's own parts, so they look like the real UI | High | Done |
+| [I-022](changes/improvements/I-022-opening-balance-left-aligned/I-022-opening-balance-left-aligned.md) | Opening balance typed from the left, like the form's other fields | Low | Done |
+| [I-023](changes/improvements/I-023-opening-balance-calculator/I-023-opening-balance-calculator.md) | 🎨 Opening balance works as a calculator (`8000+575`); the app's keys on the phone | Low | Todo |
+| [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) | 🎨 The quick-add form's account list shows each account's currency (and bank) | Medium | Done |
+| [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) | Add transaction opens on the day picked in the Transactions calendar | High | Done |
+| [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) | Prototypes in Storybook that open like a page: filling the window, one story per variant, the screen size from the toolbar | High | Done |
+| [I-027](changes/improvements/I-027-calculator-key-order/I-027-calculator-key-order.md) | The phone keys in a phone's order: 1 2 3 on top, ⌫ above Save, `.` for cents | Medium | Done |
+| [I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md) | 🎨 The phone keys show on a tap on the amount and fold away with Back or a swipe down, not the whole form | Medium | Done |
 
 ## Bugfixes
 
@@ -116,3 +123,9 @@ owner asks for one.
 | [B-001](changes/bugfixes/B-001-flaky-server-wake-test/B-001-flaky-server-wake-test.md) | Flaky "server answers quickly" unit test | High | Done |
 | [B-002](changes/bugfixes/B-002-stale-tab-icon/B-002-stale-tab-icon.md) | Tab icon still shows the Vite template icon | Medium | Done |
 | [B-003](changes/bugfixes/B-003-account-cards-too-big/B-003-account-cards-too-big.md) | Account cards bigger than in the prototype on the desktop | Medium | Done |
+| [B-004](changes/bugfixes/B-004-currency-search-not-typing/B-004-currency-search-not-typing.md) | 🎨 Can't type in the currency search of the account form (3 variants of the picker) | Medium | Done |
+| [B-005](changes/bugfixes/B-005-account-list-scroll-bar/B-005-account-list-scroll-bar.md) | The account list's scroll bar covers the balances | Medium | Done |
+| [B-006](changes/bugfixes/B-006-currency-sign-overlaps-amount/B-006-currency-sign-overlaps-amount.md) | The currency sign overlaps the amount in the calculator display | High | Done |
+| [B-007](changes/bugfixes/B-007-where-it-went-cut-off/B-007-where-it-went-cut-off.md) | "Where it went" is cut off and doesn't scroll (Transactions, desktop) | High | Done |
+| [B-008](changes/bugfixes/B-008-calendar-cut-off-at-page-end/B-008-calendar-cut-off-at-page-end.md) | The calendar's top is cut off at the end of the Transactions page (desktop) | High | Done |
+| [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) | An empty gap under the Note while it is typed on the phone | Medium | Done |

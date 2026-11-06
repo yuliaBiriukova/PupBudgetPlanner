@@ -158,8 +158,13 @@ This file tells Claude (and any human contributor) how we work on this project.
   - In `frontend/src/prototypes/<ID-name>/`, titled `Prototypes/<ID> <name>` (`Variant 1: Dropdown` …): the real
     screen with the app's components, `theme.ts`, the design system and the fake API the screen stories use, plus
     only the new part. Never edit the app's files for a prototype; copy a part into the prototype folder instead.
-  - The owner sees them in Storybook (`npm run storybook` in `frontend/`): give the story links, phone and desktop,
-    light and dark are switched there.
+  - **One story per variant** (and one for the final prototype): its states are reached inside the page, as in the
+    app; only a state the page can't reach (loading, error) gets its own story. A prototype story never sets the
+    viewport or the colour scheme (`globals` lock the toolbar's switches) (I-026).
+  - The owner sees them in Storybook (`npm run storybook` in `frontend/`, checked running first) through links that
+    open the page filling the window, without the sidebar and panel:
+    `http://localhost:6006/?path=/story/<story-id>&nav=false&panel=false&globals=viewport.value:!undefined`.
+    Phone, tablet and desktop and light / dark are switched in the toolbar.
   - The change folder keeps the story links and, once it's approved, the final prototype's screenshots (375 and
     1440 px, light and dark) in `prototypes/`.
   - When the change is built, delete its prototype stories; the real stories replace them.

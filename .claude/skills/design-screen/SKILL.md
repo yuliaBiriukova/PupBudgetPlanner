@@ -72,14 +72,22 @@ Build each as a **Storybook story** in `frontend/src/prototypes/<ID-name>/` (e.g
   The story's decorator already gives the app's providers, theme and the toolbar's light/dark.
 - **Never edit the app's files** for a prototype. A component that needs to work differently is copied into the
   prototype folder and changed there. Shared fake data may be imported, not changed.
-- Options inside a variant are separate stories or Storybook controls (args); states (empty, loading, error,
-  an open list) are separate stories too, so each has its own address for the check.
+- **One story per variant** (I-026), and one for the final prototype. Its states (a tab, an opened row, a list
+  open) are reached inside the page, the way the app does it; only a state the page can't reach (loading, error,
+  empty data) gets a story of its own. Options inside a variant are Storybook controls (args), not more stories.
+  The design check covers each story's opening state; the states reached inside the page are clicked through in
+  Playwright and their screenshots looked at (step 5) — not made into stories for the check.
+- **No `globals` in a prototype story** — no viewport, no colour scheme: a story's globals lock those switches in
+  the toolbar, and the owner switches them there.
 - Plain English text is fine in a prototype (no i18n keys yet); typecheck, ESLint and Prettier must pass.
-- In the description file, list each story with its link:
-  `http://localhost:6006/?path=/story/<story-id>`.
+- In the description file, list each story with the link that opens it like a page — filling the window, without
+  the sidebar and addons panel:
+  `http://localhost:6006/?path=/story/<story-id>&nav=false&panel=false&globals=viewport.value:!undefined`.
 
-The owner opens them in Storybook (`npm run storybook` in `frontend/`, port 6006; start it and give the links)
-and switches phone / desktop and light / dark in its toolbar. Earlier changes' HTML prototypes stay as they are.
+The owner opens them in Storybook (`npm run storybook` in `frontend/`, port 6006). Check it is running and the
+links open before sending them. In the toolbar the owner switches Phone 375 × 812, Tablet 768 × 1024, Desktop
+1440 × 900 ("Reset viewport" is the window again) and Light / Dark. Earlier changes' HTML prototypes stay as they
+are.
 
 ## 5. Verify by looking, not guessing
 

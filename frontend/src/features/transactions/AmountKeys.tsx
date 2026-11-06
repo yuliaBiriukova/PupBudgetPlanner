@@ -6,21 +6,21 @@ import classes from './TransactionForm.module.css';
 
 const ICON = { size: 24, stroke: 1.7 } as const;
 
-/** In the calculator's order: 7 8 9 ⌫ / 4 5 6 − / 1 2 3 + / 00 0 = Save. */
+/** In a phone's order (I-027, the owner's reference): 1 2 3 + / 4 5 6 − / 7 8 9 ⌫ / . 0 = Save. */
 const KEYS: AmountKey[] = [
-  '7',
-  '8',
-  '9',
-  'back',
-  '4',
-  '5',
-  '6',
-  'minus',
   '1',
   '2',
   '3',
   'plus',
-  '00',
+  '4',
+  '5',
+  '6',
+  'minus',
+  '7',
+  '8',
+  '9',
+  'back',
+  'point',
   '0',
   'equals',
 ];
@@ -31,19 +31,23 @@ interface AmountKeysProps {
   onKey: (key: AmountKey) => void;
   onSave: () => void;
   saving: boolean;
+  /** The keys' box, for the swipe that folds them (I-028). */
+  keysRef?: (element: HTMLDivElement | null) => void;
 }
 
 /**
  * The app's own keys on the phone (F-018 final prototype): the phone's keyboard never covers the form. + and − add up
- * a receipt, = works the sum out, Save saves.
+ * a receipt, = works the sum out, Save saves. They come up on a tap on the amount and slide from the sheet's edge, the
+ * sheet's grab handle on top: a swipe down or Back folds them (I-028).
  */
-export function AmountKeys({ value, onKey, onSave, saving }: AmountKeysProps) {
+export function AmountKeys({ value, onKey, onSave, saving, keysRef }: AmountKeysProps) {
   const { t } = useTranslation();
   const labels: Partial<Record<AmountKey, string>> = {
     back: t('transactions.form.key.back'),
     minus: t('transactions.form.key.minus'),
     plus: t('transactions.form.key.plus'),
     equals: t('transactions.form.key.equals'),
+    point: t('transactions.form.key.point'),
   };
 
   const face = (key: AmountKey) => {
@@ -56,13 +60,21 @@ export function AmountKeys({ value, onKey, onSave, saving }: AmountKeysProps) {
         return <IconPlus {...ICON} />;
       case 'equals':
         return <IconEqual {...ICON} />;
+      case 'point':
+        return '.';
       default:
         return key;
     }
   };
 
   return (
-    <div className={classes.keys} role="group" aria-label={t('transactions.form.keys')}>
+    <div
+      ref={keysRef}
+      className={classes.keys}
+      role="group"
+      aria-label={t('transactions.form.keys')}
+    >
+      <div className={classes.keysHandle} aria-hidden="true" />
       {KEYS.map((key) => (
         <UnstyledButton
           key={key}

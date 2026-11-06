@@ -2,6 +2,501 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-06 (B-004: The currency search takes the keys as soon as it opens)
+
+**Done**
+- [B-004](changes/bugfixes/B-004-currency-search-not-typing/B-004-currency-search-not-typing.md) on
+  `bugfix/B-004-currency-search-not-typing`. Cause: the picker focused its search in an effect when `open` turned true,
+  a frame before Mantine's transition drew the desktop dropdown, so there was nothing to focus; on the phone the sheet
+  then gave the focus to its ×. Not the dialog: Settings had it too.
+- Design: 3 prototype stories (the dropdown fixed, typing in the field, a page of the dialog); the owner chose variant
+  1 and approved its final prototype on 2026-11-06 ("Approved, build it"). Screenshots in the change's `prototypes/`,
+  the prototype stories deleted.
+- `CurrencyPicker`: the search is focused as it is drawn (a ref callback; `data-autofocus` for the phone's sheet); the
+  first match is marked as you type, Enter picks it (without sending the form), ↓ ↑ move the mark; the mark is kept for
+  the search it was made in, and the keys work from what the search holds. Every currency field has it: the account
+  form, Settings, the Reports page's pill. Found in the screenshots and fixed with it: the hover tint stuck where a phone
+  was tapped and looked like a second mark; it is now only for devices that hover, and only a mouse marks a row.
+- DESIGN_RULES: the currency field's rule says the search is in focus and how the keys work; "Screen decisions" row.
+- Tests: `CurrencyPicker.test.tsx` with Mantine's real transitions (the `env="test"` shortcut had hidden the bug): the
+  desktop search in focus in a dialog and typed with the keys alone, the phone sheet's search in focus, ↓ ↑ Enter,
+  Escape leaves the dialog; 4 of them fail on the old picker. `accounts.spec.ts` picks the dollars with the keys alone
+  (fails on the old picker: the search isn't focused). Story *Shared / Currency picker / Typing with the keys*.
+- Checked: frontend lint, format, typecheck, unit tests (297 / 297), build, `build-storybook`; backend build (0
+  warnings) and tests (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone (73 passed, 11
+  skipped for the other screen size); screenshots of the account form, Settings and the Reports pill with `dol` typed
+  and ↓ pressed, and the account form after Enter, at 375 and 1440 px, light and dark, looked at; the design check on
+  the prototype stories (only the open dialog's overlap over the page, as on the app's own New account story).
+  A first full unit run had 11 time-outs in other features while the machine was at 100% CPU; they passed on their own
+  and in a second full run.
+- Test data: the E2E runs' `e2e-accounts-…`, `e2e-b004-shots-…`, `e2e-b004-debug-…` and other `e2e-…@example.com`
+  people (with their accounts); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Seen while checking, not changed (F-016 as approved): at 1280 × 720 the desktop list under the
+  account form's Currency field has room for only about one row and scrolls.
+
+## 2026-11-06 (B-009: No empty gap under the Note on the phone)
+
+**Done**
+- [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) on `bugfix/B-009-gap-under-note`. Reproduced
+  in Storybook at 375 × 520 px (*Add phone* with no earlier notes: `кфс` left a 218 px empty block between the Note and
+  Save). Cause: I-017's room for the list of earlier notes was added whenever the Note was typed on the phone, list or
+  not. The owner approved fix A on 2026-11-06 ("Approved: build A").
+- `NoteField` tells the form when its list shows (`onListed`); the room under the form and the scroll of the Note to the
+  top now come only with the list. With no list the form stays where it is and the Note is only kept in sight. The
+  desktop is unchanged. DESIGN_RULES' I-017 row says so.
+- Tests: `TransactionsPage.test.tsx` (no room for a new note, room with the list, gone with it) and an E2E test (phone,
+  375 × 520: the Note right above Save for a new note; the Note up and the list above Save for an earlier one). Both fail
+  on the old code.
+- Checked: frontend lint, format, typecheck, unit tests (293 / 293), build, `build-storybook`; backend build and tests
+  (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone (73 passed, 11 skipped for the other
+  screen size); screenshots of the form at 375 × 520 (a new note, a list, the list gone, the keys after the Note) and
+  1440 px, light and dark, looked at; the design check on *Note suggestions phone* and *loading*: 100 issues, the same
+  as on `develop` (the open dialog over the page).
+- Test data: the E2E runs' `e2e-note-gap-…`, `e2e-b009-shots-…` and other `e2e-…@example.com` people (with their
+  accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-06 (I-022: The opening balance typed from the left)
+
+**Done**
+- [I-022](changes/improvements/I-022-opening-balance-left-aligned/I-022-opening-balance-left-aligned.md) on
+  `improvement/I-022-opening-balance-left-aligned`. No design round (one field's alignment); the owner approved the
+  description on 2026-11-06 ("Approved, build it").
+- In the New account and Edit account forms the opening balance now starts at the left, where the Name and Opening date
+  text start; the currency sign stays at the field's right edge. The cause was `text-align: right` on the field's
+  `.amountInput` in `Accounts.module.css`, used by no other field. The quick-add form's display is unchanged.
+- DESIGN_RULES: amounts typed in a form field start at the left; only the quick-add display is right-aligned. I-023's
+  note now says I-022 came first.
+- E2E: `accounts.spec.ts` checks the opening balance is aligned like the Name field (fails on the old rule: `right`).
+- Checked: frontend lint, format, typecheck, unit tests (292 / 292), build, `build-storybook`; backend build and tests
+  (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone (72 passed, 10 skipped for the other
+  screen size); screenshots of New account (with `1500` and with `-12500` typed) and Edit account at 375 and 1440 px,
+  light and dark, looked at; the design check on the account form's stories (New account, Edit, with mistakes): Edit
+  0 issues, the New account stories report the same 46 / 45 as on `develop` (the open dialog over the page).
+- Test data: the E2E runs' `e2e-accounts-…`, `e2e-i022-shots-…` and other `e2e-…@example.com` people (with their
+  accounts); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Next in the backlog: B-009 (the gap under the Note, Medium).
+
+## 2026-11-05 (I-028: The phone keys fold away with Back or a swipe down, not the form)
+
+**Done**
+- [I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md) on `improvement/I-028-fold-away-keys`.
+  Design: 3 prototype stories (nothing shown, a handle, a ⌄ and keypad key); the owner chose variant 1 with variant
+  2's handle on the keys. The final prototype was approved on 2026-11-05 ("Approved, build it"); its screenshots are
+  in the change's `prototypes/`, the prototype stories are deleted.
+- On the phone the quick-add form opens with its keys folded and one full-width Save, adding and changing alike. A tap
+  on the amount brings them up, sliding from the sheet's edge with the sheet's grab handle on top. Back folds them
+  before it closes the form; a swipe down on them folds them (the sheets' quarter and flick), a short one slides them
+  back without pressing a key; a tap on the Note folds them as before. Nothing typed is lost. The desktop is
+  unchanged.
+- `popupHistory.ts`: the keys have a history step of their own over the sheet's. Closing a pop-up another way now takes
+  away the steps over it too, in one traversal (a browser may drop a second one sent before the first lands), so the
+  form closed with the keys up (×, Save, a swipe, Delete) leaves no extra Back.
+- `useKeysSwipe.ts`: the keys' swipe, reusing the sheets' `shouldClose`.
+- `BottomSheet`: the sheet is clipped (`overflow: clip`) instead of hidden. Storybook's quick-add story pressed a key
+  while the keys were still sliding in, and the browser scrolled the whole sheet up to that key, its title out of
+  sight; a clipped box can't be scrolled. Seen only in Storybook's quick clicks: Playwright couldn't reproduce it in the
+  app, so no E2E test guards it.
+- Tests: `TransactionsPage.test.tsx` (folded at the start, adding and changing; Back folds, then closes; no step left
+  after × or Save; none on the desktop), `useKeysSwipe.test.tsx` (fold, flick, slide back without pressing, a wobbly
+  press), `popupHistory.test.tsx` (a pop-up and one inside it closed together, in either order: fails on the old code),
+  an E2E test (phone: folded, up on a tap, Back twice, the swipe, × leaves no step); the E2E helpers tap the amount
+  before the keys. Stories: *Add phone* opens folded, *Sum on the keys* and *Exchange phone* tap the amount first.
+- Checked: see the PR; the final prototype in the Browser pane and Playwright; the app's form at 375 px (opened,
+  keys up, mid-swipe, folded) and 1440 px, light and dark, in Playwright screenshots, looked at.
+- Test data: the E2E runs' `e2e-fold-keys-…`, `e2e-i028-shots-…` and other `e2e-…@example.com` people (with their
+  accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Built on I-027's keys (merged from `develop`: the phone's order and `.`); its E2E test now taps the
+  amount before measuring the keys. Next in the same part of the form: B-009 (the gap under the Note).
+
+## 2026-11-05 (I-027: The phone keys in a phone's order, `.` for cents)
+
+**Done**
+- [I-027](changes/improvements/I-027-calculator-key-order/I-027-calculator-key-order.md) on
+  `improvement/I-027-calculator-key-order`. No variants (the owner gave the order from their reference picture); the
+  owner saw one final prototype story (the real form, the keys copied into it) and approved it on 2026-11-05
+  ("Approved, build it"). Its screenshots are in the change's `prototypes/`; the story is deleted.
+- On the phone the keys are 1 2 3 + / 4 5 6 − / 7 8 9 ⌫ / . 0 = Save, ⌫ right above Save. `.` replaces `00` and types
+  cents: one point a number, 2 digits after it, `0.` when first, a point with nothing after it dropped. The display
+  shows `12.30 + 45.80` with `= 58` on top; =, Save and the saved amount are whole (ADR 0018). A lone `12.30` is
+  saved as 12. The desktop is unchanged.
+- Unit tests (`amount.test.ts`; the order and a sum with cents saved as 58 in `TransactionsPage.test.tsx`, both
+  failing without the change) and an E2E test (phone: the order; phone and desktop: `12.30+45.80` saved as −58 ₴).
+  The `SumOnTheKeys` story adds up cents.
+- Checked: frontend lint, format, typecheck, build, unit tests (283 / 283), `build-storybook`; backend build and tests
+  (the backend isn't changed); the full E2E suite, desktop and phone (71 passed, 9 skipped for the other screen size);
+  screenshots of the expense, income and exchange forms with the keys at 375 px and the desktop form at 1440 px, light
+  and dark, looked at. The design check on the prototype found only what it finds on the app's own quick-add story
+  (an open dialog over the page, the page behind it), none on the keys.
+- Test data: the E2E runs' `e2e-cents-…` and other `e2e-…@example.com` people (with their accounts); the E2E clean-up
+  deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Next in the backlog: I-028 (Medium, 🎨, the same keys) and B-009.
+
+## 2026-11-05 (Plan: the phone keys and the Note — I-027, I-028, B-009)
+
+**Done**
+- Planned on `plan/quick-add-keys` the owner's list from production; nothing built. Each has its folder, description
+  file and backlog row, all `Todo`:
+  - [I-027](changes/improvements/I-027-calculator-key-order/I-027-calculator-key-order.md) (Medium): the phone keys in
+    a phone's order, 1 2 3 on top, ⌫ above Save and `.` in place of `00` (typed cents rounded, ADR 0018), from the
+    owner's reference picture; no × ÷, no category button (owner, 2026-11-05).
+  - [I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md) (Medium, 🎨): Back or a swipe down
+    folds the keys instead of closing the form; the keys start folded and come up on a tap on the amount (owner,
+    2026-11-05). With it the owner's question, the app's keys or the phone's number keyboard: the owner keeps the
+    app's keys.
+  - [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) (Medium): an empty gap under the Note while
+    it is typed on the phone. Likely cause, read from the code: I-017's room for the suggestions is added even when
+    there is no list; to be confirmed by reproducing it.
+- Priorities proposed by Claude, for the owner to confirm. The owner answered the open points on 2026-11-05; the
+  answers are in the description files.
+- Test data: none.
+
+**Next**
+- Owner: review the planning PR; approve each change before it is built.
+
+## 2026-11-05 (I-024: The account list tells same-named accounts apart)
+
+**Done**
+- [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) on
+  `improvement/I-024-account-list-currency`. Design: 3 prototype stories (a code tag, two lines like the field, grouped
+  by currency); the owner chose grouping by currency with changes, then asked for no groups and the account used last
+  first. The final prototype was approved on 2026-11-05 ("Approved, build it"); its screenshots are in the change's
+  `prototypes/`, the prototype stories are deleted.
+- Each row of the quick-add form's account list (and Transfer's From and To lists) is the name and then its bank, Cash
+  or own source in grey as one line that wraps, and on the right the balance with the currency's code (`$640 USD`).
+  The list shows the account whose latest transaction was added most recently first, accounts without transactions
+  last (oldest first). The closed fields don't change.
+- Backend: the accounts API returns `lastUsedAt` per account, when its latest transaction was added (a transfer's for
+  both its accounts), from the same database query as the balances and counts. `BalanceSheet.LastUsedOf` with an
+  xUnit test; the API types regenerated.
+- Frontend: `byLastUse` (unit test), the rows in `AccountList` (component test), stories *Transactions / Account list*
+  (phone and desktop, light and dark), an E2E test (two "Mono", the dollar one picked by its row: the amount is in `$`).
+- Checked: see the PR; screenshots of the Account sheet and dropdown and Transfer's To list in the app at 375 and
+  1440 px, light and dark, looked at; the design check on the new story finds nothing.
+- Test data: the E2E runs' `e2e-account-list-…`, `e2e-i024-shots-…` and other `e2e-…@example.com` people (with their
+  accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Next in the backlog: B-004 (Medium, 🎨).
+
+## 2026-11-05 (B-005: The account list's scroll bar no longer covers the balances)
+
+**Done**
+- [B-005](changes/bugfixes/B-005-account-list-scroll-bar/B-005-account-list-scroll-bar.md) on
+  `bugfix/B-005-account-list-scroll-bar`. Cause: Mantine draws the scroll bar over the content, and the desktop
+  dropdown lists left the rows only their own 10 px padding beside it, so under the pointer the bar touched the
+  balances. The owner saw the fix as a prototype story (the real screens, the gutter turned on by the story) and
+  approved it on 2026-11-05 ("Approved, build it"); the prototype is deleted.
+- Fix: `offsetScrollbars="present"` on the `Picker`'s list (Account, Transfer from / to, Category, the Transactions
+  filter) and the currency list: a 12 px gutter for the bar while the list scrolls. Sheets, dialogs and the Note
+  field's suggestions already kept clear of the bar and don't change.
+- Unit tests (`Picker.test.tsx`, `CurrencyPicker.test.tsx`) and an E2E test (desktop, 10 accounts: every row ends at
+  the bar); all fail without the fix.
+- Checked: frontend lint, format, typecheck, build, unit tests (273 / 273), `build-storybook`; backend build and tests
+  (the backend isn't changed); the full E2E suite, desktop and phone (67 passed, 9 skipped for the other screen size);
+  screenshots of the Account, Category and currency dropdowns at 1440 px and the phone's Account sheet at 375 px, light
+  and dark, looked at. The design check on the quick-add and New account stories finds the same 96 issues with and
+  without the fix (an open dialog over the page, the desktop stories at other widths), so none are B-005's; not
+  looked into further here.
+- Test data: the E2E runs' `e2e-account-bar-…` and other `e2e-…@example.com` people (with their accounts); the E2E
+  clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Next in the backlog: B-004 and I-024 (Medium, both 🎨, on the account screens).
+
+## 2026-11-05 (I-026: Prototypes in Storybook open like a page)
+
+**Done**
+- [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) on
+  `improvement/I-026-prototype-viewing`, approved by the owner on 2026-11-05 ("Approved, build it") after the plan was
+  brought up to date: F-022 had been built, so no prototype stories were left to reshape, and point 4 (prototypes
+  filling the window by default) was dropped, since the link already does it.
+- The link `http://localhost:6006/?path=/story/<id>&nav=false&panel=false&globals=viewport.value:!undefined` opens
+  a story filling the window without the sidebar and panel. The viewport list is now Phone 375 × 812, Tablet
+  768 × 1024, Desktop 1440 × 900 (the design check's sizes); the grid / backgrounds, measure and outline buttons are
+  off.
+- The design-screen skill doesn't point the design check at a state through `&args=` in the address: that didn't
+  change the Reports stories' state. States reached inside the page are clicked through in Playwright and their
+  screenshots looked at instead.
+- The rule (one story per variant, no `globals` in a prototype story, links in that form, Storybook checked running
+  first) is in `CLAUDE.md`, `DESIGN_RULES.md` §2, `docs/changes/README.md` and the `design-screen` skill.
+- Found in the build: Escape, also pressed inside the page, brought Storybook's sidebar and panel back (its
+  shortcuts). At the owner's request Storybook's shortcuts are off (`.storybook/manager.ts`); checked in the Browser
+  pane.
+- Seen, not changed: Escape doesn't close the Reports page's currency list while the focus is on its pill (also
+  outside Storybook's frame).
+- Checked: frontend lint, format, build, `storybook build`, unit tests (in the full run 4 tests of
+  `AuthPages.test.tsx` and `TransactionsPage.test.tsx` hit the 5 s timeout while other heavy jobs ran on the machine;
+  both files pass on their own, 48 / 48, and no code they load is changed); this branch's Storybook in the Browser pane (link, toolbar,
+  Phone / Tablet / Desktop, Light / Dark); the design check on a Reports story (0 issues). Backend and app code not
+  changed.
+- Test data: none.
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-05 (I-025: Add transaction on the day picked in the calendar)
+
+**Done**
+- [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) on
+  `improvement/I-025-add-on-picked-day`; the owner approved the planned fix on 2026-11-05 ("Approved, build it").
+- While the Transactions page shows one day, every Add transaction (the slip's, the sidebar's, the phone bar's +, the
+  empty page's) opens the form on it: the page tells the form's provider the day on screen (`useFormDay`), and a new
+  transaction starts on the request's date. Without a picked day, and on other pages, the form starts on today.
+- Unit tests (picked day from the sidebar and the slip, saved with its date; today again once unpicked or on Accounts)
+  and an E2E test (desktop and phone: a day of last month tapped, the shell's button, saved on that day's receipt);
+  both fail without the fix.
+- Checked: frontend lint, format, typecheck, build, unit tests, `build-storybook`; the full E2E suite (desktop and
+  phone) against this branch's API; backend build and tests (the backend isn't changed); screenshots of the picked day
+  and the form opened from it at 375 and 1440 px, light and dark, looked at.
+- Test data: the E2E runs' `e2e-picked-day-…`, `e2e-shots-…` and other `e2e-…@example.com` people (with their data);
+  the E2E clean-up deleted them and cancelled their invite links.
+
+**Next**
+- Owner: review the PR. Next in the backlog: I-026 (High).
+
+## 2026-11-05 (B-008: The calendar's top cut off at the page's end, fixed)
+
+**Done**
+- [B-008](changes/bugfixes/B-008-calendar-cut-off-at-page-end/B-008-calendar-cut-off-at-page-end.md) on
+  `bugfix/B-008-calendar-cut-off-at-page-end`. Found in B-007's screenshots (it was there before); the owner saw it in
+  the Browser pane and asked for the fix ("fix it in this scope"). B-007's PR (#62) was merged before the fix was in
+  it, so it is its own change, at the owner's choice. Cause: the sticky column is capped at the window, but its area
+  ends with the receipts, above the page's bottom padding, so at the page's end the browser pushed the column up by
+  16 px. Fix: the column also ends where the receipts end, never shorter than its parts' least height.
+- The B-007 E2E test also checks the calendar's top at the page's end (−12 px without the fix).
+- Checked: frontend lint, format, typecheck, build, unit tests; the full E2E suite (desktop and phone) against this
+  branch's own API; screenshots at the page's end at 1440 × 900 and 1440 × 720, light and dark, folded and unfolded,
+  looked at; walked through in the Browser pane, also with one category picked (short receipts). Backend not changed.
+- Test data: an `e2e-manual-…@example.com` person with 14 expenses for the Browser pane, the screenshots' and E2E
+  runs' own people (with their accounts and transactions); the E2E clean-up deleted them.
+
+**Next**
+- Owner: review the PR. Then I-025 (High).
+
+## 2026-11-05 (B-007: "Where it went" cut off, fixed)
+
+**Done**
+- [B-007](changes/bugfixes/B-007-where-it-went-cut-off/B-007-where-it-went-cut-off.md) on
+  `bugfix/B-007-where-it-went-cut-off`, approved by the owner on 2026-11-05 ("Approved, build it"). Cause: the list's
+  scroll viewport took `height: 100%` of a column that has only a `max-height`, so it grew to the whole list and had
+  nothing to scroll; the scroll area clipped the rest. Fix: on the desktop the viewport takes the scroll area's room
+  (flex), and the column fits the window again when the page's content changes size.
+- New E2E test (desktop, 1440 × 720, 14 categories): the wheel brings the last category into view and a click picks
+  it; it fails without the fix.
+- Checked: frontend lint, format, typecheck, build, unit tests; the full E2E suite (desktop and phone); screenshots at
+  1440 × 900 and 1440 × 720, light and dark, calendar folded and unfolded, looked at; backend build and tests (the
+  backend isn't changed). The E2E suite ran against this branch's own API: the one already running on 5297 was built
+  before F-022 and failed the Reports tests.
+- Seen, not changed (noted in the description file): at the very end of a short page the sticky column is pushed up
+  and the calendar's top edge goes under the window's top; it was there before.
+- Test data: the E2E runs' `e2e-where-…` and `e2e-shots-…@example.com` people (with their accounts and transactions);
+  the E2E clean-up deleted them.
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-05 (B-006: The currency sign no longer runs into the amount)
+
+**Done**
+- Reproduced [B-006](changes/bugfixes/B-006-currency-sign-overlaps-amount/B-006-currency-sign-overlaps-amount.md) in
+  the quick-add stories: `135 ₴` and `$414` touch their sign on the desktop and the phone. The suspected cause (no gap)
+  was wrong. The invisible copy that sets the amount input's width measured proportional digits while the input draws
+  tabular ones; Unbounded's `1` and `4` are much narrower proportional, so the box came out 4–5 px too narrow and the
+  number ran up to the sign (`$414`: its first `4` cut under the `$`). The owner approved the cause and the fix
+  ("Approved, build it").
+- Fixed in `TransactionForm.module.css`: the copy uses tabular digits like the input, and its trailing space (which put
+  the extra room between a `$` and the number) became 2 px at the end of both, for the caret.
+- A story `Transactions/Amount display` with `135 ₴`, `$414`, `1 250 000 ₴`, `€0`, a sum and an exchange's two amounts,
+  its play function checking that each fits its box; `transactions.spec.ts` checks `135 ₴` and `$414` fit (desktop and
+  phone), and fails by 4 px and 5 px with the old CSS.
+- Checked: frontend lint, format, typecheck, build, unit tests, `build-storybook`; the full E2E suite (desktop and
+  phone); the design check on the new story (two findings that were there before the fix: the empty input is under
+  44 px wide and has no focus ring of its own, while the whole display is the tap target and draws the ring);
+  screenshots of the form with `135 ₴`, the exchange with `$414` and the story at 375 and 1440 px, light and dark,
+  looked at and zoomed in. Backend untouched.
+- Noted in B-006, not fixed: in the Browser pane the exchange stories' scripted typing sometimes leaves `100` in the
+  From field while the form holds nothing (`$10`, To `0`); typing by hand works.
+- Test data: the E2E runs' own people; the E2E clean-up deleted them (with their data) and cancelled their invite links.
+
+**Next**
+- Owner: review the PR. Then B-007 and I-025 (High).
+
+## 2026-11-04 (F-022: Reports screen, built)
+
+**Done**
+- The owner approved the final prototype with the month as M2 ("I like M2 variant … approved"; the open points as
+  proposed); recorded in the description file and DESIGN_RULES "Screen decisions". The final prototype's screenshots
+  (year and month, 375 and 1440 px, light and dark) are in the change's `prototypes/`; its stories are deleted.
+- Built [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) on `feature/F-022-reports-ui`: the year as the
+  folding table on the desktop and tablet and as months on the phone, the month as a receipt a group with its balance;
+  Year / Month, ‹ › over the periods with data, the report currency as a filter pill for this visit; the period and
+  currency in the page's address; a category's amount opens its transactions. M4 (Reports) is done.
+- The design round's "prototypes that open like a page" is now
+  [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md): it was planned here as I-022, but
+  `develop` gave I-022 – I-025 to the production testing fixes (#59) in the meantime. Still `Todo`.
+- API: the report says the person's first month with data (`firstMonth`). Shared: `CurrencyPicker`'s `pill` option,
+  the filter pill's styles moved to `Pills.module.css`, a wide page option in the shell.
+- Checked: backend build and tests; frontend lint, format, typecheck, build, unit tests, `build-storybook`; the full
+  E2E suite (desktop and phone) with the new Reports test; the design check on the Reports stories (0 issues on the
+  page after one fix; the currency sheet's "outside the screen" at 360 px happens on the existing sheet story too);
+  screenshots of the year, month, empty, couldn't-load and loading states at 375 and 1440 px, light and dark, looked
+  at; walked through in the Browser pane against this branch's API (unfold, a cell to Transactions and Back, a month,
+  dollars, the phone's sheet).
+- The owner's review of PR #60 ("if there are no data for all month, maybe collapse them?"), with the look picked from
+  three: the months before the first entry are one folded column in the year's table ("Jan – Oct · before your first
+  entry", a tap unfolds them, a narrow column folds them back; while folded the card is as wide as its columns) and
+  one row on the phone. Unit tests, stories (a person who started this month), the E2E check and screenshots at 375
+  and 1440 px, light and dark, folded and unfolded; design check 0 issues.
+- More of the owner's review, 2026-11-05: the fold buttons' hovers round and clear of the borders, the ‹ closer to Jan; no
+  empty row between the groups and the summary;
+  the phone's rows lit within the page's edges; and, in this PR at the owner's choice, the Transactions calendar kept
+  within the page's edges below 375 px (its days 1 px apart, 44 px wide down to 360 px).
+- Test data: a test person `e2e-manual-…@example.com` with two accounts and two years of transactions, and an
+  `E2E manual F-022` invite link, for the walk-through; the E2E runs' own people. The E2E clean-up deleted the people
+  (with their data) and cancelled the invite links.
+
+**Next**
+- Owner: review the PR. Then M5 (Family).
+
+## 2026-11-04 (Plan: production testing, B-004 – B-007, I-022 – I-025)
+
+**Done**
+- Planned on `plan/prod-testing-fixes` the seven issues the owner found testing production, as four bugfixes and four
+  improvements (the account list's item split in two). Nothing built; all `Todo`, each to be built on its own branch
+  after the owner's approval:
+  - [B-006](changes/bugfixes/B-006-currency-sign-overlaps-amount/B-006-currency-sign-overlaps-amount.md) (High): the
+    currency sign overlaps the amount in the quick-add calculator display.
+  - [B-007](changes/bugfixes/B-007-where-it-went-cut-off/B-007-where-it-went-cut-off.md) (High): "Where it went" is cut
+    off on the desktop and doesn't scroll.
+  - [I-025](changes/improvements/I-025-add-on-picked-day/I-025-add-on-picked-day.md) (High): Add transaction opens on
+    the day picked in the calendar.
+  - [B-004](changes/bugfixes/B-004-currency-search-not-typing/B-004-currency-search-not-typing.md) (Medium): nothing can
+    be typed in the account form's currency search; three variants to prototype (fix the dropdown, type in the field
+    itself, a list step inside the dialog), as the owner asked for another way to solve it.
+  - [B-005](changes/bugfixes/B-005-account-list-scroll-bar/B-005-account-list-scroll-bar.md) (Medium): the account
+    list's scroll bar covers the balances.
+  - [I-024](changes/improvements/I-024-account-list-currency/I-024-account-list-currency.md) (Medium): the account list
+    shows each account's currency (and bank).
+  - [I-023](changes/improvements/I-023-opening-balance-calculator/I-023-opening-balance-calculator.md) (Low): the
+    opening balance works as a calculator, with the app's own keys on the phone.
+  - [I-022](changes/improvements/I-022-opening-balance-left-aligned/I-022-opening-balance-left-aligned.md) (Low): the
+    opening balance typed from the left.
+- The bugs' root causes are suspected from reading the code, not confirmed: each is reproduced on its own branch before
+  its fix is proposed for approval. The owner's screenshots stay out of the repo (they show real balances).
+- The owner's answers (2026-11-04): I-025 is High and I-023 Low, the other priorities as proposed. I-022: the sign
+  stays at the field's right edge. I-023: the app's own keys on the phone, as in the quick-add form, but not opened
+  as the account form opens. I-025: a past month without a day opens the form on today.
+- Test data: none.
+
+**Next**
+- Owner: review the planning PR. Then the High ones first: B-006, B-007 and I-025.
+
+## 2026-11-04 (F-022: Reports screen, design round 1)
+
+**Done**
+- Started [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) on `feature/F-022-reports-ui`; status In
+  progress. No code: the change isn't approved yet.
+- References (the owners' spreadsheet, YNAB's Income v Expense, Actual Budget's custom reports, Monarch's cash flow,
+  the app's own Transactions page) in the description file; Mobbin turns the browser away (403).
+- The first round made of stories (I-021): *Prototypes / F-022 Reports* in Storybook, the real shell and parts with a
+  test year in the spreadsheet's shape. Variant 1 · The sheet, filled in (frozen panes on both edges, every amount with
+  its currency, the month as two receipts); variant 2 · This month, against your usual (the month first on the slip,
+  the months as NET bars, categories as bars with a tick at their usual month); variant 3 · One sheet, tap a month
+  (folding groups, the year as bars over the months, unusual months in four reds, a month opens as a receipt).
+- Five open points with proposals in the description file (the currency in every cell, another currency only on this
+  page, which month opens, a cell as a link to its transactions, the years).
+- Checked: typecheck, ESLint, Prettier; the design check on every variant's stories, 4 issues left after fixes (the
+  months' and groups' buttons under 44 px, their names not matching the visible text, bars drawn under the tab bar,
+  the table not opening on this month), all in variant 3's month sheet on the phone: two from the shared sheet (its
+  title row is a `<header>`, a second banner next to the top bar), two a receipt with nothing to focus in a scrolling
+  sheet (gone once its lines are links, open point 4). Screenshots at 375 and 1440 px, light and dark, looked at
+  (fixed: variant 3 too wide for 1440 px, variant 1's month half empty on the desktop, a cut-off label).
+- The owner picked variant 3's year with variant 1's month; built as the final prototype (Year / Month, a month's
+  heading opens it). Design check 0 issues; screenshots at 375 and 1440 px, light and dark, looked at.
+- The owner found the stories "worse than HTML": planned as
+  [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) (High). Found: the desktop stories
+  drew a fixed 1280 px frame and locked the viewport, 13 stories for 3 variants, Storybook's chrome. Done in F-022's
+  stories already (no config change): one story per variant, links that open the page filling the window without the
+  sidebar and panel (`&nav=false&panel=false&globals=viewport.value:!undefined`), the screen size from the toolbar. The
+  Storybook config part waits for the owner's approval.
+- The owner found the year awful on the phone (mobile first): three phone options on the final prototype, all with a
+  shorter head — A the table tighter, B one month at a time with its usual month (recommended), C months as rows.
+  Design check 0 issues; screenshots at 375 and 1440 px, light and dark, looked at.
+- The owner dropped option A and asked to leave out categories with nothing in the year (and a group left without
+  any); done in the final prototype. Design check on B, C and the month 0 issues; screenshots looked at.
+- The owner asked for a visible scroll bar on a table wider than the screen: the year's table keeps its bars on when it
+  doesn't fit (a custom rule in DESIGN_RULES). Checked at 1000 and 1024 px, light and dark; design check 0 issues.
+- The owner picked phone C (months as rows) for the year; B dropped. The month's categories "look like one solid
+  list": three looks with the groups set apart — M1 sections of one receipt, M2 a receipt a group (recommended), M3
+  bars. Design check 0 issues; screenshots looked at.
+- The report currency is now the Transactions page's filter pill, opening the shared currency list (owner: "use selects
+  from the design system"). Design check 0 issues.
+- The owner found the table's bars broken (over the rows, the upright one with nothing to scroll, crossing in the
+  corner): now a bar only for each way that doesn't fit, in a gutter of its own. Checked at 1100 and 1440 px, light and
+  dark; design check 0 issues.
+- Then the table takes the height it needs and the page scrolls (owner): no scroll up and down of its own, only the
+  sideways bar when it's too wide. Design check 0 issues.
+- Test data: none.
+
+**Next**
+- Owner: pick the month's look; then approve the final prototype for implementation (and the open points'
+  proposals); approve I-026's config part.
+
+## 2026-11-04 (F-021: Report engine)
+
+**Done**
+- The owner approved F-021 ("Approved, build it"); recorded in the description file before the build.
+- Built [F-021](changes/features/F-021-report-engine/F-021-report-engine.md): `GET /api/reports/year?year=…` and
+  `GET /api/reports/month?month=yyyy-MM` (optional `currency`), one `Report` shape. The pure `ReportBuilder`
+  (Application) works it out from what `ReportService` has the database sum: incomes and expenses per day, currency and
+  category, and each account's movement per month. Conversion at each amount's own day; real month-end balances (this
+  month equals the Accounts total); the "Other changes" row; Avg from the first month with data; months still to come
+  `null`; amounts without a rate left out and marked. API types regenerated for F-022.
+  [ADR 0027](decisions/0027-report-engine.md); ARCHITECTURE.md updated.
+- Decided while building: the month-end balances live in `ReportBuilder` (Application), not next to `BalanceSheet`
+  (Domain), as an archived account's day is a Kyiv date.
+- Checked: backend build and all 440 tests (among them `ReportBuilderTests`, and `SpreadsheetYearTests`: a test year in
+  the spreadsheet's shape whose every hryvnia category, group and month total matches the spreadsheet); frontend lint,
+  format, typecheck, build, `build-storybook`; the full E2E suite (desktop and phone) with the new
+  `e2e/reports.spec.ts` against the real NBU (auth.spec's sign-up on the desktop hit the sign-in rate limit once and
+  passed when re-run). The frontend unit tests timed out locally on some Transactions page tests, with or without this
+  branch's only frontend change (the generated types), while other sessions kept the CPU at 100%; CI runs them. No
+  screen changed: no design check or screenshots.
+- Test data: the E2E runs' own people (`e2e-reports-…@example.com` and the other specs'), deleted by their clean-up.
+
+**Next**
+- Owner: review the PR. Then F-022, the Reports screen (3 prototype stories first).
+
+## 2026-11-04 (F-021: Report engine, plan)
+
+**Done**
+- Started [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) on `feature/F-021-report-engine`;
+  F-021 and M4 In progress. No code: the change isn't approved yet.
+- The description file now has the full plan: the yearly and monthly report's rows and summary, Avg's months, month-end
+  balances (this month equals the Accounts total), missing rates, two endpoints (`/api/reports/year`,
+  `/api/reports/month`, optional `currency`), the pure `ReportBuilder`, an API-level E2E test, ADR 0027 to come; and
+  seven open points with proposals (Avg in the first year and this month, accounts opened mid-year and archived ones,
+  NET vs the balance's change, the spreadsheet fixture, many NBU calls at once).
+- The owner answered all seven open points (Avg from the first month with data, this month counted; accounts from
+  their opening month, archived ones until the month before; the real balance with an "Other changes" row; a test
+  year in the spreadsheet's shape for the fixture; the first slow opening is fine). PRODUCT.md business rules 4 and 7
+  updated.
+- Test data: none.
+
+**Next**
+- Owner: approve F-021 before it is built.
+
 ## 2026-11-04 (I-020: No two accounts alike)
 
 **Done**

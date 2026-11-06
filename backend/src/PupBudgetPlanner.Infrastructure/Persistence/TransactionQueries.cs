@@ -8,9 +8,9 @@ namespace PupBudgetPlanner.Infrastructure.Persistence;
 internal static class TransactionQueries
 {
     /// <summary>
-    /// Each account's transactions per type, counted and summed by the database: what <see cref="BalanceSheet"/>
-    /// needs. Transfers count on both sides (F-019): as the From account's, and as the To account's incoming, summing
-    /// what it got. All the person's accounts, or only <paramref name="accountIds"/>.
+    /// Each account's transactions per type, counted and summed by the database, with when the latest was added: what
+    /// <see cref="BalanceSheet"/> needs. Transfers count on both sides (F-019): as the From account's, and as the To
+    /// account's incoming, summing what it got. All the person's accounts, or only <paramref name="accountIds"/>.
     /// </summary>
     public static async Task<List<TransactionSum>> SumsOfAsync(
         this AppDbContext dbContext,
@@ -28,7 +28,8 @@ internal static class TransactionQueries
                 group.Key.Type,
                 group.Count(),
                 group.Sum(transaction => transaction.Amount),
-                false))
+                false,
+                group.Max(transaction => (DateTimeOffset?)transaction.CreatedAt)))
             .ToListAsync(cancellationToken);
         var incoming = await transactions
             .Where(transaction => transaction.ToAccountId != null)
@@ -39,7 +40,8 @@ internal static class TransactionQueries
                 TransactionType.Transfer,
                 group.Count(),
                 group.Sum(transaction => transaction.ToAmount ?? 0),
-                true))
+                true,
+                group.Max(transaction => (DateTimeOffset?)transaction.CreatedAt)))
             .ToListAsync(cancellationToken);
 
         return [.. outgoing, .. incoming];
