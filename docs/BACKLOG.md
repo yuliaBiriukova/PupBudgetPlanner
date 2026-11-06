@@ -59,10 +59,11 @@ Index of all changes. The details of each change live in its folder in [changes/
 | [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) | Report engine | Done |
 | [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) | 🎨 Reports screen | Done |
 
-### M5 — Family
+### M5 — Categories & family
 
 | ID | Feature | Status |
 |----|---------|--------|
+| [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) | 🎨 Add, rename, reorder and remove categories and groups (priority High, added 2026-11-06) | Todo |
 | [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) | 🎨 Family and invitations | Todo |
 | [F-024](changes/features/F-024-family-views/F-024-family-views.md) | Family views | Todo |
 

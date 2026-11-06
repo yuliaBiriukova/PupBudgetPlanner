@@ -2,6 +2,22 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-06 (Plan: Manage categories in the MVP, F-029)
+
+**Done**
+- The owner asked to bring adding, renaming, reordering and removing categories into the MVP. Planned on
+  `plan/manage-categories` as [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) (High, 🎨),
+  first in M5, which is now "Categories & family" (before F-023 / F-024, since the family report merges categories by
+  group and name).
+- The owner's choices: groups change too, not only categories; a removed category with transactions is hidden (past
+  transactions and reports keep it), one without is deleted; the generic default set (Q-011) stays after the MVP.
+- Q-003 answered again (yes, in the MVP); PRODUCT, ROADMAP (M5, M9), BACKLOG, OPEN_QUESTIONS and the M5 features'
+  milestone updated. Docs only; nothing built, F-029 stays `Todo`.
+
+**Next**
+- Owner: review the planning PR. Then F-029: references and 3 prototype stories on
+  `feature/F-029-manage-categories`, built only after the final prototype is approved.
+
 ## 2026-11-06 (B-004: The currency search takes the keys as soon as it opens)
 
 **Done**
