@@ -1,7 +1,7 @@
 import { Combobox, TextInput, useCombobox } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FadingScrollArea } from '../../shared/ui/FadingScrollArea';
 import { NOTE_MAX_LENGTH, shownNotes, splitAtTyped, SUGGESTIONS_DELAY } from './noteSuggestions';
@@ -32,6 +32,8 @@ interface NoteFieldProps {
   /** Enter with no suggestion picked saves the form. */
   onEnter: () => void;
   onFocus?: () => void;
+  /** The list under the field shows (true) or goes (false). */
+  onListed?: (listed: boolean) => void;
   /** On the phone the list hangs under the field inside the sheet, down to Save; on the desktop over the page. */
   inSheet: boolean;
 }
@@ -50,6 +52,7 @@ export function NoteField({
   placeholder,
   onEnter,
   onFocus,
+  onListed,
   inSheet,
 }: NoteFieldProps) {
   const { t } = useTranslation();
@@ -63,6 +66,10 @@ export function NoteField({
     placeholderData: keepPreviousData,
   });
   const shown = listing ? shownNotes(notes.data ?? [], value) : [];
+  const listed = shown.length > 0;
+  useEffect(() => {
+    onListed?.(listed);
+  }, [listed, onListed]);
   // On the phone the list is the sheet's, not its scrolling form's: the form's fade at its foot stays off it, and it
   // hangs down to the form's end, where Save starts (final prototype)
   const [sheet, setSheet] = useState<{ content: HTMLElement; form: HTMLElement } | null>(null);
@@ -75,7 +82,7 @@ export function NoteField({
   const inPlace = inSheet && sheet;
   // Open only while it has rows: an empty list is no list, and Escape then closes the form
   const combobox = useCombobox({
-    opened: shown.length > 0,
+    opened: listed,
     onOpenedChange: setListing,
     onDropdownClose: () => {
       combobox.resetSelectedOption();

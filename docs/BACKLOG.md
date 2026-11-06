@@ -128,4 +128,4 @@ owner asks for one.
 | [B-006](changes/bugfixes/B-006-currency-sign-overlaps-amount/B-006-currency-sign-overlaps-amount.md) | The currency sign overlaps the amount in the calculator display | High | Done |
 | [B-007](changes/bugfixes/B-007-where-it-went-cut-off/B-007-where-it-went-cut-off.md) | "Where it went" is cut off and doesn't scroll (Transactions, desktop) | High | Done |
 | [B-008](changes/bugfixes/B-008-calendar-cut-off-at-page-end/B-008-calendar-cut-off-at-page-end.md) | The calendar's top is cut off at the end of the Transactions page (desktop) | High | Done |
-| [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) | An empty gap under the Note while it is typed on the phone | Medium | Todo |
+| [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) | An empty gap under the Note while it is typed on the phone | Medium | Done |

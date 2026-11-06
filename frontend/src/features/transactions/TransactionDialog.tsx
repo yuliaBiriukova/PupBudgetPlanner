@@ -255,6 +255,9 @@ function TransactionForm({
   // On the phone, while the note is typed the phone's keyboard is up (I-017)
   const [typingNote, setTypingNote] = useState(false);
   const noteTyped = typingNote && !isDesktop;
+  // The earlier notes listed under it: only then the form makes them room (B-009)
+  const [noteListed, setNoteListed] = useState(false);
+  const roomForList = noteTyped && noteListed;
   const noteBlock = useRef<HTMLDivElement>(null);
   const noteRoom = useRef<HTMLDivElement>(null);
 
@@ -278,20 +281,26 @@ function TransactionForm({
     foldAway(keysFolded);
   });
 
-  // The form scrolls the Note field to its top, so the list under it has the room down to Save: the room under the
-  // form is what the field needs to get there, and follows the sheet as the phone's keyboard comes and goes
+  // While the earlier notes are listed, the form scrolls the Note field to its top, so the list under it has the room
+  // down to Save: the room under the form is what the field needs to get there. With no list there is no room, only an
+  // empty gap, so the form stays where it is and the field is just kept in sight (B-009). Both follow the sheet as the
+  // phone's keyboard comes and goes
   useEffect(() => {
     const block = noteBlock.current;
-    const room = noteRoom.current;
+    const room = roomForList ? noteRoom.current : null;
     const scroller = scrollParentOf(block);
-    if (!noteTyped || !block || !room || !scroller) return;
+    if (!noteTyped || !block || !scroller) return;
     let frame = 0;
     const fit = () => {
-      room.style.height = `${String(Math.max(0, scroller.clientHeight - block.offsetHeight - NOTE_TOP_GAP))}px`;
+      if (room)
+        room.style.height = `${String(Math.max(0, scroller.clientHeight - block.offsetHeight - NOTE_TOP_GAP))}px`;
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        scroller.scrollTop +=
-          block.getBoundingClientRect().top - scroller.getBoundingClientRect().top - NOTE_TOP_GAP;
+        const top = block.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+        const below = top + block.offsetHeight - scroller.clientHeight;
+        if (room) scroller.scrollTop += top - NOTE_TOP_GAP;
+        else if (top < 0) scroller.scrollTop += top - NOTE_TOP_GAP;
+        else if (below > 0) scroller.scrollTop += below + NOTE_TOP_GAP;
       });
     };
     fit();
@@ -301,7 +310,7 @@ function TransactionForm({
       observer.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, [noteTyped]);
+  }, [noteTyped, roomForList]);
 
   // The data arrived after the dialog opened: the form starts now
   if (!form && usable) setForm(initialState(request, usable));
@@ -738,11 +747,12 @@ function TransactionForm({
               setTypingNote(true);
               setKeysUp(false);
             }}
+            onListed={setNoteListed}
             inSheet={!isDesktop}
           />
         </div>
       </div>
-      {noteTyped && <div ref={noteRoom} aria-hidden="true" />}
+      {roomForList && <div ref={noteRoom} data-note-room aria-hidden="true" />}
     </ResponsiveDialog>
   );
 }

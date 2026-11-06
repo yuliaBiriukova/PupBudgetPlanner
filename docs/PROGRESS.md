@@ -2,6 +2,30 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-06 (B-009: No empty gap under the Note on the phone)
+
+**Done**
+- [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) on `bugfix/B-009-gap-under-note`. Reproduced
+  in Storybook at 375 × 520 px (*Add phone* with no earlier notes: `кфс` left a 218 px empty block between the Note and
+  Save). Cause: I-017's room for the list of earlier notes was added whenever the Note was typed on the phone, list or
+  not. The owner approved fix A on 2026-11-06 ("Approved: build A").
+- `NoteField` tells the form when its list shows (`onListed`); the room under the form and the scroll of the Note to the
+  top now come only with the list. With no list the form stays where it is and the Note is only kept in sight. The
+  desktop is unchanged. DESIGN_RULES' I-017 row says so.
+- Tests: `TransactionsPage.test.tsx` (no room for a new note, room with the list, gone with it) and an E2E test (phone,
+  375 × 520: the Note right above Save for a new note; the Note up and the list above Save for an earlier one). Both fail
+  on the old code.
+- Checked: frontend lint, format, typecheck, unit tests (293 / 293), build, `build-storybook`; backend build and tests
+  (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone (73 passed, 11 skipped for the other
+  screen size); screenshots of the form at 375 × 520 (a new note, a list, the list gone, the keys after the Note) and
+  1440 px, light and dark, looked at; the design check on *Note suggestions phone* and *loading*: 100 issues, the same
+  as on `develop` (the open dialog over the page).
+- Test data: the E2E runs' `e2e-note-gap-…`, `e2e-b009-shots-…` and other `e2e-…@example.com` people (with their
+  accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-06 (I-022: The opening balance typed from the left)
 
 **Done**
