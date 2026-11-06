@@ -2,6 +2,40 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-06 (B-004: The currency search takes the keys as soon as it opens)
+
+**Done**
+- [B-004](changes/bugfixes/B-004-currency-search-not-typing/B-004-currency-search-not-typing.md) on
+  `bugfix/B-004-currency-search-not-typing`. Cause: the picker focused its search in an effect when `open` turned true,
+  a frame before Mantine's transition drew the desktop dropdown, so there was nothing to focus; on the phone the sheet
+  then gave the focus to its ×. Not the dialog: Settings had it too.
+- Design: 3 prototype stories (the dropdown fixed, typing in the field, a page of the dialog); the owner chose variant
+  1 and approved its final prototype on 2026-11-06 ("Approved, build it"). Screenshots in the change's `prototypes/`,
+  the prototype stories deleted.
+- `CurrencyPicker`: the search is focused as it is drawn (a ref callback; `data-autofocus` for the phone's sheet); the
+  first match is marked as you type, Enter picks it (without sending the form), ↓ ↑ move the mark; the mark is kept for
+  the search it was made in, and the keys work from what the search holds. Every currency field has it: the account
+  form, Settings, the Reports page's pill. Found in the screenshots and fixed with it: the hover tint stuck where a phone
+  was tapped and looked like a second mark; it is now only for devices that hover, and only a mouse marks a row.
+- DESIGN_RULES: the currency field's rule says the search is in focus and how the keys work; "Screen decisions" row.
+- Tests: `CurrencyPicker.test.tsx` with Mantine's real transitions (the `env="test"` shortcut had hidden the bug): the
+  desktop search in focus in a dialog and typed with the keys alone, the phone sheet's search in focus, ↓ ↑ Enter,
+  Escape leaves the dialog; 4 of them fail on the old picker. `accounts.spec.ts` picks the dollars with the keys alone
+  (fails on the old picker: the search isn't focused). Story *Shared / Currency picker / Typing with the keys*.
+- Checked: frontend lint, format, typecheck, unit tests (297 / 297), build, `build-storybook`; backend build (0
+  warnings) and tests (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone (73 passed, 11
+  skipped for the other screen size); screenshots of the account form, Settings and the Reports pill with `dol` typed
+  and ↓ pressed, and the account form after Enter, at 375 and 1440 px, light and dark, looked at; the design check on
+  the prototype stories (only the open dialog's overlap over the page, as on the app's own New account story).
+  A first full unit run had 11 time-outs in other features while the machine was at 100% CPU; they passed on their own
+  and in a second full run.
+- Test data: the E2E runs' `e2e-accounts-…`, `e2e-b004-shots-…`, `e2e-b004-debug-…` and other `e2e-…@example.com`
+  people (with their accounts); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Seen while checking, not changed (F-016 as approved): at 1280 × 720 the desktop list under the
+  account form's Currency field has room for only about one row and scrolls.
+
 ## 2026-11-06 (B-009: No empty gap under the Note on the phone)
 
 **Done**

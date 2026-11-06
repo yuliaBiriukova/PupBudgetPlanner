@@ -15,7 +15,7 @@ import {
   IconSelector,
   IconX,
 } from '@tabler/icons-react';
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DESKTOP_QUERY } from '../../app/shell/sections';
 import { useCurrencyName } from '../i18n/currencyNames';
@@ -76,18 +76,34 @@ export function CurrencyPicker({
   const isDesktop = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  /**
+   * The row ↓ ↑ or the pointer marked, for the search it was marked in: a letter typed makes another search, which
+   * leaves the mark to its first match (B-004).
+   */
+  const [active, setActive] = useState<{ query: string; code: string } | null>(null);
   const button = useRef<HTMLButtonElement>(null);
-  const search = useRef<HTMLInputElement>(null);
   const id = useId();
+  const matchesOf = useMatches(currencies, yours);
+  const { mine, rest } = matchesOf(query);
+  // While typing, the first match is marked until ↓ ↑ or the pointer mark another: "pln" and Enter picks PLN
+  const markedIn = (text: string, rows: readonly string[]) =>
+    active?.query === text && rows.includes(active.code)
+      ? active.code
+      : text.trim()
+        ? (rows[0] ?? null)
+        : null;
+  const activeRow = markedIn(query, [...mine, ...rest]);
 
-  // The search is in focus as the list opens, so typing filters right away
-  useEffect(() => {
-    if (open) search.current?.focus();
-  }, [open]);
+  // The search is in focus as the list opens, so typing filters right away. As it is drawn, not when `open` turns
+  // true: the desktop dropdown appears a frame later, after its transition starts, and had no search to focus (B-004)
+  const focusSearch = useCallback((node: HTMLInputElement | null) => {
+    node?.focus({ preventScroll: true });
+  }, []);
 
   const close = () => {
     setOpen(false);
     setQuery('');
+    setActive(null);
     button.current?.focus();
   };
   const pick = (code: string) => {
@@ -96,17 +112,39 @@ export function CurrencyPicker({
   };
 
   // Escape closes the list, not the dialog or sheet under it: they leave keys from elements marked with
-  // `data-mantine-stop-propagation` alone
+  // `data-mantine-stop-propagation` alone. ↓ ↑ move the mark, Enter picks the marked row
   const keepDialogOpen = { 'data-mantine-stop-propagation': true };
-  const onSearchKey = (event: KeyboardEvent) => {
+  const onSearchKey = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') close();
+    // From what the search holds, not from the last render: a key pressed right after a letter may come first
+    const typed = event.currentTarget.value;
+    const found = matchesOf(typed);
+    const all = [...found.mine, ...found.rest];
+    const marked = markedIn(typed, all);
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const at = marked === null ? -1 : all.indexOf(marked);
+      const next =
+        event.key === 'ArrowDown' ? Math.min(at + 1, all.length - 1) : Math.max(at - 1, 0);
+      const code = all[next];
+      if (code !== undefined) setActive({ query: typed, code });
+    }
+    if (event.key === 'Enter') {
+      // Picks, doesn't send the form the dialog holds
+      event.preventDefault();
+      if (marked !== null) pick(marked);
+    }
   };
 
   const searchField = (
     <TextInput
-      ref={search}
+      ref={focusSearch}
+      // The phone's sheet focuses its first field once it opens: without this its × button (B-004)
+      data-autofocus
       type="search"
       aria-label={t('currencyPicker.search')}
+      aria-controls={`${id}-list`}
+      aria-activedescendant={activeRow === null ? undefined : `${id}-list-row-${activeRow}`}
       placeholder={t('currencyPicker.placeholder')}
       value={query}
       onChange={(event) => {
@@ -135,10 +173,15 @@ export function CurrencyPicker({
   );
   const list = (
     <CurrencyList
+      id={`${id}-list`}
       value={value}
-      currencies={currencies}
-      yours={yours}
+      mine={mine}
+      rest={rest}
       query={query}
+      activeRow={activeRow}
+      onMark={(code) => {
+        setActive({ query, code });
+      }}
       onPick={pick}
       itemProps={keepDialogOpen}
     />
@@ -197,6 +240,7 @@ export function CurrencyPicker({
         if (!opened) {
           setOpen(false);
           setQuery('');
+          setActive(null);
         }
       }}
       position={pill ? 'bottom-end' : 'bottom-start'}
@@ -246,30 +290,63 @@ export function CurrencyPicker({
   );
 }
 
+/**
+ * The currencies a search finds: the person's first, then every other one by code; it matches the code or the name.
+ */
+function useMatches(currencies: readonly string[], yours: readonly string[]) {
+  const currencyName = useCurrencyName();
+  return (query: string) => {
+    const q = query.trim().toLocaleLowerCase();
+    const matches = (code: string) =>
+      !q ||
+      code.toLocaleLowerCase().includes(q) ||
+      currencyName(code).toLocaleLowerCase().includes(q);
+    return {
+      mine: yours.filter(matches),
+      rest: currencies
+        .filter((code) => !yours.includes(code) && matches(code))
+        .sort((a, b) => a.localeCompare(b)),
+    };
+  };
+}
+
 interface CurrencyListProps {
+  /** The rows' ids start with it: the search points at the marked one (`aria-activedescendant`). */
+  id: string;
   value: string;
-  currencies: readonly string[];
-  yours: readonly string[];
+  mine: readonly string[];
+  rest: readonly string[];
   query: string;
+  /** The row Enter picks: the first match while typing, or the one ↓ ↑ or the pointer marked (B-004). */
+  activeRow: string | null;
+  onMark: (code: string) => void;
   onPick: (code: string) => void;
   itemProps: { 'data-mantine-stop-propagation': boolean };
 }
 
-/** The person's currencies first, then every other one by code; the search matches the code or the name. */
-function CurrencyList({ value, currencies, yours, query, onPick, itemProps }: CurrencyListProps) {
+/** The matches, under the headings Yours and All NBU currencies. */
+function CurrencyList({
+  id,
+  value,
+  mine,
+  rest,
+  query,
+  activeRow,
+  onMark,
+  onPick,
+  itemProps,
+}: CurrencyListProps) {
   const { t } = useTranslation();
   const currencyName = useCurrencyName();
-  const id = useId();
+  const list = useRef<HTMLDivElement>(null);
 
-  const q = query.trim().toLocaleLowerCase();
-  const matches = (code: string) =>
-    !q ||
-    code.toLocaleLowerCase().includes(q) ||
-    currencyName(code).toLocaleLowerCase().includes(q);
-  const mine = yours.filter(matches);
-  const rest = currencies
-    .filter((code) => !yours.includes(code) && matches(code))
-    .sort((a, b) => a.localeCompare(b));
+  // The marked row stays in sight while ↓ ↑ move it
+  useEffect(() => {
+    if (activeRow !== null)
+      list.current
+        ?.querySelector(`[data-code="${activeRow}"]`)
+        ?.scrollIntoView({ block: 'nearest' });
+  }, [activeRow]);
 
   if (mine.length === 0 && rest.length === 0) {
     return <p className={classes.none}>{t('currencyPicker.none', { query: query.trim() })}</p>;
@@ -278,8 +355,15 @@ function CurrencyList({ value, currencies, yours, query, onPick, itemProps }: Cu
   const item = (code: string) => (
     <li key={code}>
       <UnstyledButton
+        id={`${id}-row-${code}`}
+        data-code={code}
         className={classes.item}
+        data-active={code === activeRow ? true : undefined}
         aria-pressed={code === value}
+        // A mouse marks the row it moves over; a finger doesn't (a tap's place would take the mark from ↓ ↑)
+        onPointerMove={(event) => {
+          if (event.pointerType === 'mouse' && code !== activeRow) onMark(code);
+        }}
         onClick={() => {
           onPick(code);
         }}
@@ -292,7 +376,7 @@ function CurrencyList({ value, currencies, yours, query, onPick, itemProps }: Cu
   );
 
   return (
-    <div className={classes.list}>
+    <div ref={list} id={id} className={classes.list}>
       {mine.length > 0 && (
         <>
           <h3 className={classes.heading} id={`${id}-yours`}>

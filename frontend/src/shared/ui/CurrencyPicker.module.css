@@ -136,8 +136,16 @@
   border-radius: var(--mantine-radius-sm);
 }
 
-.item:hover {
+/* The row Enter picks (B-004): the hover's tint, so the pointer and ↓ ↑ mark rows alike */
+.item[data-active] {
   background: var(--pup-color-hover);
+}
+
+/* Only where there is a pointer: a phone keeps :hover at the last tap, which would look like a second mark */
+@media (hover: hover) {
+  .item:hover {
+    background: var(--pup-color-hover);
+  }
 }
 
 .item b {
