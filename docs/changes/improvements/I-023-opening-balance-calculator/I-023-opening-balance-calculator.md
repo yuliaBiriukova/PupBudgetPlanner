@@ -50,8 +50,9 @@ envelopes, a card plus a deposit) is typed as a sum, not added up elsewhere.
 
 ## Notes
 
-- Together with I-022: the number starts at the left in the chosen variant, unless the owner picks the right-aligned
-  quick-add display; then I-022 is closed with this change.
+- I-022 was built first (2026-11-06): the number already starts at the left, the sign at the right edge. The chosen
+  variant keeps that, unless the owner picks the right-aligned quick-add display; then DESIGN_RULES' line on amounts
+  in form fields changes with this change.
 - Answered by the owner (2026-11-04): on the phone the app's own keys, as in the quick-add form, but not opened as the
   form opens.
 - The quick-add form's keys (`AmountKeys.tsx`) need a minus at the start for a debt; the quick-add amount never starts

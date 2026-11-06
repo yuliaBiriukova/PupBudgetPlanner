@@ -134,6 +134,9 @@ Each element has one look, set once in `theme.ts` or a shared style; a screen do
 
 - Always show the currency next to an amount (`1 250 ₴`, `$100`, `€50`); amounts are whole (custom rule, ADR 0018).
 - Amounts are right-aligned in lists and tables and use tabular numbers (`font-variant-numeric: tabular-nums`).
+- An amount typed in a form field starts at the left, like the form's other fields; its currency sign stays at the
+  field's right edge (the account form's opening balance, I-022). Only the quick-add calculator display is
+  right-aligned (F-018).
 - **Semantic colors:** income — green, expense — red, transfer — neutral/blue. Color is never the only
   signal: also use a sign (+ / −) or an icon.
 - Amount inputs open the numeric keyboard on mobile (`inputMode="decimal"`), accept both `.` and `,`; cents typed
