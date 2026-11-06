@@ -2,6 +2,29 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-06 (Plan: Manage categories in the MVP, F-029)
+
+**Done**
+- The owner asked to bring adding, renaming, reordering and removing categories into the MVP. Planned on
+  `plan/manage-categories` as [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) (High, 🎨),
+  first in M5, which is now "Categories & family" (before F-023 / F-024, since the family report merges categories by
+  group and name).
+- The owner's choices: groups change too, not only categories; a removed category with transactions is hidden (past
+  transactions and reports keep it), one without is deleted; the generic default set (Q-011) stays after the MVP.
+- Q-003 answered again (yes, in the MVP); PRODUCT, ROADMAP (M5, M9), BACKLOG, OPEN_QUESTIONS and the M5 features'
+  milestone updated. Nothing built for F-029; it stays `Todo`.
+- The PR's E2E job failed in the I-020 accounts test (the app code is `develop`'s). The owner asked to fix it here:
+  [B-010](changes/bugfixes/B-010-loose-toast-match-e2e/B-010-loose-toast-match-e2e.md). The test's loose
+  `getByText('Mono black added')` also matched the earlier "mono black added" toast while it was still shown; both
+  checks now match exactly. `e2e/accounts.spec.ts` 8 / 8 against this checkout's API (5298) and app (5174), since
+  another chat's servers held the usual ports; frontend lint and format pass.
+- Test data: the E2E run's `e2e-accounts-…` people (with their accounts); the E2E clean-up deleted them. Nothing made by
+  hand.
+
+**Next**
+- Owner: review the planning PR. Then F-029: references and 3 prototype stories on
+  `feature/F-029-manage-categories`, built only after the final prototype is approved.
+
 ## 2026-11-06 (B-004: The currency search takes the keys as soon as it opens)
 
 **Done**

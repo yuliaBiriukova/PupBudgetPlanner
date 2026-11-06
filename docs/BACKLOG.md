@@ -59,10 +59,11 @@ Index of all changes. The details of each change live in its folder in [changes/
 | [F-021](changes/features/F-021-report-engine/F-021-report-engine.md) | Report engine | Done |
 | [F-022](changes/features/F-022-reports-ui/F-022-reports-ui.md) | 🎨 Reports screen | Done |
 
-### M5 — Family
+### M5 — Categories & family
 
 | ID | Feature | Status |
 |----|---------|--------|
+| [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) | 🎨 Add, rename, reorder and remove categories and groups (priority High, added 2026-11-06) | Todo |
 | [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) | 🎨 Family and invitations | Todo |
 | [F-024](changes/features/F-024-family-views/F-024-family-views.md) | Family views | Todo |
 
@@ -129,3 +130,4 @@ owner asks for one.
 | [B-007](changes/bugfixes/B-007-where-it-went-cut-off/B-007-where-it-went-cut-off.md) | "Where it went" is cut off and doesn't scroll (Transactions, desktop) | High | Done |
 | [B-008](changes/bugfixes/B-008-calendar-cut-off-at-page-end/B-008-calendar-cut-off-at-page-end.md) | The calendar's top is cut off at the end of the Transactions page (desktop) | High | Done |
 | [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) | An empty gap under the Note while it is typed on the phone | Medium | Done |
+| [B-010](changes/bugfixes/B-010-loose-toast-match-e2e/B-010-loose-toast-match-e2e.md) | The I-020 E2E test takes two "added" toasts for one (red CI on PR #75) | High | Done |
