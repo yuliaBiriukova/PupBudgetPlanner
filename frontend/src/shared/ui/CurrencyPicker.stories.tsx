@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
-import { expect, screen, userEvent, within } from 'storybook/test';
+import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 import { CurrencyPicker } from './CurrencyPicker';
 
 const CURRENCIES = ['UAH', 'AUD', 'CAD', 'CHF', 'CZK', 'EUR', 'GBP', 'JPY', 'PLN', 'USD'];
@@ -84,6 +84,20 @@ export const Searching: Story = {
     await userEvent.click(within(canvasElement).getByRole('button', { name: /Currency/ }));
     await userEvent.type(await screen.findByLabelText('Search currencies'), 'dollar');
     await expect(screen.getByRole('button', { name: /CAD/ })).toBeVisible();
+  },
+};
+
+/** Typed with the keys alone, no click into the search (B-004): the first match is marked, ↓ moves the mark. */
+export const TypingWithTheKeys: Story = {
+  globals: desktop,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: /Currency/ }));
+    const search = await screen.findByLabelText('Search currencies');
+    await waitFor(async () => {
+      await expect(search).toHaveFocus();
+    });
+    await userEvent.keyboard('dol{ArrowDown}');
+    await expect(screen.getByRole('button', { name: /^AUD/ })).toHaveAttribute('data-active');
   },
 };
 
