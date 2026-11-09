@@ -5,7 +5,7 @@
 | Type | Improvement |
 | Milestone | M6 — MVP release (polish) |
 | Priority | High (proposed: people testing the app couldn't find how to add an expense or income on the phone, the app's main action) |
-| Status | Todo |
+| Status | In progress (design round 1) |
 | Branch | `improvement/I-030-findable-add-button` (planned on `plan/phone-feedback`) |
 | Design | 🎨 3 prototype stories, then the final prototype |
 | Approved | — (date the owner approved the description and the final prototype) |
@@ -34,9 +34,9 @@ owner got from a person using the app: they couldn't find how to add one on the 
 
 ## Tasks
 
-- [ ] References: Mobbin "floating action button", "add transaction", "tab bar" (money apps: Monefy, Spendee, 1Money,
-      Wallet, YNAB, Monobank), Material 3 extended FAB and navigation bar guidance, iOS tab bars with a centre action.
-- [ ] 3 prototype stories in `frontend/src/prototypes/I-030-findable-add-button/` (*Prototypes / I-030 Findable add
+- [x] References (see "Design"): Material 3's extended FAB, Monefy's − and + buttons, a centre FAB in a tab bar, two
+      finance apps' user feedback on where Add sits.
+- [x] 3 prototype stories in `frontend/src/prototypes/I-030-findable-add-button/` (*Prototypes / I-030 Findable add
       button*), the real Transactions page with the app's shell, one story per variant.
 - [ ] The owner picks one; final prototype; approval (I-003) before any code.
 - [ ] Build it in the shell (`PhoneBars.tsx`) and the totals slip; the empty states' text; DESIGN_RULES "Screen
@@ -44,16 +44,42 @@ owner got from a person using the app: they couldn't find how to add one on the 
 
 ## Design
 
-Ideas for the 3 variants, to be shaped by the references:
+### References (2026-11-09)
 
-1. **A labelled button:** the round + grows into a pill "**+ Add**" (Material's extended FAB), floating above the bottom
-   bar on the right, shrinking back to + while the list scrolls down.
-2. **The + in the middle of the bar:** a raised centre tab between the tabs, with a word under it ("Add"), as many money
-   apps have it; the bar's tabs split two and two around it.
-3. **Add on the page:** "+ Expense" and "+ Income" buttons right under the totals slip (and on the empty day), with the
-   bar's + kept; the two most used actions one tap away and named.
+- Material 3 extended FAB (Material Components for Android docs,
+  [ExtendedFloatingActionButton.md](https://gitea.com/784622644/material-components-android/src/branch/master/docs/components/ExtendedFloatingActionButton.md);
+  [a Compose guide](https://itnext.io/floating-action-button-in-jetpack-compose-with-material-3-10ba8bff415a)): a
+  button with a word for the screen's main action on long, scrolling pages, folding to its icon when room is short →
+  variant 1, folding while the page goes down.
+- Monefy ([The Edge Markets' review](https://www.theedgemarkets.com/article/back-basics-expense-tracking),
+  [screensdesign showcase](https://screensdesign.com/showcase/monefy-money-tracker)): the app the couple is replacing
+  has a − and a + button at the bottom of the main screen, one for an expense and one for an income → variant 3.
+- A design system's spec of a FAB in the middle of a tab bar
+  ([Settld, floating FAB](https://settld-design-system.pages.dev/components/floating-fab.html)): the centre slot of the
+  bar taken by the raised button, lifted above the bar's edge → variant 2.
+- A finance app's user feedback ([Kualia board](https://kualia.userjot.com/board/p/add-a-add-transaction-in-the-bottom-menu-and-remove-de-from-transactions-page.))
+  and another's ([BudgetFlow board](https://budgetflow.featurebase.app/p/move-the-add-transaction-floating-button)):
+  people ask for Add to be in the same place on every tab, and for a floating one not to cover the list → all three
+  keep Add on every page, and variants 1 and 3 leave room under the last rows.
+- Mobbin itself didn't come up without signing in; nothing was opened that needs the owner's account.
 
-Prototype stories: — · Chosen variant: — · Final prototype approved: — (screenshots in `prototypes/`)
+### Round 1: three variants (2026-11-09)
+
+All three are the real app in Storybook: the shell with its pages (Transactions, Accounts and Reports work with fake
+data, the tabs move between them), the real quick-add form, and only the phone's Add changed. The desktop is the app's
+own sidebar, unchanged. The slip's own round + on the Transactions page stays in all three.
+
+| Story | Thesis and trade-offs | Link |
+|-------|-----------------------|------|
+| Variant 1: Add transaction pill | **Say it in words.** The bar's + becomes a charcoal 56 px pill "+ Add transaction" floating 16 px above the bar at the thumb's end, on every page; it folds to its + while the page goes down and opens out again on the way up. The tabs spread over the whole bar. Clearest words; covers a little of the list's corner (the page gets 72 px of room under its last row). The words are a control: "Add transaction" or "Add" | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-1&nav=false&panel=false&globals=viewport.value:!undefined) |
+| Variant 2: Add in the middle of the bar | **Add is a place in the bar.** Every tab is named under its icon (the open one on the accent's pill), and a raised 56 px charcoal + with "Add" under it sits in the middle, standing above the bar's edge. Covers nothing, the same spot on every page, as many money apps do; but the bar is taller (every name shown) and it changes the F-010 bar the most | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-2&nav=false&panel=false&globals=viewport.value:!undefined) |
+| Variant 3: Expense and Income buttons | **As in Monefy (the risk).** Two named buttons on one floating dock above the bar: "− Expense" in the expense red's tint and "+ Income" in the income green's, each opening the form already on its type (Transfer stays in the form's switch). The two most used actions one tap away and named the way the person thinks of them; but two buttons take more of the list's corner than one, and Transfer gets no button | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-3&nav=false&panel=false&globals=viewport.value:!undefined) |
+
+Not in the prototypes: a line on the empty day ("Nothing on this day") telling how to add (acceptance criterion); it
+comes with whichever variant is chosen, as the empty state belongs to the page.
+
+Prototype stories: *Prototypes / I-030 Findable add button* (`frontend/src/prototypes/I-030-findable-add-button/`) ·
+Chosen variant: — · Final prototype approved: — (screenshots in `prototypes/`)
 
 ## Tests
 

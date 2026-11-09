@@ -1,0 +1,198 @@
+/* ---------- Variants 1 and 3: the floating part above the tab bar ---------- */
+
+/* The last rows can scroll up above the floating buttons */
+.roomForFloat {
+  padding-bottom: 72px;
+}
+
+.barHolder {
+  position: relative;
+  flex: none;
+}
+
+/* Over the page, 16 px above the bar, at the thumb's end */
+.float {
+  position: absolute;
+  right: 16px;
+  bottom: calc(100% + 16px);
+  z-index: 2;
+}
+
+/* The tabs spread over the bar now that the + isn't at its end */
+.spread {
+  justify-content: space-around;
+}
+
+/* Variant 1: a 56 px pill with the + and the words; folds to a circle while the page goes down */
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  max-width: 240px;
+  padding: 0 24px 0 16px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--mantine-primary-color-filled);
+  box-shadow: var(--pup-shadow-float);
+  color: var(--pup-color-on-primary);
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    max-width 200ms cubic-bezier(0.2, 0, 0, 1),
+    padding 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.pill:hover {
+  background: var(--mantine-primary-color-filled-hover);
+}
+
+.pill svg {
+  flex: none;
+}
+
+.pill[data-compact] {
+  max-width: 56px;
+  padding: 0 16px;
+}
+
+.pillLabel {
+  transition: opacity 120ms linear;
+}
+
+.pill[data-compact] .pillLabel {
+  opacity: 0;
+}
+
+/* Variant 3: Expense and Income side by side on one floating dock */
+.typeDock {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--pup-color-surface);
+  box-shadow: var(--pup-shadow-float);
+}
+
+.typeButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 20px 0 16px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.typeButton[data-type='expense'] {
+  background: color-mix(in srgb, var(--pup-color-expense) 12%, var(--pup-color-surface));
+  color: var(--pup-color-expense);
+}
+
+.typeButton[data-type='income'] {
+  background: var(--pup-color-income-bg);
+  color: var(--pup-color-income);
+}
+
+.typeButton[data-type='expense']:hover {
+  background: color-mix(in srgb, var(--pup-color-expense) 20%, var(--pup-color-surface));
+}
+
+.typeButton[data-type='income']:hover {
+  background: color-mix(in srgb, var(--pup-color-income) 20%, var(--pup-color-surface));
+}
+
+/* ---------- Variant 2: every tab named, Add raised in the middle ---------- */
+
+/* The slots as wide as their names, spread evenly: "Transactions" stays whole at 360 px */
+.centreBar {
+  display: flex;
+  flex: none;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--pup-color-rule);
+  background: var(--mantine-color-body);
+}
+
+.slot,
+.centreAdd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: none;
+  gap: 4px;
+  min-width: 56px;
+  min-height: 52px;
+  color: var(--mantine-color-dimmed);
+  text-decoration: none;
+}
+
+/* The open section: its icon on the accent's pill, its name in the accent */
+.slotIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 32px;
+  border-radius: 999px;
+}
+
+.slot[aria-current='page'],
+.slot[data-active] {
+  color: var(--pup-color-accent);
+}
+
+.slot[aria-current='page'] .slotIcon,
+.slot[data-active] .slotIcon {
+  background: var(--pup-color-active-bg);
+}
+
+.slotLabel {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot[aria-current='page'] .slotLabel,
+.slot[data-active] .slotLabel {
+  font-weight: 500;
+}
+
+/* Add: a 56 px charcoal circle standing 20 px above the bar, its name under it like the tabs' */
+.centreAdd {
+  color: var(--mantine-color-text);
+}
+
+.centreAdd .slotLabel {
+  font-weight: 500;
+}
+
+.centreCircle {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-top: -28px;
+  border: 4px solid var(--mantine-color-body);
+  border-radius: 999px;
+  background: var(--mantine-primary-color-filled);
+  box-shadow: var(--pup-shadow-float);
+  color: var(--pup-color-on-primary);
+  box-sizing: content-box;
+}
+
+.centreAdd:hover .centreCircle {
+  background: var(--mantine-primary-color-filled-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill,
+  .pillLabel {
+    transition: none;
+  }
+}
