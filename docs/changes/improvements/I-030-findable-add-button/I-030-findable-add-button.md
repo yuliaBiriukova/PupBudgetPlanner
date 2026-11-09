@@ -102,18 +102,22 @@ three buttons take half the bar. Variants 4 and 5 still show round 2's bar (the 
 | Variant 8: One + that opens the three | **Clear page, one tap more.** A single charcoal + floats at the thumb's end; a tap dims the page and opens ⇄ + − above it, the + turning into ×. The page is covered least; every add costs two taps, and the + alone says nothing of the three | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-8&nav=false&panel=false&globals=viewport.value:!undefined) |
 | Variant 9: The three in a row over the tabs | **Docked, in the middle.** ⇄ + − (56 px) centred in a row of their own between the page and the named tabs, like variant 4's row. Never covers the page, the same place on every page; the bottom takes about 64 px more | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-9&nav=false&panel=false&globals=viewport.value:!undefined) |
 
-The owner's choice (2026-11-09): variant 9, without the pill behind the open place in the menu. The round stories
-were replaced by the final prototype's.
+The owner's choice (2026-11-09): variant 8, without the pill behind the open place in the menu. (A first final
+prototype was built from variant 9 by mistake; the owner pointed to variant 8 with screenshots, and it was rebuilt.)
+The round stories were replaced by the final prototype's.
 
 ### The final prototype (2026-11-09)
 
 [Final prototype](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--final&nav=false&panel=false&globals=viewport.value:!undefined):
-on the phone the bottom is the three round buttons over the menu, under one rule:
+on the phone one + floats over the page and opens the three:
 
-- **⇄ + −** (Add transfer, Add income, Add expense): 56 px circles, 16 px apart, centred in a row of their own between
-  the page and the menu; each in its type's tint with the sign in its colour (transfer blue, income green, expense red)
-  and opening the form on its type. No names on them; screen readers read "Add transfer / income / expense". They
-  never cover the page.
+- **The +:** a 56 px charcoal circle floating 16 px above the menu at the thumb's end (right), on every page; the page
+  has 72 px of room under its last row so the + covers no row at the end.
+- **⇄ + −** (Add transfer, Add income, Add expense): a tap on the + dims the page and opens three 56 px circles above
+  it, 12 px apart, rising 16 px as they come (160 ms; none with reduced motion), Expense nearest to the +; the + turns
+  into × (Close). Each is in its type's tint with the sign in its colour (transfer blue, income green, expense red)
+  and opens the form on its type. A type, ×, a tap on the dimmed page or Escape folds them. No names on them; screen
+  readers read "Add transfer / income / expense".
 - **The menu:** the bar's + is gone; the four places (Transactions, Accounts, Reports, More) share the width equally,
   each icon with its name under it (12 px). The open one is in the accent, its name in medium weight, with **no pill**
   behind it.

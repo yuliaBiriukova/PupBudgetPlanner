@@ -1,29 +1,69 @@
-/* The phone's bottom: the three in a row of their own, the four places under them; one rule above it all */
+/* The phone's bottom: the menu, with the + floating above it */
 .bottom {
+  position: relative;
   flex: none;
   border-top: 1px solid var(--pup-color-rule);
   background: var(--mantine-color-body);
 }
 
-.typeRow {
-  padding: 8px 16px 0;
+/* The last rows can scroll up above the floating + */
+.roomForFloat {
+  padding-bottom: 72px;
 }
 
-/* ⇄ + − in the middle of the phone, 56 px circles 16 px apart */
-.types {
+/* Over the page, 16 px above the bar, at the thumb's end */
+.float {
+  position: absolute;
+  right: 16px;
+  bottom: calc(100% + 16px);
+  z-index: 3;
+}
+
+/* While the three are open the page behind dims; a tap on it folds them */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: color-mix(in srgb, var(--mantine-color-body) 72%, transparent);
+}
+
+.dial {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  gap: 12px;
+}
+
+/* ⇄ + − above the +, Expense nearest to it; they rise 16 px as they come */
+.dialItems {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 160ms linear,
+    transform 160ms cubic-bezier(0.2, 0, 0, 1),
+    visibility 0s 160ms;
+}
+
+.dial[data-open] .dialItems {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 160ms linear,
+    transform 160ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .round {
   display: grid;
-  flex: none;
   place-items: center;
   width: 56px;
   height: 56px;
   border-radius: 999px;
+  box-shadow: var(--pup-shadow-float);
   transition: background-color 120ms linear;
 }
 
@@ -53,6 +93,30 @@
 
 .round[data-type='transfer']:hover {
   background: color-mix(in srgb, var(--pup-color-transfer) 22%, var(--pup-color-surface));
+}
+
+/* The +: the app's charcoal, turning into × while open */
+.dialToggle {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--mantine-primary-color-filled);
+  box-shadow: var(--pup-shadow-float);
+  color: var(--pup-color-on-primary);
+}
+
+.dialToggle:hover {
+  background: var(--mantine-primary-color-filled-hover);
+}
+
+.dialToggle svg {
+  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.dial[data-open] .dialToggle svg {
+  transform: rotate(45deg);
 }
 
 /* Four equal places, each named */
@@ -100,6 +164,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .dialItems,
+  .dial[data-open] .dialItems,
+  .dialToggle svg,
   .round {
     transition: none;
   }

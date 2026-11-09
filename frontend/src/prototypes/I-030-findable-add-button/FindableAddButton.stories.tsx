@@ -37,8 +37,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Variant 9 with the owner's change (round 3): ⇄ + − centred in a row of their own over the four named places; the
- * open place in the accent with no pill behind it.
+ * Variant 8 with the owner's change (round 3): one + floating at the thumb's end opens ⇄ + − above it; the four named
+ * places under it, the open one in the accent with no pill behind it.
  */
 export const Final: Story = {
   name: 'Final prototype',

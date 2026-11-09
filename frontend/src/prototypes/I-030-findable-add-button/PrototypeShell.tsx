@@ -1,7 +1,7 @@
 import { UnstyledButton } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { IconArrowsLeftRight, IconDots, IconMinus, IconPlus } from '@tabler/icons-react';
-import type { CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import layout from '../../app/shell/AppLayout.module.css';
@@ -21,9 +21,9 @@ import classes from './PrototypeShell.module.css';
 type AddType = 'Expense' | 'Income' | 'Transfer';
 
 /**
- * A copy of the app shell (`AppLayout`) for the final prototype (variant 9 without the menu's pill): the sidebar on
- * the desktop is the app's own and unchanged; on the phone the top bar and More are the app's, and the bottom is
- * ⇄ + − in a row of their own over the four named places.
+ * A copy of the app shell (`AppLayout`) for the final prototype (variant 8 with the menu's pill gone): the sidebar on
+ * the desktop is the app's own and unchanged; on the phone the top bar and More are the app's, a + floats over the
+ * page and opens ⇄ + −, and the menu has four named places.
  */
 export function PrototypeShell({ user }: { user?: ShellUser }) {
   return (
@@ -63,14 +63,15 @@ function Shell({ user }: { user?: ShellUser }) {
         {!isDesktop && <TopBar user={user} />}
         <main className={layout.main}>
           <div className={layout.content}>
-            <Outlet />
+            {/* Room under the last rows for the floating + */}
+            <div className={isDesktop ? undefined : classes.roomForFloat}>
+              <Outlet />
+            </div>
           </div>
         </main>
         {!isDesktop && (
           <div className={classes.bottom}>
-            <div className={classes.typeRow}>
-              <TypeButtons onAdd={addAs} />
-            </div>
+            <SpeedDial onAdd={addAs} />
             <NamedTabBar onMore={more.open} user={user} />
           </div>
         )}
@@ -86,25 +87,67 @@ const TYPES: { type: AddType; label: string; icon: typeof IconPlus }[] = [
   { type: 'Expense', label: 'Add expense', icon: IconMinus },
 ];
 
-/** ⇄ + − as round buttons in the types' colours, Expense last (at the thumb's end). */
-function TypeButtons({ onAdd }: { onAdd: (type: AddType) => void }) {
+/**
+ * One charcoal + at the thumb's end; a tap dims the page and opens ⇄ + − above it (Expense nearest), the + turning
+ * into ×. A type, ×, a tap outside or Escape folds them.
+ */
+function SpeedDial({ onAdd }: { onAdd: (type: AddType) => void }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
   return (
-    <div className={classes.types} role="group" aria-label="Add a transaction">
-      {TYPES.map(({ type, label, icon: Icon }) => (
-        <UnstyledButton
-          key={type}
-          className={classes.round}
-          data-type={type.toLowerCase()}
-          aria-label={label}
-          title={label}
+    <>
+      {open && (
+        <div
+          className={classes.scrim}
+          aria-hidden
           onClick={() => {
-            onAdd(type);
+            setOpen(false);
           }}
-        >
-          <Icon size={24} stroke={1.7} aria-hidden />
-        </UnstyledButton>
-      ))}
-    </div>
+        />
+      )}
+      <div className={classes.float}>
+        <div className={classes.dial} data-open={open || undefined}>
+          <div className={classes.dialItems} role="group" aria-label="Add a transaction">
+            {TYPES.map(({ type, label, icon: Icon }) => (
+              <UnstyledButton
+                key={type}
+                className={classes.round}
+                data-type={type.toLowerCase()}
+                aria-label={label}
+                title={label}
+                tabIndex={open ? 0 : -1}
+                onClick={() => {
+                  setOpen(false);
+                  onAdd(type);
+                }}
+              >
+                <Icon size={24} stroke={1.7} aria-hidden />
+              </UnstyledButton>
+            ))}
+          </div>
+          <UnstyledButton
+            className={classes.dialToggle}
+            aria-label={open ? 'Close' : 'Add a transaction'}
+            aria-expanded={open}
+            onClick={() => {
+              setOpen((value) => !value);
+            }}
+          >
+            <IconPlus size={24} stroke={1.7} aria-hidden />
+          </UnstyledButton>
+        </div>
+      </div>
+    </>
   );
 }
 
