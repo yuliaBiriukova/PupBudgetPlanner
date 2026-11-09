@@ -5,10 +5,10 @@
 | Type | Improvement |
 | Milestone | M6 — MVP release (polish) |
 | Priority | High (proposed: people testing the app couldn't find how to add an expense or income on the phone, the app's main action) |
-| Status | In progress (design round 1) |
-| Branch | `improvement/I-030-findable-add-button` (planned on `plan/phone-feedback`) |
-| Design | 🎨 3 prototype stories, then the final prototype |
-| Approved | — (date the owner approved the description and the final prototype) |
+| Status | Todo (design done and approved; to be built on its branch) |
+| Branch | `improvement/I-030-findable-add-button` (planned on `plan/phone-feedback`; the prototype stories are on it) |
+| Design | 🎨 3 rounds of prototype stories, then the final prototype; screenshots in [prototypes/](prototypes/) |
+| Approved | 2026-11-09, the owner in chat ("I approve the prototype"): the final prototype, variant 8 with the menu's pill gone |
 
 ## Goal
 
@@ -24,13 +24,20 @@ owner got from a person using the app: they couldn't find how to add one on the 
 
 ## Acceptance criteria
 
-- [ ] On every page of the phone app the way to add a transaction is visible without scrolling and reads as "add a
-      transaction" without guessing (a word, not only a +).
-- [ ] It doesn't cover the list's last rows or the toast (B-013), and works one-handed (in the thumb's reach).
-- [ ] It opens the same quick-add form as now, on the picked day (I-025).
-- [ ] An empty day or month tells how to add the first transaction.
-- [ ] The desktop sidebar's Add transaction stays as it is (I-019), unless a variant needs it to change.
-- [ ] Light and dark, 375 px to tablet.
+As approved in the final prototype (2026-11-09):
+
+- [ ] On every page of the phone app a charcoal + floats 16 px above the menu at the thumb's end, in sight without
+      scrolling; the pages have room under their last row, so it covers no row at the end, nor the toast (B-013).
+- [ ] A tap on the + dims the page and opens ⇄ Transfer, + Income and − Expense above it (Expense nearest), round
+      buttons in the types' colours with no names; the + turns into ×. Screen readers read "Add transfer / income /
+      expense".
+- [ ] Each opens the same quick-add form as now **on its type**, on the picked day (I-025). A type, ×, a tap on the
+      dimmed page or Escape folds the three.
+- [ ] The bottom bar has no + of its own; its four places (Transactions, Accounts, Reports, More) share the width,
+      each named under its icon; the open one in the accent, its name in medium weight, with no pill behind it.
+- [ ] An empty day or month tells how to add the first transaction (with the +).
+- [ ] The desktop is unchanged: the sidebar's Add transaction (I-019). The slip's round + stays.
+- [ ] Light and dark, 360 px to tablet; reduced motion: the three show and go without moving.
 
 ## Tasks
 
@@ -38,9 +45,13 @@ owner got from a person using the app: they couldn't find how to add one on the 
       finance apps' user feedback on where Add sits.
 - [x] 3 prototype stories in `frontend/src/prototypes/I-030-findable-add-button/` (*Prototypes / I-030 Findable add
       button*), the real Transactions page with the app's shell, one story per variant.
-- [ ] The owner picks one; final prototype; approval (I-003) before any code.
-- [ ] Build it in the shell (`PhoneBars.tsx`) and the totals slip; the empty states' text; DESIGN_RULES "Screen
-      decisions".
+- [x] The owner picks one; final prototype; approval (I-003) before any code (2026-11-09).
+- [x] DESIGN_RULES "Screen decisions" row (2026-11-09).
+- [ ] The quick-add form opens on a given type: `TransactionFormApi.add({ type })` (now only Expense, then switched).
+- [ ] The phone's bottom in the shell (`PhoneBars.tsx`, `AppLayout.tsx`): the + and its three (a component of its own,
+      with Escape and the dimmed page), the four named places without the pill, the pages' room under their last row.
+- [ ] The empty day's and month's text on how to add; i18n keys for every new text.
+- [ ] Storybook: the shell's phone stories (the three open; each page), the prototype stories deleted.
 
 ## Design
 
@@ -124,19 +135,33 @@ on the phone one + floats over the page and opens the three:
 - The desktop is unchanged: the sidebar's Add transaction (it opens an expense, as now).
 - The slip's own round + on the Transactions page stays as it is.
 
-Not in the prototypes: a line on the empty day ("Nothing on this day") telling how to add (acceptance criterion); it
-comes with whichever variant is chosen, as the empty state belongs to the page.
+Not in the prototype: a line on the empty day ("Nothing on this day") telling how to add (acceptance criterion); it
+comes with the build, as the empty state belongs to the page.
 
-Prototype stories: *Prototypes / I-030 Findable add button* (`frontend/src/prototypes/I-030-findable-add-button/`) ·
-Chosen variant: — · Final prototype approved: — (screenshots in `prototypes/`)
+Screenshots of the final prototype (the three folded):
+
+| | Light | Dark |
+|---|---|---|
+| Phone, 375 px | [final-375-light.png](prototypes/final-375-light.png) | [final-375-dark.png](prototypes/final-375-dark.png) |
+| Desktop, 1440 px (unchanged) | [final-1440-light.png](prototypes/final-1440-light.png) | [final-1440-dark.png](prototypes/final-1440-dark.png) |
+
+Prototype stories: *Prototypes / I-030 Findable add button* (`frontend/src/prototypes/I-030-findable-add-button/`, on
+`improvement/I-030-findable-add-button` only: a planning branch carries no prototypes). Each round's stories replaced
+the last one's, so only the final prototype's link opens now; the rounds are in that branch's history. ·
+Chosen variant: 8, with the menu's pill gone · Final prototype approved: 2026-11-09 (screenshots in
+[prototypes/](prototypes/))
 
 ## Tests
 
-- Unit: the button opens the form (expense by default), on the picked day.
-- E2E (Playwright, phone): from Transactions, Accounts and Reports the add button is in sight and opens the form.
-- Screens checked in Playwright screenshots at 375 and 768 px (and 1440 px if the desktop changes), light and dark.
+- Unit: the + opens and folds the three (×, Escape, the dimmed page); each opens the form on its type, on the picked
+  day; the menu marks the open place.
+- E2E (Playwright, phone): from Transactions, Accounts and Reports the + is in sight, opens the three, and each opens
+  the form on its type; the last row of a long list can scroll clear of the +.
+- Screens checked in Playwright screenshots at 375 and 768 px (the three folded and open) and 1440 px (unchanged),
+  light and dark.
 
 ## Open points
 
-- Did the person look for it on the Transactions page or elsewhere (Accounts, Reports)? It tells whether the button
-  must be on every page or the page's own buttons are enough.
+- ~~Did the person look for it on the Transactions page or elsewhere?~~ No longer needed: the + is on every page.
+- Back while the three are open: fold them first, as Back closes a pop-up before it leaves the page (I-015)? Proposed:
+  yes. Not in the prototype; to be confirmed by the owner before the build.
