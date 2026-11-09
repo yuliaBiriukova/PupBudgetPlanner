@@ -85,6 +85,23 @@ buttons only, no names, and one for Transfer too. Round 1's stories were replace
 | Variant 4: Full-width Add transaction | Variant 1 across the phone: a 52 px charcoal "+ Add transaction" pill, 16 px from both edges, in a row of its own at the top of the bottom bar, the tabs under it spread over the bar. It never covers the page and never folds; the bottom takes 60 px more of the screen | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-4&nav=false&panel=false&globals=viewport.value:!undefined) |
 | Variant 5: Round Expense, Income and Transfer | Variant 3 without names: three 56 px circles on one floating dock above the bar, ⇄ Transfer (blue), + Income (green), − Expense (red) with Expense at the thumb's end; each opens the form on its type. Screen readers read "Add transfer / income / expense"; with no words, the person goes by the signs and colours alone. Covers a corner of the list (the page has 80 px of room under its last row) | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-5&nav=false&panel=false&globals=viewport.value:!undefined) |
 
+The owner's answer (2026-11-09): more variants of the three buttons; and the phone's menu rearranged, since the bar
+loses its +.
+
+### Round 3: four more ways for the three buttons, and the menu rearranged (2026-11-09)
+
+**The menu** (variants 6, 8 and 9): without the + the bar has four places, so they share the phone's width equally,
+each icon with its name under it (12 px), the open one's icon on the accent's pill and its name in the accent. Every
+place is named, not only the open one as now; the bar keeps its height. Variant 7 keeps the places as icons, as the
+three buttons take half the bar. Variants 4 and 5 still show round 2's bar (the app's, spread out) for comparison.
+
+| Story | Thesis and trade-offs | Link |
+|-------|-----------------------|------|
+| Variant 6: Big Expense, small Income and Transfer | **The most used, the biggest.** Expense a 64 px circle filled in its red at the thumb's end; Income and Transfer 56 px in their tints beside it, on one floating dock. The eye goes to − first; covers a corner of the list | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-6&nav=false&panel=false&globals=viewport.value:!undefined) |
+| Variant 7: The three in the bar | **One bar for everything.** The four places as icons on the left, a thin rule, ⇄ + − (44 px) on the right. Nothing floats and the bottom is no taller than now; but the places lose their names and the buttons are smaller | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-7&nav=false&panel=false&globals=viewport.value:!undefined) |
+| Variant 8: One + that opens the three | **Clear page, one tap more.** A single charcoal + floats at the thumb's end; a tap dims the page and opens ⇄ + − above it, the + turning into ×. The page is covered least; every add costs two taps, and the + alone says nothing of the three | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-8&nav=false&panel=false&globals=viewport.value:!undefined) |
+| Variant 9: The three in a row over the tabs | **Docked, in the middle.** ⇄ + − (56 px) centred in a row of their own between the page and the named tabs, like variant 4's row. Never covers the page, the same place on every page; the bottom takes about 64 px more | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-9&nav=false&panel=false&globals=viewport.value:!undefined) |
+
 Not in the prototypes: a line on the empty day ("Nothing on this day") telling how to add (acceptance criterion); it
 comes with whichever variant is chosen, as the empty state belongs to the page.
 

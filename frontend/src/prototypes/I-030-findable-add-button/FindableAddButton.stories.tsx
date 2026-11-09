@@ -52,3 +52,27 @@ export const Variant5: Story = {
   name: 'Variant 5: Round Expense, Income and Transfer',
   args: { variant: 'rounds' },
 };
+
+/** Round 3: Expense, the most used, big and filled at the thumb's end; Income and Transfer small beside it. */
+export const Variant6: Story = {
+  name: 'Variant 6: Big Expense, small Income and Transfer',
+  args: { variant: 'bigExpense' },
+};
+
+/** Round 3: one bar for everything, the four places as icons on the left and ⇄ + − on the right. */
+export const Variant7: Story = {
+  name: 'Variant 7: The three in the bar',
+  args: { variant: 'inBar' },
+};
+
+/** Round 3: one charcoal + that opens ⇄ + − above it; the page stays clear until it is tapped. */
+export const Variant8: Story = {
+  name: 'Variant 8: One + that opens the three',
+  args: { variant: 'dial' },
+};
+
+/** Round 3: the three in a row of their own over the named tabs, in the middle of the phone; nothing floats. */
+export const Variant9: Story = {
+  name: 'Variant 9: The three in a row over the tabs',
+  args: { variant: 'row' },
+};

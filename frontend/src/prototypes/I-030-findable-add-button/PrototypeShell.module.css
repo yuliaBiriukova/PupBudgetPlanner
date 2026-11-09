@@ -8,17 +8,18 @@
   justify-content: space-around;
 }
 
+/* A bar under a row of its own: the rule goes above the row instead */
+.noRule {
+  border-top: 0;
+}
+
 /* ---------- Variant 4: a full-width Add transaction over the tabs ---------- */
 
-/* Its own row at the top of the bottom bar, so it covers nothing of the page; the tabs' rule moves above it */
-.wideRow {
+.wideRow,
+.typeRow {
   padding: 8px 16px 0;
   border-top: 1px solid var(--pup-color-rule);
   background: var(--mantine-color-body);
-}
-
-.wideRow + .spread {
-  border-top: 0;
 }
 
 .wide {
@@ -39,11 +40,11 @@
   background: var(--mantine-primary-color-filled-hover);
 }
 
-/* ---------- Variant 5: Transfer, Income and Expense as round buttons floating above the bar ---------- */
+/* ---------- The type buttons: ⇄ + − in the types' colours ---------- */
 
 /* The last rows can scroll up above the floating buttons */
 .roomForFloat {
-  padding-bottom: 80px;
+  padding-bottom: 88px;
 }
 
 /* Over the page, 16 px above the bar, at the thumb's end */
@@ -51,50 +52,255 @@
   position: absolute;
   right: 16px;
   bottom: calc(100% + 16px);
-  z-index: 2;
+  z-index: 3;
+}
+
+.types {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .roundDock {
-  display: flex;
-  gap: 8px;
   padding: 4px;
   border-radius: 999px;
   background: var(--pup-color-surface);
   box-shadow: var(--pup-shadow-float);
 }
 
-/* 56 px circles in the types' tints, the sign in the type's colour (the form's switch uses the same colours) */
+/* A row of its own over the tabs (variant 9): the three in the middle of the phone */
+.typeRow .types {
+  justify-content: center;
+  gap: 16px;
+}
+
 .round {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  transition: background-color 120ms linear;
+}
+
+.round[data-size='sm'] {
+  width: 44px;
+  height: 44px;
+}
+
+.round[data-size='lg'] {
+  width: 64px;
+  height: 64px;
+}
+
+.round[data-type='expense'] {
+  background: color-mix(in srgb, var(--pup-color-expense) 14%, var(--pup-color-surface));
+  color: var(--pup-color-expense);
+}
+
+.round[data-type='income'] {
+  background: color-mix(in srgb, var(--pup-color-income) 14%, var(--pup-color-surface));
+  color: var(--pup-color-income);
+}
+
+.round[data-type='transfer'] {
+  background: color-mix(in srgb, var(--pup-color-transfer) 14%, var(--pup-color-surface));
+  color: var(--pup-color-transfer);
+}
+
+.round[data-type='expense']:hover {
+  background: color-mix(in srgb, var(--pup-color-expense) 22%, var(--pup-color-surface));
+}
+
+.round[data-type='income']:hover {
+  background: color-mix(in srgb, var(--pup-color-income) 22%, var(--pup-color-surface));
+}
+
+.round[data-type='transfer']:hover {
+  background: color-mix(in srgb, var(--pup-color-transfer) 22%, var(--pup-color-surface));
+}
+
+/* Variant 6: Expense filled in its red, the sign in the colour that reads on it in each scheme */
+.round[data-filled] {
+  background: var(--pup-color-expense);
+  color: var(--pup-color-on-primary);
+}
+
+.round[data-filled]:hover {
+  background: color-mix(in srgb, var(--pup-color-expense) 88%, var(--mantine-color-text));
+}
+
+/* ---------- Variant 8: one + that opens the three ---------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: color-mix(in srgb, var(--mantine-color-body) 72%, transparent);
+}
+
+.dial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.dialItems {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 160ms linear,
+    transform 160ms cubic-bezier(0.2, 0, 0, 1),
+    visibility 0s 160ms;
+}
+
+.dial[data-open] .dialItems {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 160ms linear,
+    transform 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.dialItems .round {
+  box-shadow: var(--pup-shadow-float);
+}
+
+.dialToggle {
   display: grid;
   place-items: center;
   width: 56px;
   height: 56px;
   border-radius: 999px;
+  background: var(--mantine-primary-color-filled);
+  box-shadow: var(--pup-shadow-float);
+  color: var(--pup-color-on-primary);
 }
 
-.round[data-type='expense'] {
-  background: color-mix(in srgb, var(--pup-color-expense) 12%, var(--pup-color-surface));
-  color: var(--pup-color-expense);
+.dialToggle svg {
+  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-.round[data-type='income'] {
-  background: var(--pup-color-income-bg);
-  color: var(--pup-color-income);
+.dial[data-open] .dialToggle svg {
+  transform: rotate(45deg);
 }
 
-.round[data-type='transfer'] {
-  background: color-mix(in srgb, var(--pup-color-transfer) 12%, var(--pup-color-surface));
-  color: var(--pup-color-transfer);
+/* ---------- Round 3's menu: four equal places, each named ---------- */
+
+.namedBar {
+  display: grid;
+  flex: none;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--pup-color-rule);
+  background: var(--mantine-color-body);
 }
 
-.round[data-type='expense']:hover {
-  background: color-mix(in srgb, var(--pup-color-expense) 20%, var(--pup-color-surface));
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 52px;
+  color: var(--mantine-color-dimmed);
+  text-decoration: none;
 }
 
-.round[data-type='income']:hover {
-  background: color-mix(in srgb, var(--pup-color-income) 20%, var(--pup-color-surface));
+/* The open section: its icon on the accent's pill, its name in the accent */
+.slotIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 32px;
+  border-radius: 999px;
 }
 
-.round[data-type='transfer']:hover {
-  background: color-mix(in srgb, var(--pup-color-transfer) 20%, var(--pup-color-surface));
+.slotIcon[data-narrow] {
+  width: 44px;
+}
+
+.slot[aria-current='page'],
+.slot[data-active] {
+  color: var(--pup-color-accent);
+}
+
+.slot[aria-current='page'] .slotIcon,
+.slot[data-active] .slotIcon {
+  background: var(--pup-color-active-bg);
+}
+
+.slotLabel {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot[aria-current='page'] .slotLabel,
+.slot[data-active] .slotLabel {
+  font-weight: 500;
+}
+
+/* ---------- Variant 7: the places and the three in one bar ---------- */
+
+.inBar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--pup-color-rule);
+  background: var(--mantine-color-body);
+}
+
+.inBarTabs {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-width: 0;
+}
+
+/* No room for the names next to the three: the places are icons, their names read out only */
+.inBar .slotLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.inBar .slot {
+  justify-content: center;
+  min-height: 48px;
+}
+
+.inBarRule {
+  flex: none;
+  align-self: stretch;
+  width: 1px;
+  margin: 4px 0;
+  background: var(--pup-color-rule);
+}
+
+.inBar .types {
+  gap: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialItems,
+  .dial[data-open] .dialItems,
+  .dialToggle svg,
+  .round {
+    transition: none;
+  }
 }
