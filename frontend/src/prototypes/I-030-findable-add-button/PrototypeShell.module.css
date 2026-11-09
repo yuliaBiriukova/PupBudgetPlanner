@@ -1,75 +1,18 @@
-.barHolder {
-  position: relative;
+/* The phone's bottom: the three in a row of their own, the four places under them; one rule above it all */
+.bottom {
   flex: none;
-}
-
-/* The tabs spread over the bar now that the + isn't at its end */
-.spread {
-  justify-content: space-around;
-}
-
-/* A bar under a row of its own: the rule goes above the row instead */
-.noRule {
-  border-top: 0;
-}
-
-/* ---------- Variant 4: a full-width Add transaction over the tabs ---------- */
-
-.wideRow,
-.typeRow {
-  padding: 8px 16px 0;
   border-top: 1px solid var(--pup-color-rule);
   background: var(--mantine-color-body);
 }
 
-.wide {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  height: 52px;
-  border-radius: 999px;
-  background: var(--mantine-primary-color-filled);
-  color: var(--pup-color-on-primary);
-  font-size: 16px;
-  font-weight: 500;
+.typeRow {
+  padding: 8px 16px 0;
 }
 
-.wide:hover {
-  background: var(--mantine-primary-color-filled-hover);
-}
-
-/* ---------- The type buttons: ⇄ + − in the types' colours ---------- */
-
-/* The last rows can scroll up above the floating buttons */
-.roomForFloat {
-  padding-bottom: 88px;
-}
-
-/* Over the page, 16 px above the bar, at the thumb's end */
-.float {
-  position: absolute;
-  right: 16px;
-  bottom: calc(100% + 16px);
-  z-index: 3;
-}
-
+/* ⇄ + − in the middle of the phone, 56 px circles 16 px apart */
 .types {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.roundDock {
-  padding: 4px;
-  border-radius: 999px;
-  background: var(--pup-color-surface);
-  box-shadow: var(--pup-shadow-float);
-}
-
-/* A row of its own over the tabs (variant 9): the three in the middle of the phone */
-.typeRow .types {
   justify-content: center;
   gap: 16px;
 }
@@ -84,16 +27,7 @@
   transition: background-color 120ms linear;
 }
 
-.round[data-size='sm'] {
-  width: 44px;
-  height: 44px;
-}
-
-.round[data-size='lg'] {
-  width: 64px;
-  height: 64px;
-}
-
+/* The types' tints, the sign in the type's colour (as the form's switch) */
 .round[data-type='expense'] {
   background: color-mix(in srgb, var(--pup-color-expense) 14%, var(--pup-color-surface));
   color: var(--pup-color-expense);
@@ -121,120 +55,34 @@
   background: color-mix(in srgb, var(--pup-color-transfer) 22%, var(--pup-color-surface));
 }
 
-/* Variant 6: Expense filled in its red, the sign in the colour that reads on it in each scheme */
-.round[data-filled] {
-  background: var(--pup-color-expense);
-  color: var(--pup-color-on-primary);
-}
-
-.round[data-filled]:hover {
-  background: color-mix(in srgb, var(--pup-color-expense) 88%, var(--mantine-color-text));
-}
-
-/* ---------- Variant 8: one + that opens the three ---------- */
-
-.scrim {
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  background: color-mix(in srgb, var(--mantine-color-body) 72%, transparent);
-}
-
-.dial {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.dialItems {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  visibility: hidden;
-  opacity: 0;
-  transform: translateY(16px);
-  transition:
-    opacity 160ms linear,
-    transform 160ms cubic-bezier(0.2, 0, 0, 1),
-    visibility 0s 160ms;
-}
-
-.dial[data-open] .dialItems {
-  visibility: visible;
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 160ms linear,
-    transform 160ms cubic-bezier(0.2, 0, 0, 1);
-}
-
-.dialItems .round {
-  box-shadow: var(--pup-shadow-float);
-}
-
-.dialToggle {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 999px;
-  background: var(--mantine-primary-color-filled);
-  box-shadow: var(--pup-shadow-float);
-  color: var(--pup-color-on-primary);
-}
-
-.dialToggle svg {
-  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1);
-}
-
-.dial[data-open] .dialToggle svg {
-  transform: rotate(45deg);
-}
-
-/* ---------- Round 3's menu: four equal places, each named ---------- */
-
+/* Four equal places, each named */
 .namedBar {
   display: grid;
-  flex: none;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--pup-color-rule);
-  background: var(--mantine-color-body);
 }
 
 .slot {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   min-width: 0;
   min-height: 52px;
+  border-radius: var(--mantine-radius-md);
   color: var(--mantine-color-dimmed);
   text-decoration: none;
 }
 
-/* The open section: its icon on the accent's pill, its name in the accent */
-.slotIcon {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 32px;
-  border-radius: 999px;
+.slot svg {
+  flex: none;
 }
 
-.slotIcon[data-narrow] {
-  width: 44px;
-}
-
+/* The open section: icon and name in the accent, the name in medium weight; no pill behind it */
 .slot[aria-current='page'],
 .slot[data-active] {
   color: var(--pup-color-accent);
-}
-
-.slot[aria-current='page'] .slotIcon,
-.slot[data-active] .slotIcon {
-  background: var(--pup-color-active-bg);
 }
 
 .slotLabel {
@@ -251,55 +99,7 @@
   font-weight: 500;
 }
 
-/* ---------- Variant 7: the places and the three in one bar ---------- */
-
-.inBar {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--pup-color-rule);
-  background: var(--mantine-color-body);
-}
-
-.inBarTabs {
-  display: grid;
-  flex: 1;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  min-width: 0;
-}
-
-/* No room for the names next to the three: the places are icons, their names read out only */
-.inBar .slotLabel {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
-
-.inBar .slot {
-  justify-content: center;
-  min-height: 48px;
-}
-
-.inBarRule {
-  flex: none;
-  align-self: stretch;
-  width: 1px;
-  margin: 4px 0;
-  background: var(--pup-color-rule);
-}
-
-.inBar .types {
-  gap: 4px;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .dialItems,
-  .dial[data-open] .dialItems,
-  .dialToggle svg,
   .round {
     transition: none;
   }

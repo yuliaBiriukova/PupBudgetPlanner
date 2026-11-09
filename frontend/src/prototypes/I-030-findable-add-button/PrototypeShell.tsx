@@ -1,12 +1,11 @@
 import { UnstyledButton } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { IconArrowsLeftRight, IconDots, IconMinus, IconPlus } from '@tabler/icons-react';
-import { useEffect, useState, type CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import layout from '../../app/shell/AppLayout.module.css';
 import { MoreSheet, TopBar } from '../../app/shell/PhoneBars';
-import bars from '../../app/shell/PhoneBars.module.css';
 import {
   DESKTOP_QUERY,
   moreSectionsFor,
@@ -15,34 +14,26 @@ import {
 } from '../../app/shell/sections';
 import { Sidebar } from '../../app/shell/Sidebar';
 import { useSidebar } from '../../app/shell/useSidebar';
-import { cx } from '../../shared/ui/cx';
 import { useTransactionForm } from '../../features/transactions/transactionForm';
 import { TransactionFormProvider } from '../../features/transactions/TransactionFormProvider';
 import classes from './PrototypeShell.module.css';
 
-/** Which way of adding the phone shows (I-030, rounds 2 and 3). */
-export type AddVariant = 'wide' | 'rounds' | 'bigExpense' | 'inBar' | 'dial' | 'row';
-
 type AddType = 'Expense' | 'Income' | 'Transfer';
 
-interface ShellProps {
-  variant: AddVariant;
-  user?: ShellUser;
-}
-
 /**
- * A copy of the app shell (`AppLayout`) for the prototype: the sidebar on the desktop is the app's own and unchanged;
- * on the phone the top bar and More are the app's, and the bottom is the variant's.
+ * A copy of the app shell (`AppLayout`) for the final prototype (variant 9 without the menu's pill): the sidebar on
+ * the desktop is the app's own and unchanged; on the phone the top bar and More are the app's, and the bottom is
+ * ⇄ + − in a row of their own over the four named places.
  */
-export function PrototypeShell(props: ShellProps) {
+export function PrototypeShell({ user }: { user?: ShellUser }) {
   return (
     <TransactionFormProvider>
-      <Shell {...props} />
+      <Shell user={user} />
     </TransactionFormProvider>
   );
 }
 
-function Shell({ variant, user }: ShellProps) {
+function Shell({ user }: { user?: ShellUser }) {
   const isDesktop = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
   const sidebar = useSidebar();
   const form = useTransactionForm();
@@ -53,7 +44,6 @@ function Shell({ variant, user }: ShellProps) {
     form.add();
     if (type !== 'Expense') pickTypeWhenOpen(type);
   };
-  const floats = variant === 'rounds' || variant === 'bigExpense' || variant === 'dial';
 
   return (
     <div
@@ -73,85 +63,21 @@ function Shell({ variant, user }: ShellProps) {
         {!isDesktop && <TopBar user={user} />}
         <main className={layout.main}>
           <div className={layout.content}>
-            {/* Room under the last rows for the floating buttons */}
-            <div className={!isDesktop && floats ? classes.roomForFloat : undefined}>
-              <Outlet />
-            </div>
+            <Outlet />
           </div>
         </main>
         {!isDesktop && (
-          <PhoneBottom variant={variant} user={user} onMore={more.open} onAdd={addAs} />
+          <div className={classes.bottom}>
+            <div className={classes.typeRow}>
+              <TypeButtons onAdd={addAs} />
+            </div>
+            <NamedTabBar onMore={more.open} user={user} />
+          </div>
         )}
       </div>
       {!isDesktop && <MoreSheet opened={moreOpened} onClose={more.close} user={user} />}
     </div>
   );
-}
-
-interface BottomProps {
-  variant: AddVariant;
-  user?: ShellUser;
-  onMore: () => void;
-  onAdd: (type: AddType) => void;
-}
-
-/** What each variant puts at the bottom of the phone. */
-function PhoneBottom({ variant, user, onMore, onAdd }: BottomProps) {
-  switch (variant) {
-    case 'wide':
-      return (
-        <div className={classes.barHolder}>
-          <div className={classes.wideRow}>
-            <UnstyledButton
-              className={classes.wide}
-              onClick={() => {
-                onAdd('Expense');
-              }}
-            >
-              <IconPlus size={20} stroke={1.7} aria-hidden />
-              Add transaction
-            </UnstyledButton>
-          </div>
-          <IconTabBar onMore={onMore} user={user} bordered={false} />
-        </div>
-      );
-    case 'rounds':
-      return (
-        <div className={classes.barHolder}>
-          <div className={classes.float}>
-            <TypeButtons onAdd={onAdd} dock />
-          </div>
-          <IconTabBar onMore={onMore} user={user} />
-        </div>
-      );
-    case 'bigExpense':
-      return (
-        <div className={classes.barHolder}>
-          <div className={classes.float}>
-            <TypeButtons onAdd={onAdd} dock bigExpense />
-          </div>
-          <NamedTabBar onMore={onMore} user={user} />
-        </div>
-      );
-    case 'inBar':
-      return <InBarTabBar onMore={onMore} user={user} onAdd={onAdd} />;
-    case 'dial':
-      return (
-        <div className={classes.barHolder}>
-          <SpeedDial onAdd={onAdd} />
-          <NamedTabBar onMore={onMore} user={user} />
-        </div>
-      );
-    case 'row':
-      return (
-        <div className={classes.barHolder}>
-          <div className={classes.typeRow}>
-            <TypeButtons onAdd={onAdd} />
-          </div>
-          <NamedTabBar onMore={onMore} user={user} bordered={false} />
-        </div>
-      );
-  }
 }
 
 const TYPES: { type: AddType; label: string; icon: typeof IconPlus }[] = [
@@ -161,32 +87,14 @@ const TYPES: { type: AddType; label: string; icon: typeof IconPlus }[] = [
 ];
 
 /** ⇄ + − as round buttons in the types' colours, Expense last (at the thumb's end). */
-function TypeButtons({
-  onAdd,
-  dock,
-  bigExpense,
-  size = 'md',
-}: {
-  onAdd: (type: AddType) => void;
-  /** On a floating surface of their own. */
-  dock?: boolean;
-  /** Expense, the most used, bigger and filled (variant 6). */
-  bigExpense?: boolean;
-  size?: 'sm' | 'md';
-}) {
+function TypeButtons({ onAdd }: { onAdd: (type: AddType) => void }) {
   return (
-    <div
-      className={cx(classes.types, dock && classes.roundDock)}
-      role="group"
-      aria-label="Add a transaction"
-    >
+    <div className={classes.types} role="group" aria-label="Add a transaction">
       {TYPES.map(({ type, label, icon: Icon }) => (
         <UnstyledButton
           key={type}
           className={classes.round}
           data-type={type.toLowerCase()}
-          data-size={bigExpense ? (type === 'Expense' ? 'lg' : 'sm') : size}
-          data-filled={bigExpense && type === 'Expense' ? true : undefined}
           aria-label={label}
           title={label}
           onClick={() => {
@@ -200,133 +108,20 @@ function TypeButtons({
   );
 }
 
-/** Variant 8: one charcoal + that opens ⇄ + − above it, over a dimmed page; × or a tap outside folds them. */
-function SpeedDial({ onAdd }: { onAdd: (type: AddType) => void }) {
-  const [open, setOpen] = useState(false);
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
-  return (
-    <>
-      {open && (
-        <div
-          className={classes.scrim}
-          aria-hidden
-          onClick={() => {
-            setOpen(false);
-          }}
-        />
-      )}
-      <div className={classes.float}>
-        <div className={classes.dial} data-open={open || undefined}>
-          <div className={classes.dialItems} role="group" aria-label="Add a transaction">
-            {TYPES.map(({ type, label, icon: Icon }) => (
-              <UnstyledButton
-                key={type}
-                className={classes.round}
-                data-type={type.toLowerCase()}
-                data-size="md"
-                aria-label={label}
-                title={label}
-                tabIndex={open ? 0 : -1}
-                onClick={() => {
-                  setOpen(false);
-                  onAdd(type);
-                }}
-              >
-                <Icon size={24} stroke={1.7} aria-hidden />
-              </UnstyledButton>
-            ))}
-          </div>
-          <UnstyledButton
-            className={classes.dialToggle}
-            aria-label={open ? 'Close' : 'Add a transaction'}
-            aria-expanded={open}
-            onClick={() => {
-              setOpen((value) => !value);
-            }}
-          >
-            <IconPlus size={24} stroke={1.7} aria-hidden />
-          </UnstyledButton>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function useInMore(user?: ShellUser) {
-  const { pathname } = useLocation();
-  return moreSectionsFor(user).some((s) => pathname.startsWith(s.path));
-}
-
-/** Round 2's bar: the app's tabs (icons, the open one named on its pill) spread over the bar. */
-function IconTabBar({
-  onMore,
-  user,
-  bordered = true,
-}: {
-  onMore: () => void;
-  user?: ShellUser;
-  bordered?: boolean;
-}) {
-  const { t } = useTranslation();
-  const inMore = useInMore(user);
-
-  return (
-    <nav
-      className={cx(bars.tabs, classes.spread, !bordered && classes.noRule)}
-      aria-label={t('nav.main')}
-    >
-      {TAB_SECTIONS.map(({ id, path, icon: Icon }) => (
-        <NavLink key={id} to={path} className={bars.tab}>
-          <Icon size={24} stroke={1.7} />
-          <span className={bars.tabLabel}>{t(`nav.${id}`)}</span>
-        </NavLink>
-      ))}
-      <UnstyledButton
-        className={bars.tab}
-        data-active={inMore || undefined}
-        aria-haspopup="dialog"
-        onClick={onMore}
-      >
-        <IconDots size={24} stroke={1.7} />
-        <span className={bars.tabLabel}>{t('nav.more')}</span>
-      </UnstyledButton>
-    </nav>
-  );
-}
-
 /**
- * Round 3's menu, rearranged for the bar without its +: four equal places across the phone, each icon with its name
- * under it, the open one's icon on the accent's pill (as the app's open tab is now).
+ * The menu without the bar's +: four equal places across the phone, each icon with its name under it; the open one in
+ * the accent, its name in medium weight, with no pill behind it (owner, 2026-11-09).
  */
-function NamedTabBar({
-  onMore,
-  user,
-  bordered = true,
-}: {
-  onMore: () => void;
-  user?: ShellUser;
-  bordered?: boolean;
-}) {
+function NamedTabBar({ onMore, user }: { onMore: () => void; user?: ShellUser }) {
   const { t } = useTranslation();
-  const inMore = useInMore(user);
+  const { pathname } = useLocation();
+  const inMore = moreSectionsFor(user).some((s) => pathname.startsWith(s.path));
 
   return (
-    <nav className={cx(classes.namedBar, !bordered && classes.noRule)} aria-label={t('nav.main')}>
+    <nav className={classes.namedBar} aria-label={t('nav.main')}>
       {TAB_SECTIONS.map(({ id, path, icon: Icon }) => (
         <NavLink key={id} to={path} className={classes.slot}>
-          <span className={classes.slotIcon}>
-            <Icon size={24} stroke={1.7} />
-          </span>
+          <Icon size={24} stroke={1.7} />
           <span className={classes.slotLabel}>{t(`nav.${id}`)}</span>
         </NavLink>
       ))}
@@ -336,45 +131,9 @@ function NamedTabBar({
         aria-haspopup="dialog"
         onClick={onMore}
       >
-        <span className={classes.slotIcon}>
-          <IconDots size={24} stroke={1.7} />
-        </span>
+        <IconDots size={24} stroke={1.7} />
         <span className={classes.slotLabel}>{t('nav.more')}</span>
       </UnstyledButton>
-    </nav>
-  );
-}
-
-/** Variant 7: one bar for both, the four places on the left and ⇄ + − on the right after a thin rule. */
-function InBarTabBar({ onMore, user, onAdd }: Omit<BottomProps, 'variant'>) {
-  const { t } = useTranslation();
-  const inMore = useInMore(user);
-
-  return (
-    <nav className={classes.inBar} aria-label={t('nav.main')}>
-      <div className={classes.inBarTabs}>
-        {TAB_SECTIONS.map(({ id, path, icon: Icon }) => (
-          <NavLink key={id} to={path} className={classes.slot}>
-            <span className={classes.slotIcon} data-narrow>
-              <Icon size={24} stroke={1.7} />
-            </span>
-            <span className={classes.slotLabel}>{t(`nav.${id}`)}</span>
-          </NavLink>
-        ))}
-        <UnstyledButton
-          className={classes.slot}
-          data-active={inMore || undefined}
-          aria-haspopup="dialog"
-          onClick={onMore}
-        >
-          <span className={classes.slotIcon} data-narrow>
-            <IconDots size={24} stroke={1.7} />
-          </span>
-          <span className={classes.slotLabel}>{t('nav.more')}</span>
-        </UnstyledButton>
-      </div>
-      <span className={classes.inBarRule} aria-hidden />
-      <TypeButtons onAdd={onAdd} size="sm" />
     </nav>
   );
 }
