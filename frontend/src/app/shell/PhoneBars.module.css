@@ -11,74 +11,48 @@
   margin-right: auto;
 }
 
-/* Tab bar: icon tabs, the open one spelled out in a pill; Add at the thumb end */
+/* Tab bar: four equal places, each named under its icon (I-030) */
 .tabs {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 2px;
-  padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--pup-color-rule);
-  background: var(--mantine-color-body);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
 }
 
 .tab {
   display: flex;
-  flex: none;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 44px;
-  min-height: 48px;
-  border-radius: 999px;
+  gap: 4px;
+  min-width: 0;
+  min-height: 52px;
+  border-radius: var(--mantine-radius-md);
   color: var(--mantine-color-dimmed);
-  font-size: 13px;
   text-decoration: none;
 }
 
-.tab[aria-current='page'],
-.tab[data-active] {
-  flex: 0 1 auto;
-  width: auto;
-  min-width: 0;
-  padding: 0 14px 0 12px;
-  background: var(--pup-color-active-bg);
-  color: var(--pup-color-accent);
-  font-weight: 500;
-}
-
-.tabs svg {
+.tab svg {
   flex: none;
 }
 
+/* The open section: icon and name in the accent, the name in medium weight; no pill behind it */
+.tab[aria-current='page'],
+.tab[data-active] {
+  color: var(--pup-color-accent);
+}
+
 .tabLabel {
+  max-width: 100%;
   overflow: hidden;
+  font-size: 12px;
+  line-height: 16px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.tab:not([aria-current='page'], [data-active]) .tabLabel {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
-
-.add {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  margin-left: auto;
-  border-radius: var(--mantine-radius-xl);
-  background: var(--mantine-primary-color-filled);
-  color: var(--pup-color-on-primary);
-}
-
-.add:hover {
-  background: var(--mantine-primary-color-filled-hover);
+.tab[aria-current='page'] .tabLabel,
+.tab[data-active] .tabLabel {
+  font-weight: 500;
 }
 
 /* More sheet */

@@ -23,7 +23,16 @@
 .content {
   max-width: 880px;
   margin: 0 auto;
-  padding: 8px 16px 32px;
+  /* On the phone the last rows scroll up clear of the floating + (56 px and its 16 px over the menu, I-030) */
+  padding: 8px 16px calc(32px + 72px);
+}
+
+/* The phone's bottom: the menu, with the + floating above it (I-030) */
+.bottom {
+  position: relative;
+  flex: none;
+  border-top: 1px solid var(--pup-color-rule);
+  background: var(--mantine-color-body);
 }
 
 /* A page that needs the room is wider than the others: the Reports page's year (F-022) */

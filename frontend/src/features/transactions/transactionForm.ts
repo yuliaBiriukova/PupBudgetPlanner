@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect } from 'react';
-import type { BalanceChange, Transaction } from './transactionsApi';
+import type { BalanceChange, Transaction, TransactionType } from './transactionsApi';
 
 /** What was saved or deleted last: the pages light up its row and its account's card. */
 export interface LastChange {
@@ -14,9 +14,10 @@ export interface LastChange {
 export interface TransactionFormApi {
   /**
    * Opens the form for a new transaction; from an account's card, with that account picked (F-018). It starts on
-   * `date`, else on the day the page shows (I-025), else on today.
+   * `date`, else on the day the page shows (I-025), else on today; on `type` (the phone's ⇄ + −, I-030), else on an
+   * expense.
    */
-  add: (options?: { accountId?: string; date?: string }) => void;
+  add: (options?: { accountId?: string; date?: string; type?: TransactionType }) => void;
   /** Opens the form to change or delete a transaction. */
   edit: (transaction: Transaction) => void;
   /** The day the page shows (`YYYY-MM-DD`), or none: every Add transaction starts on it, the shell's too. */

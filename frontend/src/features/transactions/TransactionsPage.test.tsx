@@ -445,6 +445,37 @@ describe('the Transactions page', () => {
     expect(await screen.findByRole('dialog', { name: 'Add expense' }, LOADED)).toBeInTheDocument();
   });
 
+  it('opens the form on an income on the picked day from the phone’s + (I-030)', async () => {
+    setScreenWidth(375);
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10&day=2026-10-01');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add a transaction' }, LOADED));
+    await userEvent.click(screen.getByRole('button', { name: 'Add income' }));
+    const form = await screen.findByRole('dialog', { name: 'Add income' });
+    await within(form).findByText('Amount');
+    expect(within(form).getByRole('radio', { name: 'Thursday, 1 Oct 2026' })).toBeChecked();
+    expect(within(form).getByRole('radio', { name: 'Income' })).toBeChecked();
+    expect(within(form).getByRole('radio', { name: 'Salary' })).toBeInTheDocument();
+  });
+
+  it('tells how to add on an empty day and month (I-030)', async () => {
+    transactionsServer({ latest: [], overview: USED });
+    renderApp('/transactions?month=2026-10&day=2026-10-01');
+
+    expect(await screen.findByText('Nothing on this day', {}, LOADED)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Nothing was added on Thursday, 1 Oct. Add an expense, an income or a transfer with the +.',
+      ),
+    ).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Show all of October' }));
+    expect(
+      await screen.findByText(/^Nothing was added in October.* with the \+\.$/),
+    ).toBeInTheDocument();
+  });
+
   it('explains what to do when there is nothing yet', async () => {
     transactionsServer({ latest: [] });
     renderApp('/transactions');
@@ -1056,6 +1087,23 @@ describe('transfers', () => {
         toAmount: null,
       },
     ]);
+  });
+
+  it('opens straight on a transfer from the phone’s ⇄, with the last transfer’s accounts (I-030)', async () => {
+    setScreenWidth(375);
+    transactionsServer({
+      suggestions: { ...NONE, lastTransfer: { fromAccountId: 'mono', toAccountId: 'cash' } },
+    });
+    renderApp('/transactions');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add a transaction' }, LOADED));
+    await userEvent.click(screen.getByRole('button', { name: 'Add transfer' }));
+    const form = await screen.findByRole('dialog', { name: 'Add transfer' });
+    expect(await within(form).findByRole('button', { name: /^From/ })).toHaveTextContent(
+      'Mono black',
+    );
+    expect(within(form).getByRole('button', { name: /^To/ })).toHaveTextContent('Wallet');
+    expect(within(form).queryByRole('radiogroup', { name: 'Category' })).not.toBeInTheDocument();
   });
 
   it('suggests an exchange’s second amount at the NBU rate, takes the bank’s own and goes back', async () => {

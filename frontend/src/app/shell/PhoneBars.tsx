@@ -5,7 +5,7 @@ import {
   useComputedColorScheme,
   useMantineColorScheme,
 } from '@mantine/core';
-import { IconDots, IconLogout, IconMoon, IconPlus, IconSun } from '@tabler/icons-react';
+import { IconDots, IconLogout, IconMoon, IconSun } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Link, NavLink, useLocation } from 'react-router';
 import { BottomSheet } from '../../shared/ui/BottomSheet';
@@ -42,14 +42,16 @@ export function TopBar({ user }: { user?: ShellUser }) {
 }
 
 interface TabBarProps {
-  onAdd: () => void;
   onMore: () => void;
   /** The admin's People counts as one of More's sections. */
   user?: ShellUser;
 }
 
-/** Phone tab bar: Transactions, Accounts, Reports and More as icons, the open one named; Add at the end. */
-export function TabBar({ onAdd, onMore, user }: TabBarProps) {
+/**
+ * Phone tab bar: Transactions, Accounts, Reports and More sharing the width, each named under its icon; the open one in
+ * the accent with its name in medium weight, no pill behind it. Add floats above it (`AddDial`, I-030).
+ */
+export function TabBar({ onMore, user }: TabBarProps) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const inMore = moreSectionsFor(user).some((s) => pathname.startsWith(s.path));
@@ -70,13 +72,6 @@ export function TabBar({ onAdd, onMore, user }: TabBarProps) {
       >
         <IconDots size={24} stroke={1.7} />
         <span className={classes.tabLabel}>{t('nav.more')}</span>
-      </UnstyledButton>
-      <UnstyledButton
-        className={classes.add}
-        aria-label={t('shell.addTransaction')}
-        onClick={onAdd}
-      >
-        <IconPlus size={24} stroke={1.7} />
       </UnstyledButton>
     </nav>
   );

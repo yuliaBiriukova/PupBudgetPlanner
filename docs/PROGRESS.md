@@ -2,6 +2,38 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-09 (I-030: An Add button people find on the phone)
+
+**Done**
+- [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) on
+  `improvement/I-030-findable-add-button`, built from the final prototype the owner approved on 2026-11-09 (variant 8,
+  the menu's pill gone). The prototype stories are deleted.
+- The quick-add form opens on a type: `TransactionFormApi.add({ type })`, starting as switching to it would (a
+  transfer's To from the last transfer); its title names the type while the data loads.
+- `AddDial`: on every phone page a charcoal + floats 16 px above the menu; a tap dims the page and opens ⇄ + − (Expense
+  nearest), the + turning into ×; each opens the form on its type, on the picked day (I-025). A type, ×, the dimmed page,
+  Escape or opening another page folds them; Back adds no step. The three mount only while open (160 ms rise, none with
+  reduced motion). The tab bar lost its +: four equal named places, the open one in the accent, no pill. Phone pages
+  have 72 px more room under their last row.
+- Empty day and month: "… Add an expense, an income or a transfer with the +."
+- DESIGN_RULES: the phone's bottom under "Components", the thumb rule names the +.
+- Tests: `AppLayout.test.tsx` (the four named places; the + opens the three and turns into ×; each type opens its form;
+  ×, Escape, the dimmed page and another page fold them), `TransactionsPage.test.tsx` (an income on the picked day from
+  the +; a transfer with the last transfer's accounts; the empty day's and month's text), the Categories page's counts
+  of folded groups kept to the page (the + has `aria-expanded` too). E2E: `shell.spec.ts` (the + in sight on every page
+  and each type opens its form; the order of the three, ×, Escape, the dimmed page and Back fold them; the last row
+  clear of the +), `e2e/add.ts` opens the form from the shell for the other specs. Stories: *Shell / AppLayout* Phone
+  add types open, Phone add on accounts, Phone add income.
+- Checked: frontend lint, format, typecheck, unit tests, build, `build-storybook`; backend build (0 warnings) and tests
+  (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone; screenshots of Transactions (folded,
+  open, the end of the list), the transfer form from ⇄, Accounts and an empty day at 375 px and Transactions at 768 and
+  1440 px, light and dark, looked at; the story *Phone add types open* in the Browser pane.
+- Test data: the E2E runs' `e2e-i030-shots-…` and other `e2e-…@example.com` people (with their accounts and
+  transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. At 768 px the app already has the sidebar (the desktop layout), so the + shows up to 767 px.
+
 ## 2026-11-09 (I-030: design rounds and the approved final prototype)
 
 **Done**
