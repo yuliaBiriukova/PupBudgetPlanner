@@ -837,7 +837,8 @@ describe('the Note field’s suggestions (I-017)', () => {
     await waitFor(() => {
       expect(sent.map((item) => (item.body as SaveTransactionRequest).note)).toEqual(['ta']);
     });
-  });
+    // Two notes typed and two lists to wait for: about 2 s alone, over 5 s on CI's runner with the whole suite (I-030)
+  }, 15_000);
 
   it('asks for the notes of the form’s type only', async () => {
     transactionsServer();
