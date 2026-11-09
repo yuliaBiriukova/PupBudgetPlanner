@@ -20,7 +20,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Tests: `AppLayout.test.tsx` (the four named places; the + opens the three and turns into ×; each type opens its form;
   ×, Escape, the dimmed page and another page fold them), `TransactionsPage.test.tsx` (an income on the picked day from
   the +; a transfer with the last transfer's accounts; the empty day's and month's text), the Categories page's counts
-  of folded groups kept to the page (the + has `aria-expanded` too). E2E: `shell.spec.ts` (the + in sight on every page
+  of folded groups kept to the page (the + has `aria-expanded` too); the I-017 test of the Note's keys gets 15 s (it
+  timed out at 5 s on CI's runner, about 2 s locally). E2E: `shell.spec.ts` (the + in sight on every page
   and each type opens its form; the order of the three, ×, Escape, the dimmed page and Back fold them; the last row
   clear of the +), `e2e/add.ts` opens the form from the shell for the other specs. Stories: *Shell / AppLayout* Phone
   add types open, Phone add on accounts, Phone add income.
