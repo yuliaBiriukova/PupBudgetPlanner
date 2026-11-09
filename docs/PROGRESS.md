@@ -2,6 +2,62 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-09 (I-030: design rounds and the approved final prototype)
+
+**Done**
+- [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) designed on
+  `improvement/I-030-findable-add-button`: references (Material 3's extended FAB, Monefy's − and + buttons, a centre FAB
+  spec, two finance apps' user feedback), then prototype stories built from the real shell, pages and quick-add form.
+  - Round 1: a "+ Add transaction" pill, Add in the middle of the bar, Expense and Income buttons. The owner: not the
+    middle one; the pill full width; the type buttons round, without names, with Transfer too.
+  - Round 2: the full-width button and round ⇄ + −. The owner: more ways for the three buttons, and the menu
+    rearranged without the bar's +.
+  - Round 3: four more (big Expense, the three in the bar, one + that opens the three, the three in a row), with a
+    menu of four named places.
+  - Final prototype: variant 8 (one + that opens ⇄ + −) with no pill behind the menu's open place. A first final was
+    built from variant 9 by mistake; the owner pointed to variant 8 and it was rebuilt.
+- The owner approved the final prototype on 2026-11-09 ("I approve the prototype") and asked for the planning PR to
+  carry the details first. Recorded in the description file (`Approved`, acceptance criteria and tasks rewritten for
+  the approved design, screenshots in `prototypes/`) and in DESIGN_RULES "Screen decisions". Nothing built.
+- Checked: each round's stories with the design check (0 issues, light and dark, 360 – 1440 px) and their screenshots
+  looked at; opening the three and each type's form clicked through in the Browser pane; prototype lint, format and
+  typecheck pass. The prototype stories stay on the I-030 branch (a planning branch carries no prototypes).
+- Test data: none (Storybook with fake data only).
+
+**Next**
+- Owner: review the planning PR; answer I-030's open point (Back folds the three first?). Then build I-030 on its
+  branch.
+
+## 2026-11-09 (Plan: the owner's phone feedback — B-011 – B-014, I-029, I-030)
+
+**Done**
+- Planned on `plan/phone-feedback` the six issues the owner reported from production on the phone; nothing built. Each
+  has its folder, description file and backlog row, all `Todo`, to be built on its own branch after the owner's
+  approval:
+  - [B-012](changes/bugfixes/B-012-amount-hidden-under-keys/B-012-amount-hidden-under-keys.md) (High): the amount stays
+    half hidden under the phone keys when tapped while partly out of sight; nothing scrolls it above the keys (I-028).
+  - [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) (High, 🎨): an Add button people
+    find on the phone; a person using the app couldn't find how to add an expense or income. 3 variants to propose
+    (a labelled "+ Add" pill, a centre tab with a word, Expense / Income buttons on the page).
+  - [B-011](changes/bugfixes/B-011-calendar-picked-day-ring/B-011-calendar-picked-day-ring.md) (Medium): the picked
+    day's black ring is broken in the calendar; likely drawn outside the cell, covered by the next day and clipped by
+    the card.
+  - [B-013](changes/bugfixes/B-013-toast-hidden-on-phone/B-013-toast-hidden-on-phone.md) (Medium): the "saved" toast at
+    the bottom, over the bottom bar, can't be seen on the phone; Mantine's default bottom-right place.
+  - [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) (Medium): the gap
+    B-009 left while the Note's suggestions show; the room is as high as the longest list.
+  - [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) (Medium): phone
+    pop-ups as tall as the screen allows, small ones at the bottom, every one above the phone's keyboard (today only
+    the quick-add form follows it).
+- The bugs' root causes are suspected from reading the code, not confirmed: each is reproduced on its own branch before
+  its fix is proposed for approval. Priorities proposed by Claude, for the owner to confirm. The owner's screenshots
+  that show balances stay out of the repo; only the Note's one is in B-014's folder.
+- Test data: none.
+
+**Next**
+- Owner: confirm the priorities and the open points (I-029's top gap and desktop, B-013's toast place, B-014's option,
+  I-030's question); review the planning PR. Then B-012 and I-030 first. B-012, B-014 and I-029 touch the same
+  keyboard room in `TransactionDialog.tsx` / `BottomSheet.tsx`: one after the other.
 ## 2026-11-06 (Plan: Manage categories in the MVP, F-029)
 
 **Done**
