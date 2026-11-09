@@ -1,11 +1,11 @@
-# B-011 · The amount stays half hidden under the phone keys when tapped
+# B-012 · The amount stays half hidden under the phone keys when tapped
 
 | | |
 |---|---|
 | Type | Bugfix |
 | Priority | High (proposed: on the main form you can't see the amount you type) |
 | Status | Todo |
-| Branch | `bugfix/B-011-amount-hidden-under-keys` (planned on `plan/phone-feedback`) |
+| Branch | `bugfix/B-012-amount-hidden-under-keys` (planned on `plan/phone-feedback`) |
 | Found in | Production, 2026-11-09, the owner's Android phone (Chrome), light theme |
 | Approved | — (date the owner approved the root cause and the planned fix) |
 

@@ -1,11 +1,11 @@
-# B-010 · The picked day's black ring is broken in the Transactions calendar
+# B-011 · The picked day's black ring is broken in the Transactions calendar
 
 | | |
 |---|---|
 | Type | Bugfix |
 | Priority | Medium (proposed: looks broken on the main screen, but the day is picked and the list is right) |
 | Status | Todo |
-| Branch | `bugfix/B-010-calendar-picked-day-ring` (planned on `plan/phone-feedback`) |
+| Branch | `bugfix/B-011-calendar-picked-day-ring` (planned on `plan/phone-feedback`) |
 | Found in | Production, 2026-11-09, the owner's Android phone (Chrome), light theme |
 | Approved | — (date the owner approved the root cause and the planned fix) |
 

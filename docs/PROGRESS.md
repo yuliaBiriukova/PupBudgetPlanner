@@ -2,36 +2,58 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
-## 2026-11-09 (Plan: the owner's phone feedback — B-010 – B-013, I-029, I-030)
+## 2026-11-09 (Plan: the owner's phone feedback — B-011 – B-014, I-029, I-030)
 
 **Done**
 - Planned on `plan/phone-feedback` the six issues the owner reported from production on the phone; nothing built. Each
   has its folder, description file and backlog row, all `Todo`, to be built on its own branch after the owner's
   approval:
-  - [B-011](changes/bugfixes/B-011-amount-hidden-under-keys/B-011-amount-hidden-under-keys.md) (High): the amount stays
+  - [B-012](changes/bugfixes/B-012-amount-hidden-under-keys/B-012-amount-hidden-under-keys.md) (High): the amount stays
     half hidden under the phone keys when tapped while partly out of sight; nothing scrolls it above the keys (I-028).
   - [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) (High, 🎨): an Add button people
     find on the phone; a person using the app couldn't find how to add an expense or income. 3 variants to propose
     (a labelled "+ Add" pill, a centre tab with a word, Expense / Income buttons on the page).
-  - [B-010](changes/bugfixes/B-010-calendar-picked-day-ring/B-010-calendar-picked-day-ring.md) (Medium): the picked
+  - [B-011](changes/bugfixes/B-011-calendar-picked-day-ring/B-011-calendar-picked-day-ring.md) (Medium): the picked
     day's black ring is broken in the calendar; likely drawn outside the cell, covered by the next day and clipped by
     the card.
-  - [B-012](changes/bugfixes/B-012-toast-hidden-on-phone/B-012-toast-hidden-on-phone.md) (Medium): the "saved" toast at
+  - [B-013](changes/bugfixes/B-013-toast-hidden-on-phone/B-013-toast-hidden-on-phone.md) (Medium): the "saved" toast at
     the bottom, over the bottom bar, can't be seen on the phone; Mantine's default bottom-right place.
-  - [B-013](changes/bugfixes/B-013-gap-under-note-suggestions/B-013-gap-under-note-suggestions.md) (Medium): the gap
+  - [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) (Medium): the gap
     B-009 left while the Note's suggestions show; the room is as high as the longest list.
   - [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) (Medium): phone
     pop-ups as tall as the screen allows, small ones at the bottom, every one above the phone's keyboard (today only
     the quick-add form follows it).
 - The bugs' root causes are suspected from reading the code, not confirmed: each is reproduced on its own branch before
   its fix is proposed for approval. Priorities proposed by Claude, for the owner to confirm. The owner's screenshots
-  that show balances stay out of the repo; only the Note's one is in B-013's folder.
+  that show balances stay out of the repo; only the Note's one is in B-014's folder.
 - Test data: none.
 
 **Next**
-- Owner: confirm the priorities and the open points (I-029's top gap and desktop, B-012's toast place, B-013's option,
-  I-030's question); review the planning PR. Then B-011 and I-030 first. B-011, B-013 and I-029 touch the same
+- Owner: confirm the priorities and the open points (I-029's top gap and desktop, B-013's toast place, B-014's option,
+  I-030's question); review the planning PR. Then B-012 and I-030 first. B-012, B-014 and I-029 touch the same
   keyboard room in `TransactionDialog.tsx` / `BottomSheet.tsx`: one after the other.
+## 2026-11-06 (Plan: Manage categories in the MVP, F-029)
+
+**Done**
+- The owner asked to bring adding, renaming, reordering and removing categories into the MVP. Planned on
+  `plan/manage-categories` as [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) (High, 🎨),
+  first in M5, which is now "Categories & family" (before F-023 / F-024, since the family report merges categories by
+  group and name).
+- The owner's choices: groups change too, not only categories; a removed category with transactions is hidden (past
+  transactions and reports keep it), one without is deleted; the generic default set (Q-011) stays after the MVP.
+- Q-003 answered again (yes, in the MVP); PRODUCT, ROADMAP (M5, M9), BACKLOG, OPEN_QUESTIONS and the M5 features'
+  milestone updated. Nothing built for F-029; it stays `Todo`.
+- The PR's E2E job failed in the I-020 accounts test (the app code is `develop`'s). The owner asked to fix it here:
+  [B-010](changes/bugfixes/B-010-loose-toast-match-e2e/B-010-loose-toast-match-e2e.md). The test's loose
+  `getByText('Mono black added')` also matched the earlier "mono black added" toast while it was still shown; both
+  checks now match exactly. `e2e/accounts.spec.ts` 8 / 8 against this checkout's API (5298) and app (5174), since
+  another chat's servers held the usual ports; frontend lint and format pass.
+- Test data: the E2E run's `e2e-accounts-…` people (with their accounts); the E2E clean-up deleted them. Nothing made by
+  hand.
+
+**Next**
+- Owner: review the planning PR. Then F-029: references and 3 prototype stories on
+  `feature/F-029-manage-categories`, built only after the final prototype is approved.
 
 ## 2026-11-06 (B-004: The currency search takes the keys as soon as it opens)
 

@@ -26,7 +26,7 @@ owner got from a person using the app: they couldn't find how to add one on the 
 
 - [ ] On every page of the phone app the way to add a transaction is visible without scrolling and reads as "add a
       transaction" without guessing (a word, not only a +).
-- [ ] It doesn't cover the list's last rows or the toast (B-012), and works one-handed (in the thumb's reach).
+- [ ] It doesn't cover the list's last rows or the toast (B-013), and works one-handed (in the thumb's reach).
 - [ ] It opens the same quick-add form as now, on the picked day (I-025).
 - [ ] An empty day or month tells how to add the first transaction.
 - [ ] The desktop sidebar's Add transaction stays as it is (I-019), unless a variant needs it to change.

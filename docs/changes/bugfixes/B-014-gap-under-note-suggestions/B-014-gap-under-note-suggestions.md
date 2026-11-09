@@ -1,11 +1,11 @@
-# B-013 · An empty gap under the Note's suggestions on the phone
+# B-014 · An empty gap under the Note's suggestions on the phone
 
 | | |
 |---|---|
 | Type | Bugfix |
 | Priority | Medium (proposed: looks broken on the main form, but nothing is lost and Save works) |
 | Status | Todo |
-| Branch | `bugfix/B-013-gap-under-note-suggestions` (planned on `plan/phone-feedback`) |
+| Branch | `bugfix/B-014-gap-under-note-suggestions` (planned on `plan/phone-feedback`) |
 | Found in | Production, 2026-11-09, the owner's Android phone (Chrome), dark theme |
 | Approved | — (date the owner approved the root cause and the planned fix) |
 
@@ -50,4 +50,4 @@ A still moves the form when a list appears; B never moves it, but the list cover
 
 ## Notes
 
-- Same part of `TransactionDialog.tsx` as B-011 and I-029 (the keyboard room); build them one after the other.
+- Same part of `TransactionDialog.tsx` as B-012 and I-029 (the keyboard room); build them one after the other.

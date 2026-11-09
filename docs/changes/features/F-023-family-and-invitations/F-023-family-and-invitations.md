@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Type | Feature |
-| Milestone | M5 — Family |
+| Milestone | M5 — Categories & family |
 | Status | Todo |
 | Branch | `feature/F-023-family-and-invitations` |
 | Design | 3 HTML prototypes required |

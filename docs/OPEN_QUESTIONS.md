@@ -7,7 +7,7 @@ When a question is answered, move it to "Answered" with the answer and date, and
 | ID | Question | Proposal | Blocks |
 |----|----------|----------|--------|
 | Q-010 | Deleting an account: right away or after a grace period; how to confirm; a family owner with other members; export first? | Right away; password or Google again plus a typed word; hand the family over first; export once M11 has it. Details in [F-027](changes/features/F-027-delete-account/F-027-delete-account.md#open-points) | F-027 |
-| Q-011 | Default categories for people outside the family: the current set is the owner's own (Bank commission, English / Piano lessons, Driving, Spotify, Emergency) | A generic set: drop or rename the personal ones (Spotify → Music & streaming, Salon/Barber → Personal care, Medicine/Drugs/Skincare → Medicine); consider Car, Pets, Kids, Taxi. Decide together with adding own categories (M9) | Opening sign-up beyond the family |
+| Q-011 | Default categories for people outside the family: the current set is the owner's own (Bank commission, English / Piano lessons, Driving, Spotify, Emergency) | A generic set: drop or rename the personal ones (Spotify → Music & streaming, Salon/Barber → Personal care, Medicine/Drugs/Skincare → Medicine); consider Car, Pets, Kids, Taxi. Decided after the MVP (owner, 2026-11-06), apart from adding own categories (F-029) | Opening sign-up beyond the family |
 
 ## Answered
 
@@ -16,7 +16,7 @@ When a question is answered, move it to "Answered" with the answer and date, and
 | Q-012 | Accounts already created on production before invite-only sign-up | They keep access and show "Before invites"; after the release the admin looks through the People page and blocks or deletes anyone unknown (F-028) | 2026-10-29 |
 | Q-001 | Group of the default "Emergency" category | Health | 2026-10-27 |
 | Q-002 | Keep the free API awake during the day with an external ping? | Yes: every 14 min, 07:00–23:00 Kyiv (F-009) | 2026-10-27 |
-| Q-003 | Can people add their own categories in the MVP? | No, after the MVP together with rename / remove | 2026-10-27 |
+| Q-003 | Can people add their own categories in the MVP? | No, after the MVP together with rename / remove (2026-10-27). Changed 2026-11-06: yes, in the MVP before Family, with groups too (F-029) | 2026-11-06 |
 | Q-004 | Yearly "Avg": divide by 12 or by months passed? | Months passed | 2026-10-27 |
 | Q-005 | Hosting | Render, one service (SPA + API) for the least risk with Google sign-in; database on Neon | 2026-10-27 |
 | Q-006 | Storybook hosting without paying for GitHub Pages | Free Render static site | 2026-10-27 |

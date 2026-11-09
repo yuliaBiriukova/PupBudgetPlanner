@@ -1,11 +1,11 @@
-# B-012 · The "saved" toast can't be seen on the phone
+# B-013 · The "saved" toast can't be seen on the phone
 
 | | |
 |---|---|
 | Type | Bugfix |
 | Priority | Medium (proposed: the toast is the only word that a transaction was saved and what is left on the account; the list shows the new transaction, so nothing is lost) |
 | Status | Todo |
-| Branch | `bugfix/B-012-toast-hidden-on-phone` (planned on `plan/phone-feedback`) |
+| Branch | `bugfix/B-013-toast-hidden-on-phone` (planned on `plan/phone-feedback`) |
 | Found in | Production, 2026-11-09, the owner's Android phone (Chrome), light theme |
 | Approved | — (date the owner approved the root cause and the planned fix) |
 
