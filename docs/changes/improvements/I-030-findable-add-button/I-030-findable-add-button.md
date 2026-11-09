@@ -32,7 +32,8 @@ As approved in the final prototype (2026-11-09):
       buttons in the types' colours with no names; the + turns into ×. Screen readers read "Add transfer / income /
       expense".
 - [ ] Each opens the same quick-add form as now **on its type**, on the picked day (I-025). A type, ×, a tap on the
-      dimmed page or Escape folds the three.
+      dimmed page or Escape folds the three. Back leaves the page as now (no history step for the three; owner,
+      2026-11-09).
 - [ ] The bottom bar has no + of its own; its four places (Transactions, Accounts, Reports, More) share the width,
       each named under its icon; the open one in the accent, its name in medium weight, with no pill behind it.
 - [ ] An empty day or month tells how to add the first transaction (with the +).
@@ -163,5 +164,6 @@ Chosen variant: 8, with the menu's pill gone · Final prototype approved: 2026-1
 ## Open points
 
 - ~~Did the person look for it on the Transactions page or elsewhere?~~ No longer needed: the + is on every page.
-- Back while the three are open: fold them first, as Back closes a pop-up before it leaves the page (I-015)? Proposed:
-  yes. Not in the prototype; to be confirmed by the owner before the build.
+- ~~Back while the three are open: fold them first, as Back closes a pop-up before it leaves the page (I-015)?~~
+  Answered by the owner on 2026-11-09: **no**, Back leaves the page as it does now; the three are not a pop-up and add
+  no step to the history.

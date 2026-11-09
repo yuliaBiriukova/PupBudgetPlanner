@@ -22,11 +22,11 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Checked: each round's stories with the design check (0 issues, light and dark, 360 – 1440 px) and their screenshots
   looked at; opening the three and each type's form clicked through in the Browser pane; prototype lint, format and
   typecheck pass. The prototype stories stay on the I-030 branch (a planning branch carries no prototypes).
+- The owner's answer to the open point (2026-11-09): Back leaves the page as now, it doesn't fold the three first.
 - Test data: none (Storybook with fake data only).
 
 **Next**
-- Owner: review the planning PR; answer I-030's open point (Back folds the three first?). Then build I-030 on its
-  branch.
+- Owner: review the planning PR; then build I-030 on its branch.
 
 ## 2026-11-09 (Plan: the owner's phone feedback — B-011 – B-014, I-029, I-030)
 
