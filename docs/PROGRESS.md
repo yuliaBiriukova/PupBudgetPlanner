@@ -2,6 +2,32 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-09 (I-030: design rounds and the approved final prototype)
+
+**Done**
+- [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) designed on
+  `improvement/I-030-findable-add-button`: references (Material 3's extended FAB, Monefy's − and + buttons, a centre FAB
+  spec, two finance apps' user feedback), then prototype stories built from the real shell, pages and quick-add form.
+  - Round 1: a "+ Add transaction" pill, Add in the middle of the bar, Expense and Income buttons. The owner: not the
+    middle one; the pill full width; the type buttons round, without names, with Transfer too.
+  - Round 2: the full-width button and round ⇄ + −. The owner: more ways for the three buttons, and the menu
+    rearranged without the bar's +.
+  - Round 3: four more (big Expense, the three in the bar, one + that opens the three, the three in a row), with a
+    menu of four named places.
+  - Final prototype: variant 8 (one + that opens ⇄ + −) with no pill behind the menu's open place. A first final was
+    built from variant 9 by mistake; the owner pointed to variant 8 and it was rebuilt.
+- The owner approved the final prototype on 2026-11-09 ("I approve the prototype") and asked for the planning PR to
+  carry the details first. Recorded in the description file (`Approved`, acceptance criteria and tasks rewritten for
+  the approved design, screenshots in `prototypes/`) and in DESIGN_RULES "Screen decisions". Nothing built.
+- Checked: each round's stories with the design check (0 issues, light and dark, 360 – 1440 px) and their screenshots
+  looked at; opening the three and each type's form clicked through in the Browser pane; prototype lint, format and
+  typecheck pass. The prototype stories stay on the I-030 branch (a planning branch carries no prototypes).
+- Test data: none (Storybook with fake data only).
+
+**Next**
+- Owner: review the planning PR; answer I-030's open point (Back folds the three first?). Then build I-030 on its
+  branch.
+
 ## 2026-11-09 (Plan: the owner's phone feedback — B-011 – B-014, I-029, I-030)
 
 **Done**
