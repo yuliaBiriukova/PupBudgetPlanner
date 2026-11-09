@@ -75,6 +75,16 @@ own sidebar, unchanged. The slip's own round + on the Transactions page stays in
 | Variant 2: Add in the middle of the bar | **Add is a place in the bar.** Every tab is named under its icon (the open one on the accent's pill), and a raised 56 px charcoal + with "Add" under it sits in the middle, standing above the bar's edge. Covers nothing, the same spot on every page, as many money apps do; but the bar is taller (every name shown) and it changes the F-010 bar the most | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-2&nav=false&panel=false&globals=viewport.value:!undefined) |
 | Variant 3: Expense and Income buttons | **As in Monefy (the risk).** Two named buttons on one floating dock above the bar: "− Expense" in the expense red's tint and "+ Income" in the income green's, each opening the form already on its type (Transfer stays in the form's switch). The two most used actions one tap away and named the way the person thinks of them; but two buttons take more of the list's corner than one, and Transfer gets no button | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-3&nav=false&panel=false&globals=viewport.value:!undefined) |
 
+The owner's answer (2026-11-09): not variant 2; variant 1 as a full-width button on the phone; variant 3 with round
+buttons only, no names, and one for Transfer too. Round 1's stories were replaced by round 2's.
+
+### Round 2: two variants (2026-11-09)
+
+| Story | Thesis and trade-offs | Link |
+|-------|-----------------------|------|
+| Variant 4: Full-width Add transaction | Variant 1 across the phone: a 52 px charcoal "+ Add transaction" pill, 16 px from both edges, in a row of its own at the top of the bottom bar, the tabs under it spread over the bar. It never covers the page and never folds; the bottom takes 60 px more of the screen | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-4&nav=false&panel=false&globals=viewport.value:!undefined) |
+| Variant 5: Round Expense, Income and Transfer | Variant 3 without names: three 56 px circles on one floating dock above the bar, ⇄ Transfer (blue), + Income (green), − Expense (red) with Expense at the thumb's end; each opens the form on its type. Screen readers read "Add transfer / income / expense"; with no words, the person goes by the signs and colours alone. Covers a corner of the list (the page has 80 px of room under its last row) | [open](http://localhost:6006/?path=/story/prototypes-i-030-findable-add-button--variant-5&nav=false&panel=false&globals=viewport.value:!undefined) |
+
 Not in the prototypes: a line on the empty day ("Nothing on this day") telling how to add (acceptance criterion); it
 comes with whichever variant is chosen, as the empty state belongs to the page.
 

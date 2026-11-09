@@ -9,22 +9,15 @@ import { PrototypeShell, type AddVariant } from './PrototypeShell';
 
 interface PrototypeProps {
   variant: AddVariant;
-  /** Variant 1: the words on the pill. */
-  label?: string;
 }
 
 const olena: ShellUser = { name: 'Olena', email: 'olena@example.com' };
 
 /** The app with its pages (Transactions, Accounts, Reports work with fake data) and the variant's Add on the phone. */
-function Prototype({ variant, label }: PrototypeProps) {
+function Prototype({ variant }: PrototypeProps) {
   const [router] = useState(() =>
     createMemoryRouter(
-      [
-        {
-          element: <PrototypeShell variant={variant} user={olena} label={label} />,
-          children: sectionRoutes,
-        },
-      ],
+      [{ element: <PrototypeShell variant={variant} user={olena} />, children: sectionRoutes }],
       { initialEntries: ['/transactions'] },
     ),
   );
@@ -48,21 +41,14 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** Say it in words: a "+ Add transaction" pill floats over the page at the thumb's end; it folds to its + while the page goes down. */
-export const Variant1: Story = {
-  name: 'Variant 1: Add transaction pill',
-  args: { variant: 'pill', label: 'Add transaction' },
-  argTypes: { label: { control: 'radio', options: ['Add transaction', 'Add'] } },
+/** Variant 1 made full width (owner, round 1): "+ Add transaction" across the phone, a row of its own over the tabs. */
+export const Variant4: Story = {
+  name: 'Variant 4: Full-width Add transaction',
+  args: { variant: 'wide' },
 };
 
-/** Add is a place in the bar: every tab named, a raised + with "Add" under it in the middle. */
-export const Variant2: Story = {
-  name: 'Variant 2: Add in the middle of the bar',
-  args: { variant: 'centre' },
-};
-
-/** As in Monefy: two named buttons in the types' colours, Expense and Income, each opening the form on its type. */
-export const Variant3: Story = {
-  name: 'Variant 3: Expense and Income buttons',
-  args: { variant: 'types' },
+/** Variant 3 without names, with Transfer (owner, round 1): three round buttons, − + ⇄, in the types' colours. */
+export const Variant5: Story = {
+  name: 'Variant 5: Round Expense, Income and Transfer',
+  args: { variant: 'rounds' },
 };
