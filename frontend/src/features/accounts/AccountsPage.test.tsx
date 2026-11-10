@@ -242,6 +242,33 @@ describe('the Accounts page', () => {
     expect(within(form).getByRole('button', { name: 'Currency' })).toHaveTextContent('EUREuro');
   });
 
+  it('puts the cursor in Name as the new account’s form opens on the desktop', async () => {
+    accountsServer();
+    renderApp('/accounts');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add EUR account' }, LOADED));
+    const form = await screen.findByRole('dialog', { name: 'New account' });
+
+    await waitFor(() => {
+      expect(within(form).getByLabelText('Name')).toHaveFocus();
+    });
+  });
+
+  it('on the phone opens the form without the cursor in Name, which would bring the keyboard up (I-029)', async () => {
+    setScreenWidth(375);
+    accountsServer();
+    renderApp('/accounts');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add EUR account' }, LOADED));
+    const form = await screen.findByRole('dialog', { name: 'New account' });
+
+    // The sheet takes the focus itself: its close button, as every sheet without a first field does
+    await waitFor(() => {
+      expect(within(form).getByRole('button', { name: 'Close' })).toHaveFocus();
+    });
+    expect(within(form).getByLabelText('Name')).not.toHaveFocus();
+  });
+
   it('finds a currency by its name, and Escape closes only the list', async () => {
     accountsServer();
     renderApp('/accounts');

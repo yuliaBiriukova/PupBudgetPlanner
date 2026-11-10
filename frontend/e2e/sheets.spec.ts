@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import en from '../src/shared/i18n/locales/en.json' with { type: 'json' };
-import { newPerson, signUpThroughApi } from './auth.ts';
+import { openAddForm } from './add.ts';
+import { antiforgery, newPerson, signUpThroughApi } from './auth.ts';
 
 // Pop-ups close with a swipe down and with Back (I-015). Each test starts with a person of its own, with no accounts
 // yet; cleanup.teardown.ts deletes them
@@ -156,4 +157,118 @@ test('Back closes the desktop dialog and stays on the page', async ({ page, isMo
   await page.goBack();
   await expect(form).toBeHidden();
   await expect(page).toHaveURL(/\/accounts$/);
+});
+
+/**
+ * The phone's keyboard, emulated: the visual viewport says the bottom `taken` px of the screen are covered, as a
+ * phone's does while a field is typed (the sheets read it, I-017); 0 puts the keyboard away.
+ */
+async function keyboard(page: Page, taken: number) {
+  await page.evaluate((covered) => {
+    const real = window.visualViewport;
+    if (!real) throw new Error('no visual viewport');
+    // Its own values over the browser's; taking them off gives the browser's back
+    for (const [name, value] of [
+      ['height', window.innerHeight - covered],
+      ['offsetTop', 0],
+    ] as const) {
+      if (covered) Object.defineProperty(real, name, { configurable: true, value });
+      else Reflect.deleteProperty(real, name);
+    }
+    real.dispatchEvent(new Event('resize'));
+  }, taken);
+}
+
+test('on the phone a form opens from its top without the keyboard; with it up the sheet sits on it, the field and the buttons in sight (I-029)', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'Sheets are the phone’s pop-ups; the desktop dialog is unchanged');
+  expect((await signUpThroughApi(page.request, newPerson('sheet-keys'))).ok()).toBe(true);
+  await page.goto('/accounts');
+  const screen = page.viewportSize()?.height ?? 0;
+  const KEYS = 300;
+
+  const form = await openNewAccount(page);
+  const name = form.getByLabel(en.accounts.form.name, { exact: true });
+  const add = form.getByRole('button', { name: en.accounts.form.add });
+  /** The sheet's top and bottom on the screen, in whole pixels. */
+  const edges = async () => {
+    const box = await form.boundingBox();
+    if (!box) throw new Error('no sheet');
+    return [Math.round(box.y), Math.round(box.y + box.height)];
+  };
+
+  // Longer than the screen: the whole screen with no gap above it, square corners at the top
+  await expect.poll(edges).toEqual([0, screen]);
+  await expect(form).toHaveCSS('border-top-left-radius', '0px');
+  // It just opens: the cursor isn't in Name (which would bring the keyboard up) and nothing is scrolled
+  await expect(form.getByRole('button', { name: en.common.close })).toBeFocused();
+  await expect(name).not.toBeFocused();
+  await expect(form.getByText(en.accounts.form.style, { exact: true })).toBeInViewport({
+    ratio: 1,
+  });
+
+  // A tap on Name brings the keyboard: the sheet sits on it, Name and the buttons above the keys
+  await name.click();
+  await keyboard(page, KEYS);
+  await expect.poll(edges).toEqual([0, screen - KEYS]);
+  for (const part of [name, add]) {
+    await expect
+      .poll(async () => {
+        const box = await part.boundingBox();
+        return box ? Math.round(box.y + box.height) : screen;
+      })
+      .toBeLessThanOrEqual(screen - KEYS);
+    await expect(part).toBeInViewport({ ratio: 1 });
+  }
+
+  // The keyboard goes: the sheet is back at the bottom of the screen
+  await keyboard(page, 0);
+  await expect.poll(edges).toEqual([0, screen]);
+});
+
+test('on the phone the quick-add form is as tall as its fields, and reaches the top when its keys come up (I-029)', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'Sheets are the phone’s pop-ups; the desktop dialog is unchanged');
+  expect((await signUpThroughApi(page.request, newPerson('sheet-form'))).ok()).toBe(true);
+  const added = await page.request.post('/api/accounts', {
+    headers: await antiforgery(page.request),
+    data: {
+      name: 'Mono black',
+      currency: 'UAH',
+      source: 'Bank',
+      sourceName: null,
+      bankName: 'Monobank',
+      openingBalance: 5000,
+      openingDate: '2026-10-01',
+      cardStyle: 'Solid',
+    },
+  });
+  expect(added.ok()).toBe(true);
+  await page.goto('/transactions');
+  const screen = page.viewportSize()?.height ?? 0;
+
+  const form = await openAddForm(page, isMobile);
+  await expect(form.getByRole('button', { name: en.transactions.form.saveExpense })).toBeVisible();
+  /** The sheet's top and bottom on the screen, in whole pixels. */
+  const edges = async () => {
+    const box = await form.boundingBox();
+    if (!box) throw new Error('no sheet');
+    return [Math.round(box.y), Math.round(box.y + box.height)];
+  };
+
+  // Its keys folded: shorter than the screen, at the bottom, with round corners; no empty room under Save
+  await expect.poll(async () => (await edges())[1]).toBe(screen);
+  const [top] = await edges();
+  expect(top).toBeGreaterThan(0);
+  expect(top).toBeLessThan(screen / 2);
+  await expect(form).toHaveCSS('border-top-left-radius', '24px');
+
+  // A tap on the amount brings the keys up: the form grows to the top of the screen, its corners square
+  await form.getByLabel(en.transactions.form.amount, { exact: true }).click();
+  await expect.poll(edges).toEqual([0, screen]);
+  await expect(form).toHaveCSS('border-top-left-radius', '0px');
 });

@@ -14,6 +14,7 @@ import { currencySign, formatMoney } from '../../shared/format/money';
 import { CurrencyPicker } from '../../shared/ui/CurrencyPicker';
 import { cx } from '../../shared/ui/cx';
 import { ResponsiveDialog } from '../../shared/ui/ResponsiveDialog';
+import { useDesktopAutofocus } from '../../shared/ui/useDesktopAutofocus';
 import { AccountCard, CardStyleMini } from './AccountCard';
 import pills from '../../shared/ui/Pills.module.css';
 import classes from './Accounts.module.css';
@@ -85,6 +86,8 @@ export function AccountDialog({
   const archive = useArchiveAccount();
   const [asking, setAsking] = useState<'archive' | 'delete' | null>(null);
   const account = mode.kind === 'edit' ? mode.account : undefined;
+  // A new account's Name takes the cursor on the desktop; the phone's sheet opens without the keyboard (I-029)
+  const autofocus = useDesktopAutofocus();
   const deleteQuestion = useDeleteQuestion(account, {
     onKeep: () => {
       setAsking(null);
@@ -309,7 +312,7 @@ export function AccountDialog({
             description: classes.hint,
             error: classes.error,
           }}
-          data-autofocus={account ? undefined : true}
+          data-autofocus={account ? undefined : autofocus}
         />
 
         <CurrencyPicker

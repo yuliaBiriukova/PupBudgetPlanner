@@ -2,6 +2,88 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-11 (I-029: Phone pop-ups as tall as their content, above the keyboard)
+
+**Done**
+- [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) on
+  `improvement/I-029-popup-height-and-keyboard`, built from the prototype's round 2, which the owner approved on
+  2026-11-11 ("Approve, build it"; square corners at the top, the prototype's default). The prototype stories are
+  deleted; their screenshots are in the change folder.
+- `BottomSheet`: as tall as its content up to the whole screen (was 90 %), no gap above it; square corners once it
+  reaches the top of its room (`useSheetAtTop`), the handle kept. The `full` option is gone (`BottomSheet`,
+  `ResponsiveDialog`): the quick-add form is as tall as its fields and grows to the top when its keys come up. A
+  `tall` sheet (the searched lists: currencies, All categories) is the whole screen (was 80 %); the Transactions
+  filters lose their set height.
+- Every sheet reads the phone's keyboard (`useKeyboardInset`, before only the quick-add form): it sits on it, at most
+  as tall as what the keyboard leaves, and the field being typed is scrolled into sight with its label and hint
+  (`useFieldInSight`), clear of the content's fading edges.
+- A form opens from its top without the keyboard: `useDesktopAutofocus` puts the cursor in the new account's Name and
+  the new invite link's note on the desktop only; on the phone the sheet's close button takes the focus. The currency
+  and category searches keep their cursor.
+- DESIGN_RULES: a custom rule for the sheets' height, corners, keyboard and first field; the "Screen decisions" row.
+- Tests: `BottomSheet.test.tsx` (sits on the keyboard and goes back down; the typed field scrolled into sight;
+  square corners at the top of the screen and of what the keyboard leaves), `AccountsPage.test.tsx` (the cursor in
+  Name on the desktop, the close button's focus on the phone). E2E `sheets.spec.ts`: the new account's form takes the
+  whole screen, opens from its top without the cursor in Name, sits on a 300 px keyboard (emulated through the visual
+  viewport) with Name and Add account above it; the quick-add form is as tall as its fields and reaches the top with
+  its keys. `shell.spec.ts`: Add is as tall as its content (was a set 90 %). Stories: *Shared / BottomSheet* Above
+  the keyboard (light, dark), Long above the keyboard; Long with buttons now shows the whole screen.
+- Checked: frontend lint, format, typecheck, unit tests (314 / 314), build, `build-storybook`; backend build and tests
+  (the backend isn't changed); the full E2E suite, desktop and phone; screenshots of every phone pop-up at 375 px,
+  light and dark, looked at (the account form opening, with Name typed, its currency list, editing and deleting an
+  account; More; the quick-add form's Expense and Transfer, its keys, its Note typed, All categories; the filters; the
+  new invite link), each typed field with the keyboard up, and the desktop dialogs at 1440 px (unchanged).
+- Test data: the E2E runs' `e2e-…@example.com` people (with their accounts), among them `e2e-shots-…` for the
+  screenshots; the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand; the invite link
+  dialog was opened as the tests' admin and closed without creating a link.
+
+**Next**
+- Owner: review the PR. Seen while checking, not part of this change: the desktop account dialog logs the browser's
+  "ResizeObserver loop completed with undelivered notifications" when its currency list closes; the People page of
+  the `dev` database still lists people from earlier sessions whose emails the clean-up doesn't match
+  (`e2e-i024-shots-…`: the digits in the tag).
+- B-012 and B-014 next: they touch the same keyboard room in `TransactionDialog.tsx` / `BottomSheet.tsx`.
+
+## 2026-11-11 (I-029: prototype round 2)
+
+**Done**
+- The owner's comments on the [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md)
+  prototype: the quick-add form's height should follow its content (it took the whole screen, with empty room under
+  Save); Add account should just open, like Add transaction (it opened with the keyboard up, scrolled to Name,
+  because the form puts the cursor in Name as it opens).
+- Round 2 of the prototype story: the quick-add form is as tall as its content like every other sheet (the switch is
+  gone) and grows when its keys come up; on the phone a form's first field no longer takes the cursor as the sheet
+  opens, so it opens from its top without the keyboard; the currency search keeps its cursor (B-004), the desktop
+  dialogs theirs. Both are in the description file's acceptance criteria and tasks.
+- Checked: the design check on the story (0 issues); Playwright screenshots at 375 px (the account form open and
+  with Name tapped, the currency search, More, the quick-add form's Expense and Transfer, its Note with the keyboard,
+  its amount with the keys) and 1440 px (unchanged), light and dark, looked at; prototype lint, format and typecheck
+  pass. Nothing built.
+- Test data: none (Storybook with fake data only).
+
+**Next**
+- Owner: try round 2, choose square or round corners at the top, and approve for implementation.
+
+## 2026-11-10 (I-029: open points answered, prototype to try)
+
+**Done**
+- [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) started on
+  `improvement/I-029-popup-height-and-keyboard`. The owner's answers: no gap above a sheet that fills the screen, the
+  phone only (desktop dialogs unchanged), a prototype story to try first. References noted (Material 3 sheets,
+  Apple's sheets, Chrome's keyboard and the visual viewport).
+- Prototype story *Prototypes / I-029 Popup height and keyboard / Prototype*: the app's real pages and pop-ups with
+  the new rules laid over them, a stand-in keyboard on a computer, and controls for today's behavior, square corners
+  at the top and the quick-add form's height (whole screen or as tall as its content).
+- Checked: the design check on the story (0 issues, light and dark, 360 – 1440 px); Add account with and without the
+  keyboard, the currency list, More, the quick-add form (Note with the keyboard, amount with its keys) clicked through
+  in the Browser pane, screenshots at 375 and 1440 px, light and dark, looked at; prototype lint, format and typecheck
+  pass. Nothing built.
+- Test data: none (Storybook with fake data only).
+
+**Next**
+- Owner: try the prototype, choose square or round corners at the top and the quick-add form's height, and approve
+  for implementation.
+
 ## 2026-11-09 (I-030: An Add button people find on the phone)
 
 **Done**

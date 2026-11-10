@@ -110,8 +110,8 @@ interface TransactionDialogProps {
 /**
  * Quick add (F-018, final prototype variant 7): one form for an expense, an income or a transfer (F-019), and for
  * changing one. In order the day, the account (From and To for a transfer), the amount (two for an exchange), the
- * category and the note. On the phone a full sheet with the app's own keys under the scrolling form, folded until the
- * amount is tapped (I-028); on the desktop a dialog where the amount is typed, with Cancel and Save.
+ * category and the note. On the phone a sheet as tall as the form (I-029) with the app's own keys under the scrolling form, folded
+ * until the amount is tapped (I-028); on the desktop a dialog where the amount is typed, with Cancel and Save.
  */
 export function TransactionDialog({
   request,
@@ -381,7 +381,7 @@ function TransactionForm({
       );
     }
     return (
-      <ResponsiveDialog opened={opened} onClose={onClose} title={title} size={520} full>
+      <ResponsiveDialog opened={opened} onClose={onClose} title={title} size={520}>
         {body}
       </ResponsiveDialog>
     );
@@ -628,7 +628,6 @@ function TransactionForm({
       actions={actions}
       footer={footer}
       size={520}
-      full
     >
       <div className={classes.form}>
         {save.isError && (
