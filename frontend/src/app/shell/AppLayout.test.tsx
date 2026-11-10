@@ -39,13 +39,91 @@ describe('app shell on the phone', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Family' })).toBeInTheDocument();
   });
 
-  it('opens adding a transaction from the tab bar', async () => {
-    const user = userEvent.setup();
+  it('names the four places of the tab bar, with no + of its own (I-030)', async () => {
     renderApp('/accounts');
 
-    await user.click(await screen.findByRole('button', { name: 'Add transaction' }));
+    const tabs = await screen.findByRole('navigation', { name: 'Main navigation' });
+    expect(
+      [...within(tabs).getAllByRole('link'), ...within(tabs).getAllByRole('button')].map(
+        (place) => place.textContent,
+      ),
+    ).toEqual(['Transactions', 'Accounts', 'Reports', 'More']);
+    expect(within(tabs).getByRole('link', { name: 'Accounts' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
 
-    expect(await screen.findByRole('dialog', { name: 'Add expense' })).toBeInTheDocument();
+  it('opens ⇄ + − from the floating +, which turns into × (I-030)', async () => {
+    const user = userEvent.setup();
+    renderApp('/reports');
+    const add = await screen.findByRole('button', { name: 'Add a transaction' });
+    expect(add).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('button', { name: 'Add expense' })).not.toBeInTheDocument();
+
+    await user.click(add);
+
+    expect(add).toHaveAccessibleName('Close');
+    expect(add).toHaveAttribute('aria-expanded', 'true');
+    const types = screen.getByRole('group', { name: 'Add a transaction' });
+    expect(
+      within(types)
+        .getAllByRole('button')
+        .map((type) => type.getAttribute('aria-label')),
+    ).toEqual(['Add expense', 'Add income', 'Add transfer']);
+  });
+
+  it.each(['Expense', 'Income', 'Transfer'] as const)(
+    'opens the quick-add form on %s from its button (I-030)',
+    async (type) => {
+      const user = userEvent.setup();
+      renderApp('/accounts');
+      const name = `Add ${type.toLowerCase()}`;
+
+      await user.click(await screen.findByRole('button', { name: 'Add a transaction' }));
+      await user.click(screen.getByRole('button', { name }));
+
+      expect(await screen.findByRole('dialog', { name })).toBeInTheDocument();
+      // The three folded as the form opened
+      expect(
+        screen.getByRole('button', { name: 'Add a transaction', hidden: true }),
+      ).toHaveAttribute('aria-expanded', 'false');
+    },
+  );
+
+  it('folds the three with ×, Escape or a tap on the dimmed page (I-030)', async () => {
+    const user = userEvent.setup();
+    renderApp('/transactions');
+    const add = await screen.findByRole('button', { name: 'Add a transaction' });
+
+    await user.click(add);
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    expect(add).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(add);
+    await user.keyboard('{Escape}');
+    expect(add).toHaveAttribute('aria-expanded', 'false');
+    expect(add).toHaveFocus();
+
+    await user.click(add);
+    await user.click(screen.getByTestId('add-dial-scrim'));
+    expect(add).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByTestId('add-dial-scrim')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('folds the three when another page opens (I-030)', async () => {
+    const user = userEvent.setup();
+    renderApp('/transactions');
+
+    await user.click(await screen.findByRole('button', { name: 'Add a transaction' }));
+    await user.click(screen.getByRole('link', { name: 'Reports' }));
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Reports' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add a transaction' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
   });
 
   it('switches between light and dark mode', async () => {
@@ -81,6 +159,8 @@ describe('app shell on the desktop', () => {
       'page',
     );
     expect(screen.queryByRole('button', { name: 'More' })).not.toBeInTheDocument();
+    // The phone's floating + is not on the desktop (I-030)
+    expect(screen.queryByRole('button', { name: 'Add a transaction' })).not.toBeInTheDocument();
   });
 
   it('collapses to the rail, moves focus to the logo and remembers the choice', async () => {

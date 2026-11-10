@@ -50,10 +50,11 @@ import { WeekStrip } from './WeekStrip';
 
 /**
  * What the form opens for: a new transaction (from an account's card, with that account; on the day the Transactions
- * page shows, I-025), or a change.
+ * page shows, I-025; on the type picked with the phone's +, I-030), or a change.
  */
 export type FormRequest =
-  { kind: 'add'; accountId?: string; date?: string } | { kind: 'edit'; transaction: Transaction };
+  | { kind: 'add'; accountId?: string; date?: string; type?: TransactionType }
+  | { kind: 'edit'; transaction: Transaction };
 
 const TYPES: readonly TransactionType[] = ['Expense', 'Income', 'Transfer'];
 
@@ -187,23 +188,27 @@ function initialState(request: FormRequest, data: FormData): FormState {
       note: transaction.note ?? '',
     };
   }
-  const type: TransactionType = 'Expense';
+  const type = request.type ?? 'Expense';
   const accountId = accountFor(request, data, type);
   const date = request.date ?? today();
+  const transfer = type === 'Transfer';
   return {
     type,
     date,
     week: mondayOf(date),
     accountId,
-    categoryId: lastCategory(
-      data.suggestions,
-      categoriesFor(data.categories.groups, type),
-      accountId,
-      type,
-    ),
+    // As switching to the type in the form picks them (`setType`)
+    categoryId: transfer
+      ? null
+      : lastCategory(
+          data.suggestions,
+          categoriesFor(data.categories.groups, type),
+          accountId,
+          type,
+        ),
     categoryByHand: false,
     amount: '',
-    toAccountId: null,
+    toAccountId: transfer ? defaultTo(data.overview.accounts, data.suggestions, accountId) : null,
     toAmount: '',
     toByHand: false,
     keys: 'amount',
@@ -327,7 +332,9 @@ function TransactionForm({
   // The NBU rates of the picked day, for an exchange's second amount
   const rates = useQuery({ ...ratesQuery(form?.date ?? today()), enabled: opened && exchange });
 
-  const type = form?.type ?? editing?.type ?? 'Expense';
+  // While the data loads, the title already names the type the form opens on (I-030)
+  const type =
+    form?.type ?? editing?.type ?? (request.kind === 'add' ? request.type : undefined) ?? 'Expense';
   const word = editing && (exchange || isExchange(editing)) ? 'Exchange' : type;
   const title = editing ? t(`transactions.edit.${word}`) : t(`transactions.add.${type}`);
 

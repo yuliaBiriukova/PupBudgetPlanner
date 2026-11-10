@@ -42,7 +42,9 @@ describe('the Categories page on the phone', () => {
     expect(income).toHaveAttribute('aria-expanded', 'true');
     const tags = document.getElementById(income.getAttribute('aria-controls') ?? '');
     expect(tags && tagsOf(tags)).toEqual(['Salary', 'Gifts', 'Other']);
-    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(6);
+    expect(
+      within(screen.getByRole('main')).getAllByRole('button', { expanded: false }),
+    ).toHaveLength(6);
   });
 
   it('opens several groups at once, folds them again and remembers it', async () => {
@@ -76,11 +78,17 @@ describe('the Categories page on the phone', () => {
     renderApp('/categories');
 
     await user.click(await screen.findByRole('button', { name: 'Collapse all' }, LOADED));
-    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(7);
-    expect(screen.queryByRole('button', { expanded: true })).not.toBeInTheDocument();
+    expect(
+      within(screen.getByRole('main')).getAllByRole('button', { expanded: false }),
+    ).toHaveLength(7);
+    expect(
+      within(screen.getByRole('main')).queryByRole('button', { expanded: true }),
+    ).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Expand all' }));
-    expect(screen.getAllByRole('button', { expanded: true })).toHaveLength(7);
+    expect(
+      within(screen.getByRole('main')).getAllByRole('button', { expanded: true }),
+    ).toHaveLength(7);
   });
 
   it('opens only the group picked on the desktop', async () => {
@@ -92,7 +100,9 @@ describe('the Categories page on the phone', () => {
       'aria-expanded',
       'true',
     );
-    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(6);
+    expect(
+      within(screen.getByRole('main')).getAllByRole('button', { expanded: false }),
+    ).toHaveLength(6);
     expect(screen.getByRole('button', { name: /Income/ })).toHaveTextContent(
       'Salary, Gifts and Other',
     );
@@ -107,7 +117,9 @@ describe('the Categories page on the phone', () => {
       'aria-expanded',
       'true',
     );
-    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(6);
+    expect(
+      within(screen.getByRole('main')).getAllByRole('button', { expanded: false }),
+    ).toHaveLength(6);
   });
 
   it('says what to do when there are no categories', async () => {

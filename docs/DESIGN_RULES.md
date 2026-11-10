@@ -122,6 +122,10 @@ Each element has one look, set once in `theme.ts` or a shared style; a screen do
   list's search is the same field at 48 px.
 - **Menus**: 44 px items; Delete in the app's danger colour, never Mantine's `red` (it fails AA contrast).
 - **The phone keypad**: 52 px pill keys and a pill Save.
+- **The phone's bottom** (I-030): the menu's four places (Transactions, Accounts, Reports, More) share the width, each
+  named under its 24 px icon in 12 px; the open one in the accent with its name in medium weight, no pill. Add is a
+  56 px charcoal + floating 16 px above the menu at the thumb's end (`AddDial`), opening ⇄ + − (56 px circles in the
+  types' tints) above it over the dimmed page; every page leaves 72 px of room under its last row for it.
 
 ## 4. Layout and responsiveness
 
@@ -129,7 +133,8 @@ Each element has one look, set once in `theme.ts` or a shared style; a screen do
 - Mantine breakpoints: `xs` 36em, `sm` 48em, `md` 62em, `lg` 75em, `xl` 88em.
 - No horizontal page scrolling on mobile. Wide tables (reports) scroll inside their own container
   with the first column (category) sticky.
-- Touch targets at least 44 × 44 px. The main action (add transaction) is reachable with the thumb.
+- Touch targets at least 44 × 44 px. The main action (add transaction) is reachable with the thumb: on the phone the
+  floating + at the thumb's end on every page (I-030).
 
 ## 5. Money, numbers and dates
 

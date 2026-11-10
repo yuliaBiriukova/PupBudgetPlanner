@@ -2,6 +2,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import dayjs from 'dayjs';
 import en from '../src/shared/i18n/locales/en.json' with { type: 'json' };
 import { antiforgery, newPerson, signUpThroughApi } from './auth.ts';
+import { openAddForm } from './add.ts';
 
 // Each run starts with a person of its own, so the first visit has no transactions; cleanup.teardown.ts deletes them
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -443,10 +444,8 @@ test('a day picked in the calendar: Add transaction starts on it, and the saved 
     .click();
   await expect(page.getByText(`Only ${day.format('dddd, D MMM')}`)).toBeVisible();
 
-  // The shell's button: the sidebar's on the desktop, the tab bar's + on the phone
-  const adds = page.getByRole('button', { name: en.shell.addTransaction });
-  await (isMobile ? adds.last() : adds.first()).click();
-  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  // The shell's button: the sidebar's on the desktop, the floating + and its − on the phone (I-030)
+  const dialog = await openAddForm(page, isMobile);
   await expect(dialog.getByRole('radio', { name: day.format('dddd, D MMM YYYY') })).toBeChecked();
   await typeAmount(dialog, isMobile, '120');
   await dialog.getByRole('button', { name: form.allCategories }).click();
@@ -604,9 +603,7 @@ test('a receipt’s cents added up on the amount: the sum is saved rounded, on t
   await addAccount(page, 'Mono black', 1000, 'Bank');
 
   await page.goto('/transactions');
-  const adds = page.getByRole('button', { name: en.shell.addTransaction });
-  await (isMobile ? adds.last() : adds.first()).click();
-  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  const dialog = await openAddForm(page, isMobile);
   if (isMobile) {
     // 1 2 3 on top, ⌫ right above Save (I-027); the keys come up on a tap on the amount (I-028)
     await dialog.getByLabel(form.amount, { exact: true }).click();

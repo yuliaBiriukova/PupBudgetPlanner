@@ -15,8 +15,8 @@ import classes from './Transactions.module.css';
 import { isExchange, type BalanceChange, type Transaction } from './transactionsApi';
 
 /**
- * Holds the quick-add form (F-018) for the whole app shell: the + in the sidebar and the tab bar, the + on an account's
- * card and a row of the Transactions page open it. After a save or a delete the notification counts the account's
+ * Holds the quick-add form (F-018) for the whole app shell: the sidebar's Add, the phone's ⇄ + − (I-030), the + on an
+ * account's card and a row of the Transactions page open it. After a save or a delete the notification counts the account's
  * balance to its new value (both of a transfer, F-019): the one moment of the form.
  */
 export function TransactionFormProvider({ children }: { children: ReactNode }) {
@@ -37,6 +37,7 @@ export function TransactionFormProvider({ children }: { children: ReactNode }) {
           kind: 'add',
           accountId: options?.accountId,
           date: options?.date ?? dayOnScreen.current,
+          type: options?.type,
         });
       },
       edit: (transaction) => {

@@ -5,8 +5,8 @@
 | Type | Improvement |
 | Milestone | M6 — MVP release (polish) |
 | Priority | High (proposed: people testing the app couldn't find how to add an expense or income on the phone, the app's main action) |
-| Status | Todo (design done and approved; to be built on its branch) |
-| Branch | `improvement/I-030-findable-add-button` (planned on `plan/phone-feedback`; the prototype stories are on it) |
+| Status | Done (built 2026-11-09) |
+| Branch | `improvement/I-030-findable-add-button` (planned on `plan/phone-feedback`) |
 | Design | 🎨 3 rounds of prototype stories, then the final prototype; screenshots in [prototypes/](prototypes/) |
 | Approved | 2026-11-09, the owner in chat ("I approve the prototype"): the final prototype, variant 8 with the menu's pill gone |
 
@@ -26,18 +26,19 @@ owner got from a person using the app: they couldn't find how to add one on the 
 
 As approved in the final prototype (2026-11-09):
 
-- [ ] On every page of the phone app a charcoal + floats 16 px above the menu at the thumb's end, in sight without
+- [x] On every page of the phone app a charcoal + floats 16 px above the menu at the thumb's end, in sight without
       scrolling; the pages have room under their last row, so it covers no row at the end, nor the toast (B-013).
-- [ ] A tap on the + dims the page and opens ⇄ Transfer, + Income and − Expense above it (Expense nearest), round
+- [x] A tap on the + dims the page and opens ⇄ Transfer, + Income and − Expense above it (Expense nearest), round
       buttons in the types' colours with no names; the + turns into ×. Screen readers read "Add transfer / income /
       expense".
-- [ ] Each opens the same quick-add form as now **on its type**, on the picked day (I-025). A type, ×, a tap on the
-      dimmed page or Escape folds the three.
-- [ ] The bottom bar has no + of its own; its four places (Transactions, Accounts, Reports, More) share the width,
+- [x] Each opens the same quick-add form as now **on its type**, on the picked day (I-025). A type, ×, a tap on the
+      dimmed page or Escape folds the three. Back leaves the page as now (no history step for the three; owner,
+      2026-11-09).
+- [x] The bottom bar has no + of its own; its four places (Transactions, Accounts, Reports, More) share the width,
       each named under its icon; the open one in the accent, its name in medium weight, with no pill behind it.
-- [ ] An empty day or month tells how to add the first transaction (with the +).
-- [ ] The desktop is unchanged: the sidebar's Add transaction (I-019). The slip's round + stays.
-- [ ] Light and dark, 360 px to tablet; reduced motion: the three show and go without moving.
+- [x] An empty day or month tells how to add the first transaction (with the +).
+- [x] The desktop is unchanged: the sidebar's Add transaction (I-019). The slip's round + stays.
+- [x] Light and dark, 360 px to tablet; reduced motion: the three show and go without moving.
 
 ## Tasks
 
@@ -47,11 +48,11 @@ As approved in the final prototype (2026-11-09):
       button*), the real Transactions page with the app's shell, one story per variant.
 - [x] The owner picks one; final prototype; approval (I-003) before any code (2026-11-09).
 - [x] DESIGN_RULES "Screen decisions" row (2026-11-09).
-- [ ] The quick-add form opens on a given type: `TransactionFormApi.add({ type })` (now only Expense, then switched).
-- [ ] The phone's bottom in the shell (`PhoneBars.tsx`, `AppLayout.tsx`): the + and its three (a component of its own,
+- [x] The quick-add form opens on a given type: `TransactionFormApi.add({ type })` (now only Expense, then switched).
+- [x] The phone's bottom in the shell (`PhoneBars.tsx`, `AppLayout.tsx`): the + and its three (a component of its own,
       with Escape and the dimmed page), the four named places without the pill, the pages' room under their last row.
-- [ ] The empty day's and month's text on how to add; i18n keys for every new text.
-- [ ] Storybook: the shell's phone stories (the three open; each page), the prototype stories deleted.
+- [x] The empty day's and month's text on how to add; i18n keys for every new text.
+- [x] Storybook: the shell's phone stories (the three open; each page), the prototype stories deleted.
 
 ## Design
 
@@ -145,11 +146,27 @@ Screenshots of the final prototype (the three folded):
 | Phone, 375 px | [final-375-light.png](prototypes/final-375-light.png) | [final-375-dark.png](prototypes/final-375-dark.png) |
 | Desktop, 1440 px (unchanged) | [final-1440-light.png](prototypes/final-1440-light.png) | [final-1440-dark.png](prototypes/final-1440-dark.png) |
 
-Prototype stories: *Prototypes / I-030 Findable add button* (`frontend/src/prototypes/I-030-findable-add-button/`, on
-`improvement/I-030-findable-add-button` only: a planning branch carries no prototypes). Each round's stories replaced
-the last one's, so only the final prototype's link opens now; the rounds are in that branch's history. ·
+Prototype stories: *Prototypes / I-030 Findable add button* (`frontend/src/prototypes/I-030-findable-add-button/`),
+deleted with the build; the shell's own stories (*Shell / AppLayout*, the Phone ones) replace them. Each round's
+stories replaced the last one's; the rounds are in the history of `improvement/I-030-findable-add-button`. ·
 Chosen variant: 8, with the menu's pill gone · Final prototype approved: 2026-11-09 (screenshots in
 [prototypes/](prototypes/))
+
+## Built (2026-11-09)
+
+- **The form opens on a type:** `TransactionFormApi.add({ type })` and the form's request carry the type; the form starts
+  on it as switching to it would (the last category of the type; a transfer's To from the last transfer, no category),
+  and its title names it while the data loads.
+- **`AddDial`** (`app/shell/AddDial.tsx`): the floating + and its ⇄ + − as in the final prototype. The three are
+  mounted only while open (Mantine's `Transition`, 160 ms rise; none with reduced motion, by the theme's
+  `respectReducedMotion`), so folded they can't be tabbed to or read out. In the page order Expense comes right after
+  the +. Escape gives the focus back to the +. Opening another page (a tab, Back) folds them; Back adds no step.
+- **The tab bar** (`PhoneBars.tsx`): its + is gone; four equal named places, no pill. **`AppLayout`**: the bottom holds
+  the + over the menu; on the phone the page content has 72 px more room under its last row (104 px in all).
+- **Empty day and month:** "… Add an expense, an income or a transfer with the +." (the "No transactions yet" page
+  already said so and keeps its button).
+- **Stories:** *Shell / AppLayout* Phone add types open, Phone add on accounts, Phone add income (the old Phone add
+  open replaced); the prototype stories deleted.
 
 ## Tests
 
@@ -163,5 +180,6 @@ Chosen variant: 8, with the menu's pill gone · Final prototype approved: 2026-1
 ## Open points
 
 - ~~Did the person look for it on the Transactions page or elsewhere?~~ No longer needed: the + is on every page.
-- Back while the three are open: fold them first, as Back closes a pop-up before it leaves the page (I-015)? Proposed:
-  yes. Not in the prototype; to be confirmed by the owner before the build.
+- ~~Back while the three are open: fold them first, as Back closes a pop-up before it leaves the page (I-015)?~~
+  Answered by the owner on 2026-11-09: **no**, Back leaves the page as it does now; the three are not a pop-up and add
+  no step to the history.
