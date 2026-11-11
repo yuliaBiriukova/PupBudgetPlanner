@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Box } from '@mantine/core';
 import { useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 import { MockFetch, type MockRoutes } from '../../test/mockFetch';
@@ -35,12 +36,13 @@ function CategoriesScreen({ data = 'categories', open }: ScreenProps) {
           ),
   );
 
-  // In <main>, as in the app shell: the page's header isn't the document's banner
+  // In <main>, as in the app shell: the page's header isn't the document's banner. Full screen with the page's own
+  // padding: Storybook's padded body moved the phone's sheets 16 px to the right
   return (
     <MockFetch routes={routes}>
-      <main>
+      <Box component="main" p="md">
         <CategoriesPage />
-      </main>
+      </Box>
     </MockFetch>
   );
 }
@@ -52,6 +54,7 @@ const desktop = { viewport: { value: 'desktop', isRotated: false } };
 const meta = {
   title: 'Categories/Categories page',
   component: CategoriesScreen,
+  parameters: { layout: 'fullscreen' },
   args: {},
 } satisfies Meta<typeof CategoriesScreen>;
 
