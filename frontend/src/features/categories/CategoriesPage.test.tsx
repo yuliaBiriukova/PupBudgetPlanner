@@ -2,14 +2,11 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw/http';
 import { describe, expect, it } from 'vitest';
-import { renderApp } from '../../test/render';
+import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
 import type { CategoriesOverview } from './categoriesApi';
 import { DEFAULT_CATEGORIES, NO_CATEGORIES } from './categoriesTestData';
-
-/** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
-const LOADED = { timeout: 4000 };
 
 function categoriesServer(overview: CategoriesOverview = DEFAULT_CATEGORIES) {
   server.use(http.get('/api/categories', () => HttpResponse.json(overview)));
