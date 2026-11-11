@@ -742,3 +742,54 @@ test('the amount low on a short phone screen comes up whole above the keys when 
   await expect(amount).toHaveValue('125');
   await expect.poll(fitsAboveKeys).toBe(true);
 });
+
+test('the saved toast is in sight: at the top under the header on the phone, clear of the bottom bar; bottom right on the desktop (B-013)', async ({
+  page,
+  isMobile,
+}) => {
+  const response = await signUpThroughApi(page.request, newPerson('toast-place'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+
+  await page.goto('/transactions');
+  const dialog = await openAddForm(page, isMobile);
+  await typeAmount(dialog, isMobile, '125');
+  await dialog.getByRole('button', { name: form.allCategories }).click();
+  await page.getByLabel(form.searchCategories).fill('groc');
+  await page
+    .getByRole('dialog', { name: form.category })
+    .getByRole('button', { name: 'Groceries' })
+    .click();
+  await saveButton(dialog, isMobile, form.saveExpense).click();
+
+  const toast = page.getByRole('alert').filter({ hasText: 'Expense saved. Mono black:' });
+  await expect(toast).toBeInViewport({ ratio: 1 });
+  const screen = page.viewportSize() ?? { width: 0, height: 0 };
+  // Once it has slid in: where it rests
+  const place = async () => (await toast.boundingBox()) ?? { x: 0, y: 0, width: 0, height: 0 };
+
+  if (isMobile) {
+    const header = (await page.locator('header').first().boundingBox()) ?? { y: 0, height: 0 };
+    const bar = (await page.getByRole('navigation', { name: en.nav.main }).boundingBox()) ?? {
+      y: 0,
+    };
+    // 8 px under the header, full width with the 16 px gutters, and far above the bottom bar
+    await expect
+      .poll(async () => Math.round((await place()).y))
+      .toBe(Math.round(header.y + header.height + 8));
+    const shown = await place();
+    expect(Math.round(shown.x)).toBe(16);
+    expect(Math.round(shown.x + shown.width)).toBe(screen.width - 16);
+    expect(shown.y + shown.height).toBeLessThan(bar.y);
+  } else {
+    await expect
+      .poll(async () => {
+        const shown = await place();
+        return [
+          Math.round(screen.width - shown.x - shown.width),
+          Math.round(screen.height - shown.y - shown.height),
+        ];
+      })
+      .toEqual([16, 16]);
+  }
+});

@@ -2,6 +2,30 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-11 (B-013: Toasts at the top on the phone)
+
+**Done**
+- [B-013](changes/bugfixes/B-013-toast-hidden-on-phone/B-013-toast-hidden-on-phone.md) on
+  `bugfix/B-013-toast-hidden-on-phone`. Reproduced at 412 × 800 px: the "Expense saved." toast lay exactly over the
+  bottom bar (Mantine's default bottom right, full width on the phone), a white card on the white bar; not drawn under
+  anything. The owner approved the cause and the fix on 2026-11-11, for all toasts.
+- `AppNotifications` (in `AppProviders`): on the phone every toast comes from the top, 8 px under the header, full
+  width with the 16 px gutters; the desktop keeps bottom right. No call site changed. DESIGN_RULES §6 says so.
+- Tests: `AppNotifications.test.tsx` (phone top, desktop bottom right) and E2E `transactions.spec.ts` (the saved toast
+  under the header and above the bar on the phone, 16 px from the bottom right on the desktop); both fail without
+  the fix.
+- Checked: frontend lint, format, typecheck, unit tests (322 / 322), build, `build-storybook`; backend tests
+  (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone (one auth test hit the sign-in rate
+  limit after the session's many sign-ups and passed on a re-run of `auth.spec.ts`); screenshots of the toast after
+  an expense, an income and a transfer at 375 and 1440 px, light and dark, looked at (in the change folder's
+  `screenshots/`).
+- Test data: two `e2e-manual-…@example.com` people with an account each and two invite links noted `E2E manual
+  B-013`, made by hand to reproduce and check the fix, and the E2E runs' `e2e-…@example.com` people; the E2E clean-up
+  deleted the people and cancelled the links.
+
+**Next**
+- Owner: review the PR. Then B-011 or B-014 (Medium).
+
 ## 2026-11-11 (B-012: The amount comes up whole above the phone keys)
 
 **Done**
