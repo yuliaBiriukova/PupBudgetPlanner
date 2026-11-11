@@ -105,6 +105,29 @@ public sealed class ReportBuilderTests
     }
 
     [Fact]
+    public void A_hidden_group_is_a_row_only_while_one_of_its_hidden_categories_has_amounts_in_the_period()
+    {
+        CategoryGroup Hidden(string name, int order)
+        {
+            var group = Group(name, CategoryKind.Expense, order, "Old");
+            group.IsArchived = true;
+            group.Categories.Single().IsArchived = true;
+            return group;
+        }
+
+        var used = Hidden("Pets", 4);
+        var unused = Hidden("Car", 5);
+
+        var report = Build(
+            ReportPeriod.Year(2026),
+            [Spent(new(2026, 2, 3), used.Categories.Single().Id, 300m)],
+            groups: [Income, Daily, Health, used, unused]);
+
+        report.Groups.Select(group => group.Name).Should().Equal("Income", "Daily living", "Health", "Pets");
+        report.Groups[3].Total.Total.Should().Be(300m);
+    }
+
+    [Fact]
     public void The_summary_has_income_expenses_and_net_by_month()
     {
         var report = Build(

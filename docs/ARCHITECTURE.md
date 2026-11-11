@@ -113,7 +113,7 @@ erDiagram
     ACCOUNT { guid Id guid UserId string Name string Currency SourceKind Source guid SourceId guid BankId decimal OpeningBalance date OpeningDate CardStyle CardStyle datetime CreatedAt datetime ArchivedAt }
     ACCOUNT_SOURCE { guid Id guid UserId string Name }
     BANK { guid Id guid UserId string Name }
-    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder }
+    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder bool IsArchived }
     CATEGORY { guid Id guid GroupId string Name int SortOrder bool IsArchived }
     TRANSACTION { guid Id guid UserId TransactionType Type date Date guid AccountId decimal Amount guid CategoryId guid ToAccountId decimal ToAmount string Note }
     EXCHANGE_RATE { date Date string Currency decimal RateToUah RateSource Source }
@@ -125,7 +125,13 @@ erDiagram
   ([ADR 0018](decisions/0018-whole-amounts.md)).
 - Categories: every account gets its own copy of the default set (`DefaultCategories`) in the transaction that
   creates it; group names are unique per person, category names per group
-  ([ADR 0015](decisions/0015-default-categories-seeding.md)).
+  ([ADR 0015](decisions/0015-default-categories-seeding.md)). Each person changes their own set (F-029): the rules
+  live in `CategorySet` (names unique ignoring case, hidden ones counting; a category moves only within its kind;
+  places among the shown ones, sort orders renumbered from 1, income groups first). A category with transactions is
+  hidden (`IsArchived`), not deleted; a group goes only without shown categories, deleted when empty, hidden with its
+  hidden ones otherwise; the last group of a kind stays. `GET /api/categories` sends the hidden ones too, marked, with
+  each category's transaction count; the quick-add form leaves them out
+  ([ADR 0028](decisions/0028-changing-categories.md)).
 - Invitations (F-028): an invite link for one person, valid once for 7 days; only the token's SHA-256 is stored.
   Its status (waiting, used, expired, cancelled) comes from the dates. A blocked person keeps their data
   (`BlockedAt`) ([ADR 0016](decisions/0016-invite-only-sign-up.md)). F-023 will attach a family to it.

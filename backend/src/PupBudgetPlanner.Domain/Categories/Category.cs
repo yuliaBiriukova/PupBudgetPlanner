@@ -7,7 +7,7 @@ public sealed class Category
 
     public Guid Id { get; init; }
 
-    public Guid GroupId { get; init; }
+    public Guid GroupId { get; set; }
 
     public required string Name { get; set; }
 

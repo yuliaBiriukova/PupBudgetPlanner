@@ -379,6 +379,10 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_archived");
+
                     b.Property<string>("Kind")
                         .IsRequired()
                         .HasMaxLength(20)
