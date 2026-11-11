@@ -4,10 +4,10 @@
 |---|---|
 | Type | Bugfix |
 | Priority | Medium (test accounts pile up in the shared `dev` database against the working agreement; they can be deleted by hand on the People page, and nothing in the app is affected) |
-| Status | Todo |
+| Status | Done |
 | Branch | `bugfix/B-018-e2e-cleanup-digit-tags` |
 | Found in | The `dev` database on Neon, 2026-11-11: a check after the full E2E run while building F-023 (first seen during I-029) |
-| Approved | — (date the owner approved the root cause and the planned fix) |
+| Approved | 2026-11-11: the owner approved the root cause and the fix ("Approved, build it") |
 
 ## Steps to reproduce
 1. Make a test person with a tag that has a digit, as the screenshot scripts of earlier changes did:
@@ -54,3 +54,11 @@ emails newPerson makes, and only those") were written apart, with nothing checki
   `e2e-admin@example.com`, an `e2e-…` address on another domain, or one without the `-<ms>-<rand>` end; `newPerson`
   throws for `I024_Shots`. Fails before the fix (the `i024-shots` case), passes after it.
 - The full E2E run, then `GET /api/admin/people` as the tests' admin: no `e2e-…` account but the admin.
+
+## Result
+- The regression test failed on the old pattern (`e2e-i022-shots-…` not matched, `newPerson('I024_Shots')` didn't
+  throw) and passes with the fix.
+- `dev` database, 2026-11-12, before the run: 52 `e2e-…` accounts (24 `b004-shots`, 12 `b004-debug`, 4 each of
+  `i022-shots`, `i028-shots` and `b009-shots`, 2 `i024-shots`, 1 `i030-shots`, and the admin). The full E2E run
+  against this branch's API and web app (89 passed, 19 skipped); after its clean-up `GET /api/admin/people` lists the
+  admin as the only `e2e-…` account, and `GET /api/admin/invitations` has no waiting link.
