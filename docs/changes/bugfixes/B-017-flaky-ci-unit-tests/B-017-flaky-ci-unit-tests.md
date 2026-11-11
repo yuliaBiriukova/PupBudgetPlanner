@@ -89,9 +89,10 @@ test can wait for the address.
   | "opens on the phone with the Filters button…" | 10 / 10 passed, 4.4–6.1 s | 10 / 10 passed, 2.5–3.6 s |
   | the new B-017 test | — | 10 / 10 passed, 2.3–2.9 s |
 
-- Frontend lint, format, typecheck, unit tests (325 / 325), build. The backend isn't changed (its build: 0 warnings).
+- Frontend lint, format, typecheck, unit tests (327 / 327, with develop merged), build. The backend isn't changed
+  (its build: 0 warnings).
 - E2E "a person finds the month's eating out… the filter stays in the address" (the phone's Filters sheet), desktop
-  and phone, and the full E2E suite, against this branch's API and app.
+  and phone, and the full E2E suite (80 passed, 16 skipped), against this branch's API and app.
 
 ## Notes
 - Seen while reproducing, not part of this fix: under the heavier load of the reproduction (more than CI's) two

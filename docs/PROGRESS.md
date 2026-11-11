@@ -17,9 +17,9 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Tests: a regression test in `TransactionsPage.test.tsx` (the chip never drops out, no request without the account),
   failing before the fix. Both files ten times under load: all passing, the Filters test 2.5–3.6 s instead of
   4.4–6.1 s.
-- Checked: frontend lint, format, typecheck, unit tests (325 / 325), build; backend build (0 warnings; the backend
-  isn't changed); E2E "a person finds the month's eating out…" desktop and phone, and the full E2E suite (80
-  passed, 16 skipped), against this branch's API and app.
+- Checked: frontend lint, format, typecheck, unit tests (327 / 327, with develop merged), build; backend build (0
+  warnings; the backend isn't changed); E2E "a person finds the month's eating out…" desktop and phone, and the full
+  E2E suite (80 passed, 16 skipped), against this branch's API and app.
 - Test data: the E2E runs' `e2e-…@example.com` people (with their accounts and transactions); the E2E clean-up deleted
   them and cancelled their invite links. Nothing made by hand.
 
