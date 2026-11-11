@@ -25,7 +25,27 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
 
 **Next**
-- Owner: review the PR. Then B-011 or B-013 (Medium).
+- Owner: review the PR. Then B-013 (Medium).
+
+## 2026-11-11 (B-011: The picked day's ring inside it, at once on the phone)
+
+**Done**
+- [B-011](changes/bugfixes/B-011-calendar-picked-day-ring/B-011-calendar-picked-day-ring.md) on
+  `bugfix/B-011-calendar-picked-day-ring`. Reproduced in Storybook as a touch phone at 360 and 412 px: the picked
+  day's ring was drawn 4 px outside it while the days are 1–4 px apart, so the next day covered its right side and on
+  Monday it was squeezed against the card's edge; and the phone leaves the tapped day hovered, where the hover's grey
+  ring replaced the black one. The owner approved the cause and the fix on 2026-11-11.
+- `TransactionsPage.module.css`: the picked day's ring is 2 px inside it; the hover ring only where there is a mouse
+  and never on the picked day.
+- Tests: an E2E test in `transactions.spec.ts` (desktop and phone), failing before the fix, passing after it.
+- Checked: frontend lint, format, typecheck, unit tests (320 / 320), build, `build-storybook`; backend build and tests
+  (the backend isn't changed); the full E2E suite, desktop and phone; screenshots of the real app at 375 px and
+  1440 px, light and dark, looked at (in the change folder's `built/`, the reproduction in `repro/`).
+- Test data: the E2E runs' `e2e-…@example.com` people, among them `e2e-ring-…` and `e2e-shots-…` for the screenshots
+  (with an account and three expenses); the E2E clean-up deleted them. Nothing made by hand.
+
+**Next**
+- Owner: review the B-011 pull request.
 
 ## 2026-11-11 (B-012: The amount comes up whole above the phone keys)
 
