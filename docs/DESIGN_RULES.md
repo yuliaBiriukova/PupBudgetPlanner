@@ -163,6 +163,8 @@ Each element has one look, set once in `theme.ts` or a shared style; a screen do
 - While the API is waking up (night-time cold start, up to ~1 min), show a friendly
   "Waking up the server…" indicator instead of a blank page.
 - Successful saves show a short notification; destructive actions (delete) ask for confirmation.
+- Notifications (toasts) sit at the **bottom right** on the desktop and at the **top** on the phone, full width with
+  the 16 px gutters, 8 px under the header, clear of the bottom bar and the + (B-013, owner, 2026-11-11).
 - Form validation messages appear under the field, in plain language.
 
 ## 7. Accessibility
