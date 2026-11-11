@@ -2,6 +2,23 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-11 (F-029: Manage categories, design round 1)
+
+**Done**
+- [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) started on
+  `feature/F-029-manage-categories`: references (YNAB, Actual Budget, Lunch Money, AnyList, Atlassian's drag and drop
+  accessibility), the brief and three prototype stories in *Prototypes / F-029 Manage categories*: Edit mode, Tap a
+  tag, The ledger. Each is the app opened on Categories with the variant's page; changes stay in the story.
+- Checked: the design check on the three stories (0 issues after one fix), their states clicked through in Playwright
+  at 375 and 1440 px, light and dark, screenshots looked at; lint and typecheck on the prototype folder.
+- Test data: none (Storybook's fake API only).
+
+- The owner picked variant 2, "Tap a tag", the same day; it is the final prototype story (variants 1 and 3 removed),
+  checked again (design check 0 issues, its states in Playwright at 375 and 1440 px, light and dark).
+
+**Next**
+- Owner: approve the final prototype for implementation (or ask for changes); no code before that.
+
 ## 2026-11-11 (B-017: The Filters sheet keeps its picks as it closes; two flaky unit tests)
 
 **Done**
