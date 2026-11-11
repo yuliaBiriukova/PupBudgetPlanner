@@ -14,11 +14,12 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Tests: `AppNotifications.test.tsx` (phone top, desktop bottom right) and E2E `transactions.spec.ts` (the saved toast
   under the header and above the bar on the phone, 16 px from the bottom right on the desktop); both fail without
   the fix.
-- Checked: frontend lint, format, typecheck, unit tests (322 / 322), build, `build-storybook`; backend tests
-  (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone (one auth test hit the sign-in rate
-  limit after the session's many sign-ups and passed on a re-run of `auth.spec.ts`); screenshots of the toast after
-  an expense, an income and a transfer at 375 and 1440 px, light and dark, looked at (in the change folder's
-  `screenshots/`).
+- Checked: frontend lint, format, typecheck, unit tests, build, `build-storybook`; backend tests (444 / 444, the
+  backend isn't changed); the full E2E suite, desktop and phone (one auth test hit the sign-in rate limit after the
+  session's many sign-ups and passed on a re-run of `auth.spec.ts`); screenshots of the toast after an expense, an
+  income and a transfer at 375 and 1440 px, light and dark, looked at (in the change folder's `screenshots/`).
+- Checked again after merging `develop` (B-011, B-014): lint, format, build, unit tests (326 / 326), the full E2E
+  suite (82 passed, 16 skipped).
 - Test data: two `e2e-manual-…@example.com` people with an account each and two invite links noted `E2E manual
   B-013`, made by hand to reproduce and check the fix, and the E2E runs' `e2e-…@example.com` people; the E2E clean-up
   deleted the people and cancelled the links.
