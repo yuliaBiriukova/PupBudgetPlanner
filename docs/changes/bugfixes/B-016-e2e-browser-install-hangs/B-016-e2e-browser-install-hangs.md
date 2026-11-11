@@ -4,10 +4,10 @@
 |---|---|
 | Type | Bugfix |
 | Priority | High (a red CI on every pull request and on `develop` while Ubuntu's package mirrors can't be reached; nothing wrong in the app or the tests) |
-| Status | Todo |
+| Status | In progress |
 | Branch | `bugfix/B-016-e2e-browser-install-hangs` |
 | Found in | CI, 2026-11-11, `E2E (Playwright)` job, step "Install Playwright browser" |
-| Approved | — |
+| Approved | 2026-11-11: the owner approved the root cause and fix option 2 ("Approved, build it") |
 
 ## Steps to reproduce
 1. Run CI while the runner can't resolve `azure.archive.ubuntu.com` (as on 2026-11-11 from about 13:55 to 15:30 UTC).
@@ -42,7 +42,7 @@ The app doesn't need those fonts: it ships its own (Manrope and Unbounded, from 
 compare no screenshots.
 
 ## Fix
-Planned, not yet approved. Two options were weighed:
+Two options were weighed:
 
 1. **Run the E2E job in Playwright's own image** (`mcr.microsoft.com/playwright:v1.64.1-noble`), which has Chromium
    and its packages, so nothing is installed with apt. But: a 2 GB image is pulled on every run (from another
