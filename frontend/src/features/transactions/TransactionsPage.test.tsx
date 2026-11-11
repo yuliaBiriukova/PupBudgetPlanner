@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { formatMoney } from '../../shared/format/money';
-import { renderApp } from '../../test/render';
+import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
 import type { AccountsOverview } from '../accounts/accountsApi';
@@ -19,9 +19,6 @@ import type {
 } from './transactionsApi';
 import { EXPENSE_NOTES, fakeNotes, fakePage, fakeSummary, twoMonths } from './transactionsFakeApi';
 import { categoryId } from './transactionsTestData';
-
-/** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
-const LOADED = { timeout: 4000 };
 
 /** The one element a query found, for userEvent (no non-null assertions). */
 function only(elements: HTMLElement[], at = 0): HTMLElement {
@@ -311,6 +308,58 @@ describe('the Transactions page', () => {
     expect(screen.getByRole('button', { name: 'Clear type: Expenses' })).toBeInTheDocument();
     expect(screen.getByLabelText('2 on')).toHaveTextContent('2');
     // Several sheet steps and a Back step to wait for: slower than most when the whole suite runs at once
+  }, 15_000);
+
+  it('keeps the sheet’s picks as it closes: they never drop out on their way into the address (B-017)', async () => {
+    setScreenWidth(375);
+    transactionsServer({ latest: MONTH, overview: USED });
+    const { router } = renderApp('/transactions?month=2026-10');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Filters' }, LOADED));
+    const sheet = await screen.findByRole('dialog', { name: 'Filters' });
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Wallet' }));
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Expenses' }));
+    const count = fakeSummary(
+      MONTH,
+      new URLSearchParams('from=2026-10-01&to=2026-10-31&accountId=cash&type=Expense'),
+    ).count;
+    const show = await within(sheet).findByRole(
+      'button',
+      { name: `Show ${String(count)} transactions` },
+      LOADED,
+    );
+
+    // Every change of the page from here on: the picks' chip is there each time, and no summary is asked for
+    // without them
+    let dropped = false;
+    const watch = new MutationObserver(() => {
+      if (!document.querySelector('[aria-label="Clear account: Wallet"]')) dropped = true;
+    });
+    watch.observe(document.body, { childList: true, subtree: true });
+    onTestFinished(() => {
+      watch.disconnect();
+    });
+    const unfiltered: string[] = [];
+    const onRequest = ({ request }: { request: Request }) => {
+      const url = new URL(request.url);
+      if (url.pathname.startsWith('/api/transactions') && !url.searchParams.has('accountId')) {
+        unfiltered.push(url.pathname + url.search);
+      }
+    };
+    server.events.on('request:start', onRequest);
+    onTestFinished(() => {
+      server.events.removeListener('request:start', onRequest);
+    });
+    await userEvent.click(show);
+
+    await waitFor(() => {
+      expect(router.state.location.search).toBe('?month=2026-10&account=cash&type=expense');
+    }, LOADED);
+    expect(
+      await screen.findByRole('button', { name: 'Clear account: Wallet' }, LOADED),
+    ).toBeInTheDocument();
+    expect(dropped).toBe(false);
+    expect(unfiltered).toEqual([]);
   }, 15_000);
 
   it('says nothing was found and clears the filters', async () => {

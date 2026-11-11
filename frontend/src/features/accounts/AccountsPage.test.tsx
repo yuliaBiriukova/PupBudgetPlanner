@@ -2,14 +2,11 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { renderApp } from '../../test/render';
+import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
 import type { AccountsOverview, AccountsTotal, RatesStatus } from './accountsApi';
 import { account, EMPTY, OVERVIEW } from './accountsTestData';
-
-/** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
-const LOADED = { timeout: 4000 };
 
 /** The prototype's NBU rates (F-017). */
 const RATES: Record<string, number> = { USD: 41.35, EUR: 48.1, PLN: 11.3 };

@@ -4,10 +4,10 @@
 |---|---|
 | Type | Bugfix |
 | Priority | Medium (a red `develop` after a merge, the code itself green; one of the two causes is a real, if brief, glitch in the app) |
-| Status | Todo |
+| Status | Done |
 | Branch | `bugfix/B-017-flaky-ci-unit-tests` |
 | Found in | CI, `Frontend` job, pushes to `develop` on 2026-11-11: run 43002311103 (after B-012, #79) and run 43015219261 (after I-029, #78) |
-| Approved | — |
+| Approved | 2026-11-11: the owner approved the root cause and the fix ("Approved, build it") |
 
 ## Steps to reproduce
 1. Run the frontend unit tests on a busy machine, as CI's 4-core runner is with 4 test workers.
@@ -67,15 +67,34 @@ Reproduced: ten runs of both files with all 8 cores busy (eight busy-loop proces
    `AppLayout.test.tsx` uses it for its first wait after each `renderApp`, where the app's first load is expected.
    No retries.
 
+As built: `useTransactionFilters` keeps the address the sheet closed on (`writtenFrom`) while the picks are on their
+way; when the address differs from it, the draft is dropped in the same render (React's "adjust state while
+rendering", no effect, so no frame without filters). A sheet opened again before that clears `writtenFrom`, so its
+own draft waits for its own close. In `AppLayout.test.tsx` the waits for a page opened from the tab bar or More
+(Reports, Family) got `LOADED` too: they are a page's first load as well. `renderApp` also returns its `router`, so a
+test can wait for the address.
+
 ## Tests
-- Regression test for the race in `TransactionsPage.test.tsx`: after "Show N transactions" the chips and the
-  Filters count never go away (checked on every render until the list has loaded), and the API isn't asked for the
-  unfiltered month. Fails before the fix, passes after it.
-- `AppLayout.test.tsx` and `TransactionsPage.test.tsx` repeated ten times with all cores busy (as above), all
-  passing; the Filters test's time noted before and after.
-- The full frontend checks (lint, format, typecheck, unit tests, build) and CI on the PR.
+- Regression test in `TransactionsPage.test.tsx`, "keeps the sheet's picks as it closes: they never drop out on their
+  way into the address (B-017)": from the tap on "Show N transactions" until the address has the picks, a
+  `MutationObserver` checks after every change of the page that the "Clear account: Wallet" chip is there, and MSW's
+  `request:start` that no `/api/transactions…` request goes out without the account. Before the fix both fail: the
+  chip drops out, and the summary and the first list page of the whole month are asked for. After it both pass.
+- Both files' tests repeated ten times with all 8 cores busy (eight busy-loop processes beside Vitest), as in the
+  reproduction:
+
+  | | before the fix | after it |
+  |---|---|---|
+  | "opens on Transactions, marked in the tab bar" (1 s wait, then 4 s) | 10 / 10 passed, 1.4–1.8 s, close to its limit | 10 / 10 passed, 1.5–2.2 s, within the 4 s wait |
+  | "opens on the phone with the Filters button…" | 10 / 10 passed, 4.4–6.1 s | 10 / 10 passed, 2.5–3.6 s |
+  | the new B-017 test | — | 10 / 10 passed, 2.3–2.9 s |
+
+- Frontend lint, format, typecheck, unit tests (325 / 325), build. The backend isn't changed (its build: 0 warnings).
+- E2E "a person finds the month's eating out… the filter stays in the address" (the phone's Filters sheet), desktop
+  and phone, and the full E2E suite, against this branch's API and app.
 
 ## Notes
 - Seen while reproducing, not part of this fix: under the heavier load of the reproduction (more than CI's) two
   I-025 tests in `TransactionsPage.test.tsx` ("adds on the day tapped in the calendar…", "adds on today again…") ran
-  past Vitest's 5 s test limit. On CI they take 3.6–4.0 s. Left as is unless CI shows them failing.
+  past Vitest's 5 s test limit, in 5 of 10 runs before the fix and 6 of 10 after it (they don't use the Filters sheet).
+  On CI they take 3.6–4.0 s. Left as is unless CI shows them failing.

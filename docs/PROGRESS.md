@@ -2,6 +2,31 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-11 (B-017: The Filters sheet keeps its picks as it closes; two flaky unit tests)
+
+**Done**
+- [B-017](changes/bugfixes/B-017-flaky-ci-unit-tests/B-017-flaky-ci-unit-tests.md) on
+  `bugfix/B-017-flaky-ci-unit-tests`. Two frontend unit tests failed on CI's `develop` pushes after #78 and #79 but
+  passed on their PRs. Reproduced with all 8 cores busy and with timing logs. The owner approved the causes and the
+  fix on 2026-11-11.
+- A real race: as the phone's Filters sheet closed, `useTransactionFilters` cleared its draft before React Router had
+  put the picks into the address, so for one render the page showed no filters and asked the API for the whole month.
+  The draft now stays until the address has moved on from where it was as the sheet closed.
+- The shell test's first wait was the file's cold start at the 1 s default: `LOADED` (4 s) is now shared from
+  `src/test/render.tsx` (five page tests had their own copy) and used for `AppLayout.test.tsx`'s page-load waits.
+- Tests: a regression test in `TransactionsPage.test.tsx` (the chip never drops out, no request without the account),
+  failing before the fix. Both files ten times under load: all passing, the Filters test 2.5–3.6 s instead of
+  4.4–6.1 s.
+- Checked: frontend lint, format, typecheck, unit tests (325 / 325), build; backend build (0 warnings; the backend
+  isn't changed); E2E "a person finds the month's eating out…" desktop and phone, and the full E2E suite (80
+  passed, 16 skipped), against this branch's API and app.
+- Test data: the E2E runs' `e2e-…@example.com` people (with their accounts and transactions); the E2E clean-up deleted
+  them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Two I-025 tests ran past the 5 s test limit under the reproduction's heavier load (not on CI):
+  left as is unless CI shows them failing.
+
 ## 2026-11-11 (B-016: The E2E job installs its browser without apt)
 
 **Done**
