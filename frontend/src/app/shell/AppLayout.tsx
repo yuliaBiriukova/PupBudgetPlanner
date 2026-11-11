@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { Outlet } from 'react-router';
 import { TransactionFormProvider } from '../../features/transactions/TransactionFormProvider';
 import { useTransactionForm } from '../../features/transactions/transactionForm';
+import { AddDial } from './AddDial';
 import classes from './AppLayout.module.css';
 import { MoreSheet, TabBar, TopBar } from './PhoneBars';
 import { DESKTOP_QUERY, type ShellUser } from './sections';
@@ -18,8 +19,8 @@ interface AppLayoutProps {
 }
 
 /**
- * The frame around every page: sidebar on desktop; top bar, tab bar and More on the phone. The + in the sidebar and the
- * tab bar opens the quick-add form (F-018), which every page inside can open too.
+ * The frame around every page: sidebar on desktop; top bar, tab bar and More on the phone. The sidebar's Add and the
+ * phone's floating + (its ⇄ + −, I-030) open the quick-add form (F-018), which every page inside can open too.
  */
 export function AppLayout(props: AppLayoutProps) {
   return (
@@ -54,7 +55,16 @@ function Shell({ user, onSignOut }: AppLayoutProps) {
             <Outlet />
           </div>
         </main>
-        {!isDesktop && <TabBar onAdd={add} onMore={more.open} user={user} />}
+        {!isDesktop && (
+          <div className={classes.bottom}>
+            <AddDial
+              onAdd={(type) => {
+                form.add({ type });
+              }}
+            />
+            <TabBar onMore={more.open} user={user} />
+          </div>
+        )}
       </div>
       {!isDesktop && (
         <MoreSheet opened={moreOpened} onClose={more.close} user={user} onSignOut={onSignOut} />

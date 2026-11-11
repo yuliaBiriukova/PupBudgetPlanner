@@ -2,14 +2,11 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw/http';
 import { describe, expect, it } from 'vitest';
-import { renderApp } from '../../test/render';
+import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
 import type { CategoriesOverview } from './categoriesApi';
 import { DEFAULT_CATEGORIES, NO_CATEGORIES } from './categoriesTestData';
-
-/** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
-const LOADED = { timeout: 4000 };
 
 function categoriesServer(overview: CategoriesOverview = DEFAULT_CATEGORIES) {
   server.use(http.get('/api/categories', () => HttpResponse.json(overview)));
@@ -42,7 +39,9 @@ describe('the Categories page on the phone', () => {
     expect(income).toHaveAttribute('aria-expanded', 'true');
     const tags = document.getElementById(income.getAttribute('aria-controls') ?? '');
     expect(tags && tagsOf(tags)).toEqual(['Salary', 'Gifts', 'Other']);
-    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(6);
+    expect(
+      within(screen.getByRole('main')).getAllByRole('button', { expanded: false }),
+    ).toHaveLength(6);
   });
 
   it('opens several groups at once, folds them again and remembers it', async () => {
@@ -76,11 +75,17 @@ describe('the Categories page on the phone', () => {
     renderApp('/categories');
 
     await user.click(await screen.findByRole('button', { name: 'Collapse all' }, LOADED));
-    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(7);
-    expect(screen.queryByRole('button', { expanded: true })).not.toBeInTheDocument();
+    expect(
+      within(screen.getByRole('main')).getAllByRole('button', { expanded: false }),
+    ).toHaveLength(7);
+    expect(
+      within(screen.getByRole('main')).queryByRole('button', { expanded: true }),
+    ).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Expand all' }));
-    expect(screen.getAllByRole('button', { expanded: true })).toHaveLength(7);
+    expect(
+      within(screen.getByRole('main')).getAllByRole('button', { expanded: true }),
+    ).toHaveLength(7);
   });
 
   it('opens only the group picked on the desktop', async () => {
@@ -92,7 +97,9 @@ describe('the Categories page on the phone', () => {
       'aria-expanded',
       'true',
     );
-    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(6);
+    expect(
+      within(screen.getByRole('main')).getAllByRole('button', { expanded: false }),
+    ).toHaveLength(6);
     expect(screen.getByRole('button', { name: /Income/ })).toHaveTextContent(
       'Salary, Gifts and Other',
     );
@@ -107,7 +114,9 @@ describe('the Categories page on the phone', () => {
       'aria-expanded',
       'true',
     );
-    expect(screen.getAllByRole('button', { expanded: false })).toHaveLength(6);
+    expect(
+      within(screen.getByRole('main')).getAllByRole('button', { expanded: false }),
+    ).toHaveLength(6);
   });
 
   it('says what to do when there are no categories', async () => {

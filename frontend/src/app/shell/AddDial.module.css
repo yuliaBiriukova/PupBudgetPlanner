@@ -1,0 +1,98 @@
+/* While the three are open the page behind dims; a tap on it folds them */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: color-mix(in srgb, var(--mantine-color-body) 72%, transparent);
+}
+
+/* Over the page, 16 px above the menu, at the thumb's end; the + at the bottom, the three above it */
+.dial {
+  position: absolute;
+  right: 16px;
+  bottom: calc(100% + 16px);
+  z-index: 3;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ⇄ + − above the +, Expense nearest to it (they rise as they come: `RISE` in AddDial.tsx) */
+.types {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 12px;
+}
+
+.type {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  box-shadow: var(--pup-shadow-float);
+  transition: background-color 120ms linear;
+}
+
+/* The types' tints, the sign in the type's colour (as the form's switch) */
+.type[data-type='expense'] {
+  background: color-mix(in srgb, var(--pup-color-expense) 14%, var(--pup-color-surface));
+  color: var(--pup-color-expense);
+}
+
+.type[data-type='income'] {
+  background: color-mix(in srgb, var(--pup-color-income) 14%, var(--pup-color-surface));
+  color: var(--pup-color-income);
+}
+
+.type[data-type='transfer'] {
+  background: color-mix(in srgb, var(--pup-color-transfer) 14%, var(--pup-color-surface));
+  color: var(--pup-color-transfer);
+}
+
+@media (hover: hover) {
+  .type[data-type='expense']:hover {
+    background: color-mix(in srgb, var(--pup-color-expense) 22%, var(--pup-color-surface));
+  }
+
+  .type[data-type='income']:hover {
+    background: color-mix(in srgb, var(--pup-color-income) 22%, var(--pup-color-surface));
+  }
+
+  .type[data-type='transfer']:hover {
+    background: color-mix(in srgb, var(--pup-color-transfer) 22%, var(--pup-color-surface));
+  }
+
+  .toggle:hover {
+    background: var(--mantine-primary-color-filled-hover);
+  }
+}
+
+/* The +: the app's charcoal, turning into × while open */
+.toggle {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--mantine-primary-color-filled);
+  box-shadow: var(--pup-shadow-float);
+  color: var(--pup-color-on-primary);
+}
+
+.toggle svg {
+  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.dial[data-open] .toggle svg {
+  transform: rotate(45deg);
+}
+
+/* Reduced motion: the three show and go without moving (the Transition, by the theme), the + turns at once */
+@media (prefers-reduced-motion: reduce) {
+  .toggle svg,
+  .type {
+    transition: none;
+  }
+}

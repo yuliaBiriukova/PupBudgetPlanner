@@ -24,6 +24,8 @@ interface AmountDisplayProps {
   label?: string;
   /** An exchange's second amount (F-019): a smaller number under the first. */
   secondary?: boolean;
+  /** The app's keys are up and type into it (the phone): it is kept in sight above them (B-012). */
+  typedInto?: boolean;
   /** The app's keys type into it (the phone, an exchange): the ring says so. */
   target?: boolean;
   /** A tap or a click on it: on the phone the keys move to it. */
@@ -51,6 +53,7 @@ export function AmountDisplay({
   focusFirst,
   label,
   secondary,
+  typedInto,
   target,
   onTarget,
   selectOnFocus,
@@ -70,12 +73,13 @@ export function AmountDisplay({
     if (focusFirst) input.current?.focus();
   }, [focusFirst]);
 
-  // On the phone the display the keys type into stays in sight above them, with its rate line (an exchange's To sits
-  // low in the form, F-019)
+  // On the phone the display the keys type into stays in sight above them as they come up and on every key, with its
+  // rate line (an exchange's To sits low in the form, F-019): the form's room shrinks under the keys and keeps its
+  // scroll, so a display low in it would be left under them (B-012)
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (target || error) root.current?.scrollIntoView({ block: 'nearest' });
-  }, [target, error, value]);
+    if (typedInto || target || error) root.current?.scrollIntoView({ block: 'nearest' });
+  }, [typedInto, target, error, value]);
 
   const sign = <span className={classes.sign}>{currencySign(currency)}</span>;
 

@@ -327,7 +327,6 @@ function PhoneFilters({
         opened={open}
         onClose={close}
         title={t('transactions.filters.label')}
-        tall
         footer={
           <div className={classes.sheetFooter}>
             <Button

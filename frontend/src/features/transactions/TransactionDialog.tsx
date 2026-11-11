@@ -16,6 +16,7 @@ import { AmountDisplay } from './AmountDisplay';
 import { AmountKeys } from './AmountKeys';
 import { CategoryField } from './CategoryField';
 import { mondayOf, today } from './days';
+import { rememberedFormHeight, rememberFormHeight } from './formHeight';
 import { DeleteTransactionDialog } from './DeleteTransactionDialog';
 import { NoteField } from './NoteField';
 import { suggestedToAmount } from './exchange';
@@ -31,6 +32,7 @@ import {
   type CategoryOption,
 } from './formDefaults';
 import { RateLine } from './RateLine';
+import { LIST_FOOT, LIST_GAP, noteRoomHeight } from './noteRoom';
 import { scrollParentOf } from './scrollParent';
 import classes from './TransactionForm.module.css';
 import {
@@ -50,15 +52,19 @@ import { WeekStrip } from './WeekStrip';
 
 /**
  * What the form opens for: a new transaction (from an account's card, with that account; on the day the Transactions
- * page shows, I-025), or a change.
+ * page shows, I-025; on the type picked with the phone's +, I-030), or a change.
  */
 export type FormRequest =
-  { kind: 'add'; accountId?: string; date?: string } | { kind: 'edit'; transaction: Transaction };
+  | { kind: 'add'; accountId?: string; date?: string; type?: TransactionType }
+  | { kind: 'edit'; transaction: Transaction };
 
 const TYPES: readonly TransactionType[] = ['Expense', 'Income', 'Transfer'];
 
 /** On the phone the Note field scrolls up to this far under the sheet's title while the note is typed (I-017). */
 const NOTE_TOP_GAP = 16;
+
+/** The height of the type switch and of Save on the phone: their places while the form's data loads (I-029). */
+const LOADING_ROW = 52;
 
 interface FormState {
   type: TransactionType;
@@ -109,8 +115,8 @@ interface TransactionDialogProps {
 /**
  * Quick add (F-018, final prototype variant 7): one form for an expense, an income or a transfer (F-019), and for
  * changing one. In order the day, the account (From and To for a transfer), the amount (two for an exchange), the
- * category and the note. On the phone a full sheet with the app's own keys under the scrolling form, folded until the
- * amount is tapped (I-028); on the desktop a dialog where the amount is typed, with Cancel and Save.
+ * category and the note. On the phone a sheet as tall as the form (I-029) with the app's own keys under the scrolling form, folded
+ * until the amount is tapped (I-028); on the desktop a dialog where the amount is typed, with Cancel and Save.
  */
 export function TransactionDialog({
   request,
@@ -187,23 +193,27 @@ function initialState(request: FormRequest, data: FormData): FormState {
       note: transaction.note ?? '',
     };
   }
-  const type: TransactionType = 'Expense';
+  const type = request.type ?? 'Expense';
   const accountId = accountFor(request, data, type);
   const date = request.date ?? today();
+  const transfer = type === 'Transfer';
   return {
     type,
     date,
     week: mondayOf(date),
     accountId,
-    categoryId: lastCategory(
-      data.suggestions,
-      categoriesFor(data.categories.groups, type),
-      accountId,
-      type,
-    ),
+    // As switching to the type in the form picks them (`setType`)
+    categoryId: transfer
+      ? null
+      : lastCategory(
+          data.suggestions,
+          categoriesFor(data.categories.groups, type),
+          accountId,
+          type,
+        ),
     categoryByHand: false,
     amount: '',
-    toAccountId: null,
+    toAccountId: transfer ? defaultTo(data.overview.accounts, data.suggestions, accountId) : null,
     toAmount: '',
     toByHand: false,
     keys: 'amount',
@@ -255,9 +265,9 @@ function TransactionForm({
   // On the phone, while the note is typed the phone's keyboard is up (I-017)
   const [typingNote, setTypingNote] = useState(false);
   const noteTyped = typingNote && !isDesktop;
-  // The earlier notes listed under it: only then the form makes them room (B-009)
-  const [noteListed, setNoteListed] = useState(false);
-  const roomForList = noteTyped && noteListed;
+  // The earlier notes listed under it, as tall as this: only then the form makes them room (B-009), that much (B-014)
+  const [noteList, setNoteList] = useState<number | null>(null);
+  const roomForList = noteTyped && noteList !== null;
   const noteBlock = useRef<HTMLDivElement>(null);
   const noteRoom = useRef<HTMLDivElement>(null);
 
@@ -281,24 +291,31 @@ function TransactionForm({
     foldAway(keysFolded);
   });
 
-  // While the earlier notes are listed, the form scrolls the Note field to its top, so the list under it has the room
-  // down to Save: the room under the form is what the field needs to get there. With no list there is no room, only an
-  // empty gap, so the form stays where it is and the field is just kept in sight (B-009). Both follow the sheet as the
-  // phone's keyboard comes and goes
+  // While the earlier notes are listed, the form makes the list room under the Note down to Save: an empty block under
+  // the form as high as the list needs beyond the form already there (B-014), and it scrolls only so far that the list's
+  // foot is just above Save, the Note at most at the top of the sheet, where a longer list scrolls inside (B-009). With
+  // no list there is no room, only an empty gap, so the form stays where it is and the field is just kept in sight
+  // (B-009). Both follow the sheet as the phone's keyboard comes and goes, and the list as it grows and shrinks
   useEffect(() => {
     const block = noteBlock.current;
     const room = roomForList ? noteRoom.current : null;
+    const list = noteList ?? 0;
     const scroller = scrollParentOf(block);
     if (!noteTyped || !block || !scroller) return;
     let frame = 0;
     const fit = () => {
-      if (room)
-        room.style.height = `${String(Math.max(0, scroller.clientHeight - block.offsetHeight - NOTE_TOP_GAP))}px`;
+      if (room) {
+        const foot = block.getBoundingClientRect().bottom - scroller.getBoundingClientRect().top;
+        const under = scroller.scrollHeight - room.offsetHeight - (scroller.scrollTop + foot);
+        const most = scroller.clientHeight - block.offsetHeight - NOTE_TOP_GAP;
+        room.style.height = `${String(noteRoomHeight(list, under, most))}px`;
+      }
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const top = block.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
         const below = top + block.offsetHeight - scroller.clientHeight;
-        if (room) scroller.scrollTop += top - NOTE_TOP_GAP;
+        const listBelow = below + list + LIST_GAP + LIST_FOOT;
+        if (room && listBelow > 0) scroller.scrollTop += Math.min(listBelow, top - NOTE_TOP_GAP);
         else if (top < 0) scroller.scrollTop += top - NOTE_TOP_GAP;
         else if (below > 0) scroller.scrollTop += below + NOTE_TOP_GAP;
       });
@@ -310,7 +327,7 @@ function TransactionForm({
       observer.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, [noteTyped, roomForList]);
+  }, [noteTyped, roomForList, noteList]);
 
   // The data arrived after the dialog opened: the form starts now
   if (!form && usable) setForm(initialState(request, usable));
@@ -327,12 +344,24 @@ function TransactionForm({
   // The NBU rates of the picked day, for an exchange's second amount
   const rates = useQuery({ ...ratesQuery(form?.date ?? today()), enabled: opened && exchange });
 
-  const type = form?.type ?? editing?.type ?? 'Expense';
+  // While the data loads, the title already names the type the form opens on (I-030)
+  const type =
+    form?.type ?? editing?.type ?? (request.kind === 'add' ? request.type : undefined) ?? 'Expense';
   const word = editing && (exchange || isExchange(editing)) ? 'Exchange' : type;
   const title = editing ? t(`transactions.edit.${word}`) : t(`transactions.add.${type}`);
 
+  // The phone remembers how tall the fields are (not while a note's list or an error makes them taller): the next
+  // time the form opens before its data is here, the sheet is that tall from the start and doesn't jump (I-029)
+  const fields = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isDesktop && !noteTyped && !save.isError && fields.current)
+      rememberFormHeight(type, fields.current.offsetHeight);
+  });
+
   if (!form || !usable) {
     let body: ReactNode;
+    /** The fields' height to hold while the data loads, on the phone, once it is known. */
+    let shaped: number | null = null;
     if (data && !usable) {
       body = (
         <div className={classes.empty}>
@@ -360,21 +389,33 @@ function TransactionForm({
         </div>
       );
     } else {
+      shaped = isDesktop ? null : rememberedFormHeight(type);
       body = (
         <div
           className={classes.loading}
           role="status"
           aria-busy="true"
           aria-label={t('transactions.form.loading')}
+          data-shaped={shaped ? true : undefined}
+          style={shaped ? { height: shaped } : undefined}
         >
           {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} height={80} radius="md" />
+            <Skeleton key={i} height={shaped ? '100%' : 80} radius="md" />
           ))}
         </div>
       );
     }
+    // With the fields' height held, the type switch's and Save's places are held too: the sheet's whole height
+    const place = shaped ? <Skeleton height={LOADING_ROW} radius="xl" /> : undefined;
     return (
-      <ResponsiveDialog opened={opened} onClose={onClose} title={title} size={520} full>
+      <ResponsiveDialog
+        opened={opened}
+        onClose={onClose}
+        title={title}
+        size={520}
+        heading={place}
+        footer={place}
+      >
         {body}
       </ResponsiveDialog>
     );
@@ -621,9 +662,8 @@ function TransactionForm({
       actions={actions}
       footer={footer}
       size={520}
-      full
     >
-      <div className={classes.form}>
+      <div className={classes.form} ref={fields}>
         {save.isError && (
           <p className={classes.banner} role="alert">
             <IconAlertCircle size={20} stroke={1.7} aria-hidden />
@@ -670,6 +710,7 @@ function TransactionForm({
           label={
             exchange ? t('transactions.form.fromAccount', { account: account.name }) : undefined
           }
+          typedInto={keysShown && keysOn === 'amount'}
           target={keysShown && exchange && keysOn === 'amount'}
           onTarget={() => {
             showKeys();
@@ -687,6 +728,7 @@ function TransactionForm({
             onEnter={submit}
             label={t('transactions.form.toAccount', { account: toAccount.name })}
             secondary
+            typedInto={keysShown && keysOn === 'to'}
             target={keysShown && keysOn === 'to'}
             onTarget={() => {
               showKeys();
@@ -747,7 +789,7 @@ function TransactionForm({
               setTypingNote(true);
               setKeysUp(false);
             }}
-            onListed={setNoteListed}
+            onList={setNoteList}
             inSheet={!isDesktop}
           />
         </div>

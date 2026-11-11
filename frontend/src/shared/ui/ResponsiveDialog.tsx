@@ -21,8 +21,6 @@ interface ResponsiveDialogProps {
   actions?: ReactNode;
   /** The desktop dialog's width; 480 px unless a form needs more room (F-018: 520 px). */
   size?: number;
-  /** On the phone, as tall as a sheet goes: a form with its own keys under it (F-018). */
-  full?: boolean;
 }
 
 /**
@@ -39,7 +37,6 @@ export function ResponsiveDialog({
   heading,
   actions,
   size = 480,
-  full,
 }: ResponsiveDialogProps) {
   const { t } = useTranslation();
   const isDesktop = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
@@ -55,7 +52,6 @@ export function ResponsiveDialog({
         footer={footer}
         heading={heading}
         actions={actions}
-        full={full}
       >
         {children}
       </BottomSheet>

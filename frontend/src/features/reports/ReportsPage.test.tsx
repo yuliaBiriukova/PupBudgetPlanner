@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 import { http, HttpResponse } from 'msw/http';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { renderApp } from '../../test/render';
+import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
 import { OVERVIEW } from '../accounts/accountsTestData';
@@ -14,9 +14,6 @@ import {
   fakeYearReport,
   reportCategoryId,
 } from './reportsTestData';
-
-/** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
-const LOADED = { timeout: 4000 };
 
 const thisYear = dayjs(today()).year();
 const thisMonth = today().slice(0, 7);

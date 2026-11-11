@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Type | Feature |
-| Milestone | M5 — Family |
+| Milestone | M5 — Categories & family |
 | Status | Todo |
 | Branch | `feature/F-024-family-views` |
 | Design | not needed |

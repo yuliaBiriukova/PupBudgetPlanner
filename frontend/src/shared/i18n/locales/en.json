@@ -26,6 +26,8 @@
     "collapsed": "Collapsed",
     "widthPixels": "{{width}} pixels",
     "addTransaction": "Add transaction",
+    "openAdd": "Add a transaction",
+    "closeAdd": "Close",
     "signOut": "Sign out"
   },
   "wake": {
@@ -627,10 +629,10 @@
       "nothingText": "No transactions match these filters in {{period}}.",
       "nothingTextAll": "No transactions match these filters.",
       "nothingInPeriodTitle": "Nothing in {{period}}",
-      "nothingInPeriodText": "Nothing was added in {{period}}. The + is always at hand.",
+      "nothingInPeriodText": "Nothing was added in {{period}}. Add an expense, an income or a transfer with the +.",
       "nothingOnDayTitle": "Nothing on this day",
       "nothingOnDayFiltered": "Nothing matches the filters on {{day}}.",
-      "nothingOnDay": "Nothing was added on {{day}}.",
+      "nothingOnDay": "Nothing was added on {{day}}. Add an expense, an income or a transfer with the +.",
       "clearFilters": "Clear filters",
       "onlyDay": "Only {{day}}",
       "showAllOf": "Show all of {{month}}",

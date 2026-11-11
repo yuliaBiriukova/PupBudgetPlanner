@@ -2,6 +2,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import dayjs from 'dayjs';
 import en from '../src/shared/i18n/locales/en.json' with { type: 'json' };
 import { antiforgery, newPerson, signUpThroughApi } from './auth.ts';
+import { openAddForm } from './add.ts';
 
 // Each run starts with a person of its own, so the first visit has no transactions; cleanup.teardown.ts deletes them
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -409,17 +410,59 @@ test('on the phone a new note leaves no empty gap above Save; an earlier one’s
   await expect(page.getByRole('listbox', { name: form.noteSuggestions })).toBeHidden();
   await expect(note).toBeInViewport({ ratio: 1 });
   expect(await gapAbove(note)).toBeLessThanOrEqual(32);
-  const noteAt = async () => (await note.boundingBox())?.y ?? 0;
-  const withoutList = await noteAt();
 
-  // The start of an earlier note: the Note goes up so the list under it has the room down to Save
+  // The start of an earlier note: the Note goes up as far as the list under it needs, Save right after it (B-014)
   await note.fill('');
   await note.pressSequentially('si');
   const list = page.getByRole('listbox', { name: form.noteSuggestions });
   await expect(list.getByRole('option', { name: 'Silpo, wine for Friday' })).toBeVisible();
-  await expect.poll(noteAt).toBeLessThan(withoutList - 100);
+  await expect.poll(() => gapAbove(list)).toBeLessThanOrEqual(32);
   await expect(note).toBeInViewport({ ratio: 1 });
   expect(await gapAbove(list)).toBeGreaterThanOrEqual(0);
+});
+
+test('on the phone Save comes right after the Note’s list, short or long, with no empty gap', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'The desktop’s list opens over the page: the form makes it no room');
+  const response = await signUpThroughApi(page.request, newPerson('list-gap'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 5000, 'Bank');
+  for (const note of ['Silpo', 'Silpo, wine for Friday', 'Simcard top-up', 'Sushi', 'Salon'])
+    await addExpense(page, 'Mono black', 'Groceries', 100, note);
+
+  // The room the phone's keyboard leaves (B-014)
+  await page.setViewportSize({ width: 375, height: 520 });
+  await page.goto('/transactions');
+  await page.getByRole('button', { name: en.shell.addTransaction }).first().click();
+  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  const note = dialog.getByLabel(form.note, { exact: true });
+  const save = dialog.getByRole('button', { name: form.saveExpense });
+  const list = page.getByRole('listbox', { name: form.noteSuggestions });
+  /** Pixels from the list's last row to the top of Save. */
+  const gapUnderList = async () => {
+    const [top, bottom] = [await save.boundingBox(), await list.boundingBox()];
+    if (!top || !bottom) throw new Error('not on screen');
+    return top.y - (bottom.y + bottom.height);
+  };
+  /** The whole list above Save, at most 32 px from it: no empty gap. */
+  const rightAboveSave = async (rows: number) => {
+    await expect(list.getByRole('option')).toHaveCount(rows);
+    await expect.poll(gapUnderList).toBeLessThanOrEqual(32);
+    expect(await gapUnderList()).toBeGreaterThanOrEqual(0);
+    await expect(note).toBeInViewport({ ratio: 1 });
+  };
+
+  // One note: the Note goes up only as far as its one row needs
+  await note.pressSequentially('sus');
+  await rightAboveSave(1);
+  // The most notes, then fewer as the note is typed on: the room grows and shrinks with the list
+  await note.fill('');
+  await note.pressSequentially('s');
+  await rightAboveSave(5);
+  await note.pressSequentially('i');
+  await rightAboveSave(3);
 });
 
 test('a day picked in the calendar: Add transaction starts on it, and the saved one is on its receipt', async ({
@@ -443,10 +486,8 @@ test('a day picked in the calendar: Add transaction starts on it, and the saved 
     .click();
   await expect(page.getByText(`Only ${day.format('dddd, D MMM')}`)).toBeVisible();
 
-  // The shell's button: the sidebar's on the desktop, the tab bar's + on the phone
-  const adds = page.getByRole('button', { name: en.shell.addTransaction });
-  await (isMobile ? adds.last() : adds.first()).click();
-  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  // The shell's button: the sidebar's on the desktop, the floating + and its − on the phone (I-030)
+  const dialog = await openAddForm(page, isMobile);
   await expect(dialog.getByRole('radio', { name: day.format('dddd, D MMM YYYY') })).toBeChecked();
   await typeAmount(dialog, isMobile, '120');
   await dialog.getByRole('button', { name: form.allCategories }).click();
@@ -463,6 +504,38 @@ test('a day picked in the calendar: Add transaction starts on it, and the saved 
       .getByRole('region', { name: new RegExp(`, ${day.format('D MMM')}$`) })
       .getByRole('button', { name: /Groceries/ }),
   ).toContainText('−120 ₴');
+});
+
+test('the picked day in the calendar has its black ring inside it, right after the tap (B-011)', async ({
+  page,
+}) => {
+  const response = await signUpThroughApi(page.request, newPerson('ring'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+  // Last month's first Monday: on the calendar's left edge, where the ring was squeezed against the card
+  const month = dayjs().subtract(1, 'month').date(1);
+  const monday = month.add((8 - month.day()) % 7, 'day');
+
+  await page.goto(`/transactions?month=${month.format('YYYY-MM')}`);
+  const calendar = page.getByRole('region', { name: en.transactions.calendar.title });
+  await expect(calendar).toBeVisible();
+  const unfold = calendar.getByRole('button', { name: /show the whole month$/ });
+  if (await unfold.isVisible()) await unfold.click();
+  const day = calendar.getByRole('button', {
+    name: new RegExp(`^${monday.format('dddd D MMMM')}:`),
+  });
+  await day.click();
+  await expect(day).toHaveAttribute('aria-pressed', 'true');
+
+  // Still hovered, as the phone leaves a tapped day: the black ring, not the hover's grey one, and drawn inside the
+  // day, where the next day can't cover it
+  const ring = await day.evaluate((cell) => ({
+    hovered: cell.matches(':hover'),
+    shadow: getComputedStyle(cell).boxShadow,
+    text: getComputedStyle(document.body).color,
+  }));
+  expect(ring.hovered).toBe(true);
+  expect(ring.shadow).toBe(`${ring.text} 0px 0px 0px 2px inset`);
 });
 
 test('on the desktop, a month with many categories: Where it went scrolls in its column and the last one can be picked', async ({
@@ -604,9 +677,7 @@ test('a receipt’s cents added up on the amount: the sum is saved rounded, on t
   await addAccount(page, 'Mono black', 1000, 'Bank');
 
   await page.goto('/transactions');
-  const adds = page.getByRole('button', { name: en.shell.addTransaction });
-  await (isMobile ? adds.last() : adds.first()).click();
-  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  const dialog = await openAddForm(page, isMobile);
   if (isMobile) {
     // 1 2 3 on top, ⌫ right above Save (I-027); the keys come up on a tap on the amount (I-028)
     await dialog.getByLabel(form.amount, { exact: true }).click();
@@ -693,4 +764,106 @@ test('the phone keys come up on a tap on the amount and fold away with Back or a
   await expect
     .poll(() => page.evaluate(() => JSON.stringify(window.history.state)))
     .not.toContain('pupPopups');
+});
+
+test('the amount low on a short phone screen comes up whole above the keys when tapped, with every digit typed (B-012)', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'The desktop has no keys: the amount is typed');
+  // A short phone screen, as the browser's bars leave it: the keys cover the lower part of the form
+  await page.setViewportSize({ width: 412, height: 640 });
+  const response = await signUpThroughApi(page.request, newPerson('amount-sight'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+
+  await page.goto('/transactions');
+  const dialog = await openAddForm(page, isMobile);
+  const keys = dialog.getByRole('group', { name: form.keys });
+  const amount = dialog.getByLabel(form.amount, { exact: true });
+  const display = amount.locator('xpath=ancestor::div[@data-type][1]');
+  await expect(amount).toBeVisible();
+
+  /** The form's scroll area and the amount's place on the screen. */
+  const places = () =>
+    display.evaluate((element) => {
+      let scroller = element.parentElement;
+      while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY))
+        scroller = scroller.parentElement;
+      if (!scroller) throw new Error('no scroll area');
+      const room = scroller.getBoundingClientRect();
+      const { top, bottom } = element.getBoundingClientRect();
+      return { roomTop: room.top, roomBottom: room.bottom, top, bottom };
+    });
+
+  // In sight while the keys are folded, low enough that they would cover it
+  const folded = await places();
+  expect(folded.bottom).toBeLessThanOrEqual(folded.roomBottom);
+
+  // Tapped: the keys come up and the form scrolls so the whole amount is right above them
+  await amount.click();
+  await expect(keys).toBeInViewport({ ratio: 1 });
+  const keysTop = (await keys.boundingBox())?.y ?? 0;
+  expect(folded.bottom).toBeGreaterThan(keysTop);
+  const fitsAboveKeys = async () => {
+    const [shown, under] = await Promise.all([places(), keys.boundingBox()]);
+    if (!under) return false;
+    return shown.top >= shown.roomTop - 1 && shown.bottom <= under.y + 1;
+  };
+  await expect.poll(fitsAboveKeys).toBe(true);
+
+  for (const key of '125') await keys.getByRole('button', { name: key, exact: true }).click();
+  await expect(amount).toHaveValue('125');
+  await expect.poll(fitsAboveKeys).toBe(true);
+});
+
+test('the saved toast is in sight: at the top under the header on the phone, clear of the bottom bar; bottom right on the desktop (B-013)', async ({
+  page,
+  isMobile,
+}) => {
+  const response = await signUpThroughApi(page.request, newPerson('toast-place'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+
+  await page.goto('/transactions');
+  const dialog = await openAddForm(page, isMobile);
+  await typeAmount(dialog, isMobile, '125');
+  await dialog.getByRole('button', { name: form.allCategories }).click();
+  await page.getByLabel(form.searchCategories).fill('groc');
+  await page
+    .getByRole('dialog', { name: form.category })
+    .getByRole('button', { name: 'Groceries' })
+    .click();
+  await saveButton(dialog, isMobile, form.saveExpense).click();
+
+  const toast = page.getByRole('alert').filter({ hasText: 'Expense saved. Mono black:' });
+  await expect(toast).toBeInViewport({ ratio: 1 });
+  const screen = page.viewportSize() ?? { width: 0, height: 0 };
+  // Once it has slid in: where it rests
+  const place = async () => (await toast.boundingBox()) ?? { x: 0, y: 0, width: 0, height: 0 };
+
+  if (isMobile) {
+    const header = (await page.locator('header').first().boundingBox()) ?? { y: 0, height: 0 };
+    const bar = (await page.getByRole('navigation', { name: en.nav.main }).boundingBox()) ?? {
+      y: 0,
+    };
+    // 8 px under the header, full width with the 16 px gutters, and far above the bottom bar
+    await expect
+      .poll(async () => Math.round((await place()).y))
+      .toBe(Math.round(header.y + header.height + 8));
+    const shown = await place();
+    expect(Math.round(shown.x)).toBe(16);
+    expect(Math.round(shown.x + shown.width)).toBe(screen.width - 16);
+    expect(shown.y + shown.height).toBeLessThan(bar.y);
+  } else {
+    await expect
+      .poll(async () => {
+        const shown = await place();
+        return [
+          Math.round(screen.width - shown.x - shown.width),
+          Math.round(screen.height - shown.y - shown.height),
+        ];
+      })
+      .toEqual([16, 16]);
+  }
 });

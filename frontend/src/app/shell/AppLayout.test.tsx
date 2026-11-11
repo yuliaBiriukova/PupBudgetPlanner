@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { renderApp } from '../../test/render';
+import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 
 describe('app shell on the phone', () => {
@@ -9,7 +9,7 @@ describe('app shell on the phone', () => {
     renderApp('/');
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Transactions' }),
+      await screen.findByRole('heading', { level: 1, name: 'Transactions' }, LOADED),
     ).toBeInTheDocument();
     const tabs = screen.getByRole('navigation', { name: 'Main navigation' });
     expect(within(tabs).getByRole('link', { name: 'Transactions' })).toHaveAttribute(
@@ -23,36 +23,120 @@ describe('app shell on the phone', () => {
     const user = userEvent.setup();
     renderApp('/transactions');
 
-    await user.click(await screen.findByRole('link', { name: 'Reports' }));
+    await user.click(await screen.findByRole('link', { name: 'Reports' }, LOADED));
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Reports' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Reports' }, LOADED),
+    ).toBeInTheDocument();
   });
 
   it('opens Family and Settings from More', async () => {
     const user = userEvent.setup();
     renderApp('/transactions');
 
-    await user.click(await screen.findByRole('button', { name: 'More' }));
+    await user.click(await screen.findByRole('button', { name: 'More' }, LOADED));
     const sheet = await screen.findByRole('dialog', { name: 'More' });
     await user.click(within(sheet).getByRole('link', { name: 'Family' }));
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Family' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Family' }, LOADED),
+    ).toBeInTheDocument();
   });
 
-  it('opens adding a transaction from the tab bar', async () => {
-    const user = userEvent.setup();
+  it('names the four places of the tab bar, with no + of its own (I-030)', async () => {
     renderApp('/accounts');
 
-    await user.click(await screen.findByRole('button', { name: 'Add transaction' }));
+    const tabs = await screen.findByRole('navigation', { name: 'Main navigation' }, LOADED);
+    expect(
+      [...within(tabs).getAllByRole('link'), ...within(tabs).getAllByRole('button')].map(
+        (place) => place.textContent,
+      ),
+    ).toEqual(['Transactions', 'Accounts', 'Reports', 'More']);
+    expect(within(tabs).getByRole('link', { name: 'Accounts' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
 
-    expect(await screen.findByRole('dialog', { name: 'Add expense' })).toBeInTheDocument();
+  it('opens ⇄ + − from the floating +, which turns into × (I-030)', async () => {
+    const user = userEvent.setup();
+    renderApp('/reports');
+    const add = await screen.findByRole('button', { name: 'Add a transaction' }, LOADED);
+    expect(add).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('button', { name: 'Add expense' })).not.toBeInTheDocument();
+
+    await user.click(add);
+
+    expect(add).toHaveAccessibleName('Close');
+    expect(add).toHaveAttribute('aria-expanded', 'true');
+    const types = screen.getByRole('group', { name: 'Add a transaction' });
+    expect(
+      within(types)
+        .getAllByRole('button')
+        .map((type) => type.getAttribute('aria-label')),
+    ).toEqual(['Add expense', 'Add income', 'Add transfer']);
+  });
+
+  it.each(['Expense', 'Income', 'Transfer'] as const)(
+    'opens the quick-add form on %s from its button (I-030)',
+    async (type) => {
+      const user = userEvent.setup();
+      renderApp('/accounts');
+      const name = `Add ${type.toLowerCase()}`;
+
+      await user.click(await screen.findByRole('button', { name: 'Add a transaction' }, LOADED));
+      await user.click(screen.getByRole('button', { name }));
+
+      expect(await screen.findByRole('dialog', { name })).toBeInTheDocument();
+      // The three folded as the form opened
+      expect(
+        screen.getByRole('button', { name: 'Add a transaction', hidden: true }),
+      ).toHaveAttribute('aria-expanded', 'false');
+    },
+  );
+
+  it('folds the three with ×, Escape or a tap on the dimmed page (I-030)', async () => {
+    const user = userEvent.setup();
+    renderApp('/transactions');
+    const add = await screen.findByRole('button', { name: 'Add a transaction' }, LOADED);
+
+    await user.click(add);
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    expect(add).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(add);
+    await user.keyboard('{Escape}');
+    expect(add).toHaveAttribute('aria-expanded', 'false');
+    expect(add).toHaveFocus();
+
+    await user.click(add);
+    await user.click(screen.getByTestId('add-dial-scrim'));
+    expect(add).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByTestId('add-dial-scrim')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('folds the three when another page opens (I-030)', async () => {
+    const user = userEvent.setup();
+    renderApp('/transactions');
+
+    await user.click(await screen.findByRole('button', { name: 'Add a transaction' }, LOADED));
+    await user.click(screen.getByRole('link', { name: 'Reports' }));
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Reports' }, LOADED),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add a transaction' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
   });
 
   it('switches between light and dark mode', async () => {
     const user = userEvent.setup();
     renderApp('/transactions');
 
-    await user.click(await screen.findByRole('button', { name: 'Switch to dark mode' }));
+    await user.click(await screen.findByRole('button', { name: 'Switch to dark mode' }, LOADED));
 
     expect(await screen.findByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument();
     expect(document.documentElement).toHaveAttribute('data-mantine-color-scheme', 'dark');
@@ -69,7 +153,7 @@ describe('app shell on the desktop', () => {
   it('shows every section in the sidebar', async () => {
     renderApp('/settings');
 
-    const sidebar = await screen.findByRole('complementary', { name: 'Sidebar' });
+    const sidebar = await screen.findByRole('complementary', { name: 'Sidebar' }, LOADED);
     const nav = within(sidebar).getByRole('navigation', { name: 'Main navigation' });
     expect(
       within(nav)
@@ -81,13 +165,15 @@ describe('app shell on the desktop', () => {
       'page',
     );
     expect(screen.queryByRole('button', { name: 'More' })).not.toBeInTheDocument();
+    // The phone's floating + is not on the desktop (I-030)
+    expect(screen.queryByRole('button', { name: 'Add a transaction' })).not.toBeInTheDocument();
   });
 
   it('collapses to the rail, moves focus to the logo and remembers the choice', async () => {
     const user = userEvent.setup();
     renderApp('/transactions');
 
-    await user.click(await screen.findByRole('button', { name: 'Collapse sidebar' }));
+    await user.click(await screen.findByRole('button', { name: 'Collapse sidebar' }, LOADED));
 
     expect(resizeHandle()).toHaveAttribute('aria-valuetext', 'Collapsed');
     expect(screen.getByRole('button', { name: 'Expand sidebar' })).toHaveFocus();
@@ -105,16 +191,15 @@ describe('app shell on the desktop', () => {
     setScreenWidth(900);
     renderApp('/transactions');
 
-    expect(await screen.findByRole('separator', { name: 'Resize sidebar' })).toHaveAttribute(
-      'aria-valuetext',
-      'Collapsed',
-    );
+    expect(
+      await screen.findByRole('separator', { name: 'Resize sidebar' }, LOADED),
+    ).toHaveAttribute('aria-valuetext', 'Collapsed');
   });
 
   it('resizes and collapses with the keyboard on the edge', async () => {
     const user = userEvent.setup();
     renderApp('/transactions');
-    const handle = await screen.findByRole('separator', { name: 'Resize sidebar' });
+    const handle = await screen.findByRole('separator', { name: 'Resize sidebar' }, LOADED);
 
     handle.focus();
     await user.keyboard('{ArrowRight}');
@@ -128,7 +213,7 @@ describe('app shell on the desktop', () => {
     const user = userEvent.setup();
     renderApp('/reports');
 
-    const sidebar = await screen.findByRole('complementary', { name: 'Sidebar' });
+    const sidebar = await screen.findByRole('complementary', { name: 'Sidebar' }, LOADED);
     await user.click(within(sidebar).getByRole('button', { name: 'Add transaction' }));
 
     expect(await screen.findByRole('dialog', { name: 'Add expense' })).toBeInTheDocument();

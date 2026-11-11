@@ -2,15 +2,16 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 import { http, HttpResponse } from 'msw/http';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { formatMoney } from '../../shared/format/money';
-import { renderApp } from '../../test/render';
+import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
 import type { AccountsOverview } from '../accounts/accountsApi';
 import { OVERVIEW, TOTAL } from '../accounts/accountsTestData';
 import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
 import { addDays, today } from './days';
+import { FORM_HEIGHT_KEY } from './formHeight';
 import type {
   SaveTransactionRequest,
   Transaction,
@@ -18,9 +19,6 @@ import type {
 } from './transactionsApi';
 import { EXPENSE_NOTES, fakeNotes, fakePage, fakeSummary, twoMonths } from './transactionsFakeApi';
 import { categoryId } from './transactionsTestData';
-
-/** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
-const LOADED = { timeout: 4000 };
 
 /** The one element a query found, for userEvent (no non-null assertions). */
 function only(elements: HTMLElement[], at = 0): HTMLElement {
@@ -312,6 +310,58 @@ describe('the Transactions page', () => {
     // Several sheet steps and a Back step to wait for: slower than most when the whole suite runs at once
   }, 15_000);
 
+  it('keeps the sheet’s picks as it closes: they never drop out on their way into the address (B-017)', async () => {
+    setScreenWidth(375);
+    transactionsServer({ latest: MONTH, overview: USED });
+    const { router } = renderApp('/transactions?month=2026-10');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Filters' }, LOADED));
+    const sheet = await screen.findByRole('dialog', { name: 'Filters' });
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Wallet' }));
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Expenses' }));
+    const count = fakeSummary(
+      MONTH,
+      new URLSearchParams('from=2026-10-01&to=2026-10-31&accountId=cash&type=Expense'),
+    ).count;
+    const show = await within(sheet).findByRole(
+      'button',
+      { name: `Show ${String(count)} transactions` },
+      LOADED,
+    );
+
+    // Every change of the page from here on: the picks' chip is there each time, and no summary is asked for
+    // without them
+    let dropped = false;
+    const watch = new MutationObserver(() => {
+      if (!document.querySelector('[aria-label="Clear account: Wallet"]')) dropped = true;
+    });
+    watch.observe(document.body, { childList: true, subtree: true });
+    onTestFinished(() => {
+      watch.disconnect();
+    });
+    const unfiltered: string[] = [];
+    const onRequest = ({ request }: { request: Request }) => {
+      const url = new URL(request.url);
+      if (url.pathname.startsWith('/api/transactions') && !url.searchParams.has('accountId')) {
+        unfiltered.push(url.pathname + url.search);
+      }
+    };
+    server.events.on('request:start', onRequest);
+    onTestFinished(() => {
+      server.events.removeListener('request:start', onRequest);
+    });
+    await userEvent.click(show);
+
+    await waitFor(() => {
+      expect(router.state.location.search).toBe('?month=2026-10&account=cash&type=expense');
+    }, LOADED);
+    expect(
+      await screen.findByRole('button', { name: 'Clear account: Wallet' }, LOADED),
+    ).toBeInTheDocument();
+    expect(dropped).toBe(false);
+    expect(unfiltered).toEqual([]);
+  }, 15_000);
+
   it('says nothing was found and clears the filters', async () => {
     transactionsServer({ latest: MONTH, overview: USED });
     renderApp('/transactions?month=2026-10&account=mono-usd&type=income');
@@ -443,6 +493,37 @@ describe('the Transactions page', () => {
     expect(add).toHaveAttribute('data-round');
     await userEvent.click(add);
     expect(await screen.findByRole('dialog', { name: 'Add expense' }, LOADED)).toBeInTheDocument();
+  });
+
+  it('opens the form on an income on the picked day from the phone’s + (I-030)', async () => {
+    setScreenWidth(375);
+    transactionsServer({ latest: MONTH, overview: USED });
+    renderApp('/transactions?month=2026-10&day=2026-10-01');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add a transaction' }, LOADED));
+    await userEvent.click(screen.getByRole('button', { name: 'Add income' }));
+    const form = await screen.findByRole('dialog', { name: 'Add income' });
+    await within(form).findByText('Amount');
+    expect(within(form).getByRole('radio', { name: 'Thursday, 1 Oct 2026' })).toBeChecked();
+    expect(within(form).getByRole('radio', { name: 'Income' })).toBeChecked();
+    expect(within(form).getByRole('radio', { name: 'Salary' })).toBeInTheDocument();
+  });
+
+  it('tells how to add on an empty day and month (I-030)', async () => {
+    transactionsServer({ latest: [], overview: USED });
+    renderApp('/transactions?month=2026-10&day=2026-10-01');
+
+    expect(await screen.findByText('Nothing on this day', {}, LOADED)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Nothing was added on Thursday, 1 Oct. Add an expense, an income or a transfer with the +.',
+      ),
+    ).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Show all of October' }));
+    expect(
+      await screen.findByText(/^Nothing was added in October.* with the \+\.$/),
+    ).toBeInTheDocument();
   });
 
   it('explains what to do when there is nothing yet', async () => {
@@ -806,7 +887,8 @@ describe('the Note field’s suggestions (I-017)', () => {
     await waitFor(() => {
       expect(sent.map((item) => (item.body as SaveTransactionRequest).note)).toEqual(['ta']);
     });
-  });
+    // Two notes typed and two lists to wait for: about 2 s alone, over 5 s on CI's runner with the whole suite (I-030)
+  }, 15_000);
 
   it('asks for the notes of the form’s type only', async () => {
     transactionsServer();
@@ -865,6 +947,50 @@ describe('the Note field’s suggestions (I-017)', () => {
       expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     });
     expect(room()).not.toBeInTheDocument();
+  });
+
+  it('on the phone makes the room only as high as the list needs, no gap under a short one (B-014)', async () => {
+    setScreenWidth(375);
+    // jsdom lays nothing out: each row 44 px with the list's 12 px padding, the form's scroll area 400 px
+    const rowsOf = (element: HTMLElement) =>
+      element.getAttribute('role') === 'listbox'
+        ? element.querySelectorAll('[role="option"]').length * 44 + 12
+        : 0;
+    const scrolls = (element: HTMLElement) =>
+      ['auto', 'scroll'].includes(getComputedStyle(element).overflowY);
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return rowsOf(this);
+    });
+    vi.spyOn(Element.prototype, 'clientHeight', 'get').mockImplementation(function (this: Element) {
+      return this instanceof HTMLElement && scrolls(this) ? 400 : 0;
+    });
+    onTestFinished(() => {
+      vi.restoreAllMocks();
+    });
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    const roomHeight = () => form.querySelector<HTMLElement>('[data-note-room]')?.style.height;
+    const note = within(form).getByLabelText('Note');
+    // One note (Physio session): room for its one row, its 4 px gap and 8 px above Save, not the whole sheet
+    await userEvent.type(note, 'phy');
+    expect(await suggestions()).toHaveLength(1);
+    await waitFor(() => {
+      expect(roomHeight()).toBe(`${String(44 + 12 + 4 + 8)}px`);
+    });
+
+    // The most notes: room for all five rows
+    await userEvent.clear(note);
+    await userEvent.type(note, 's');
+    await waitFor(async () => {
+      expect(await suggestions()).toHaveLength(5);
+    });
+    await waitFor(() => {
+      expect(roomHeight()).toBe(`${String(5 * 44 + 12 + 4 + 8)}px`);
+    });
   });
 });
 
@@ -965,6 +1091,117 @@ describe('the phone keys (I-028)', () => {
     expect(keysOf(form)).not.toBeInTheDocument();
     expect(within(form).getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
   });
+
+  it('bring the amount into sight above them as they come up and on every key, without the exchange’s ring (B-012)', async () => {
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    const amount = within(form).getByLabelText('Amount');
+    const display = amount.closest('[data-type]');
+    if (!display) throw new Error('no display');
+    const scrolled = vi.spyOn(Element.prototype, 'scrollIntoView');
+    const timesOnDisplay = () =>
+      scrolled.mock.contexts.filter((element) => element === display).length;
+    scrolled.mockClear();
+    onTestFinished(() => {
+      scrolled.mockRestore();
+    });
+
+    await userEvent.click(amount);
+    const keys = keysOf(form);
+    if (!keys) throw new Error('no keys');
+    expect(timesOnDisplay()).toBe(1);
+    expect(scrolled).toHaveBeenCalledWith({ block: 'nearest' });
+    expect(display).not.toHaveAttribute('data-target');
+
+    await userEvent.click(within(keys).getByRole('button', { name: '7' }));
+    expect(timesOnDisplay()).toBe(2);
+  });
+});
+
+describe('the phone’s form while its data loads (I-029)', () => {
+  /** The suggestions, the last of the form's data, arrive only when the returned function is called. */
+  function heldSuggestions() {
+    const gate = { open: (): void => undefined };
+    const held = new Promise<void>((done) => {
+      gate.open = done;
+    });
+    const release = () => {
+      gate.open();
+    };
+    server.use(
+      http.get('/api/transactions/suggestions', async () => {
+        await held;
+        return HttpResponse.json(NONE);
+      }),
+    );
+    return release;
+  }
+  const openLoading = async () => {
+    await userEvent.click(
+      only(await screen.findAllByRole('button', { name: 'Add transaction' }, LOADED)),
+    );
+    const sheet = await screen.findByRole('dialog', { name: 'Add expense' });
+    return { sheet, placeholder: await within(sheet).findByRole('status', { name: /Loading/ }) };
+  };
+
+  it('is as tall as the form was last time, with the places of the type switch and Save, so the sheet doesn’t jump', async () => {
+    setScreenWidth(375);
+    localStorage.setItem(FORM_HEIGHT_KEY, JSON.stringify({ Expense: 596 }));
+    transactionsServer();
+    const release = heldSuggestions();
+    renderApp('/transactions');
+
+    const { sheet, placeholder } = await openLoading();
+    expect(placeholder).toHaveStyle({ height: '596px' });
+    expect(placeholder).toHaveAttribute('data-shaped');
+    // The switch's place in the title row and Save's under the fields
+    expect(sheet.querySelector('[data-sheet-footer]')).toBeInTheDocument();
+    expect(within(sheet).queryByRole('heading', { name: 'Add expense' })).toBeInTheDocument();
+
+    release();
+    expect(await within(sheet).findByRole('button', { name: 'Save expense' })).toBeInTheDocument();
+    expect(within(sheet).queryByRole('status', { name: /Loading/ })).not.toBeInTheDocument();
+  });
+
+  it('is the short placeholder before the form was ever open on this device', async () => {
+    setScreenWidth(375);
+    transactionsServer();
+    const release = heldSuggestions();
+    renderApp('/transactions');
+
+    const { sheet, placeholder } = await openLoading();
+    expect(placeholder).not.toHaveAttribute('data-shaped');
+    expect(placeholder.style.height).toBe('');
+    expect(sheet.querySelector('[data-sheet-footer]')).not.toBeInTheDocument();
+    release();
+    await within(sheet).findByRole('button', { name: 'Save expense' });
+  });
+
+  it('stays as it was on the desktop, whatever the phone remembered', async () => {
+    localStorage.setItem(FORM_HEIGHT_KEY, JSON.stringify({ Expense: 596 }));
+    transactionsServer();
+    const release = heldSuggestions();
+    renderApp('/transactions');
+
+    const { placeholder } = await openLoading();
+    expect(placeholder).not.toHaveAttribute('data-shaped');
+    release();
+  });
+
+  it('remembers the fields’ height once the form is shown on the phone', async () => {
+    setScreenWidth(375);
+    const height = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(544);
+    transactionsServer();
+    renderApp('/transactions');
+
+    await openForm();
+    await waitFor(() => {
+      expect(JSON.parse(localStorage.getItem(FORM_HEIGHT_KEY) ?? '{}')).toEqual({ Expense: 544 });
+    });
+    height.mockRestore();
+  });
 });
 
 describe('changing a transaction', () => {
@@ -1056,6 +1293,23 @@ describe('transfers', () => {
         toAmount: null,
       },
     ]);
+  });
+
+  it('opens straight on a transfer from the phone’s ⇄, with the last transfer’s accounts (I-030)', async () => {
+    setScreenWidth(375);
+    transactionsServer({
+      suggestions: { ...NONE, lastTransfer: { fromAccountId: 'mono', toAccountId: 'cash' } },
+    });
+    renderApp('/transactions');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add a transaction' }, LOADED));
+    await userEvent.click(screen.getByRole('button', { name: 'Add transfer' }));
+    const form = await screen.findByRole('dialog', { name: 'Add transfer' });
+    expect(await within(form).findByRole('button', { name: /^From/ })).toHaveTextContent(
+      'Mono black',
+    );
+    expect(within(form).getByRole('button', { name: /^To/ })).toHaveTextContent('Wallet');
+    expect(within(form).queryByRole('radiogroup', { name: 'Category' })).not.toBeInTheDocument();
   });
 
   it('suggests an exchange’s second amount at the NBU rate, takes the bank’s own and goes back', async () => {

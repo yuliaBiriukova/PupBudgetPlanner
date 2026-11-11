@@ -2,15 +2,12 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { renderApp } from '../../test/render';
+import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
 import type { AccountsTotal } from '../accounts/accountsApi';
 import { OVERVIEW } from '../accounts/accountsTestData';
 import type { UserSettings } from './settingsApi';
-
-/** The first render of the app can take over a second on a busy machine. */
-const LOADED = { timeout: 4000 };
 
 /** NBU rates, hryvnias for one unit; the accounts come to 400 000 ₴. */
 const RATES: Record<string, number> = { UAH: 1, USD: 40, EUR: 50, PLN: 10 };

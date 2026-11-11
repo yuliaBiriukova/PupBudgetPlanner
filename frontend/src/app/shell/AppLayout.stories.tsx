@@ -78,13 +78,40 @@ export const PhoneMoreOpen: Story = {
   },
 };
 
-export const PhoneAddOpen: Story = {
+/** The floating + opened: ⇄ + − above it over the dimmed page, the + turned into × (I-030). */
+export const PhoneAddTypesOpen: Story = {
+  args: { user: yulia },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByRole('button', { name: 'Add transaction' }));
+    await userEvent.click(await canvas.findByRole('button', { name: 'Add a transaction' }));
+
+    await expect(canvas.getByRole('button', { name: 'Close' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    await expect(canvas.getByRole('button', { name: 'Add expense' })).toBeVisible();
+  },
+};
+
+/** The + on another page: it floats over every page of the phone (I-030). */
+export const PhoneAddOnAccounts: Story = {
+  args: { path: '/accounts', user: yulia },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('button', { name: 'Add a transaction' }));
+    await expect(canvas.getByRole('button', { name: 'Add transfer' })).toBeVisible();
+  },
+};
+
+/** + Income opens the quick-add form on an income. */
+export const PhoneAddIncome: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('button', { name: 'Add a transaction' }));
+    await userEvent.click(canvas.getByRole('button', { name: 'Add income' }));
 
     await expect(
-      await within(document.body).findByRole('dialog', { name: 'Add expense' }),
+      await within(document.body).findByRole('dialog', { name: 'Add income' }),
     ).toBeInTheDocument();
   },
 };

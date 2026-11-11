@@ -140,7 +140,7 @@ test('a person can’t have two accounts in use exactly alike (I-020)', async ({
   await page.getByLabel(en.currencyPicker.search).fill('dollar');
   await page.getByRole('button', { name: /USD\s*US dollar/ }).click();
   await form.getByRole('button', { name: en.accounts.form.add }).click();
-  await expect(page.getByText('mono black added')).toBeVisible();
+  await expect(page.getByText('mono black added', { exact: true })).toBeVisible();
 
   // A closed card doesn't count: archived, the same account can be added again
   await page.getByRole('button', { name: /^Mono black/ }).click();
@@ -157,7 +157,8 @@ test('a person can’t have two accounts in use exactly alike (I-020)', async ({
   form = page.getByRole('dialog', { name: en.accounts.form.newTitle });
   await form.getByLabel(en.accounts.form.name, { exact: true }).fill('Mono black');
   await form.getByRole('button', { name: en.accounts.form.add }).click();
-  await expect(page.getByText('Mono black added')).toBeVisible();
+  // Exact: the earlier "mono black added" may still be on the screen, and a loose match takes both
+  await expect(page.getByText('Mono black added', { exact: true })).toBeVisible();
 
   // …but the archived one can't come back while the new one is in use
   await page.getByRole('button', { name: new RegExp(en.accounts.archived.title) }).click();

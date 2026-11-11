@@ -2,14 +2,11 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { renderApp } from '../../test/render';
+import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
 import type { AccountsOverview, AccountsTotal, RatesStatus } from './accountsApi';
 import { account, EMPTY, OVERVIEW } from './accountsTestData';
-
-/** The first render of the app can take over a second on a busy machine: waits for the page to load get longer. */
-const LOADED = { timeout: 4000 };
 
 /** The prototype's NBU rates (F-017). */
 const RATES: Record<string, number> = { USD: 41.35, EUR: 48.1, PLN: 11.3 };
@@ -240,6 +237,33 @@ describe('the Accounts page', () => {
     const form = await screen.findByRole('dialog', { name: 'New account' });
 
     expect(within(form).getByRole('button', { name: 'Currency' })).toHaveTextContent('EUREuro');
+  });
+
+  it('puts the cursor in Name as the new account’s form opens on the desktop', async () => {
+    accountsServer();
+    renderApp('/accounts');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add EUR account' }, LOADED));
+    const form = await screen.findByRole('dialog', { name: 'New account' });
+
+    await waitFor(() => {
+      expect(within(form).getByLabelText('Name')).toHaveFocus();
+    });
+  });
+
+  it('on the phone opens the form without the cursor in Name, which would bring the keyboard up (I-029)', async () => {
+    setScreenWidth(375);
+    accountsServer();
+    renderApp('/accounts');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add EUR account' }, LOADED));
+    const form = await screen.findByRole('dialog', { name: 'New account' });
+
+    // The sheet takes the focus itself: its close button, as every sheet without a first field does
+    await waitFor(() => {
+      expect(within(form).getByRole('button', { name: 'Close' })).toHaveFocus();
+    });
+    expect(within(form).getByLabelText('Name')).not.toHaveFocus();
   });
 
   it('finds a currency by its name, and Escape closes only the list', async () => {

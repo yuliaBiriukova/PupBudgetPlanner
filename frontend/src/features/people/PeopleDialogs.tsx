@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { cx } from '../../shared/ui/cx';
 import { formatDate } from '../../shared/format/date';
 import { ResponsiveDialog } from '../../shared/ui/ResponsiveDialog';
+import { useDesktopAutofocus } from '../../shared/ui/useDesktopAutofocus';
 import classes from './People.module.css';
 import {
   inviteUrl,
@@ -34,6 +35,8 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
   const [created, setCreated] = useState<CreatedInvitation | null>(null);
   const [copied, setCopied] = useState(false);
   const formId = useId();
+  // The note takes the cursor on the desktop; the phone's sheet opens without the keyboard (I-029)
+  const autofocus = useDesktopAutofocus();
 
   const close = () => {
     onClose();
@@ -157,7 +160,7 @@ export function NewLinkDialog({ opened, onClose, onDone }: NewLinkDialogProps) {
           onChange={(event) => {
             setNote(event.currentTarget.value);
           }}
-          data-autofocus
+          data-autofocus={autofocus}
         />
         {create.isError && (
           <p className={cx(classes.dialogText, classes.danger)} role="alert">

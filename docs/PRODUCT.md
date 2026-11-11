@@ -28,7 +28,9 @@ people the owner invites can sign up (F-028); later it can open to everyone.
 2. **Accounts (where the money is)** — e.g. "Monobank UAH", "PrivatBank USD", "Cash EUR".
    Each account has one currency and an opening balance. Current balance per account and the
    total in the report currency.
-3. **Categories** — every new user gets their own copy of the default categories (below).
+3. **Categories** — every new user gets their own copy of the default categories (below), and can then add,
+   rename, reorder and remove categories and groups; a removed category with transactions is hidden, not deleted
+   (F-029).
 4. **Transactions**
    - Expense: account, amount, category, date, note.
    - Income: account, amount, category, date, note.
@@ -52,7 +54,6 @@ people the owner invites can sign up (F-028); later it can open to everyone.
 - Integration tests (Testcontainers, in CI).
 - Email via Resend: email confirmation, password reset, invitations by email.
 - Private accounts / transactions hidden from the family.
-- Category management: **add own categories**, rename, reorder, **remove default categories**.
 - Ukrainian localization.
 - Import history from the Google Sheets spreadsheet (2024–2026).
 - Import from Monefy CSV export.
@@ -116,4 +117,4 @@ same category; meter categories such as electricity and water are dropped — th
 
 > Some of these are the owner's own rather than generic: Bank commission, English / Piano lessons, Driving,
 > Spotify, Emergency. They stay the default while only the family uses the app (owner's choice, 2026-10-28).
-> A generic set for other people comes with adding own categories after the MVP (Q-011).
+> A generic default set for other people is planned after the MVP (Q-011).

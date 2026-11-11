@@ -4,6 +4,12 @@ import { NBU_STUB, NBU_STUB_PORT } from './e2e/nbu.ts';
 
 const isCI = !!process.env.CI;
 
+// The app's people are in Kyiv and the API counts days there, so the tests do too: their browser and their own code.
+// On a runner in UTC (CI) the page was still on yesterday after midnight in Kyiv, while the tests' helpers added
+// today's expenses: no "Today" receipt (B-015)
+const TIME_ZONE = 'Europe/Kyiv';
+process.env.TZ = TIME_ZONE;
+
 // The dev server locally, `vite preview` in CI (see e2e/auth.ts); both proxy /api to the API
 const baseURL = BASE_URL;
 
@@ -26,6 +32,7 @@ export default defineConfig({
     : [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL,
+    timezoneId: TIME_ZONE,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },

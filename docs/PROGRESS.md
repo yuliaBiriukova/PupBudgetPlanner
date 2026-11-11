@@ -2,6 +2,380 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-11 (B-017: The Filters sheet keeps its picks as it closes; two flaky unit tests)
+
+**Done**
+- [B-017](changes/bugfixes/B-017-flaky-ci-unit-tests/B-017-flaky-ci-unit-tests.md) on
+  `bugfix/B-017-flaky-ci-unit-tests`. Two frontend unit tests failed on CI's `develop` pushes after #78 and #79 but
+  passed on their PRs. Reproduced with all 8 cores busy and with timing logs. The owner approved the causes and the
+  fix on 2026-11-11.
+- A real race: as the phone's Filters sheet closed, `useTransactionFilters` cleared its draft before React Router had
+  put the picks into the address, so for one render the page showed no filters and asked the API for the whole month.
+  The draft now stays until the address has moved on from where it was as the sheet closed.
+- The shell test's first wait was the file's cold start at the 1 s default: `LOADED` (4 s) is now shared from
+  `src/test/render.tsx` (five page tests had their own copy) and used for `AppLayout.test.tsx`'s page-load waits.
+- Tests: a regression test in `TransactionsPage.test.tsx` (the chip never drops out, no request without the account),
+  failing before the fix. Both files ten times under load: all passing, the Filters test 2.5–3.6 s instead of
+  4.4–6.1 s.
+- Checked: frontend lint, format, typecheck, unit tests (327 / 327, with develop merged), build; backend build (0
+  warnings; the backend isn't changed); E2E "a person finds the month's eating out…" desktop and phone, and the full
+  E2E suite (80 passed, 16 skipped), against this branch's API and app.
+- Test data: the E2E runs' `e2e-…@example.com` people (with their accounts and transactions); the E2E clean-up deleted
+  them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Two I-025 tests ran past the 5 s test limit under the reproduction's heavier load (not on CI):
+  left as is unless CI shows them failing.
+
+## 2026-11-11 (B-013: Toasts at the top on the phone)
+
+**Done**
+- [B-013](changes/bugfixes/B-013-toast-hidden-on-phone/B-013-toast-hidden-on-phone.md) on
+  `bugfix/B-013-toast-hidden-on-phone`. Reproduced at 412 × 800 px: the "Expense saved." toast lay exactly over the
+  bottom bar (Mantine's default bottom right, full width on the phone), a white card on the white bar; not drawn under
+  anything. The owner approved the cause and the fix on 2026-11-11, for all toasts.
+- `AppNotifications` (in `AppProviders`): on the phone every toast comes from the top, 8 px under the header, full
+  width with the 16 px gutters; the desktop keeps bottom right. No call site changed. DESIGN_RULES §6 says so.
+- Tests: `AppNotifications.test.tsx` (phone top, desktop bottom right) and E2E `transactions.spec.ts` (the saved toast
+  under the header and above the bar on the phone, 16 px from the bottom right on the desktop); both fail without
+  the fix.
+- Checked: frontend lint, format, typecheck, unit tests, build, `build-storybook`; backend tests (444 / 444, the
+  backend isn't changed); the full E2E suite, desktop and phone (one auth test hit the sign-in rate limit after the
+  session's many sign-ups and passed on a re-run of `auth.spec.ts`); screenshots of the toast after an expense, an
+  income and a transfer at 375 and 1440 px, light and dark, looked at (in the change folder's `screenshots/`).
+- Checked again after merging `develop` (B-011, B-014): lint, format, build, unit tests (326 / 326), the full E2E
+  suite (82 passed, 16 skipped).
+- Test data: two `e2e-manual-…@example.com` people with an account each and two invite links noted `E2E manual
+  B-013`, made by hand to reproduce and check the fix, and the E2E runs' `e2e-…@example.com` people; the E2E clean-up
+  deleted the people and cancelled the links.
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-11 (B-016: The E2E job installs its browser without apt)
+
+**Done**
+- [B-016](changes/bugfixes/B-016-e2e-browser-install-hangs/B-016-e2e-browser-install-hangs.md) on
+  `bugfix/B-016-e2e-browser-install-hangs`. Four E2E runs that day (B-014's PR, a push to `develop`, B-013's PR #82
+  twice) failed after 8–18 minutes without running a test: `npx playwright install --with-deps chromium` ran apt for
+  9 font packages while the runners couldn't resolve Ubuntu's mirrors, and apt waited about 20 s per file and mirror.
+  The owner approved the cause and option 2 on 2026-11-11.
+- `ci.yml`, job `e2e`: `npx playwright install chromium` without `--with-deps` (the runner already has Chromium's
+  libraries; the app ships its own fonts and the tests compare no screenshots), the browser kept in the Actions cache
+  keyed by the Playwright version in `package-lock.json`, and `timeout-minutes: 4` on the install step. Option 1,
+  Playwright's own Docker image, was turned down: a 2 GB pull per run, a tag to bump by hand, .NET inside it.
+- Checked: CI on PR #83. A CI-only change, so no local suites were run (nothing in `backend/` or `frontend/` changed).
+- Test data: none.
+
+**Next**
+- Owner: review PR #83. Then B-013 (Medium), whose PR #82 can be re-run once this is in `develop`.
+
+## 2026-11-11 (B-014: Save right after the Note's suggestions on the phone)
+
+**Done**
+- [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) on
+  `bugfix/B-014-gap-under-note-suggestions`. Reproduced in Storybook at 375 × 520 px: one earlier note listed (`phy`)
+  left 200 px of empty space between the list and Save. Cause: while the list shows, the form's room under the Note
+  was always the whole sheet less the Note (B-009), which fits only the longest list. The owner approved the cause and
+  fix A on 2026-11-11.
+- `NoteField` reports its list's height (`onList`); the room under the form is only what the list needs
+  (`noteRoomHeight`), and the form scrolls only until the list's foot is just above Save. The room follows the list as
+  it grows and shrinks; the desktop and the no-list case (B-009) are unchanged. DESIGN_RULES' Note suggestions row
+  says so.
+- Tests: `noteRoom.test.ts`, `TransactionsPage.test.tsx` (the room for one and for five notes) and E2E
+  `transactions.spec.ts` on the phone (one, five, three notes: the whole list at most 32 px above Save); both
+  regression tests fail without the fix. B-009's E2E test now expects Save right after the list.
+- Checked: frontend lint, format, typecheck, unit tests (324 / 324), build, `build-storybook`; backend build (0
+  warnings) and tests (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone; screenshots at
+  375 × 520 px (one, three, five notes, the list gone; light and dark) and the desktop at 1440 px, light and dark,
+  looked at; the fix clicked through in the Browser pane.
+- Test data: the E2E runs' `e2e-list-gap-…`, `e2e-note-gap-…` and other `e2e-…@example.com` people (with their
+  accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Then B-013 (Medium).
+
+## 2026-11-11 (B-011: The picked day's ring inside it, at once on the phone)
+
+**Done**
+- [B-011](changes/bugfixes/B-011-calendar-picked-day-ring/B-011-calendar-picked-day-ring.md) on
+  `bugfix/B-011-calendar-picked-day-ring`. Reproduced in Storybook as a touch phone at 360 and 412 px: the picked
+  day's ring was drawn 4 px outside it while the days are 1–4 px apart, so the next day covered its right side and on
+  Monday it was squeezed against the card's edge; and the phone leaves the tapped day hovered, where the hover's grey
+  ring replaced the black one. The owner approved the cause and the fix on 2026-11-11.
+- `TransactionsPage.module.css`: the picked day's ring is 2 px inside it; the hover ring only where there is a mouse
+  and never on the picked day.
+- Tests: an E2E test in `transactions.spec.ts` (desktop and phone), failing before the fix, passing after it.
+- Checked: frontend lint, format, typecheck, unit tests (320 / 320), build, `build-storybook`; backend build and tests
+  (the backend isn't changed); the full E2E suite, desktop and phone; screenshots of the real app at 375 px and
+  1440 px, light and dark, looked at (in the change folder's `built/`, the reproduction in `repro/`).
+- Test data: the E2E runs' `e2e-…@example.com` people, among them `e2e-ring-…` and `e2e-shots-…` for the screenshots
+  (with an account and three expenses); the E2E clean-up deleted them. Nothing made by hand.
+
+**Next**
+- Owner: review the B-011 pull request.
+
+## 2026-11-11 (B-012: The amount comes up whole above the phone keys)
+
+**Done**
+- [B-012](changes/bugfixes/B-012-amount-hidden-under-keys/B-012-amount-hidden-under-keys.md) on
+  `bugfix/B-012-amount-hidden-under-keys`. Reproduced in Storybook at 375 × 640 px: a tap on an expense's amount brought
+  the keys up over 71 of its 89 px and the form didn't move. Cause: the amount kept itself in sight above the keys only
+  with `target`, which only an exchange's two amounts get (with their ring). The owner approved the cause and the fix
+  on 2026-11-11.
+- `AmountDisplay` has `typedInto` ("the keys type into it"), apart from `target` (the ring): while it is set the display
+  scrolls into sight above the keys as they come up and on every key. `TransactionDialog` sets it for every type; the
+  ring stays on an exchange only.
+- Tests: `TransactionsPage.test.tsx` (the amount scrolled into sight as the keys come up and on a key, no ring), E2E
+  `transactions.spec.ts` on the phone at 412 × 640 px (the whole amount right above the keys after the tap and while
+  `125` is typed); both fail without the fix.
+- Checked: frontend lint, format, typecheck, unit tests (320 / 320), build, `build-storybook`; backend build (0
+  warnings) and tests (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone; screenshots of the
+  form with the keys up at 375 px (expense, light and dark; an exchange) and the desktop form at 1440 px, light and
+  dark, looked at; the fix clicked through in the Browser pane.
+- Test data: the E2E runs' `e2e-amount-sight-…` and other `e2e-…@example.com` people (with their accounts and
+  transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Then B-011, B-013 or B-014 (Medium).
+
+## 2026-11-11 (I-029: round corners and a 16 px gap, the owner's review)
+
+**Done**
+- The owner, on the built [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md):
+  keep the pop-ups' top corners round as they used to be, and leave a small 16 px gap above the ones taller than the
+  screen. Recorded in the description file (a review section, the acceptance criteria, the open points) and in
+  DESIGN_RULES (the custom rule, the "Screen decisions" row) before the code.
+- `BottomSheet`: at most the screen, or what the keyboard leaves of it, less 16 px (and the phone's own inset at the
+  top); a `tall` sheet is that tall; round top corners at any height. The square corners at the top and
+  `useSheetAtTop` are gone.
+- Tests: `sheets.spec.ts` expects the top edge 16 px under the top of the screen (the account form, with and without
+  the keyboard; the quick-add form with its keys) and round corners; the three square-corner unit tests are removed.
+- Checked: frontend lint, format, typecheck, unit tests, build, `build-storybook`; the full E2E suite, desktop and
+  phone; screenshots at 375 px, light and dark, looked at (in the change folder's `built/`).
+- Test data: the E2E runs' `e2e-…@example.com` people, among them `e2e-shots-…`; the clean-up deleted them.
+
+**Next**
+- Owner: review PR #78.
+
+## 2026-11-11 (B-015: E2E tests in Kyiv's time zone; red CI on PR #78)
+
+**Done**
+- CI's E2E job failed on PR #78 (I-029) at 00:39 in Kyiv: two tests of `transactions.spec.ts`, on all three tries.
+  Not I-029: the tests' helper dates its expenses with Kyiv's today (as the API counts days) while CI's browser is in
+  UTC, where it was still yesterday, so the page had no "Today" receipt. Any CI run between midnight and 02:00 in Kyiv
+  failed this way.
+- [B-015](changes/bugfixes/B-015-e2e-day-after-midnight-kyiv/B-015-e2e-day-after-midnight-kyiv.md), fixed on the same
+  pull request under the owner's Auto-fix: `playwright.config.ts` runs the browser (`timezoneId`) and the tests' own
+  code (`TZ`) in `Europe/Kyiv`.
+- Checked: shown failing first with a time zone a day behind Kyiv (CI's own error), passing in Kyiv; the full E2E
+  suite, desktop and phone.
+- Test data: the E2E runs' `e2e-…@example.com` people; the clean-up deleted them.
+
+**Next**
+- Owner: review PR #78.
+
+## 2026-11-11 (I-029: Phone pop-ups as tall as their content, above the keyboard)
+
+**Done**
+- [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) on
+  `improvement/I-029-popup-height-and-keyboard`, built from the prototype's round 2, which the owner approved on
+  2026-11-11 ("Approve, build it"; square corners at the top, the prototype's default). The prototype stories are
+  deleted; their screenshots are in the change folder.
+- `BottomSheet`: as tall as its content up to the whole screen (was 90 %), no gap above it; square corners once it
+  reaches the top of its room (`useSheetAtTop`), the handle kept. The `full` option is gone (`BottomSheet`,
+  `ResponsiveDialog`): the quick-add form is as tall as its fields and grows to the top when its keys come up. A
+  `tall` sheet (the searched lists: currencies, All categories) is the whole screen (was 80 %); the Transactions
+  filters lose their set height.
+- Every sheet reads the phone's keyboard (`useKeyboardInset`, before only the quick-add form): it sits on it, at most
+  as tall as what the keyboard leaves, and the field being typed is scrolled into sight with its label and hint
+  (`useFieldInSight`), clear of the content's fading edges.
+- A form opens from its top without the keyboard: `useDesktopAutofocus` puts the cursor in the new account's Name and
+  the new invite link's note on the desktop only; on the phone the sheet's close button takes the focus. The currency
+  and category searches keep their cursor.
+- DESIGN_RULES: a custom rule for the sheets' height, corners, keyboard and first field; the "Screen decisions" row.
+- Tests: `BottomSheet.test.tsx` (sits on the keyboard and goes back down; the typed field scrolled into sight;
+  square corners at the top of the screen and of what the keyboard leaves), `AccountsPage.test.tsx` (the cursor in
+  Name on the desktop, the close button's focus on the phone). E2E `sheets.spec.ts`: the new account's form takes the
+  whole screen, opens from its top without the cursor in Name, sits on a 300 px keyboard (emulated through the visual
+  viewport) with Name and Add account above it; the quick-add form is as tall as its fields and reaches the top with
+  its keys. `shell.spec.ts`: Add is as tall as its content (was a set 90 %). Stories: *Shared / BottomSheet* Above
+  the keyboard (light, dark), Long above the keyboard; Long with buttons now shows the whole screen.
+- Checked: frontend lint, format, typecheck, unit tests (314 / 314), build, `build-storybook`; backend build and tests
+  (the backend isn't changed); the full E2E suite, desktop and phone; screenshots of every phone pop-up at 375 px,
+  light and dark, looked at (the account form opening, with Name typed, its currency list, editing and deleting an
+  account; More; the quick-add form's Expense and Transfer, its keys, its Note typed, All categories; the filters; the
+  new invite link), each typed field with the keyboard up, and the desktop dialogs at 1440 px (unchanged).
+- Owner's review of the PR (2026-11-11), "a strange animation for a second" as the quick-add form opens: the form's
+  data arrives up to a second after the sheet, and the sheet, now as tall as its content, opened short with the
+  loading placeholder and jumped to the form's height. The placeholder is now as tall as the form was last time on the
+  device (`formHeight.ts`), with the places of the type switch and Save, so the sheet opens at its final height; the
+  square corners are set in the same frame as the height (`useSheetAtTop` writes the attribute itself). Tests:
+  `formHeight.test.ts`, four in `TransactionsPage.test.tsx`, and `sheets.spec.ts` with the data 1.5 s late. Checked
+  frame by frame with an 800 ms API in Storybook at 400 × 620 and 375 × 812: one height from the first frame.
+- Test data: the E2E runs' `e2e-…@example.com` people (with their accounts), among them `e2e-shots-…` for the
+  screenshots; the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand; the invite link
+  dialog was opened as the tests' admin and closed without creating a link.
+
+**Next**
+- Owner: review the PR. Seen while checking, not part of this change: the desktop account dialog logs the browser's
+  "ResizeObserver loop completed with undelivered notifications" when its currency list closes; the People page of
+  the `dev` database still lists people from earlier sessions whose emails the clean-up doesn't match
+  (`e2e-i024-shots-…`: the digits in the tag).
+- B-012 and B-014 next: they touch the same keyboard room in `TransactionDialog.tsx` / `BottomSheet.tsx`.
+
+## 2026-11-11 (I-029: prototype round 2)
+
+**Done**
+- The owner's comments on the [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md)
+  prototype: the quick-add form's height should follow its content (it took the whole screen, with empty room under
+  Save); Add account should just open, like Add transaction (it opened with the keyboard up, scrolled to Name,
+  because the form puts the cursor in Name as it opens).
+- Round 2 of the prototype story: the quick-add form is as tall as its content like every other sheet (the switch is
+  gone) and grows when its keys come up; on the phone a form's first field no longer takes the cursor as the sheet
+  opens, so it opens from its top without the keyboard; the currency search keeps its cursor (B-004), the desktop
+  dialogs theirs. Both are in the description file's acceptance criteria and tasks.
+- Checked: the design check on the story (0 issues); Playwright screenshots at 375 px (the account form open and
+  with Name tapped, the currency search, More, the quick-add form's Expense and Transfer, its Note with the keyboard,
+  its amount with the keys) and 1440 px (unchanged), light and dark, looked at; prototype lint, format and typecheck
+  pass. Nothing built.
+- Test data: none (Storybook with fake data only).
+
+**Next**
+- Owner: try round 2, choose square or round corners at the top, and approve for implementation.
+
+## 2026-11-10 (I-029: open points answered, prototype to try)
+
+**Done**
+- [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) started on
+  `improvement/I-029-popup-height-and-keyboard`. The owner's answers: no gap above a sheet that fills the screen, the
+  phone only (desktop dialogs unchanged), a prototype story to try first. References noted (Material 3 sheets,
+  Apple's sheets, Chrome's keyboard and the visual viewport).
+- Prototype story *Prototypes / I-029 Popup height and keyboard / Prototype*: the app's real pages and pop-ups with
+  the new rules laid over them, a stand-in keyboard on a computer, and controls for today's behavior, square corners
+  at the top and the quick-add form's height (whole screen or as tall as its content).
+- Checked: the design check on the story (0 issues, light and dark, 360 – 1440 px); Add account with and without the
+  keyboard, the currency list, More, the quick-add form (Note with the keyboard, amount with its keys) clicked through
+  in the Browser pane, screenshots at 375 and 1440 px, light and dark, looked at; prototype lint, format and typecheck
+  pass. Nothing built.
+- Test data: none (Storybook with fake data only).
+
+**Next**
+- Owner: try the prototype, choose square or round corners at the top and the quick-add form's height, and approve
+  for implementation.
+
+## 2026-11-09 (I-030: An Add button people find on the phone)
+
+**Done**
+- [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) on
+  `improvement/I-030-findable-add-button`, built from the final prototype the owner approved on 2026-11-09 (variant 8,
+  the menu's pill gone). The prototype stories are deleted.
+- The quick-add form opens on a type: `TransactionFormApi.add({ type })`, starting as switching to it would (a
+  transfer's To from the last transfer); its title names the type while the data loads.
+- `AddDial`: on every phone page a charcoal + floats 16 px above the menu; a tap dims the page and opens ⇄ + − (Expense
+  nearest), the + turning into ×; each opens the form on its type, on the picked day (I-025). A type, ×, the dimmed page,
+  Escape or opening another page folds them; Back adds no step. The three mount only while open (160 ms rise, none with
+  reduced motion). The tab bar lost its +: four equal named places, the open one in the accent, no pill. Phone pages
+  have 72 px more room under their last row.
+- Empty day and month: "… Add an expense, an income or a transfer with the +."
+- DESIGN_RULES: the phone's bottom under "Components", the thumb rule names the +.
+- Tests: `AppLayout.test.tsx` (the four named places; the + opens the three and turns into ×; each type opens its form;
+  ×, Escape, the dimmed page and another page fold them), `TransactionsPage.test.tsx` (an income on the picked day from
+  the +; a transfer with the last transfer's accounts; the empty day's and month's text), the Categories page's counts
+  of folded groups kept to the page (the + has `aria-expanded` too); the I-017 test of the Note's keys gets 15 s (it
+  timed out at 5 s on CI's runner, about 2 s locally). E2E: `shell.spec.ts` (the + in sight on every page
+  and each type opens its form; the order of the three, ×, Escape, the dimmed page and Back fold them; the last row
+  clear of the +), `e2e/add.ts` opens the form from the shell for the other specs. Stories: *Shell / AppLayout* Phone
+  add types open, Phone add on accounts, Phone add income.
+- Checked: frontend lint, format, typecheck, unit tests, build, `build-storybook`; backend build (0 warnings) and tests
+  (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone; screenshots of Transactions (folded,
+  open, the end of the list), the transfer form from ⇄, Accounts and an empty day at 375 px and Transactions at 768 and
+  1440 px, light and dark, looked at; the story *Phone add types open* in the Browser pane.
+- Test data: the E2E runs' `e2e-i030-shots-…` and other `e2e-…@example.com` people (with their accounts and
+  transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. At 768 px the app already has the sidebar (the desktop layout), so the + shows up to 767 px.
+
+## 2026-11-09 (I-030: design rounds and the approved final prototype)
+
+**Done**
+- [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) designed on
+  `improvement/I-030-findable-add-button`: references (Material 3's extended FAB, Monefy's − and + buttons, a centre FAB
+  spec, two finance apps' user feedback), then prototype stories built from the real shell, pages and quick-add form.
+  - Round 1: a "+ Add transaction" pill, Add in the middle of the bar, Expense and Income buttons. The owner: not the
+    middle one; the pill full width; the type buttons round, without names, with Transfer too.
+  - Round 2: the full-width button and round ⇄ + −. The owner: more ways for the three buttons, and the menu
+    rearranged without the bar's +.
+  - Round 3: four more (big Expense, the three in the bar, one + that opens the three, the three in a row), with a
+    menu of four named places.
+  - Final prototype: variant 8 (one + that opens ⇄ + −) with no pill behind the menu's open place. A first final was
+    built from variant 9 by mistake; the owner pointed to variant 8 and it was rebuilt.
+- The owner approved the final prototype on 2026-11-09 ("I approve the prototype") and asked for the planning PR to
+  carry the details first. Recorded in the description file (`Approved`, acceptance criteria and tasks rewritten for
+  the approved design, screenshots in `prototypes/`) and in DESIGN_RULES "Screen decisions". Nothing built.
+- Checked: each round's stories with the design check (0 issues, light and dark, 360 – 1440 px) and their screenshots
+  looked at; opening the three and each type's form clicked through in the Browser pane; prototype lint, format and
+  typecheck pass. The prototype stories stay on the I-030 branch (a planning branch carries no prototypes).
+- The owner's answer to the open point (2026-11-09): Back leaves the page as now, it doesn't fold the three first.
+- Test data: none (Storybook with fake data only).
+
+**Next**
+- Owner: review the planning PR; then build I-030 on its branch.
+
+## 2026-11-09 (Plan: the owner's phone feedback — B-011 – B-014, I-029, I-030)
+
+**Done**
+- Planned on `plan/phone-feedback` the six issues the owner reported from production on the phone; nothing built. Each
+  has its folder, description file and backlog row, all `Todo`, to be built on its own branch after the owner's
+  approval:
+  - [B-012](changes/bugfixes/B-012-amount-hidden-under-keys/B-012-amount-hidden-under-keys.md) (High): the amount stays
+    half hidden under the phone keys when tapped while partly out of sight; nothing scrolls it above the keys (I-028).
+  - [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) (High, 🎨): an Add button people
+    find on the phone; a person using the app couldn't find how to add an expense or income. 3 variants to propose
+    (a labelled "+ Add" pill, a centre tab with a word, Expense / Income buttons on the page).
+  - [B-011](changes/bugfixes/B-011-calendar-picked-day-ring/B-011-calendar-picked-day-ring.md) (Medium): the picked
+    day's black ring is broken in the calendar; likely drawn outside the cell, covered by the next day and clipped by
+    the card.
+  - [B-013](changes/bugfixes/B-013-toast-hidden-on-phone/B-013-toast-hidden-on-phone.md) (Medium): the "saved" toast at
+    the bottom, over the bottom bar, can't be seen on the phone; Mantine's default bottom-right place.
+  - [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) (Medium): the gap
+    B-009 left while the Note's suggestions show; the room is as high as the longest list.
+  - [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) (Medium): phone
+    pop-ups as tall as the screen allows, small ones at the bottom, every one above the phone's keyboard (today only
+    the quick-add form follows it).
+- The bugs' root causes are suspected from reading the code, not confirmed: each is reproduced on its own branch before
+  its fix is proposed for approval. Priorities proposed by Claude, for the owner to confirm. The owner's screenshots
+  that show balances stay out of the repo; only the Note's one is in B-014's folder.
+- Test data: none.
+
+**Next**
+- Owner: confirm the priorities and the open points (I-029's top gap and desktop, B-013's toast place, B-014's option,
+  I-030's question); review the planning PR. Then B-012 and I-030 first. B-012, B-014 and I-029 touch the same
+  keyboard room in `TransactionDialog.tsx` / `BottomSheet.tsx`: one after the other.
+## 2026-11-06 (Plan: Manage categories in the MVP, F-029)
+
+**Done**
+- The owner asked to bring adding, renaming, reordering and removing categories into the MVP. Planned on
+  `plan/manage-categories` as [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) (High, 🎨),
+  first in M5, which is now "Categories & family" (before F-023 / F-024, since the family report merges categories by
+  group and name).
+- The owner's choices: groups change too, not only categories; a removed category with transactions is hidden (past
+  transactions and reports keep it), one without is deleted; the generic default set (Q-011) stays after the MVP.
+- Q-003 answered again (yes, in the MVP); PRODUCT, ROADMAP (M5, M9), BACKLOG, OPEN_QUESTIONS and the M5 features'
+  milestone updated. Nothing built for F-029; it stays `Todo`.
+- The PR's E2E job failed in the I-020 accounts test (the app code is `develop`'s). The owner asked to fix it here:
+  [B-010](changes/bugfixes/B-010-loose-toast-match-e2e/B-010-loose-toast-match-e2e.md). The test's loose
+  `getByText('Mono black added')` also matched the earlier "mono black added" toast while it was still shown; both
+  checks now match exactly. `e2e/accounts.spec.ts` 8 / 8 against this checkout's API (5298) and app (5174), since
+  another chat's servers held the usual ports; frontend lint and format pass.
+- Test data: the E2E run's `e2e-accounts-…` people (with their accounts); the E2E clean-up deleted them. Nothing made by
+  hand.
+
+**Next**
+- Owner: review the planning PR. Then F-029: references and 3 prototype stories on
+  `feature/F-029-manage-categories`, built only after the final prototype is approved.
+
 ## 2026-11-06 (B-004: The currency search takes the keys as soon as it opens)
 
 **Done**
@@ -59,6 +433,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the PR.
+
 
 ## 2026-11-06 (I-022: The opening balance typed from the left)
 
@@ -245,6 +620,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the PR.
 
+
 ## 2026-11-05 (I-025: Add transaction on the day picked in the calendar)
 
 **Done**
@@ -305,6 +681,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the PR.
+
 
 ## 2026-11-05 (B-006: The currency sign no longer runs into the amount)
 
@@ -633,6 +1010,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the PR.
+
 
 ## 2026-11-03 (F-020: Transactions list)
 
@@ -1352,6 +1730,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the PR.
+
 
 ## 2026-10-30 (plan: drop I-010)
 

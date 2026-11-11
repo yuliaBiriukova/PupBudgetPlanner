@@ -1,10 +1,11 @@
 import { Drawer, VisuallyHidden } from '@mantine/core';
-import type { ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import classes from './BottomSheet.module.css';
 import { FadingScrollArea } from './FadingScrollArea';
 import { useKeyboardInset } from './useKeyboardInset';
 import { usePopupHistory } from './popupHistory';
+import { useFieldInSight } from './useSheetRoom';
 import { useSheetSwipe } from './useSheetSwipe';
 
 interface BottomSheetProps {
@@ -18,10 +19,8 @@ interface BottomSheetProps {
   footer?: ReactNode;
   /** Pinned between the title and the content, e.g. a search over a list (F-016's currency list). */
   top?: ReactNode;
-  /** A set height (80 % of the screen) instead of the content's, so a list being searched doesn't jump. */
+  /** A set height (the whole screen) instead of the content's, so a list being searched doesn't jump. */
   tall?: boolean;
-  /** As tall as a sheet goes (90 % of the screen): a form with its own keys under it (F-018). */
-  full?: boolean;
   /**
    * Shown in the title row in place of the title, which screen readers still hear as the sheet's name (the
    * transaction form's Expense / Income switch, F-018).
@@ -33,7 +32,8 @@ interface BottomSheetProps {
 
 /**
  * A sheet that slides up from the bottom of the phone screen. It closes on the overlay, Escape or the button, with a
- * swipe down and with Back (I-015).
+ * swipe down and with Back (I-015). It is as tall as its content, up to 16 px under the top of the screen; while the
+ * phone's keyboard is up it sits on it, the field being typed and the buttons in sight (I-029).
  */
 export function BottomSheet({
   opened,
@@ -44,15 +44,23 @@ export function BottomSheet({
   footer,
   top,
   tall,
-  full,
   heading,
   actions,
 }: BottomSheetProps) {
   const { t } = useTranslation();
   usePopupHistory(opened, onClose);
   const { setContent, setOverlay, setScroller } = useSheetSwipe(onClose);
-  // A full sheet (a form) stays above the phone's keyboard, its buttons in sight (I-017)
-  const keyboard = useKeyboardInset(opened && !!full);
+  const [sheet, setSheet] = useState<HTMLElement | null>(null);
+  const contentRef = useCallback(
+    (node: HTMLElement | null) => {
+      setContent(node);
+      setSheet(node);
+    },
+    [setContent],
+  );
+  // Every sheet stays above the phone's keyboard (I-017 for the transaction form, I-029 for the rest)
+  const keyboard = useKeyboardInset(opened);
+  useFieldInSight(sheet, keyboard);
 
   // classNames, not className: Drawer.Content passes className to the full-screen inner box too
   return (
@@ -64,9 +72,8 @@ export function BottomSheet({
     >
       <Drawer.Overlay ref={setOverlay} />
       <Drawer.Content
-        ref={setContent}
+        ref={contentRef}
         data-tall={tall ? true : undefined}
-        data-full={full ? true : undefined}
         data-keyboard={keyboard ? true : undefined}
         style={
           keyboard
