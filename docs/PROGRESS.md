@@ -2,6 +2,39 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-11 (F-029: Manage categories, built)
+
+**Done**
+- The owner approved the final prototype ("Tap a tag") for implementation on 2026-11-11; recorded in the
+  [description](changes/features/F-029-manage-categories/F-029-manage-categories.md) and DESIGN_RULES "Screen
+  decisions".
+- Backend: `CategorySet` in the Domain with every rule (names unique ignoring case, hidden ones counting; moves within
+  a kind; places among the shown ones; hide instead of delete once used; a group goes only without shown categories,
+  never the last of its kind); `CategoryGroup.IsArchived` (migration `HideCategoryGroups`, applied to the `dev`
+  database by the local API); `GET /api/categories` with hidden ones and transaction counts; add, change, remove and
+  restore endpoints for categories and groups; the reports leave out a hidden group with nothing in the period.
+- Frontend: the Categories page's tags open the category's sheet (name, group, place with drag and ↑ ↓, Hide or
+  Delete asked again), + Add, hidden tags with Show again, the group's sheet, + Add income / expense group, hidden
+  groups with Show; the "come later" line is gone; the quick-add form leaves hidden ones out. The prototype stories
+  were removed; the page's stories cover the sheets, a clash, a hidden twin, Hide and Delete asked, hidden ones, a
+  failed save, loading and error.
+- Decisions: [ADR 0028](decisions/0028-changing-categories.md) (rules in the Domain, hide instead of delete, our own
+  small drag rather than dnd-kit).
+- Tests: backend 485 / 485 (22 new for `CategorySet`, validators, controller, overview, report); frontend unit tests
+  346 / 346; E2E `categories.spec.ts` (add, rename, reorder by keyboard, move, delete a category and a group; hide one
+  with a transaction: gone from the quick-add form, still in the month's report, shown again), desktop and phone.
+- Checked: backend build (0 warnings); frontend lint, format, typecheck, build, `build-storybook`; the full E2E suite
+  (86 passed, 16 skipped); the design check on 8 of the page's stories (no layout or axe issues once the stories show
+  full screen: Storybook's padded body had moved the phone's sheets 16 px; it still lists the dimmed backdrop under
+  each open sheet as an overlap); screenshots of the page and every sheet at 375 and 1440 px, light and dark, looked
+  at (kept in the change folder's `screenshots/`).
+- Test data: the E2E runs' `e2e-…@example.com` people, and one `e2e-manual-…@example.com` person with an invite link
+  noted `E2E manual F-029` made for a check in the browser; the E2E clean-up deleted them and cancelled the links.
+
+**Next**
+- Owner: review the PR. The Transactions filters list the period's categories by amount (F-020), not in the person's
+  order; say if they should follow the person's order instead. Then F-023 (Family and invitations).
+
 ## 2026-11-11 (F-029: Manage categories, design round 1)
 
 **Done**

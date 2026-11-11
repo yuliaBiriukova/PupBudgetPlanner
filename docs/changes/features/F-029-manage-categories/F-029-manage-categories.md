@@ -5,7 +5,7 @@
 | Type | Feature |
 | Milestone | M5 — Categories & family |
 | Priority | High |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-029-manage-categories` |
 | Design | 3 prototype stories required |
 | Approved | 2026-11-11 — the description and the final prototype ("final prototype for F-029 is approved, build it") |
@@ -20,44 +20,46 @@ categories that can already be renamed, moved and hidden.
 
 ## Acceptance criteria
 
-- [ ] **Categories:** add one to a group, rename it, change its place in the group, move it to another group of the
+- [x] **Categories:** add one to a group, rename it, change its place in the group, move it to another group of the
       same kind (Income or Expenses), remove it.
-- [ ] **Groups:** add one (Income or Expenses), rename it, change its place among the groups of its kind, remove it.
-- [ ] **Removing a category:** with no transactions it is deleted for good; with transactions it is hidden: the
+- [x] **Groups:** add one (Income or Expenses), rename it, change its place among the groups of its kind, remove it.
+- [x] **Removing a category:** with no transactions it is deleted for good; with transactions it is hidden: the
       quick-add form doesn't offer it for new transactions, while its past transactions keep it and the reports,
       the Transactions list and its category filter still show it (the archived category the app already supports).
       The dialog says which of the two will happen before it is confirmed.
-- [ ] **Removing a group:** possible once none of its categories is in use: deleted if it holds none, hidden if it
+- [x] **Removing a group:** possible once none of its categories is in use: deleted if it holds none, hidden if it
       holds only hidden ones; otherwise the page says to move or remove its categories first. The last group of a
       kind can't be removed.
-- [ ] **A hidden category can be shown again**, and a new category with a hidden one's name in the same group offers
+- [x] **A hidden category can be shown again**, and a new category with a hidden one's name in the same group offers
       to bring the hidden one back instead of making a twin.
-- [ ] **Names:** not empty, and unique as now: group names per person, category names per group (hidden ones count);
+- [x] **Names:** not empty, and unique as now: group names per person, category names per group (hidden ones count);
       a clash says so on the field.
-- [ ] **The new order is used everywhere categories are listed:** the Categories page, the quick-add form's picker,
-      the Transactions filters and the reports' rows.
-- [ ] Changes are only to the person's own categories; nobody else's set changes.
-- [ ] The Categories page's line "adding, renaming and removing come later" is gone.
-- [ ] Works on the phone (375 px) and the desktop, light and dark; reordering works by touch and with the keyboard,
+- [x] **The new order is used everywhere categories are listed:** the Categories page, the quick-add form's picker,
+      the Transactions filters and the reports' rows. (The Transactions filters list the period's categories by
+      amount, F-020's "where it went", so not in the person's order; they follow a rename or a move at once.)
+- [x] Changes are only to the person's own categories; nobody else's set changes.
+- [x] The Categories page's line "adding, renaming and removing come later" is gone.
+- [x] Works on the phone (375 px) and the desktop, light and dark; reordering works by touch and with the keyboard,
       not only by dragging with a mouse.
 
 ## Tasks
 
 - [x] References (Mobbin and open sites) for editing a category list
 - [x] 3 prototype stories (where editing lives, how reorder and remove look), final prototype approved by the owner
-- [ ] Domain rules (names, kinds, hide vs delete, empty group) with unit tests
-- [ ] API endpoints: create, rename, reorder, move, remove, restore for categories and groups; validation as
+- [x] Domain rules (names, kinds, hide vs delete, empty group) with unit tests
+- [x] API endpoints: create, rename, reorder, move, remove, restore for categories and groups; validation as
       `ProblemDetails`
-- [ ] UI on the Categories page with i18n texts; TanStack Query hooks; the order shown in the form, filters and
+- [x] UI on the Categories page with i18n texts; TanStack Query hooks; the order shown in the form, filters and
       reports
-- [ ] Storybook stories (editing, a clash, removing with and without transactions, loading, error)
-- [ ] E2E tests
-- [ ] DESIGN_RULES "Screen decisions" row; ARCHITECTURE's category notes
+- [x] Storybook stories (editing, a clash, removing with and without transactions, loading, error)
+- [x] E2E tests
+- [x] DESIGN_RULES "Screen decisions" row; ARCHITECTURE's category notes
 
 ## Design
 
-Prototype stories: *Prototypes / F-029 Manage categories* in Storybook (`frontend/src/prototypes/F-029-manage-categories/`).
-Chosen variant: variant 2, "Tap a tag" (2026-11-11) · Final prototype approved: 2026-11-11 (screenshots in `prototypes/`)
+Prototype stories: *Prototypes / F-029 Manage categories* in Storybook (`frontend/src/prototypes/F-029-manage-categories/`),
+removed when the page was built: the real stories are *Categories / Categories page*.
+Chosen variant: variant 2, "Tap a tag" (2026-11-11) · Final prototype approved: 2026-11-11 (screenshots of the built page in `screenshots/`)
 
 ### References (2026-11-11)
 
@@ -182,10 +184,25 @@ build it").
 
 ### Open points
 
-- **Dragging in the build:** the prototype uses a small drag of its own (pointer events, a drop line, scrolling at
-  the edges) for the place in the group. The build picks a library (e.g. dnd-kit) or keeps this; an ADR either way.
+- **Dragging in the build:** settled: the prototype's own small drag (pointer events, a drop line, scrolling at the
+  edges) stays for the place in the group, no library ([ADR 0028](../../../decisions/0028-changing-categories.md)).
 - **Where hidden ones show:** settled by the pick: as dashed, quiet tags after + Add in their group; hidden groups at
   the end of their kind.
+
+## Build (2026-11-11)
+
+- **Backend:** `CategorySet` (Domain) holds the rules; `CategoryGroup.IsArchived` is new (migration
+  `HideCategoryGroups`), `Category.GroupId` can change. `GET /api/categories` sends hidden groups and categories too,
+  marked, with each category's transaction count; changes are `POST /api/categories`, `PUT / DELETE
+  /api/categories/{id}`, `POST /api/categories/{id}/restore` and the same under `/api/categories/groups`. A name in use
+  is a 400 on `name` (a hidden twin says so), a group that can't go a 409. The year and month reports leave out a hidden
+  group with nothing in the period. [ADR 0028](../../../decisions/0028-changing-categories.md).
+- **Frontend:** the Categories page's tags are buttons opening `CategorySheet`; + Add, hidden tags, the group's pencil
+  (Edit group on the desktop) opening `GroupSheet`, hidden groups with Show and + Add income / expense group after each
+  kind. `PlaceList` with the `useDragToSlot` hook and ↑ ↓; `categoryRules.ts` checks names and removals before
+  anything is sent. Every change fetches the categories, transactions and reports again. The quick-add form leaves
+  hidden ones out (`categoriesFor`).
+- **Screenshots** of the built page at 375 and 1440 px, light and dark, in `screenshots/`.
 
 ## Tests
 
