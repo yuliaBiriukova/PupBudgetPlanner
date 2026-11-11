@@ -265,7 +265,7 @@
       "title": "Start a family",
       "nameLabel": "Family name",
       "nameHint": "Everyone in it sees the name, for example your surname.",
-      "namePlaceholder": "Kovalenko",
+      "namePlaceholder": "Our family",
       "button": "Start a family",
       "started": "The {{name}} family is started.",
       "already": "You’re already in a family."
@@ -317,7 +317,7 @@
       "lead": "A link for one person, for {{days}} days. Whoever opens it is asked to join the {{name}} family.",
       "noteLabel": "Who is it for? (optional)",
       "noteHint": "Only you see it, to tell your links apart.",
-      "notePlaceholder": "Mom",
+      "notePlaceholder": "Their name",
       "cancel": "Cancel",
       "create": "Create link",
       "readyTitle": "The link is ready",

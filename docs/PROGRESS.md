@@ -39,6 +39,10 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   people (with families Kovalenko and Melnyk and links noted `E2E …` and `Mom`) made for the screenshots and the design
   check; the E2E clean-up deleted the people, which deleted their families and cancelled the families' waiting links.
 
+- Owner's review: generic placeholders, Family name "Our family" (was "Kovalenko") and Who is it for? "Their name"
+  (was "Mom"); the screenshots showing them taken again and looked at. Their two `e2e-manual-…` people were removed by
+  the E2E clean-up.
+
 **Next**
 - Owner: review the PR; try the Family page and a link in a second browser. Then F-024 (Family views).
 

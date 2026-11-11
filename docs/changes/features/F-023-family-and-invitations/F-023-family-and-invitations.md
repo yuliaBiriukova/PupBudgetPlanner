@@ -218,6 +218,9 @@ Added in the build, not in the prototype (small; say if they should differ):
   created their account with that link, through Google).
 - The admin's *Invite links* tab shows a family's link with a "Kovalenko family" tag next to its note.
 
+Owner's review (2026-11-11): generic placeholders instead of the prototype's examples: Family name "Our family" (was
+"Kovalenko"), Who is it for? "Their name" (was "Mom").
+
 ## Tests
 
 - Unit: Family rules (one family per user, invitation expiry, the owner's hand-over).
