@@ -702,6 +702,7 @@ function TransactionForm({
           label={
             exchange ? t('transactions.form.fromAccount', { account: account.name }) : undefined
           }
+          typedInto={keysShown && keysOn === 'amount'}
           target={keysShown && exchange && keysOn === 'amount'}
           onTarget={() => {
             showKeys();
@@ -719,6 +720,7 @@ function TransactionForm({
             onEnter={submit}
             label={t('transactions.form.toAccount', { account: toAccount.name })}
             secondary
+            typedInto={keysShown && keysOn === 'to'}
             target={keysShown && keysOn === 'to'}
             onTarget={() => {
               showKeys();

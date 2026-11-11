@@ -2,6 +2,30 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-11 (B-012: The amount comes up whole above the phone keys)
+
+**Done**
+- [B-012](changes/bugfixes/B-012-amount-hidden-under-keys/B-012-amount-hidden-under-keys.md) on
+  `bugfix/B-012-amount-hidden-under-keys`. Reproduced in Storybook at 375 × 640 px: a tap on an expense's amount brought
+  the keys up over 71 of its 89 px and the form didn't move. Cause: the amount kept itself in sight above the keys only
+  with `target`, which only an exchange's two amounts get (with their ring). The owner approved the cause and the fix
+  on 2026-11-11.
+- `AmountDisplay` has `typedInto` ("the keys type into it"), apart from `target` (the ring): while it is set the display
+  scrolls into sight above the keys as they come up and on every key. `TransactionDialog` sets it for every type; the
+  ring stays on an exchange only.
+- Tests: `TransactionsPage.test.tsx` (the amount scrolled into sight as the keys come up and on a key, no ring), E2E
+  `transactions.spec.ts` on the phone at 412 × 640 px (the whole amount right above the keys after the tap and while
+  `125` is typed); both fail without the fix.
+- Checked: frontend lint, format, typecheck, unit tests (320 / 320), build, `build-storybook`; backend build (0
+  warnings) and tests (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone; screenshots of the
+  form with the keys up at 375 px (expense, light and dark; an exchange) and the desktop form at 1440 px, light and
+  dark, looked at; the fix clicked through in the Browser pane.
+- Test data: the E2E runs' `e2e-amount-sight-…` and other `e2e-…@example.com` people (with their accounts and
+  transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Then B-011, B-013 or B-014 (Medium).
+
 ## 2026-11-11 (I-029: round corners and a 16 px gap, the owner's review)
 
 **Done**

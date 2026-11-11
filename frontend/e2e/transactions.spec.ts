@@ -691,3 +691,54 @@ test('the phone keys come up on a tap on the amount and fold away with Back or a
     .poll(() => page.evaluate(() => JSON.stringify(window.history.state)))
     .not.toContain('pupPopups');
 });
+
+test('the amount low on a short phone screen comes up whole above the keys when tapped, with every digit typed (B-012)', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'The desktop has no keys: the amount is typed');
+  // A short phone screen, as the browser's bars leave it: the keys cover the lower part of the form
+  await page.setViewportSize({ width: 412, height: 640 });
+  const response = await signUpThroughApi(page.request, newPerson('amount-sight'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+
+  await page.goto('/transactions');
+  const dialog = await openAddForm(page, isMobile);
+  const keys = dialog.getByRole('group', { name: form.keys });
+  const amount = dialog.getByLabel(form.amount, { exact: true });
+  const display = amount.locator('xpath=ancestor::div[@data-type][1]');
+  await expect(amount).toBeVisible();
+
+  /** The form's scroll area and the amount's place on the screen. */
+  const places = () =>
+    display.evaluate((element) => {
+      let scroller = element.parentElement;
+      while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY))
+        scroller = scroller.parentElement;
+      if (!scroller) throw new Error('no scroll area');
+      const room = scroller.getBoundingClientRect();
+      const { top, bottom } = element.getBoundingClientRect();
+      return { roomTop: room.top, roomBottom: room.bottom, top, bottom };
+    });
+
+  // In sight while the keys are folded, low enough that they would cover it
+  const folded = await places();
+  expect(folded.bottom).toBeLessThanOrEqual(folded.roomBottom);
+
+  // Tapped: the keys come up and the form scrolls so the whole amount is right above them
+  await amount.click();
+  await expect(keys).toBeInViewport({ ratio: 1 });
+  const keysTop = (await keys.boundingBox())?.y ?? 0;
+  expect(folded.bottom).toBeGreaterThan(keysTop);
+  const fitsAboveKeys = async () => {
+    const [shown, under] = await Promise.all([places(), keys.boundingBox()]);
+    if (!under) return false;
+    return shown.top >= shown.roomTop - 1 && shown.bottom <= under.y + 1;
+  };
+  await expect.poll(fitsAboveKeys).toBe(true);
+
+  for (const key of '125') await keys.getByRole('button', { name: key, exact: true }).click();
+  await expect(amount).toHaveValue('125');
+  await expect.poll(fitsAboveKeys).toBe(true);
+});
