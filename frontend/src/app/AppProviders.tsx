@@ -1,8 +1,8 @@
 import { MantineProvider } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
-import { Notifications } from '@mantine/notifications';
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
+import { AppNotifications } from './AppNotifications';
 import { createQueryClient } from './queryClient';
 import { cssVariablesResolver, theme } from './theme';
 
@@ -25,7 +25,7 @@ export function AppProviders({ children, queryClient, env }: AppProvidersProps) 
       env={env}
     >
       <DatesProvider settings={{ locale: 'en', firstDayOfWeek: 1 }}>
-        <Notifications />
+        <AppNotifications />
         <QueryClientProvider client={client}>{children}</QueryClientProvider>
       </DatesProvider>
     </MantineProvider>
