@@ -118,7 +118,7 @@ test('on the phone the + opens ⇄ + − over the dimmed page and folds them; th
   expect(lastBottom).toBeLessThanOrEqual(plusTop);
 });
 
-test('on the phone, More and Add are sheets at the bottom; More as tall as its content, Add as tall as a sheet goes', async ({
+test('on the phone, More and Add are sheets at the bottom, each as tall as its content', async ({
   page,
   isMobile,
 }) => {
@@ -138,9 +138,9 @@ test('on the phone, More and Add are sheets at the bottom; More as tall as its c
     await expect(async () => {
       const box = await dialog.boundingBox();
       expect(box && Math.round(box.y + box.height)).toBe(screenHeight);
-      // The quick-add form has its own keys under it: 90 % of the screen (F-018)
-      if (sheet === en.nav.more) expect(box?.height ?? screenHeight).toBeLessThan(screenHeight / 2);
-      else expect(Math.abs((box?.height ?? 0) - screenHeight * 0.9)).toBeLessThan(1);
+      // Add is no longer a set 90 % of the screen (I-029): this person has no account yet, so it holds only the
+      // "Add an account first" message and is as short as More (sheets.spec.ts has the form with its fields)
+      expect(box?.height ?? screenHeight).toBeLessThan(screenHeight / 2);
     }).toPass();
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();

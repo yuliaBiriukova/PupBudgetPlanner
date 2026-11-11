@@ -11,6 +11,7 @@ import type { AccountsOverview } from '../accounts/accountsApi';
 import { OVERVIEW, TOTAL } from '../accounts/accountsTestData';
 import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
 import { addDays, today } from './days';
+import { FORM_HEIGHT_KEY } from './formHeight';
 import type {
   SaveTransactionRequest,
   Transaction,
@@ -996,6 +997,90 @@ describe('the phone keys (I-028)', () => {
     await userEvent.click(within(form).getByLabelText('Amount'));
     expect(keysOf(form)).not.toBeInTheDocument();
     expect(within(form).getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+  });
+});
+
+describe('the phone’s form while its data loads (I-029)', () => {
+  /** The suggestions, the last of the form's data, arrive only when the returned function is called. */
+  function heldSuggestions() {
+    const gate = { open: (): void => undefined };
+    const held = new Promise<void>((done) => {
+      gate.open = done;
+    });
+    const release = () => {
+      gate.open();
+    };
+    server.use(
+      http.get('/api/transactions/suggestions', async () => {
+        await held;
+        return HttpResponse.json(NONE);
+      }),
+    );
+    return release;
+  }
+  const openLoading = async () => {
+    await userEvent.click(
+      only(await screen.findAllByRole('button', { name: 'Add transaction' }, LOADED)),
+    );
+    const sheet = await screen.findByRole('dialog', { name: 'Add expense' });
+    return { sheet, placeholder: await within(sheet).findByRole('status', { name: /Loading/ }) };
+  };
+
+  it('is as tall as the form was last time, with the places of the type switch and Save, so the sheet doesn’t jump', async () => {
+    setScreenWidth(375);
+    localStorage.setItem(FORM_HEIGHT_KEY, JSON.stringify({ Expense: 596 }));
+    transactionsServer();
+    const release = heldSuggestions();
+    renderApp('/transactions');
+
+    const { sheet, placeholder } = await openLoading();
+    expect(placeholder).toHaveStyle({ height: '596px' });
+    expect(placeholder).toHaveAttribute('data-shaped');
+    // The switch's place in the title row and Save's under the fields
+    expect(sheet.querySelector('[data-sheet-footer]')).toBeInTheDocument();
+    expect(within(sheet).queryByRole('heading', { name: 'Add expense' })).toBeInTheDocument();
+
+    release();
+    expect(await within(sheet).findByRole('button', { name: 'Save expense' })).toBeInTheDocument();
+    expect(within(sheet).queryByRole('status', { name: /Loading/ })).not.toBeInTheDocument();
+  });
+
+  it('is the short placeholder before the form was ever open on this device', async () => {
+    setScreenWidth(375);
+    transactionsServer();
+    const release = heldSuggestions();
+    renderApp('/transactions');
+
+    const { sheet, placeholder } = await openLoading();
+    expect(placeholder).not.toHaveAttribute('data-shaped');
+    expect(placeholder.style.height).toBe('');
+    expect(sheet.querySelector('[data-sheet-footer]')).not.toBeInTheDocument();
+    release();
+    await within(sheet).findByRole('button', { name: 'Save expense' });
+  });
+
+  it('stays as it was on the desktop, whatever the phone remembered', async () => {
+    localStorage.setItem(FORM_HEIGHT_KEY, JSON.stringify({ Expense: 596 }));
+    transactionsServer();
+    const release = heldSuggestions();
+    renderApp('/transactions');
+
+    const { placeholder } = await openLoading();
+    expect(placeholder).not.toHaveAttribute('data-shaped');
+    release();
+  });
+
+  it('remembers the fields’ height once the form is shown on the phone', async () => {
+    setScreenWidth(375);
+    const height = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(544);
+    transactionsServer();
+    renderApp('/transactions');
+
+    await openForm();
+    await waitFor(() => {
+      expect(JSON.parse(localStorage.getItem(FORM_HEIGHT_KEY) ?? '{}')).toEqual({ Expense: 544 });
+    });
+    height.mockRestore();
   });
 });
 

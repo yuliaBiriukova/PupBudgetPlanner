@@ -116,7 +116,7 @@ owner asks for one.
 | [I-026](changes/improvements/I-026-prototype-viewing/I-026-prototype-viewing.md) | Prototypes in Storybook that open like a page: filling the window, one story per variant, the screen size from the toolbar | High | Done |
 | [I-027](changes/improvements/I-027-calculator-key-order/I-027-calculator-key-order.md) | The phone keys in a phone's order: 1 2 3 on top, ⌫ above Save, `.` for cents | Medium | Done |
 | [I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md) | 🎨 The phone keys show on a tap on the amount and fold away with Back or a swipe down, not the whole form | Medium | Done |
-| [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) | Phone pop-ups as tall as the screen allows, small ones at the bottom, every one above the keyboard | Medium | Todo |
+| [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) | 🎨 Phone pop-ups as tall as their content up to the whole screen, every one above the keyboard; a form opens without the keyboard (prototype approved 2026-11-11) | Medium | Done |
 | [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) | 🎨 An Add button people find on the phone: one + that opens Transfer, Income and Expense; a menu with every place named (design approved 2026-11-09) | High | Done |
 
 ## Bugfixes
@@ -137,3 +137,4 @@ owner asks for one.
 | [B-012](changes/bugfixes/B-012-amount-hidden-under-keys/B-012-amount-hidden-under-keys.md) | The amount stays half hidden under the phone keys when tapped | High | Todo |
 | [B-013](changes/bugfixes/B-013-toast-hidden-on-phone/B-013-toast-hidden-on-phone.md) | The "saved" toast can't be seen on the phone | Medium | Todo |
 | [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) | An empty gap under the Note's suggestions on the phone | Medium | Todo |
+| [B-015](changes/bugfixes/B-015-e2e-day-after-midnight-kyiv/B-015-e2e-day-after-midnight-kyiv.md) | Two E2E tests fail in CI between midnight and 02:00 in Kyiv (red CI on PR #78) | High | Done |
