@@ -111,7 +111,10 @@ export function LinksTab() {
                   <span className={classes.historyIcon} aria-hidden="true">
                     <IconUserCheck size={20} stroke={1.7} />
                   </span>
-                  <p className={classes.historyNote}>{i.note ?? t('people.links.noNote')}</p>
+                  <p className={classes.historyNote}>
+                    {i.note ?? t('people.links.noNote')}
+                    <FamilyTag invitation={i} />
+                  </p>
                   <p className={cx(classes.historyWhat, classes.dim)}>
                     {i.usedByName ?? t('people.links.deletedAccount')}
                   </p>
@@ -138,7 +141,10 @@ export function LinksTab() {
                       <IconLinkOff size={20} stroke={1.7} />
                     )}
                   </span>
-                  <p className={classes.historyNote}>{i.note ?? t('people.links.noNote')}</p>
+                  <p className={classes.historyNote}>
+                    {i.note ?? t('people.links.noNote')}
+                    <FamilyTag invitation={i} />
+                  </p>
                   <p className={cx(classes.historyWhat, classes.dim)}>
                     {i.status === 'Expired'
                       ? t('people.links.expired')
@@ -166,7 +172,10 @@ function WaitingLink({ invitation }: { invitation: Invitation }) {
         <IconClock size={20} stroke={1.7} />
       </span>
       <div style={{ minWidth: 0 }}>
-        <p className={classes.name}>{note}</p>
+        <p className={classes.name}>
+          {note}
+          <FamilyTag invitation={invitation} />
+        </p>
         <p className={classes.email}>
           {t('people.links.worksUntil', {
             until: formatDate(invitation.expiresAt),
@@ -233,5 +242,14 @@ function Folded({ group, title, count, open, onToggle, children }: FoldedProps) 
         </div>
       )}
     </section>
+  );
+}
+
+/** A family's link (F-023): which family it joins. */
+function FamilyTag({ invitation }: { invitation: Invitation }) {
+  const { t } = useTranslation();
+  if (!invitation.familyName) return null;
+  return (
+    <span className={classes.tag}>{t('people.links.family', { name: invitation.familyName })}</span>
   );
 }

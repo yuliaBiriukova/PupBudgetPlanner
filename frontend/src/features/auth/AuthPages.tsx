@@ -24,15 +24,15 @@ function failureOf(error: Error | null): AuthFailure | null {
 }
 
 /**
- * Sign-in, sign-up and the invite page are for people who aren't signed in; anyone else goes on into the app.
- * The invite page has no Sign in / Create account switch.
+ * Sign-in and sign-up are for people who aren't signed in; anyone else goes on into the app. (The invite page is
+ * InviteRoute: someone signed in may open a family's link, F-023.)
  */
-export function GuestOnly({ withSwitch = true }: { withSwitch?: boolean }) {
+export function GuestOnly() {
   const { data: user } = useQuery(currentUserQuery);
   const state = useLocation().state as AuthLocationState | null;
 
   if (user) return <Navigate to={state?.from ?? '/transactions'} replace />;
-  return <AuthLayout withSwitch={withSwitch} />;
+  return <AuthLayout />;
 }
 
 export function SignInPage() {

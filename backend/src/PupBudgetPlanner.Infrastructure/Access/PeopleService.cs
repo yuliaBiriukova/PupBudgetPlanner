@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using PupBudgetPlanner.Application.Access;
+using PupBudgetPlanner.Infrastructure.Families;
 using PupBudgetPlanner.Infrastructure.Identity;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
@@ -17,7 +18,8 @@ internal sealed class PeopleService(
     {
         var rows = await (
                 from user in dbContext.Users.AsNoTracking()
-                join invitation in dbContext.Invitations on user.Id equals invitation.UsedById into used
+                join invitation in dbContext.Invitations.Where(i => i.CreatedAccount)
+                    on user.Id equals invitation.UsedById into used
                 from invitedWith in used.DefaultIfEmpty()
                 select new
                 {
@@ -58,7 +60,7 @@ internal sealed class PeopleService(
             user.BlockedAt = clock.GetUtcNow();
             // A new security stamp ends the person's cookies on every device at their next check (ADR 0016)
             return await userManager.UpdateSecurityStampAsync(user);
-        }, cancellationToken);
+        }, first: null, cancellationToken);
 
     public Task<PeopleActionOutcome> UnblockAsync(Guid adminId, PeopleRequest request, CancellationToken cancellationToken) =>
         ChangeAsync(adminId, request, async user =>
@@ -70,20 +72,27 @@ internal sealed class PeopleService(
 
             user.BlockedAt = null;
             return await userManager.UpdateAsync(user);
-        }, cancellationToken);
+        }, first: null, cancellationToken);
 
-    // The database removes what belongs to the account with it (categories, logins; ADR 0016)
+    // The database removes what belongs to the account with it (categories, logins; ADR 0016). Their families go on
+    // without them first: an owner's to whoever has been in it longest, an emptied one is deleted (F-023)
     public Task<PeopleActionOutcome> DeleteAsync(Guid adminId, PeopleRequest request, CancellationToken cancellationToken) =>
-        ChangeAsync(adminId, request, userManager.DeleteAsync, cancellationToken);
+        ChangeAsync(
+            adminId,
+            request,
+            userManager.DeleteAsync,
+            ids => FamilyCleanup.LoseAsync(dbContext, ids, clock.GetUtcNow(), cancellationToken),
+            cancellationToken);
 
     /// <summary>
-    /// Applies <paramref name="change"/> to every picked account in one transaction: all of them or none. The admin
-    /// can't pick themselves.
+    /// Applies <paramref name="change"/> to every picked account in one transaction: all of them or none, after
+    /// <paramref name="first"/> if given. The admin can't pick themselves.
     /// </summary>
     private async Task<PeopleActionOutcome> ChangeAsync(
         Guid adminId,
         PeopleRequest request,
         Func<AppUser, Task<IdentityResult>> change,
+        Func<IReadOnlyCollection<Guid>, Task>? first,
         CancellationToken cancellationToken)
     {
         var ids = request.UserIds.Distinct().ToList();
@@ -99,6 +108,11 @@ internal sealed class PeopleService(
         }
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        if (first is not null)
+        {
+            await first(ids);
+        }
+
         foreach (var user in users)
         {
             var result = await change(user);

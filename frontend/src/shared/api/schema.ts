@@ -1442,6 +1442,482 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/family": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The person's family, or 204 when they are in none. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FamilyView"];
+                    };
+                };
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /** Starts a family with the person as its owner. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StartFamilyRequest"];
+                    "text/json": components["schemas"]["StartFamilyRequest"];
+                    "application/*+json": components["schemas"]["StartFamilyRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RenameFamilyRequest"];
+                    "text/json": components["schemas"]["RenameFamilyRequest"];
+                    "application/*+json": components["schemas"]["RenameFamilyRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A new link for one person. Its token is in this answer only: the page shows it once. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateInvitationRequest"];
+                    "text/json": components["schemas"]["CreateInvitationRequest"];
+                    "application/*+json": components["schemas"]["CreateInvitationRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CreatedInvitation"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/invitations/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/members/{id}/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The owner takes someone out of the family; nothing of theirs is deleted. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/leave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Leaves the family. An owner who leaves others behind names who looks after it next; the last one to leave
+         *     deletes it. Nothing of anyone's is deleted.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["LeaveFamilyRequest"];
+                    "text/json": components["schemas"]["LeaveFamilyRequest"];
+                    "application/*+json": components["schemas"]["LeaveFamilyRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Joins the family of an invite link and uses the link up. A used, expired, cancelled, made-up or admin's link
+         *     gets the same 410 as on sign-up.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["JoinFamilyRequest"];
+                    "text/json": components["schemas"]["JoinFamilyRequest"];
+                    "application/*+json": components["schemas"]["JoinFamilyRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Gone */
+                410: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -2382,10 +2858,48 @@ export interface components {
         DeletedTransaction: {
             balances: components["schemas"]["BalanceChange"][];
         };
+        /** @description A family's link waiting to be opened; Note says who it is for. */
+        FamilyInvitationItem: {
+            /** Format: uuid */
+            id: string;
+            note: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        /**
+         * @description One person in the family. StartedFamily is true for the one who started it ("Started the family
+         *     …" rather than "Joined …").
+         */
+        FamilyMemberItem: {
+            /** Format: uuid */
+            id: string;
+            displayName: string;
+            isOwner: boolean;
+            isYou: boolean;
+            startedFamily: boolean;
+            /** Format: date-time */
+            joinedAt: string;
+        };
+        /**
+         * @description The signed-in person's family (F-023): its name, everyone in it and, for the owner only, the links still waiting
+         *     to be opened.
+         */
+        FamilyView: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** Format: date-time */
+            createdAt: string;
+            isOwner: boolean;
+            members: components["schemas"]["FamilyMemberItem"][];
+            invitations: components["schemas"]["FamilyInvitationItem"][];
+        };
         HealthResponse: {
             status: string;
         };
-        /** @description One invite link on the admin's list. */
+        /** @description One invite link on the admin's list. FamilyName is set for a family's link (F-023, open point 5). */
         InvitationItem: {
             /** Format: uuid */
             id: string;
@@ -2400,18 +2914,38 @@ export interface components {
             usedByName: null | string;
             /** Format: date-time */
             cancelledAt: null | string;
+            familyName?: null | string;
         };
-        /** @description What the invite page shows about a link that works: who invited and until when. */
+        /**
+         * @description What the invite page shows about a link that works: who invited and until when, and for a family's link the family
+         *     it joins (F-023).
+         */
         InvitationPreview: {
             inviterName: string;
             /** Format: date-time */
             expiresAt: string;
+            family?: null | components["schemas"]["InvitedFamily"];
         };
         /**
          * @description Where an invitation is in its life. Worked out from its dates, never stored (F-028).
          * @enum {unknown}
          */
         InvitationStatus: "Waiting" | "Used" | "Expired" | "Cancelled";
+        /** @description The family a link joins: its name and who is in it, the owner first. */
+        InvitedFamily: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            members: components["schemas"]["InvitedFamilyMember"][];
+        };
+        InvitedFamilyMember: {
+            displayName: string;
+            isOwner: boolean;
+        };
+        /** @description Join the family of the invite link with this token. */
+        JoinFamilyRequest: {
+            token: string;
+        };
         /** @description The account last used for a type: the form picks it when it opens (DESIGN_RULES §5). */
         LastAccount: {
             type: components["schemas"]["TransactionType"];
@@ -2432,6 +2966,11 @@ export interface components {
             fromAccountId: string;
             /** Format: uuid */
             toAccountId: string;
+        };
+        /** @description An owner who leaves others behind names who looks after the family next. */
+        LeaveFamilyRequest: {
+            /** Format: uuid */
+            newOwnerId: null | string;
         };
         /** @description A type's most used categories, most used first: the form's category pills. */
         MostUsedCategories: {
@@ -2511,6 +3050,9 @@ export interface components {
         /** @description What removing did: deleted for good, or hidden because its transactions keep it. */
         RemovedItem: {
             removal: components["schemas"]["Removal"];
+        };
+        RenameFamilyRequest: {
+            name: string;
         };
         /**
          * @description The spreadsheet-like report (F-021) in Currency, each amount at the NBU rate of its own day
@@ -2660,6 +3202,9 @@ export interface components {
          * @enum {unknown}
          */
         SourceKind: "Cash" | "Bank" | "Own";
+        StartFamilyRequest: {
+            name: string;
+        };
         /**
          * @description One transaction as the lists show it, with its account's and category's names and the account's currency: an
          *     archived account or category is still named. A transfer (F-019) has no category; it has its To account's name and
