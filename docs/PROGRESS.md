@@ -24,7 +24,52 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   deleted the people and cancelled the links.
 
 **Next**
-- Owner: review the PR. Then B-011 or B-014 (Medium).
+- Owner: review the PR.
+
+## 2026-11-11 (B-014: Save right after the Note's suggestions on the phone)
+
+**Done**
+- [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) on
+  `bugfix/B-014-gap-under-note-suggestions`. Reproduced in Storybook at 375 × 520 px: one earlier note listed (`phy`)
+  left 200 px of empty space between the list and Save. Cause: while the list shows, the form's room under the Note
+  was always the whole sheet less the Note (B-009), which fits only the longest list. The owner approved the cause and
+  fix A on 2026-11-11.
+- `NoteField` reports its list's height (`onList`); the room under the form is only what the list needs
+  (`noteRoomHeight`), and the form scrolls only until the list's foot is just above Save. The room follows the list as
+  it grows and shrinks; the desktop and the no-list case (B-009) are unchanged. DESIGN_RULES' Note suggestions row
+  says so.
+- Tests: `noteRoom.test.ts`, `TransactionsPage.test.tsx` (the room for one and for five notes) and E2E
+  `transactions.spec.ts` on the phone (one, five, three notes: the whole list at most 32 px above Save); both
+  regression tests fail without the fix. B-009's E2E test now expects Save right after the list.
+- Checked: frontend lint, format, typecheck, unit tests (324 / 324), build, `build-storybook`; backend build (0
+  warnings) and tests (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone; screenshots at
+  375 × 520 px (one, three, five notes, the list gone; light and dark) and the desktop at 1440 px, light and dark,
+  looked at; the fix clicked through in the Browser pane.
+- Test data: the E2E runs' `e2e-list-gap-…`, `e2e-note-gap-…` and other `e2e-…@example.com` people (with their
+  accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Then B-013 (Medium).
+
+## 2026-11-11 (B-011: The picked day's ring inside it, at once on the phone)
+
+**Done**
+- [B-011](changes/bugfixes/B-011-calendar-picked-day-ring/B-011-calendar-picked-day-ring.md) on
+  `bugfix/B-011-calendar-picked-day-ring`. Reproduced in Storybook as a touch phone at 360 and 412 px: the picked
+  day's ring was drawn 4 px outside it while the days are 1–4 px apart, so the next day covered its right side and on
+  Monday it was squeezed against the card's edge; and the phone leaves the tapped day hovered, where the hover's grey
+  ring replaced the black one. The owner approved the cause and the fix on 2026-11-11.
+- `TransactionsPage.module.css`: the picked day's ring is 2 px inside it; the hover ring only where there is a mouse
+  and never on the picked day.
+- Tests: an E2E test in `transactions.spec.ts` (desktop and phone), failing before the fix, passing after it.
+- Checked: frontend lint, format, typecheck, unit tests (320 / 320), build, `build-storybook`; backend build and tests
+  (the backend isn't changed); the full E2E suite, desktop and phone; screenshots of the real app at 375 px and
+  1440 px, light and dark, looked at (in the change folder's `built/`, the reproduction in `repro/`).
+- Test data: the E2E runs' `e2e-…@example.com` people, among them `e2e-ring-…` and `e2e-shots-…` for the screenshots
+  (with an account and three expenses); the E2E clean-up deleted them. Nothing made by hand.
+
+**Next**
+- Owner: review the B-011 pull request.
 
 ## 2026-11-11 (B-012: The amount comes up whole above the phone keys)
 
@@ -345,6 +390,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the PR.
 
+
 ## 2026-11-06 (I-022: The opening balance typed from the left)
 
 **Done**
@@ -530,6 +576,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the PR.
 
+
 ## 2026-11-05 (I-025: Add transaction on the day picked in the calendar)
 
 **Done**
@@ -590,6 +637,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the PR.
+
 
 ## 2026-11-05 (B-006: The currency sign no longer runs into the amount)
 
@@ -918,6 +966,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the PR.
+
 
 ## 2026-11-03 (F-020: Transactions list)
 
@@ -1637,6 +1686,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the PR.
+
 
 ## 2026-10-30 (plan: drop I-010)
 

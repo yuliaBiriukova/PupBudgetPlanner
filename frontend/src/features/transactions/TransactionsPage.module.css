@@ -635,8 +635,11 @@
   color: var(--pup-color-on-heat);
 }
 
-.cell:hover:not(:disabled) {
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--mantine-color-text) 30%, transparent);
+/* Only where there is a mouse: a phone leaves the tapped day hovered, and the picked day keeps its black ring (B-011) */
+@media (hover: hover) {
+  .cell:hover:not(:disabled, [aria-pressed='true']) {
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--mantine-color-text) 30%, transparent);
+  }
 }
 
 .cell:disabled {
@@ -646,10 +649,10 @@
   cursor: default;
 }
 
+/* The picked day's ring inside it: the days are 1–4 px apart, so a ring outside was covered by the next day and
+   squeezed against the card's edge (B-011) */
 .cell[aria-pressed='true'] {
-  box-shadow:
-    0 0 0 2px var(--mantine-color-body),
-    0 0 0 4px var(--mantine-color-text);
+  box-shadow: inset 0 0 0 2px var(--mantine-color-text);
 }
 
 .cell:focus-visible {
