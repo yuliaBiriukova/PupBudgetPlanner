@@ -2,6 +2,27 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-12 (B-018: The E2E clean-up finds test people whose tag has digits)
+
+**Done**
+- [B-018](changes/bugfixes/B-018-e2e-cleanup-digit-tags/B-018-e2e-cleanup-digit-tags.md) on
+  `bugfix/B-018-e2e-cleanup-digit-tags`; the owner approved the root cause and the fix on 2026-11-11. The clean-up's
+  `TEST_PERSON_EMAIL` allowed only letters and hyphens in the tag, so the screenshot scripts' people
+  (`e2e-i024-shots-…`, `e2e-b004-debug-…` …) were never deleted: 51 of them in the `dev` database.
+- `TEST_PERSON_EMAIL` takes digits in the tag (still needs the `-<ms>-<rand>@example.com` end, so never the admin);
+  `newPerson` throws for a tag the clean-up wouldn't find. CLAUDE.md "Clean up test data" says to make test people
+  with `newPerson`, in hand-run scripts too.
+- Tests: `e2e/test-people.spec.ts` (no browser, desktop project): fails on the old pattern, passes now.
+- Checked, after merging `develop` (F-023): the full E2E suite against this branch's API and web app (93 passed, 19
+  skipped); frontend lint, format, typecheck, unit tests (359 / 359) and build; backend build (0 warnings) and tests
+  (515 / 515).
+- Test data: before the first run the `dev` database had 51 leftover `e2e-…` people from earlier changes; that run's
+  clean-up deleted them with the run's own people. Checked through `GET /api/admin/people` as the tests' admin after
+  both runs: the admin is the only `e2e-…` account left; no invite link is waiting. The owner's account untouched.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-11 (F-023: Family and invitations, built)
 
 **Done**

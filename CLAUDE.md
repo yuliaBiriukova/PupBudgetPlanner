@@ -49,6 +49,8 @@ This file tells Claude (and any human contributor) how we work on this project.
   database).
   - **Recognisable:** test accounts use `@example.com` emails (E2E: `e2e-<tag>-…@example.com` and the tests' admin
     `e2e-admin@example.com`), and invite links made for tests have a note that says so (E2E: starts with `E2E`).
+    Make test people with `newPerson` (`frontend/e2e/auth.ts`), in hand-run scripts too: its tag takes lowercase
+    letters, digits and hyphens (`i024-shots`), and it refuses one the clean-up wouldn't find (B-018).
   - **E2E tests clean up after themselves:** the `cleanup` teardown (`frontend/e2e/cleanup.teardown.ts`) runs after
     every run, passed or failed. It deletes the `e2e-…` accounts and cancels the tests' waiting invite links; the
     tests' admin stays. New E2E tests make people with `newPerson` and links with an `E2E…` note, so it finds them.
