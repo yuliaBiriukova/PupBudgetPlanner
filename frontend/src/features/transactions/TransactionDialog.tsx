@@ -32,6 +32,7 @@ import {
   type CategoryOption,
 } from './formDefaults';
 import { RateLine } from './RateLine';
+import { LIST_FOOT, LIST_GAP, noteRoomHeight } from './noteRoom';
 import { scrollParentOf } from './scrollParent';
 import classes from './TransactionForm.module.css';
 import {
@@ -264,9 +265,9 @@ function TransactionForm({
   // On the phone, while the note is typed the phone's keyboard is up (I-017)
   const [typingNote, setTypingNote] = useState(false);
   const noteTyped = typingNote && !isDesktop;
-  // The earlier notes listed under it: only then the form makes them room (B-009)
-  const [noteListed, setNoteListed] = useState(false);
-  const roomForList = noteTyped && noteListed;
+  // The earlier notes listed under it, as tall as this: only then the form makes them room (B-009), that much (B-014)
+  const [noteList, setNoteList] = useState<number | null>(null);
+  const roomForList = noteTyped && noteList !== null;
   const noteBlock = useRef<HTMLDivElement>(null);
   const noteRoom = useRef<HTMLDivElement>(null);
 
@@ -290,24 +291,31 @@ function TransactionForm({
     foldAway(keysFolded);
   });
 
-  // While the earlier notes are listed, the form scrolls the Note field to its top, so the list under it has the room
-  // down to Save: the room under the form is what the field needs to get there. With no list there is no room, only an
-  // empty gap, so the form stays where it is and the field is just kept in sight (B-009). Both follow the sheet as the
-  // phone's keyboard comes and goes
+  // While the earlier notes are listed, the form makes the list room under the Note down to Save: an empty block under
+  // the form as high as the list needs beyond the form already there (B-014), and it scrolls only so far that the list's
+  // foot is just above Save, the Note at most at the top of the sheet, where a longer list scrolls inside (B-009). With
+  // no list there is no room, only an empty gap, so the form stays where it is and the field is just kept in sight
+  // (B-009). Both follow the sheet as the phone's keyboard comes and goes, and the list as it grows and shrinks
   useEffect(() => {
     const block = noteBlock.current;
     const room = roomForList ? noteRoom.current : null;
+    const list = noteList ?? 0;
     const scroller = scrollParentOf(block);
     if (!noteTyped || !block || !scroller) return;
     let frame = 0;
     const fit = () => {
-      if (room)
-        room.style.height = `${String(Math.max(0, scroller.clientHeight - block.offsetHeight - NOTE_TOP_GAP))}px`;
+      if (room) {
+        const foot = block.getBoundingClientRect().bottom - scroller.getBoundingClientRect().top;
+        const under = scroller.scrollHeight - room.offsetHeight - (scroller.scrollTop + foot);
+        const most = scroller.clientHeight - block.offsetHeight - NOTE_TOP_GAP;
+        room.style.height = `${String(noteRoomHeight(list, under, most))}px`;
+      }
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const top = block.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
         const below = top + block.offsetHeight - scroller.clientHeight;
-        if (room) scroller.scrollTop += top - NOTE_TOP_GAP;
+        const listBelow = below + list + LIST_GAP + LIST_FOOT;
+        if (room && listBelow > 0) scroller.scrollTop += Math.min(listBelow, top - NOTE_TOP_GAP);
         else if (top < 0) scroller.scrollTop += top - NOTE_TOP_GAP;
         else if (below > 0) scroller.scrollTop += below + NOTE_TOP_GAP;
       });
@@ -319,7 +327,7 @@ function TransactionForm({
       observer.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, [noteTyped, roomForList]);
+  }, [noteTyped, roomForList, noteList]);
 
   // The data arrived after the dialog opened: the form starts now
   if (!form && usable) setForm(initialState(request, usable));
@@ -781,7 +789,7 @@ function TransactionForm({
               setTypingNote(true);
               setKeysUp(false);
             }}
-            onListed={setNoteListed}
+            onList={setNoteList}
             inSheet={!isDesktop}
           />
         </div>

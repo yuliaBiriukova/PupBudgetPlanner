@@ -1,9 +1,10 @@
 import { Combobox, TextInput, useCombobox } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FadingScrollArea } from '../../shared/ui/FadingScrollArea';
+import { LIST_FOOT, LIST_GAP } from './noteRoom';
 import { NOTE_MAX_LENGTH, shownNotes, splitAtTyped, SUGGESTIONS_DELAY } from './noteSuggestions';
 import { scrollParentOf } from './scrollParent';
 import classes from './TransactionForm.module.css';
@@ -32,8 +33,8 @@ interface NoteFieldProps {
   /** Enter with no suggestion picked saves the form. */
   onEnter: () => void;
   onFocus?: () => void;
-  /** The list under the field shows (true) or goes (false). */
-  onListed?: (listed: boolean) => void;
+  /** The list under the field shows, as tall as this with all its rows (px), or goes (`null`). */
+  onList?: (height: number | null) => void;
   /** On the phone the list hangs under the field inside the sheet, down to Save; on the desktop over the page. */
   inSheet: boolean;
 }
@@ -52,7 +53,7 @@ export function NoteField({
   placeholder,
   onEnter,
   onFocus,
-  onListed,
+  onList,
   inSheet,
 }: NoteFieldProps) {
   const { t } = useTranslation();
@@ -67,9 +68,33 @@ export function NoteField({
   });
   const shown = listing ? shownNotes(notes.data ?? [], value) : [];
   const listed = shown.length > 0;
+  // How tall the list is with all its rows, its border too: on the phone the form makes it that much room (B-014).
+  // Measured again as the rows come and go, and as they change size
+  const [rows, setRows] = useState<HTMLDivElement | null>(null);
+  const listHeight = useRef(0);
+  const count = shown.length;
   useEffect(() => {
-    onListed?.(listed);
-  }, [listed, onListed]);
+    if (!listed) {
+      listHeight.current = 0;
+      onList?.(null);
+      return;
+    }
+    const dropdown = classes.dropdown ? rows?.closest<HTMLElement>(`.${classes.dropdown}`) : null;
+    // While the list is hidden for a moment (the field scrolled out of the form's sight) it keeps its last height
+    const report = () => {
+      if (rows && dropdown && rows.offsetHeight > 0)
+        listHeight.current = rows.offsetHeight + dropdown.offsetHeight - dropdown.clientHeight;
+      // Shown before it can be measured: the room for it comes all the same
+      onList?.(listHeight.current);
+    };
+    report();
+    if (!rows) return;
+    const observer = new ResizeObserver(report);
+    observer.observe(rows);
+    return () => {
+      observer.disconnect();
+    };
+  }, [listed, rows, count, onList]);
   // On the phone the list is the sheet's, not its scrolling form's: the form's fade at its foot stays off it, and it
   // hangs down to the form's end, where Save starts (final prototype)
   const [sheet, setSheet] = useState<{ content: HTMLElement; form: HTMLElement } | null>(null);
@@ -100,13 +125,13 @@ export function NoteField({
       portalProps={inPlace ? { target: inPlace.content } : undefined}
       width="target"
       position="bottom-start"
-      offset={4}
+      offset={LIST_GAP}
       // On the phone the list goes down to Save and scrolls; on the desktop it turns up above the field when the room
       // under the dialog runs out, as the app's other dropdowns do
       middlewares={{
         flip: !inSheet,
         shift: false,
-        size: inPlace ? { boundary: inPlace.form, padding: 8 } : false,
+        size: inPlace ? { boundary: inPlace.form, padding: LIST_FOOT } : false,
       }}
       classNames={{ dropdown: classes.dropdown, option: classes.suggestion }}
     >
@@ -140,6 +165,7 @@ export function NoteField({
       <Combobox.Dropdown>
         <FadingScrollArea autosize className={classes.suggestionsScroll}>
           <Combobox.Options
+            ref={setRows}
             className={classes.suggestions}
             aria-label={t('transactions.form.noteSuggestions')}
           >
