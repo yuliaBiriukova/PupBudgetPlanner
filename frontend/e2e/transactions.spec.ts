@@ -464,6 +464,38 @@ test('a day picked in the calendar: Add transaction starts on it, and the saved 
   ).toContainText('−120 ₴');
 });
 
+test('the picked day in the calendar has its black ring inside it, right after the tap (B-011)', async ({
+  page,
+}) => {
+  const response = await signUpThroughApi(page.request, newPerson('ring'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+  // Last month's first Monday: on the calendar's left edge, where the ring was squeezed against the card
+  const month = dayjs().subtract(1, 'month').date(1);
+  const monday = month.add((8 - month.day()) % 7, 'day');
+
+  await page.goto(`/transactions?month=${month.format('YYYY-MM')}`);
+  const calendar = page.getByRole('region', { name: en.transactions.calendar.title });
+  await expect(calendar).toBeVisible();
+  const unfold = calendar.getByRole('button', { name: /show the whole month$/ });
+  if (await unfold.isVisible()) await unfold.click();
+  const day = calendar.getByRole('button', {
+    name: new RegExp(`^${monday.format('dddd D MMMM')}:`),
+  });
+  await day.click();
+  await expect(day).toHaveAttribute('aria-pressed', 'true');
+
+  // Still hovered, as the phone leaves a tapped day: the black ring, not the hover's grey one, and drawn inside the
+  // day, where the next day can't cover it
+  const ring = await day.evaluate((cell) => ({
+    hovered: cell.matches(':hover'),
+    shadow: getComputedStyle(cell).boxShadow,
+    text: getComputedStyle(document.body).color,
+  }));
+  expect(ring.hovered).toBe(true);
+  expect(ring.shadow).toBe(`${ring.text} 0px 0px 0px 2px inset`);
+});
+
 test('on the desktop, a month with many categories: Where it went scrolls in its column and the last one can be picked', async ({
   page,
   isMobile,
