@@ -27,6 +27,24 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the PR.
 
+## 2026-11-11 (B-016: The E2E job installs its browser without apt)
+
+**Done**
+- [B-016](changes/bugfixes/B-016-e2e-browser-install-hangs/B-016-e2e-browser-install-hangs.md) on
+  `bugfix/B-016-e2e-browser-install-hangs`. Four E2E runs that day (B-014's PR, a push to `develop`, B-013's PR #82
+  twice) failed after 8–18 minutes without running a test: `npx playwright install --with-deps chromium` ran apt for
+  9 font packages while the runners couldn't resolve Ubuntu's mirrors, and apt waited about 20 s per file and mirror.
+  The owner approved the cause and option 2 on 2026-11-11.
+- `ci.yml`, job `e2e`: `npx playwright install chromium` without `--with-deps` (the runner already has Chromium's
+  libraries; the app ships its own fonts and the tests compare no screenshots), the browser kept in the Actions cache
+  keyed by the Playwright version in `package-lock.json`, and `timeout-minutes: 4` on the install step. Option 1,
+  Playwright's own Docker image, was turned down: a 2 GB pull per run, a tag to bump by hand, .NET inside it.
+- Checked: CI on PR #83. A CI-only change, so no local suites were run (nothing in `backend/` or `frontend/` changed).
+- Test data: none.
+
+**Next**
+- Owner: review PR #83. Then B-013 (Medium), whose PR #82 can be re-run once this is in `develop`.
+
 ## 2026-11-11 (B-014: Save right after the Note's suggestions on the phone)
 
 **Done**
