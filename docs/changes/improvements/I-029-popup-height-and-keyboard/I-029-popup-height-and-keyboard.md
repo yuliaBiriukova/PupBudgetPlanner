@@ -39,6 +39,9 @@ its buttons in sight (owner, 2026-11-09).
       account's Name, a new invite link's note) doesn't take the cursor as the pop-up opens; the keyboard comes with a
       tap on a field. A search keeps its cursor (the currency search, B-004). The desktop dialogs still put the cursor
       in the first field.
+- [x] The quick-add form's sheet doesn't jump while its data loads (owner's review, 2026-11-11): the loading
+      placeholder is as tall as the form was the last time on this device, so the sheet opens at the form's height and
+      stays there; the corners are square or round from the first frame, not a frame after the height.
 - [x] Swipe down and Back still close the pop-ups (I-015).
 - [x] The desktop dialogs are unchanged (centred; they already scroll inside, I-004) (owner, 2026-11-10).
 
@@ -56,6 +59,10 @@ its buttons in sight (owner, 2026-11-09).
       scrolled into sight with its label and hint (`useFieldInSight`), clear of the content's fading edges.
 - [x] Look through every pop-up on the phone (account form, delete dialogs, Settings, People, invite links, the
       currency search, the pickers, the quick-add form) with the keyboard up and down.
+- [x] The quick-add form's loading placeholder holds the form's height on the phone: the fields' height is kept on
+      the device per type (`formHeight.ts`, `pup.transactions.formHeight`) and the placeholder takes it, with the
+      places of the type switch and Save; before the first time it is the short placeholder. `useSheetAtTop` sets
+      `data-at-top` on the sheet itself as its size is observed, in the same frame.
 - [x] Storybook: *Shared / BottomSheet*: With title (short), Long with buttons (the whole screen, square corners),
       Above the keyboard and Long above the keyboard (a stand-in keyboard through the visual viewport).
 - [x] The prototype stories deleted (`frontend/src/prototypes/I-029-popup-height-and-keyboard/`).
@@ -108,6 +115,10 @@ rules laid over them, plus a stand-in for the phone's keyboard when a field is t
   each as tall as their content (Add was a set 90 %).
 - Screens checked in Playwright screenshots at 375 px (every pop-up, keyboard up and down) and 1440 px (unchanged),
   light and dark.
+- The review's fix: `formHeight.test.ts`; `TransactionsPage.test.tsx` (the placeholder as tall as the form was, with
+  the switch's and Save's places; the short one before the first time; unchanged on the desktop; the height
+  remembered once the form shows); `sheets.spec.ts` (with the form's data 1.5 s late the sheet has the same top and
+  bottom while loading and after).
 
 ## Open points
 
@@ -118,6 +129,16 @@ Answered by the owner on 2026-11-10:
 - **Design check:** **a prototype story to try first**, then screenshots of every pop-up.
 
 - **Corners at the top** (the prototype's switch): **square**, the prototype's default, approved as shown.
+
+## Review 2026-11-11: the sheet jumped as the form's data came
+
+The owner, on the built change: "when I open the pop-up there's strange animation for a second when I see the rounded
+corners at the top". The quick-add form fetches its data (accounts, categories, the last-used suggestions) when it
+opens; on the first open after the app starts that takes up to a second. Until I-029 the sheet had a set height, so
+only its inside changed. As tall as its content, it opened short with the loading placeholder and round corners, then
+jumped to the form's height, its corners going square a frame later. Fixed as the last acceptance criterion says; the
+desktop dialog's loading is unchanged. Left as it is: the very first open on a device (nothing to remember yet) still
+grows once.
 
 ## Approved 2026-11-11
 

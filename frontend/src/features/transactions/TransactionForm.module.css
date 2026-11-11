@@ -786,6 +786,12 @@
   gap: 16px;
 }
 
+/* On the phone, as tall as the form's fields were last time (I-029): the day, the account, what is between them and
+   the note, and the note */
+.loading[data-shaped] {
+  grid-template-rows: 88px 90px minmax(0, 1fr) 84px;
+}
+
 .empty {
   display: grid;
   gap: 16px;

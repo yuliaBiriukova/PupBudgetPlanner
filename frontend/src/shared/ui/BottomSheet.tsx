@@ -60,7 +60,7 @@ export function BottomSheet({
   );
   // Every sheet stays above the phone's keyboard (I-017 for the transaction form, I-029 for the rest)
   const keyboard = useKeyboardInset(opened);
-  const atTop = useSheetAtTop(sheet, keyboard);
+  useSheetAtTop(sheet, keyboard);
   useFieldInSight(sheet, keyboard);
 
   // classNames, not className: Drawer.Content passes className to the full-screen inner box too
@@ -75,7 +75,6 @@ export function BottomSheet({
       <Drawer.Content
         ref={contentRef}
         data-tall={tall ? true : undefined}
-        data-at-top={atTop ? true : undefined}
         data-keyboard={keyboard ? true : undefined}
         style={
           keyboard

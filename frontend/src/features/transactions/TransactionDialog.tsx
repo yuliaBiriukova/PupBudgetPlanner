@@ -16,6 +16,7 @@ import { AmountDisplay } from './AmountDisplay';
 import { AmountKeys } from './AmountKeys';
 import { CategoryField } from './CategoryField';
 import { mondayOf, today } from './days';
+import { rememberedFormHeight, rememberFormHeight } from './formHeight';
 import { DeleteTransactionDialog } from './DeleteTransactionDialog';
 import { NoteField } from './NoteField';
 import { suggestedToAmount } from './exchange';
@@ -60,6 +61,9 @@ const TYPES: readonly TransactionType[] = ['Expense', 'Income', 'Transfer'];
 
 /** On the phone the Note field scrolls up to this far under the sheet's title while the note is typed (I-017). */
 const NOTE_TOP_GAP = 16;
+
+/** The height of the type switch and of Save on the phone: their places while the form's data loads (I-029). */
+const LOADING_ROW = 52;
 
 interface FormState {
   type: TransactionType;
@@ -338,8 +342,18 @@ function TransactionForm({
   const word = editing && (exchange || isExchange(editing)) ? 'Exchange' : type;
   const title = editing ? t(`transactions.edit.${word}`) : t(`transactions.add.${type}`);
 
+  // The phone remembers how tall the fields are (not while a note's list or an error makes them taller): the next
+  // time the form opens before its data is here, the sheet is that tall from the start and doesn't jump (I-029)
+  const fields = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isDesktop && !noteTyped && !save.isError && fields.current)
+      rememberFormHeight(type, fields.current.offsetHeight);
+  });
+
   if (!form || !usable) {
     let body: ReactNode;
+    /** The fields' height to hold while the data loads, on the phone, once it is known. */
+    let shaped: number | null = null;
     if (data && !usable) {
       body = (
         <div className={classes.empty}>
@@ -367,21 +381,33 @@ function TransactionForm({
         </div>
       );
     } else {
+      shaped = isDesktop ? null : rememberedFormHeight(type);
       body = (
         <div
           className={classes.loading}
           role="status"
           aria-busy="true"
           aria-label={t('transactions.form.loading')}
+          data-shaped={shaped ? true : undefined}
+          style={shaped ? { height: shaped } : undefined}
         >
           {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} height={80} radius="md" />
+            <Skeleton key={i} height={shaped ? '100%' : 80} radius="md" />
           ))}
         </div>
       );
     }
+    // With the fields' height held, the type switch's and Save's places are held too: the sheet's whole height
+    const place = shaped ? <Skeleton height={LOADING_ROW} radius="xl" /> : undefined;
     return (
-      <ResponsiveDialog opened={opened} onClose={onClose} title={title} size={520}>
+      <ResponsiveDialog
+        opened={opened}
+        onClose={onClose}
+        title={title}
+        size={520}
+        heading={place}
+        footer={place}
+      >
         {body}
       </ResponsiveDialog>
     );
@@ -629,7 +655,7 @@ function TransactionForm({
       footer={footer}
       size={520}
     >
-      <div className={classes.form}>
+      <div className={classes.form} ref={fields}>
         {save.isError && (
           <p className={classes.banner} role="alert">
             <IconAlertCircle size={20} stroke={1.7} aria-hidden />

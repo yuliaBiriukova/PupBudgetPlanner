@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { KeyboardInset } from './useKeyboardInset';
 
 /**
- * Whether a sheet reaches the top of the room it has: the screen, or what the phone's keyboard leaves of it. There
- * its corners go square, so no slivers of the page show beside them (I-029).
+ * Marks a sheet that reaches the top of the room it has (the screen, or what the phone's keyboard leaves of it) with
+ * `data-at-top`: there its corners go square, so no slivers of the page show beside them (I-029). Set on the element
+ * itself as its size is observed, before the frame is painted: through React's state the corners changed a frame
+ * after the sheet's height, a flicker when a form grew to the top.
  */
-export function useSheetAtTop(sheet: HTMLElement | null, keyboard: KeyboardInset | null): boolean {
-  const [atTop, setAtTop] = useState(false);
+export function useSheetAtTop(sheet: HTMLElement | null, keyboard: KeyboardInset | null) {
   const room = keyboard?.height;
 
   useEffect(() => {
     if (!sheet) return undefined;
     const measure = () => {
-      setAtTop(sheet.offsetHeight >= (room ?? window.innerHeight) - 1);
+      sheet.toggleAttribute('data-at-top', sheet.offsetHeight >= (room ?? window.innerHeight) - 1);
     };
     // Observing measures it once right away, then whenever its content or the screen changes its height
     const observer = new ResizeObserver(measure);
@@ -23,8 +24,6 @@ export function useSheetAtTop(sheet: HTMLElement | null, keyboard: KeyboardInset
       window.removeEventListener('resize', measure);
     };
   }, [sheet, room]);
-
-  return sheet !== null && atTop;
 }
 
 /**

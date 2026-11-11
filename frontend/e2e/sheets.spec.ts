@@ -271,4 +271,20 @@ test('on the phone the quick-add form is as tall as its fields, and reaches the 
   await form.getByLabel(en.transactions.form.amount, { exact: true }).click();
   await expect.poll(edges).toEqual([0, screen]);
   await expect(form).toHaveCSS('border-top-left-radius', '0px');
+  await form.getByRole('button', { name: en.common.close }).click();
+  await expect(form).toBeHidden();
+
+  // The next time the app starts, the form's data comes late: the sheet opens as tall as the form was and stays
+  // so when the form is there, with nothing jumping
+  await page.route('**/api/transactions/suggestions', async (route) => {
+    await new Promise((done) => setTimeout(done, 1500));
+    await route.continue();
+  });
+  await page.reload();
+  await openAddForm(page, isMobile);
+  await expect(form.getByRole('status', { name: en.transactions.form.loading })).toBeVisible();
+  expect(await edges()).toEqual([top, screen]);
+  await expect(form.getByRole('button', { name: en.transactions.form.saveExpense })).toBeVisible();
+  expect(await edges()).toEqual([top, screen]);
+  await expect(form).toHaveCSS('border-top-left-radius', '24px');
 });
