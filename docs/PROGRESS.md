@@ -2,6 +2,23 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-11 (B-015: E2E tests in Kyiv's time zone; red CI on PR #78)
+
+**Done**
+- CI's E2E job failed on PR #78 (I-029) at 00:39 in Kyiv: two tests of `transactions.spec.ts`, on all three tries.
+  Not I-029: the tests' helper dates its expenses with Kyiv's today (as the API counts days) while CI's browser is in
+  UTC, where it was still yesterday, so the page had no "Today" receipt. Any CI run between midnight and 02:00 in Kyiv
+  failed this way.
+- [B-015](changes/bugfixes/B-015-e2e-day-after-midnight-kyiv/B-015-e2e-day-after-midnight-kyiv.md), fixed on the same
+  pull request under the owner's Auto-fix: `playwright.config.ts` runs the browser (`timezoneId`) and the tests' own
+  code (`TZ`) in `Europe/Kyiv`.
+- Checked: shown failing first with a time zone a day behind Kyiv (CI's own error), passing in Kyiv; the full E2E
+  suite, desktop and phone.
+- Test data: the E2E runs' `e2e-…@example.com` people; the clean-up deleted them.
+
+**Next**
+- Owner: review PR #78.
+
 ## 2026-11-11 (I-029: Phone pop-ups as tall as their content, above the keyboard)
 
 **Done**
@@ -33,6 +50,13 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   light and dark, looked at (the account form opening, with Name typed, its currency list, editing and deleting an
   account; More; the quick-add form's Expense and Transfer, its keys, its Note typed, All categories; the filters; the
   new invite link), each typed field with the keyboard up, and the desktop dialogs at 1440 px (unchanged).
+- Owner's review of the PR (2026-11-11), "a strange animation for a second" as the quick-add form opens: the form's
+  data arrives up to a second after the sheet, and the sheet, now as tall as its content, opened short with the
+  loading placeholder and jumped to the form's height. The placeholder is now as tall as the form was last time on the
+  device (`formHeight.ts`), with the places of the type switch and Save, so the sheet opens at its final height; the
+  square corners are set in the same frame as the height (`useSheetAtTop` writes the attribute itself). Tests:
+  `formHeight.test.ts`, four in `TransactionsPage.test.tsx`, and `sheets.spec.ts` with the data 1.5 s late. Checked
+  frame by frame with an 800 ms API in Storybook at 400 × 620 and 375 × 812: one height from the first frame.
 - Test data: the E2E runs' `e2e-…@example.com` people (with their accounts), among them `e2e-shots-…` for the
   screenshots; the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand; the invite link
   dialog was opened as the tests' admin and closed without creating a link.
