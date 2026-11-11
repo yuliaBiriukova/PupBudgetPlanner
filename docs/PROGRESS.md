@@ -32,8 +32,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   noted `E2E manual F-029` made for a check in the browser; the E2E clean-up deleted them and cancelled the links.
 
 **Next**
-- Owner: review the PR. The Transactions filters list the period's categories by amount (F-020), not in the person's
-  order; say if they should follow the person's order instead. Then F-023 (Family and invitations).
+- Owner: review the PR. The Transactions filters keep listing the period's categories by amount (F-020), not in the
+  person's order: the owner's choice, 2026-11-11. Then F-023 (Family and invitations).
 
 ## 2026-11-11 (F-029: Manage categories, design round 1)
 

@@ -36,7 +36,8 @@ categories that can already be renamed, moved and hidden.
       a clash says so on the field.
 - [x] **The new order is used everywhere categories are listed:** the Categories page, the quick-add form's picker,
       the Transactions filters and the reports' rows. (The Transactions filters list the period's categories by
-      amount, F-020's "where it went", so not in the person's order; they follow a rename or a move at once.)
+      amount, F-020's "where it went", so not in the person's order; they follow a rename or a move at once. The
+      owner chose to keep them by amount, 2026-11-11.)
 - [x] Changes are only to the person's own categories; nobody else's set changes.
 - [x] The Categories page's line "adding, renaming and removing come later" is gone.
 - [x] Works on the phone (375 px) and the desktop, light and dark; reordering works by touch and with the keyboard,
