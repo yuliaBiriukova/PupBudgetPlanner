@@ -39,7 +39,7 @@ function InviteScreen({ screen }: InviteScreenProps) {
     </AuthLayout>
   ) : (
     <AuthLayout withSwitch={false}>
-      <InvitePage />
+      <InvitePage token={token} />
     </AuthLayout>
   );
   const [router] = useState(() =>
