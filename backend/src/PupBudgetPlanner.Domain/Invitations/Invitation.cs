@@ -10,8 +10,9 @@ public enum InvitationStatus
 }
 
 /// <summary>
-/// An invite link the admin made for one person (F-028). It lets one account be created, within
-/// <see cref="Lifetime"/>, unless the admin cancels it first. Only the hash of the link's token is kept.
+/// An invite link for one person, made by the admin (F-028) or by a family's owner (F-023). It works once, within
+/// <see cref="Lifetime"/>, unless it is cancelled first: it lets an account be created, and a family's link also takes
+/// that person, new or not, into the family. Only the hash of the link's token is kept.
 /// </summary>
 public sealed class Invitation
 {
@@ -24,11 +25,17 @@ public sealed class Invitation
     /// <summary>SHA-256 of the token in the link; the token itself is shown once, when the link is made.</summary>
     public required byte[] TokenHash { get; init; }
 
-    /// <summary>Who the link is for, as the admin wrote it. Only the admin sees it.</summary>
+    /// <summary>Who the link is for, as its maker wrote it. Only they (and the admin) see it.</summary>
     public string? Note { get; init; }
 
-    /// <summary>The admin who made it; empty once that account is gone.</summary>
+    /// <summary>The admin or family owner who made it; empty once that account is gone.</summary>
     public Guid? CreatedById { get; init; }
+
+    /// <summary>
+    /// The family the link takes its person into (F-023); empty for the admin's links, and once the family is deleted
+    /// (its waiting links are cancelled first).
+    /// </summary>
+    public Guid? FamilyId { get; init; }
 
     public DateTimeOffset CreatedAt { get; init; }
 
@@ -41,12 +48,21 @@ public sealed class Invitation
 
     public DateTimeOffset? CancelledAt { get; private set; }
 
-    public static Invitation Create(byte[] tokenHash, string? note, Guid createdById, DateTimeOffset now) => new()
+    /// <summary>
+    /// Whether the account was created with it ("Invited" on the People page). A family's link opened by someone who
+    /// already has an account is used without creating one (F-023).
+    /// </summary>
+    public bool CreatedAccount { get; private set; }
+
+    /// <summary>A new link; with <paramref name="familyId"/> it is a family's link, made by its owner.</summary>
+    public static Invitation Create(
+        byte[] tokenHash, string? note, Guid createdById, DateTimeOffset now, Guid? familyId = null) => new()
     {
         Id = Guid.CreateVersion7(now),
         TokenHash = tokenHash,
         Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
         CreatedById = createdById,
+        FamilyId = familyId,
         CreatedAt = now,
         ExpiresAt = now + Lifetime,
     };
@@ -57,8 +73,9 @@ public sealed class Invitation
         : now >= ExpiresAt ? InvitationStatus.Expired
         : InvitationStatus.Waiting;
 
-    // Using it happens in one conditional UPDATE in the account's transaction (AccountCreator), so two sign-ups
-    // racing for one link can't both win; the condition there is "waiting" as defined by StatusAt.
+    // Using it happens in one conditional UPDATE in the account's or the joining's transaction (AccountCreator,
+    // FamilyService), so two people racing for one link can't both win; the condition there is "waiting" as defined by
+    // StatusAt.
 
     /// <summary>Stops a waiting invitation from working. Used or expired ones stay as they are.</summary>
     public bool Cancel(DateTimeOffset now)

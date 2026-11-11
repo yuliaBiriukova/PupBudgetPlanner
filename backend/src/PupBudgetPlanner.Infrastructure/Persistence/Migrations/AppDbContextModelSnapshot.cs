@@ -442,6 +442,60 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.ToTable("exchange_rates", (string)null);
                 });
 
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Families.Family", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_families");
+
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_families_owner_id");
+
+                    b.ToTable("families", (string)null);
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Families.FamilyMember", b =>
+                {
+                    b.Property<Guid>("FamilyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("family_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTimeOffset>("JoinedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("joined_at");
+
+                    b.HasKey("FamilyId", "UserId")
+                        .HasName("pk_family_members");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_family_members_user_id");
+
+                    b.ToTable("family_members", (string)null);
+                });
+
             modelBuilder.Entity("PupBudgetPlanner.Domain.Invitations.Invitation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -452,6 +506,10 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("CancelledAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("cancelled_at");
+
+                    b.Property<bool>("CreatedAccount")
+                        .HasColumnType("boolean")
+                        .HasColumnName("created_account");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -464,6 +522,10 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("ExpiresAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires_at");
+
+                    b.Property<Guid?>("FamilyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("family_id");
 
                     b.Property<string>("Note")
                         .HasMaxLength(60)
@@ -490,13 +552,17 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.HasIndex("CreatedById")
                         .HasDatabaseName("ix_invitations_created_by_id");
 
+                    b.HasIndex("FamilyId")
+                        .HasDatabaseName("ix_invitations_family_id");
+
                     b.HasIndex("TokenHash")
                         .IsUnique()
                         .HasDatabaseName("ix_invitations_token_hash");
 
                     b.HasIndex("UsedById")
                         .IsUnique()
-                        .HasDatabaseName("ix_invitations_used_by_id");
+                        .HasDatabaseName("ix_invitations_used_by_id")
+                        .HasFilter("created_account");
 
                     b.ToTable("invitations", (string)null);
                 });
@@ -802,6 +868,33 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_category_groups_users_user_id");
                 });
 
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Families.Family", b =>
+                {
+                    b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_families_users_owner_id");
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Families.FamilyMember", b =>
+                {
+                    b.HasOne("PupBudgetPlanner.Domain.Families.Family", null)
+                        .WithMany("Members")
+                        .HasForeignKey("FamilyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_family_members_families_family_id");
+
+                    b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_family_members_users_user_id");
+                });
+
             modelBuilder.Entity("PupBudgetPlanner.Domain.Invitations.Invitation", b =>
                 {
                     b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
@@ -809,6 +902,12 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_invitations_users_created_by_id");
+
+                    b.HasOne("PupBudgetPlanner.Domain.Families.Family", null)
+                        .WithMany()
+                        .HasForeignKey("FamilyId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_invitations_families_family_id");
 
                     b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
                         .WithMany()
@@ -849,6 +948,11 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("PupBudgetPlanner.Domain.Categories.CategoryGroup", b =>
                 {
                     b.Navigation("Categories");
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Families.Family", b =>
+                {
+                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }

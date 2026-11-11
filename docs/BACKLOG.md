@@ -64,7 +64,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 | ID | Feature | Status |
 |----|---------|--------|
 | [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) | 🎨 Add, rename, reorder and remove categories and groups (priority High, added 2026-11-06) | Done |
-| [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) | 🎨 Family and invitations | Todo |
+| [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) | 🎨 Family and invitations | Done |
 | [F-024](changes/features/F-024-family-views/F-024-family-views.md) | Family views | Todo |
 
 ### M6 — MVP release

@@ -14,7 +14,9 @@ public sealed record CreateInvitationRequest(string? Note);
 /// </summary>
 public sealed record CreatedInvitation(Guid Id, string Token, string? Note, DateTimeOffset ExpiresAt);
 
-/// <summary>One invite link on the admin's list.</summary>
+/// <summary>
+/// One invite link on the admin's list. <paramref name="FamilyName"/> is set for a family's link (F-023, open point 5).
+/// </summary>
 public sealed record InvitationItem(
     Guid Id,
     string? Note,
@@ -23,10 +25,19 @@ public sealed record InvitationItem(
     DateTimeOffset ExpiresAt,
     DateTimeOffset? UsedAt,
     string? UsedByName,
-    DateTimeOffset? CancelledAt);
+    DateTimeOffset? CancelledAt,
+    string? FamilyName = null);
 
-/// <summary>What the invite page shows about a link that works: who invited and until when.</summary>
-public sealed record InvitationPreview(string InviterName, DateTimeOffset ExpiresAt);
+/// <summary>
+/// What the invite page shows about a link that works: who invited and until when, and for a family's link the family
+/// it joins (F-023).
+/// </summary>
+public sealed record InvitationPreview(string InviterName, DateTimeOffset ExpiresAt, InvitedFamily? Family = null);
+
+/// <summary>The family a link joins: its name and who is in it, the owner first.</summary>
+public sealed record InvitedFamily(Guid Id, string Name, IReadOnlyList<InvitedFamilyMember> Members);
+
+public sealed record InvitedFamilyMember(string DisplayName, bool IsOwner);
 
 /// <summary>
 /// One person on the People page. How they sign in is left out on purpose: the admin doesn't need it (F-028,

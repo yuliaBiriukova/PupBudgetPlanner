@@ -22,6 +22,74 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the PR.
 
+## 2026-11-11 (F-023: Family and invitations, built)
+
+**Done**
+- The owner approved F-023 for implementation on 2026-11-11 ("approved f-023, build it": the final prototype and the
+  six open points' proposals); recorded in the
+  [description](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) and DESIGN_RULES
+  "Screen decisions".
+- Backend: the `Family` aggregate in the Domain (one owner, members with the day they joined; rename, remove, leave
+  with the next owner, the last one leaving empties it); `families` and `family_members` with one family per person
+  as a unique index; a family's link is an F-028 invitation with a `family_id`, and `created_account` keeps "Invited"
+  to links that created the account (migration `AddFamilies`, applied to the `dev` database by the local API);
+  `/api/family` (get, start, rename, invite, cancel a link, remove, leave, join); sign-up with a family's link
+  (password or Google) joins the family; the admin's Delete hands an owner's family to whoever has been in it longest
+  and deletes an emptied one; the link preview names the family and its members; the admin's list has the family.
+- Frontend: the Family page replaces the placeholder (Name, Members, Invite someone, Leave / Delete the family; with
+  no family Start a family and Join a family), its dialogs (a new link shown once with Copy / Share, Remove, Leave
+  with the next owner picked); `/invite/:token` now also serves someone signed in: a family's link asks to join, or
+  to leave the current family first; someone new gets F-028's sign-up with the family named, and goes on to Family.
+  The admin's *Invite links* tab tags a family's links. The prototype stories were removed; *Family / Family page*
+  has the owner, member, no family, loading, error and the three join pages. `PlaceholderPage` went with the last
+  placeholder.
+- Added in the build (in the description's "Built"): a link to your own family, and a link that no longer works for
+  someone signed in, each get a line and Go to Family.
+- Decisions: [ADR 0029](decisions/0029-families.md) (the `Family` aggregate, one family per person in the database,
+  family links are invite links, nothing of anyone's deleted with a family or an account).
+- Tests: backend 515 / 515 (30 new: `FamilyTests`, a family link's lifetime, validators, `FamilyControllerTests`);
+  frontend unit tests 359 / 359 (13 new in `FamilyPage.test.tsx`); E2E `family.spec.ts` (someone new joins with the
+  link and is removed; someone with an account joins and leaves), desktop and phone.
+- Checked: backend build (0 warnings); frontend lint, format, typecheck, build; the design check on the Family page
+  (owner, no family) and the join page (signed in: no issues; signed out: only the password eye button "overlap" F-028's
+  page has too); screenshots of every state at 375 and 1440 px, light and dark, looked at (kept in the change folder's
+  `screenshots/`); they caught the join page's title sitting right under the card and a dialog's first line 12 px
+  low (a class losing to another stylesheet on load order), both fixed.
+- Test data: the E2E runs' `e2e-…@example.com` people and their families and links, and `e2e-manual-…@example.com`
+  people (with families Kovalenko and Melnyk and links noted `E2E …` and `Mom`) made for the screenshots and the design
+  check; the E2E clean-up deleted the people, which deleted their families and cancelled the families' waiting links.
+
+- Owner's review: generic placeholders, Family name "Our family" (was "Kovalenko") and Who is it for? "Their name"
+  (was "Mom"); the screenshots showing them taken again and looked at. Their two `e2e-manual-…` people were removed by
+  the E2E clean-up.
+
+**Next**
+- Owner: review the PR; try the Family page and a link in a second browser. Then F-024 (Family views).
+
+## 2026-11-11 (F-023: Family and invitations, design round 1)
+
+**Done**
+- [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) started on
+  `feature/F-023-family-and-invitations`: references (Spotify, Google, Apple, Monarch and YNAB help pages; Mobbin
+  needs a sign-in), the brief, the plan, and three prototype stories in *Prototypes / F-023 Family and invitations*:
+  Sections, Seats, Tickets. Each is the app opened on Family with a start picked in the link (owner, no family,
+  member, and opening a link signed in, while in a family, or as someone new); starting, renaming, inviting,
+  cancelling a link, removing, leaving and joining all work in the story.
+- Six open points with proposals in the description (the owner alone invites; an owner leaving names the next
+  owner; rename; no limit; family links on the People page; nothing deleted on leaving).
+- Checked: the design check on the three stories and six starts (only the password eye button "overlap" the app's
+  own invite page has too); typecheck, ESLint, Prettier; every state clicked through in Playwright, screenshots at
+  375 px light and dark and 1440 px looked at.
+- Test data: none (Storybook only).
+
+- The owner picked variant 1, "Sections", without changes; it is now the *Final prototype* story (variants 2 and 3
+  removed), with one fix (the Start a family button 16 px under its field on the desktop, was 44). Checked again:
+  the design check on its six starts, every state's screenshots at 375 and 1440 px, light and dark, kept in the change
+  folder's `prototypes/`.
+
+**Next**
+- Owner: approve the final prototype and the open points' proposals for implementation (or ask for changes).
+
 ## 2026-11-11 (F-029: Manage categories, built)
 
 **Done**

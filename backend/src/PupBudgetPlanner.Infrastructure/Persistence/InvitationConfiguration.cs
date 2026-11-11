@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PupBudgetPlanner.Domain.Families;
 using PupBudgetPlanner.Domain.Invitations;
 using PupBudgetPlanner.Infrastructure.Identity;
 
@@ -21,6 +22,12 @@ internal sealed class InvitationConfiguration : IEntityTypeConfiguration<Invitat
             .OnDelete(DeleteBehavior.SetNull);
         builder.HasOne<AppUser>().WithMany().HasForeignKey(invitation => invitation.UsedById)
             .OnDelete(DeleteBehavior.SetNull);
-        builder.HasIndex(invitation => invitation.UsedById).IsUnique();
+        // One account is created with one link at most; a family's links can be used later by the same person (F-023)
+        builder.HasIndex(invitation => invitation.UsedById).IsUnique().HasFilter("created_account");
+
+        // A family is deleted only after its waiting links are cancelled (FamilyCleanup), so none of them turns into
+        // an admin's link that works
+        builder.HasOne<Family>().WithMany().HasForeignKey(invitation => invitation.FamilyId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

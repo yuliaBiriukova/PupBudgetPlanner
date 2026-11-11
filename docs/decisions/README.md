@@ -33,6 +33,7 @@ decision — write a new ADR that supersedes it.
 | [0026](0026-no-copies-of-accounts.md) | No two accounts in use alike: checked in the Domain, backed by a partial unique index | Accepted |
 | [0027](0027-report-engine.md) | Reports: summed by the database, built in memory; real month-end balances with "Other changes" | Accepted |
 | [0028](0028-changing-categories.md) | Changing categories: one rule set in the Domain, hide instead of delete, our own small drag | Accepted |
+| [0029](0029-families.md) | Families: one per person, family links are invite links, the owner hands the family over | Accepted |
 
 Template for new ADRs:
 

@@ -17,6 +17,8 @@ interface SignUpFormProps {
   initialValues?: Partial<SignUpValues>;
   /** The invite link's token: it goes with the account request and through Google (F-028). */
   inviteToken?: string;
+  /** Where Continue with Google comes back to (a family's link: the link again, F-023). */
+  googleReturnTo?: string;
 }
 
 export function SignUpForm({
@@ -26,6 +28,7 @@ export function SignUpForm({
   notice,
   initialValues,
   inviteToken,
+  googleReturnTo,
 }: SignUpFormProps) {
   const { t } = useTranslation();
   const form = useForm<SignUpValues>({
@@ -92,7 +95,7 @@ export function SignUpForm({
           label={t('auth.createAccount')}
           pendingLabel={t('auth.creatingAccount')}
         />
-        <ContinueWithGoogle invite={inviteToken} />
+        <ContinueWithGoogle invite={inviteToken} returnTo={googleReturnTo} />
       </form>
     </>
   );
