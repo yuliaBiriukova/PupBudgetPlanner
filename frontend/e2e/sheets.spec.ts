@@ -159,6 +159,9 @@ test('Back closes the desktop dialog and stays on the page', async ({ page, isMo
   await expect(page).toHaveURL(/\/accounts$/);
 });
 
+/** The gap a sheet leaves above itself however tall it is: it never touches the top of the screen (I-029). */
+const TOP_GAP = 16;
+
 /**
  * The phone's keyboard, emulated: the visual viewport says the bottom `taken` px of the screen are covered, as a
  * phone's does while a field is typed (the sheets read it, I-017); 0 puts the keyboard away.
@@ -199,9 +202,9 @@ test('on the phone a form opens from its top without the keyboard; with it up th
     return [Math.round(box.y), Math.round(box.y + box.height)];
   };
 
-  // Longer than the screen: the whole screen with no gap above it, square corners at the top
-  await expect.poll(edges).toEqual([0, screen]);
-  await expect(form).toHaveCSS('border-top-left-radius', '0px');
+  // Longer than the screen: up to the gap under its top, the corners round as on any sheet
+  await expect.poll(edges).toEqual([TOP_GAP, screen]);
+  await expect(form).toHaveCSS('border-top-left-radius', '24px');
   // It just opens: the cursor isn't in Name (which would bring the keyboard up) and nothing is scrolled
   await expect(form.getByRole('button', { name: en.common.close })).toBeFocused();
   await expect(name).not.toBeFocused();
@@ -212,7 +215,7 @@ test('on the phone a form opens from its top without the keyboard; with it up th
   // A tap on Name brings the keyboard: the sheet sits on it, Name and the buttons above the keys
   await name.click();
   await keyboard(page, KEYS);
-  await expect.poll(edges).toEqual([0, screen - KEYS]);
+  await expect.poll(edges).toEqual([TOP_GAP, screen - KEYS]);
   for (const part of [name, add]) {
     await expect
       .poll(async () => {
@@ -225,10 +228,10 @@ test('on the phone a form opens from its top without the keyboard; with it up th
 
   // The keyboard goes: the sheet is back at the bottom of the screen
   await keyboard(page, 0);
-  await expect.poll(edges).toEqual([0, screen]);
+  await expect.poll(edges).toEqual([TOP_GAP, screen]);
 });
 
-test('on the phone the quick-add form is as tall as its fields, and reaches the top when its keys come up (I-029)', async ({
+test('on the phone the quick-add form is as tall as its fields, and grows to the gap under the top when its keys come up (I-029)', async ({
   page,
   isMobile,
 }) => {
@@ -267,10 +270,10 @@ test('on the phone the quick-add form is as tall as its fields, and reaches the 
   expect(top).toBeLessThan(screen / 2);
   await expect(form).toHaveCSS('border-top-left-radius', '24px');
 
-  // A tap on the amount brings the keys up: the form grows to the top of the screen, its corners square
+  // A tap on the amount brings the keys up: the form grows to the gap under the top, its corners still round
   await form.getByLabel(en.transactions.form.amount, { exact: true }).click();
-  await expect.poll(edges).toEqual([0, screen]);
-  await expect(form).toHaveCSS('border-top-left-radius', '0px');
+  await expect.poll(edges).toEqual([TOP_GAP, screen]);
+  await expect(form).toHaveCSS('border-top-left-radius', '24px');
   await form.getByRole('button', { name: en.common.close }).click();
   await expect(form).toBeHidden();
 

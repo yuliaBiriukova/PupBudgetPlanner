@@ -5,7 +5,7 @@ import classes from './BottomSheet.module.css';
 import { FadingScrollArea } from './FadingScrollArea';
 import { useKeyboardInset } from './useKeyboardInset';
 import { usePopupHistory } from './popupHistory';
-import { useFieldInSight, useSheetAtTop } from './useSheetRoom';
+import { useFieldInSight } from './useSheetRoom';
 import { useSheetSwipe } from './useSheetSwipe';
 
 interface BottomSheetProps {
@@ -32,8 +32,8 @@ interface BottomSheetProps {
 
 /**
  * A sheet that slides up from the bottom of the phone screen. It closes on the overlay, Escape or the button, with a
- * swipe down and with Back (I-015). It is as tall as its content, up to the whole screen, where its corners go
- * square; while the phone's keyboard is up it sits on it, the field being typed and the buttons in sight (I-029).
+ * swipe down and with Back (I-015). It is as tall as its content, up to 16 px under the top of the screen; while the
+ * phone's keyboard is up it sits on it, the field being typed and the buttons in sight (I-029).
  */
 export function BottomSheet({
   opened,
@@ -60,7 +60,6 @@ export function BottomSheet({
   );
   // Every sheet stays above the phone's keyboard (I-017 for the transaction form, I-029 for the rest)
   const keyboard = useKeyboardInset(opened);
-  useSheetAtTop(sheet, keyboard);
   useFieldInSight(sheet, keyboard);
 
   // classNames, not className: Drawer.Content passes className to the full-screen inner box too

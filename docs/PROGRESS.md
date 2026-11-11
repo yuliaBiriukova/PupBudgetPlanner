@@ -2,6 +2,25 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-11 (I-029: round corners and a 16 px gap, the owner's review)
+
+**Done**
+- The owner, on the built [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md):
+  keep the pop-ups' top corners round as they used to be, and leave a small 16 px gap above the ones taller than the
+  screen. Recorded in the description file (a review section, the acceptance criteria, the open points) and in
+  DESIGN_RULES (the custom rule, the "Screen decisions" row) before the code.
+- `BottomSheet`: at most the screen, or what the keyboard leaves of it, less 16 px (and the phone's own inset at the
+  top); a `tall` sheet is that tall; round top corners at any height. The square corners at the top and
+  `useSheetAtTop` are gone.
+- Tests: `sheets.spec.ts` expects the top edge 16 px under the top of the screen (the account form, with and without
+  the keyboard; the quick-add form with its keys) and round corners; the three square-corner unit tests are removed.
+- Checked: frontend lint, format, typecheck, unit tests, build, `build-storybook`; the full E2E suite, desktop and
+  phone; screenshots at 375 px, light and dark, looked at (in the change folder's `built/`).
+- Test data: the E2E runs' `e2e-…@example.com` people, among them `e2e-shots-…`; the clean-up deleted them.
+
+**Next**
+- Owner: review PR #78.
+
 ## 2026-11-11 (B-015: E2E tests in Kyiv's time zone; red CI on PR #78)
 
 **Done**

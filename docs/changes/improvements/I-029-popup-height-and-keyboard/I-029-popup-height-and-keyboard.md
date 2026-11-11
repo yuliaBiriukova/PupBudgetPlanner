@@ -26,22 +26,23 @@ its buttons in sight (owner, 2026-11-09).
 
 ## Acceptance criteria
 
-- [x] A phone pop-up whose content doesn't fit grows to the top of the screen, with no gap above it (owner,
-      2026-11-10); its title and buttons stay put, the content scrolls between them (I-004).
+- [x] A phone pop-up whose content doesn't fit grows up to 16 px under the top of the screen and keeps its round top
+      corners (owner's review, 2026-11-11; first built with no gap and square corners at the top, the owner's answer
+      of 2026-11-10); its title and buttons stay put, the content scrolls between them (I-004).
 - [x] A pop-up whose content fits is as tall as its content and sits at the bottom, as now.
 - [x] While the phone's keyboard is up, **every** pop-up sits on top of it: no part of it is under the keyboard, the
       field being typed is scrolled into sight and the buttons are in sight above the keyboard. When the keyboard goes,
       the pop-up goes back to its height at the bottom.
 - [x] The quick-add form is as tall as its content, like every other pop-up, not a set height (owner, 2026-11-11): no
       empty room under Save while its keys are folded (I-028); it grows when they come up. The currency search keeps
-      its steady height while it is searched, now the whole screen.
+      its steady height while it is searched, now the screen less the 16 px gap.
 - [x] A form opens from its top, without the keyboard (owner, 2026-11-11): on the phone its first field (a new
       account's Name, a new invite link's note) doesn't take the cursor as the pop-up opens; the keyboard comes with a
       tap on a field. A search keeps its cursor (the currency search, B-004). The desktop dialogs still put the cursor
       in the first field.
 - [x] The quick-add form's sheet doesn't jump while its data loads (owner's review, 2026-11-11): the loading
       placeholder is as tall as the form was the last time on this device, so the sheet opens at the form's height and
-      stays there; the corners are square or round from the first frame, not a frame after the height.
+      stays there.
 - [x] Swipe down and Back still close the pop-ups (I-015).
 - [x] The desktop dialogs are unchanged (centred; they already scroll inside, I-004) (owner, 2026-11-10).
 
@@ -49,9 +50,11 @@ its buttons in sight (owner, 2026-11-09).
 
 - [x] `BottomSheet`: the height rule (as tall as the content, up to the whole screen) for every sheet, the quick-add
       form included (the `full` option is gone from `BottomSheet` and `ResponsiveDialog`); a `tall` sheet's set
-      height (the searched lists: the currency list and All categories) is the whole screen; the Transactions filters
-      lose their set height and are as tall as their content; square corners once a sheet reaches
-      the top of its room (`useSheetAtTop`).
+      height (the searched lists: the currency list and All categories) is the screen less the top gap; the
+      Transactions filters lose their set height and are as tall as their content.
+- [x] The top gap (owner's review, 2026-11-11): a sheet is at most the screen, or what the keyboard leaves of it, less
+      16 px (and the phone's own inset at the top), with round top corners at any height; the square corners at the
+      top and `useSheetAtTop` are gone.
 - [x] On the phone a form's first field isn't focused as its sheet opens: `useDesktopAutofocus` gives
       `data-autofocus` to the account form's Name and the invite link's note on the desktop only; the sheet's close
       button takes the focus, as in every sheet without a first field; the searches keep theirs.
@@ -61,9 +64,8 @@ its buttons in sight (owner, 2026-11-09).
       currency search, the pickers, the quick-add form) with the keyboard up and down.
 - [x] The quick-add form's loading placeholder holds the form's height on the phone: the fields' height is kept on
       the device per type (`formHeight.ts`, `pup.transactions.formHeight`) and the placeholder takes it, with the
-      places of the type switch and Save; before the first time it is the short placeholder. `useSheetAtTop` sets
-      `data-at-top` on the sheet itself as its size is observed, in the same frame.
-- [x] Storybook: *Shared / BottomSheet*: With title (short), Long with buttons (the whole screen, square corners),
+      places of the type switch and Save; before the first time it is the short placeholder.
+- [x] Storybook: *Shared / BottomSheet*: With title (short), Long with buttons (up to the top gap, round corners),
       Above the keyboard and Long above the keyboard (a stand-in keyboard through the visual viewport).
 - [x] The prototype stories deleted (`frontend/src/prototypes/I-029-popup-height-and-keyboard/`).
 
@@ -105,13 +107,12 @@ rules laid over them, plus a stand-in for the phone's keyboard when a field is t
 ## Tests
 
 - Unit: `BottomSheet.test.tsx` (any sheet sits on the keyboard and goes back down with it; the field being typed is
-  scrolled into sight with its label and hint, nothing scrolls while no field is typed; square corners at the top of
-  the screen and of what the keyboard leaves, round ones below); `AccountsPage.test.tsx` (the cursor is in Name as
+  scrolled into sight with its label and hint, nothing scrolls while no field is typed); `AccountsPage.test.tsx` (the cursor is in Name as
   the new account's form opens on the desktop, on the phone the close button has the focus).
-- E2E (Playwright, phone), `sheets.spec.ts`: the new account's form takes the whole screen with square corners and
-  opens from its top without the cursor in Name; with a 300 px keyboard (emulated through the visual viewport) the
-  sheet sits on it with Name and Add account above the keys, and goes back when it leaves; the quick-add form is as
-  tall as its fields with round corners and reaches the top when its keys come up. `shell.spec.ts`: More and Add are
+- E2E (Playwright, phone), `sheets.spec.ts`: the new account's form reaches 16 px under the top of the screen with
+  round corners and opens from its top without the cursor in Name; with a 300 px keyboard (emulated through the visual
+  viewport) the sheet sits on it, still 16 px under the top, with Name and Add account above the keys, and goes back
+  when it leaves; the quick-add form is as tall as its fields and grows to the top gap when its keys come up. `shell.spec.ts`: More and Add are
   each as tall as their content (Add was a set 90 %).
 - Screens checked in Playwright screenshots at 375 px (every pop-up, keyboard up and down) and 1440 px (unchanged),
   light and dark.
@@ -124,11 +125,13 @@ rules laid over them, plus a stand-in for the phone's keyboard when a field is t
 
 Answered by the owner on 2026-11-10:
 
-- **The gap at the top** when a sheet grows: **none**, the sheet fills the screen like a page.
+- **The gap at the top** when a sheet grows: **none**, the sheet fills the screen like a page. Changed by the owner on
+  the built change (2026-11-11): **16 px**, see "Review 2026-11-11: round corners and a gap".
 - **Desktop:** **the phone only**; the desktop dialogs stay as they are.
 - **Design check:** **a prototype story to try first**, then screenshots of every pop-up.
 
-- **Corners at the top** (the prototype's switch): **square**, the prototype's default, approved as shown.
+- **Corners at the top** (the prototype's switch): **square**, the prototype's default, approved as shown. Changed by
+  the owner on the built change (2026-11-11): **round, as they used to be**.
 
 ## Review 2026-11-11: the sheet jumped as the form's data came
 
@@ -139,6 +142,16 @@ only its inside changed. As tall as its content, it opened short with the loadin
 jumped to the form's height, its corners going square a frame later. Fixed as the last acceptance criterion says; the
 desktop dialog's loading is unchanged. Left as it is: the very first open on a device (nothing to remember yet) still
 grows once.
+
+## Review 2026-11-11: round corners and a gap
+
+The owner, on the built change: "let's keep the pop-up top corners rounded as it used to be and add small 16px gap on
+the top for the pop-up that are bigger than the screen". So a sheet never touches the top of the screen: it is at most
+the screen less 16 px, the dimmed page showing above it, and its top corners are round at any height, as before I-029.
+With the keyboard up the same 16 px stay above a sheet that fills what the keyboard leaves. This replaces the
+prototype's "no gap" and "square corners at the top"; the rest of the approved design stands. Screenshots of the
+build are in [built/](built/) (375 px): the account form as it opens and with the keyboard up (light and dark), the
+currency list, the quick-add form with its keys.
 
 ## Approved 2026-11-11
 

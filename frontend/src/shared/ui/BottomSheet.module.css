@@ -1,13 +1,17 @@
-/* A phone sheet: as tall as its content up to the whole screen, with no gap above it (I-029), rounded on top only,
-   with a grab handle. The handle, title and buttons stay put; only the content between them scrolls (I-004). Clipped,
-   not hidden: a hidden box can still be scrolled by the browser, and a key focused while the transaction form's keys
-   slide in from below scrolled the whole sheet up, its title out of sight (I-028); `hidden` stays for browsers without
-   `clip` */
+/* A phone sheet: as tall as its content, up to 16 px under the top of the screen (I-029; the owner's review,
+   2026-11-11: it never touches the top, so its round top corners and the page behind it always show), rounded on top
+   only, with a grab handle. The handle, title and buttons stay put; only the content between them scrolls (I-004).
+   Clipped, not hidden: a hidden box can still be scrolled by the browser, and a key focused while the transaction
+   form's keys slide in from below scrolled the whole sheet up, its title out of sight (I-028); `hidden` stays for
+   browsers without `clip` */
 .content {
+  /* The gap above the tallest sheet, under the phone's own inset (a notch) */
+  --sheet-top-gap: calc(16px + env(safe-area-inset-top, 0px));
+
   display: flex;
   flex-direction: column;
   height: auto;
-  max-height: 100dvh;
+  max-height: calc(100dvh - var(--sheet-top-gap));
   overflow: hidden;
   overflow: clip;
   padding-bottom: env(safe-area-inset-bottom);
@@ -15,28 +19,21 @@
   background: var(--pup-color-surface);
 }
 
-/* A sheet that keeps its height while its list is searched (F-016): the whole screen (I-029) */
+/* A sheet that keeps its height while its list is searched (F-016): as tall as a sheet gets (I-029) */
 .content[data-tall] {
-  height: 100dvh;
+  height: calc(100dvh - var(--sheet-top-gap));
 }
 
-/* At the top of the screen the corners go square, so no slivers of the page show beside them; the handle stays, so
-   a swipe down still reads (I-029) */
-.content[data-at-top] {
-  padding-top: env(safe-area-inset-top);
-  border-radius: 0;
-}
-
-/* The phone's keyboard is up: the sheet sits on it and is at most as tall as what the keyboard leaves, its buttons
-   above the keys (I-017 for the transaction form's note, I-029 for every sheet) */
+/* The phone's keyboard is up: the sheet sits on it and is at most as tall as what the keyboard leaves, less the same
+   gap at the top, its buttons above the keys (I-017 for the transaction form's note, I-029 for every sheet) */
 .content[data-keyboard] {
-  max-height: var(--sheet-visible-height);
+  max-height: calc(var(--sheet-visible-height) - var(--sheet-top-gap));
   margin-bottom: var(--sheet-keyboard);
   padding-bottom: 0;
 }
 
 .content[data-tall][data-keyboard] {
-  height: var(--sheet-visible-height);
+  height: calc(var(--sheet-visible-height) - var(--sheet-top-gap));
 }
 
 /* A field scrolled into sight above the keyboard clears the content's fading edges (I-029) */

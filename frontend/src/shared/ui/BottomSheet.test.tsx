@@ -31,29 +31,6 @@ async function twoFrames() {
   });
 }
 
-/** jsdom has no layout: every box is `height` px tall, and a size observer reports it as soon as it watches. */
-function layout(height: number) {
-  vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(height);
-  vi.stubGlobal(
-    'ResizeObserver',
-    class {
-      private readonly measure: () => void;
-      constructor(measure: () => void) {
-        this.measure = measure;
-      }
-      observe() {
-        this.measure();
-      }
-      unobserve() {
-        /* nothing to stop */
-      }
-      disconnect() {
-        /* nothing to stop */
-      }
-    },
-  );
-}
-
 function renderSheet() {
   render(
     <AppProviders env="test">
@@ -128,24 +105,5 @@ describe('BottomSheet height and keyboard (I-029)', () => {
     await twoFrames();
 
     expect(scrolled).not.toHaveBeenCalled();
-  });
-
-  it('has square corners once it reaches the top of the screen, round ones below it', () => {
-    layout(SCREEN);
-    expect(renderSheet()).toHaveAttribute('data-at-top');
-  });
-
-  it('keeps its round corners while it is shorter than the screen', () => {
-    layout(SCREEN - 200);
-    expect(renderSheet()).not.toHaveAttribute('data-at-top');
-  });
-
-  it('counts the top of what the keyboard leaves as the top', () => {
-    layout(SCREEN - KEYBOARD);
-    const sheet = renderSheet();
-    expect(sheet).not.toHaveAttribute('data-at-top');
-
-    keyboard(true);
-    expect(sheet).toHaveAttribute('data-at-top');
   });
 });

@@ -81,7 +81,7 @@ export const HiddenTitle: Story = {
 };
 
 /**
- * Longer than the screen: the sheet takes the whole screen, its corners square at the top (I-029); only the content
+ * Longer than the screen: the sheet stops 16 px under the top, its corners round (I-029); only the content
  * scrolls, between the title and the pinned buttons (I-004).
  */
 export const LongWithButtons: Story = {
@@ -203,7 +203,7 @@ export const AboveTheKeyboardDark: Story = {
   globals: { colorScheme: 'dark' },
 };
 
-/** A long sheet above the keyboard: as tall as what the keyboard leaves, square at its top (I-029). */
+/** A long sheet above the keyboard: as tall as what the keyboard leaves, less the gap at the top (I-029). */
 export const LongAboveTheKeyboard: Story = {
   ...AboveTheKeyboard,
   args: {
