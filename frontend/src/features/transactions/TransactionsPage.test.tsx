@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 import { http, HttpResponse } from 'msw/http';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { formatMoney } from '../../shared/format/money';
 import { renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
@@ -997,6 +997,33 @@ describe('the phone keys (I-028)', () => {
     await userEvent.click(within(form).getByLabelText('Amount'));
     expect(keysOf(form)).not.toBeInTheDocument();
     expect(within(form).getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+  });
+
+  it('bring the amount into sight above them as they come up and on every key, without the exchange’s ring (B-012)', async () => {
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    const amount = within(form).getByLabelText('Amount');
+    const display = amount.closest('[data-type]');
+    if (!display) throw new Error('no display');
+    const scrolled = vi.spyOn(Element.prototype, 'scrollIntoView');
+    const timesOnDisplay = () =>
+      scrolled.mock.contexts.filter((element) => element === display).length;
+    scrolled.mockClear();
+    onTestFinished(() => {
+      scrolled.mockRestore();
+    });
+
+    await userEvent.click(amount);
+    const keys = keysOf(form);
+    if (!keys) throw new Error('no keys');
+    expect(timesOnDisplay()).toBe(1);
+    expect(scrolled).toHaveBeenCalledWith({ block: 'nearest' });
+    expect(display).not.toHaveAttribute('data-target');
+
+    await userEvent.click(within(keys).getByRole('button', { name: '7' }));
+    expect(timesOnDisplay()).toBe(2);
   });
 });
 

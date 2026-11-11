@@ -134,7 +134,7 @@ owner asks for one.
 | [B-009](changes/bugfixes/B-009-gap-under-note/B-009-gap-under-note.md) | An empty gap under the Note while it is typed on the phone | Medium | Done |
 | [B-010](changes/bugfixes/B-010-loose-toast-match-e2e/B-010-loose-toast-match-e2e.md) | The I-020 E2E test takes two "added" toasts for one (red CI on PR #75) | High | Done |
 | [B-011](changes/bugfixes/B-011-calendar-picked-day-ring/B-011-calendar-picked-day-ring.md) | The picked day's black ring is broken in the Transactions calendar | Medium | Todo |
-| [B-012](changes/bugfixes/B-012-amount-hidden-under-keys/B-012-amount-hidden-under-keys.md) | The amount stays half hidden under the phone keys when tapped | High | Todo |
+| [B-012](changes/bugfixes/B-012-amount-hidden-under-keys/B-012-amount-hidden-under-keys.md) | The amount stays half hidden under the phone keys when tapped | High | Done |
 | [B-013](changes/bugfixes/B-013-toast-hidden-on-phone/B-013-toast-hidden-on-phone.md) | The "saved" toast can't be seen on the phone | Medium | Todo |
 | [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) | An empty gap under the Note's suggestions on the phone | Medium | Todo |
 | [B-015](changes/bugfixes/B-015-e2e-day-after-midnight-kyiv/B-015-e2e-day-after-midnight-kyiv.md) | Two E2E tests fail in CI between midnight and 02:00 in Kyiv (red CI on PR #78) | High | Done |
