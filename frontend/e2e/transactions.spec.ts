@@ -410,17 +410,59 @@ test('on the phone a new note leaves no empty gap above Save; an earlier one’s
   await expect(page.getByRole('listbox', { name: form.noteSuggestions })).toBeHidden();
   await expect(note).toBeInViewport({ ratio: 1 });
   expect(await gapAbove(note)).toBeLessThanOrEqual(32);
-  const noteAt = async () => (await note.boundingBox())?.y ?? 0;
-  const withoutList = await noteAt();
 
-  // The start of an earlier note: the Note goes up so the list under it has the room down to Save
+  // The start of an earlier note: the Note goes up as far as the list under it needs, Save right after it (B-014)
   await note.fill('');
   await note.pressSequentially('si');
   const list = page.getByRole('listbox', { name: form.noteSuggestions });
   await expect(list.getByRole('option', { name: 'Silpo, wine for Friday' })).toBeVisible();
-  await expect.poll(noteAt).toBeLessThan(withoutList - 100);
+  await expect.poll(() => gapAbove(list)).toBeLessThanOrEqual(32);
   await expect(note).toBeInViewport({ ratio: 1 });
   expect(await gapAbove(list)).toBeGreaterThanOrEqual(0);
+});
+
+test('on the phone Save comes right after the Note’s list, short or long, with no empty gap', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'The desktop’s list opens over the page: the form makes it no room');
+  const response = await signUpThroughApi(page.request, newPerson('list-gap'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 5000, 'Bank');
+  for (const note of ['Silpo', 'Silpo, wine for Friday', 'Simcard top-up', 'Sushi', 'Salon'])
+    await addExpense(page, 'Mono black', 'Groceries', 100, note);
+
+  // The room the phone's keyboard leaves (B-014)
+  await page.setViewportSize({ width: 375, height: 520 });
+  await page.goto('/transactions');
+  await page.getByRole('button', { name: en.shell.addTransaction }).first().click();
+  const dialog = page.getByRole('dialog', { name: 'Add expense' });
+  const note = dialog.getByLabel(form.note, { exact: true });
+  const save = dialog.getByRole('button', { name: form.saveExpense });
+  const list = page.getByRole('listbox', { name: form.noteSuggestions });
+  /** Pixels from the list's last row to the top of Save. */
+  const gapUnderList = async () => {
+    const [top, bottom] = [await save.boundingBox(), await list.boundingBox()];
+    if (!top || !bottom) throw new Error('not on screen');
+    return top.y - (bottom.y + bottom.height);
+  };
+  /** The whole list above Save, at most 32 px from it: no empty gap. */
+  const rightAboveSave = async (rows: number) => {
+    await expect(list.getByRole('option')).toHaveCount(rows);
+    await expect.poll(gapUnderList).toBeLessThanOrEqual(32);
+    expect(await gapUnderList()).toBeGreaterThanOrEqual(0);
+    await expect(note).toBeInViewport({ ratio: 1 });
+  };
+
+  // One note: the Note goes up only as far as its one row needs
+  await note.pressSequentially('sus');
+  await rightAboveSave(1);
+  // The most notes, then fewer as the note is typed on: the room grows and shrinks with the list
+  await note.fill('');
+  await note.pressSequentially('s');
+  await rightAboveSave(5);
+  await note.pressSequentially('i');
+  await rightAboveSave(3);
 });
 
 test('a day picked in the calendar: Add transaction starts on it, and the saved one is on its receipt', async ({

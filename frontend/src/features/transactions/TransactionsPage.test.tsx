@@ -899,6 +899,50 @@ describe('the Note field’s suggestions (I-017)', () => {
     });
     expect(room()).not.toBeInTheDocument();
   });
+
+  it('on the phone makes the room only as high as the list needs, no gap under a short one (B-014)', async () => {
+    setScreenWidth(375);
+    // jsdom lays nothing out: each row 44 px with the list's 12 px padding, the form's scroll area 400 px
+    const rowsOf = (element: HTMLElement) =>
+      element.getAttribute('role') === 'listbox'
+        ? element.querySelectorAll('[role="option"]').length * 44 + 12
+        : 0;
+    const scrolls = (element: HTMLElement) =>
+      ['auto', 'scroll'].includes(getComputedStyle(element).overflowY);
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return rowsOf(this);
+    });
+    vi.spyOn(Element.prototype, 'clientHeight', 'get').mockImplementation(function (this: Element) {
+      return this instanceof HTMLElement && scrolls(this) ? 400 : 0;
+    });
+    onTestFinished(() => {
+      vi.restoreAllMocks();
+    });
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    const roomHeight = () => form.querySelector<HTMLElement>('[data-note-room]')?.style.height;
+    const note = within(form).getByLabelText('Note');
+    // One note (Physio session): room for its one row, its 4 px gap and 8 px above Save, not the whole sheet
+    await userEvent.type(note, 'phy');
+    expect(await suggestions()).toHaveLength(1);
+    await waitFor(() => {
+      expect(roomHeight()).toBe(`${String(44 + 12 + 4 + 8)}px`);
+    });
+
+    // The most notes: room for all five rows
+    await userEvent.clear(note);
+    await userEvent.type(note, 's');
+    await waitFor(async () => {
+      expect(await suggestions()).toHaveLength(5);
+    });
+    await waitFor(() => {
+      expect(roomHeight()).toBe(`${String(5 * 44 + 12 + 4 + 8)}px`);
+    });
+  });
 });
 
 describe('the phone keys (I-028)', () => {

@@ -136,5 +136,5 @@ owner asks for one.
 | [B-011](changes/bugfixes/B-011-calendar-picked-day-ring/B-011-calendar-picked-day-ring.md) | The picked day's black ring is broken in the Transactions calendar | Medium | Done |
 | [B-012](changes/bugfixes/B-012-amount-hidden-under-keys/B-012-amount-hidden-under-keys.md) | The amount stays half hidden under the phone keys when tapped | High | Done |
 | [B-013](changes/bugfixes/B-013-toast-hidden-on-phone/B-013-toast-hidden-on-phone.md) | The "saved" toast can't be seen on the phone | Medium | Todo |
-| [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) | An empty gap under the Note's suggestions on the phone | Medium | Todo |
+| [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) | An empty gap under the Note's suggestions on the phone | Medium | Done |
 | [B-015](changes/bugfixes/B-015-e2e-day-after-midnight-kyiv/B-015-e2e-day-after-midnight-kyiv.md) | Two E2E tests fail in CI between midnight and 02:00 in Kyiv (red CI on PR #78) | High | Done |

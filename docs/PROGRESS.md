@@ -2,6 +2,31 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-11 (B-014: Save right after the Note's suggestions on the phone)
+
+**Done**
+- [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) on
+  `bugfix/B-014-gap-under-note-suggestions`. Reproduced in Storybook at 375 × 520 px: one earlier note listed (`phy`)
+  left 200 px of empty space between the list and Save. Cause: while the list shows, the form's room under the Note
+  was always the whole sheet less the Note (B-009), which fits only the longest list. The owner approved the cause and
+  fix A on 2026-11-11.
+- `NoteField` reports its list's height (`onList`); the room under the form is only what the list needs
+  (`noteRoomHeight`), and the form scrolls only until the list's foot is just above Save. The room follows the list as
+  it grows and shrinks; the desktop and the no-list case (B-009) are unchanged. DESIGN_RULES' Note suggestions row
+  says so.
+- Tests: `noteRoom.test.ts`, `TransactionsPage.test.tsx` (the room for one and for five notes) and E2E
+  `transactions.spec.ts` on the phone (one, five, three notes: the whole list at most 32 px above Save); both
+  regression tests fail without the fix. B-009's E2E test now expects Save right after the list.
+- Checked: frontend lint, format, typecheck, unit tests (324 / 324), build, `build-storybook`; backend build (0
+  warnings) and tests (444 / 444, the backend isn't changed); the full E2E suite, desktop and phone; screenshots at
+  375 × 520 px (one, three, five notes, the list gone; light and dark) and the desktop at 1440 px, light and dark,
+  looked at; the fix clicked through in the Browser pane.
+- Test data: the E2E runs' `e2e-list-gap-…`, `e2e-note-gap-…` and other `e2e-…@example.com` people (with their
+  accounts and transactions); the E2E clean-up deleted them and cancelled their invite links. Nothing made by hand.
+
+**Next**
+- Owner: review the PR. Then B-013 (Medium).
+
 ## 2026-11-11 (B-011: The picked day's ring inside it, at once on the phone)
 
 **Done**
