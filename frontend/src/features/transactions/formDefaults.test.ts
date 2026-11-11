@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { account } from '../accounts/accountsTestData';
-import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
+import { DEFAULT_CATEGORIES, EDITED_CATEGORIES } from '../categories/categoriesTestData';
 import {
   byLastUse,
   categoriesFor,
@@ -137,5 +137,16 @@ describe('a transfer’s To', () => {
 
   it('is none without another account', () => {
     expect(defaultTo([account('mono', 'Mono black')], NONE, 'mono')).toBeNull();
+  });
+});
+
+describe('the categories the form offers', () => {
+  it('leave out hidden categories and hidden groups (F-029)', () => {
+    const offered = names(categoriesFor(EDITED_CATEGORIES.groups, 'Expense'));
+
+    expect(offered).toContain('Spotify');
+    expect(offered).not.toContain('Netflix');
+    expect(offered).not.toContain('Fuel');
+    expect(offered).toHaveLength(30);
   });
 });

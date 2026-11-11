@@ -48,8 +48,8 @@ function scrollerOf(el: HTMLElement): HTMLElement {
 
 /**
  * A row dragged by its grip, with the mouse or a finger: it follows the pointer, an accent line shows where it will
- * land, and the list scrolls when the pointer nears its top or bottom edge. The prototype's own small version; the
- * build decides on a library (open points).
+ * land, and the list scrolls when the pointer nears its top or bottom edge. Our own small hook, not a library (ADR
+ * 0028): one short list in a sheet, and the ↑ ↓ buttons beside it move the row by touch or keyboard.
  */
 export function useDragToSlot<T extends HTMLElement>({ anchors, onDrop, clamp }: Options) {
   const containerRef = useRef<T>(null);

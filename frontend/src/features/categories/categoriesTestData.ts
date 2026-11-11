@@ -28,17 +28,61 @@ const DEFAULT_SET: [string, CategoryKind, string[]][] = [
   ['Subscriptions', 'Expense', ['Spotify', 'Phone', 'Subscriptions']],
 ];
 
-/** The default set every person gets (PRODUCT.md "Default categories"), as the API sends it. */
+/** Categories nobody has used yet: removing them deletes them (F-029). */
+const UNUSED = new Set(['Tax', 'Sport', 'Games', 'Driving', 'Emergency']);
+
+/** A steady fake count of transactions from a name, so every story and test shows the same. */
+function countOf(name: string) {
+  if (UNUSED.has(name)) return 0;
+  let hash = 7;
+  for (const char of name) hash = (hash * 31 + char.charCodeAt(0)) % 100_003;
+  return 3 + (hash % 140);
+}
+
+/**
+ * The default set every person gets (PRODUCT.md "Default categories"), as the API sends it: nothing hidden, five
+ * categories never used (Tax, Sport, Emergency, Driving, Games), the others with a few transactions.
+ */
 export const DEFAULT_CATEGORIES: CategoriesOverview = {
   groups: DEFAULT_SET.map(([name, kind, categories], group) => ({
     id: `group-${String(group + 1)}`,
     name,
     kind,
+    isHidden: false,
     categories: categories.map((category, index) => ({
       id: `group-${String(group + 1)}-${String(index + 1)}`,
       name: category,
+      isHidden: false,
+      transactionCount: countOf(category),
     })),
   })),
+};
+
+/**
+ * The set after some changes (F-029): Netflix hidden in Subscriptions (9 transactions), and a hidden group "Car" with
+ * its hidden Fuel (14 transactions).
+ */
+export const EDITED_CATEGORIES: CategoriesOverview = {
+  groups: [
+    ...DEFAULT_CATEGORIES.groups.map((group) =>
+      group.name === 'Subscriptions'
+        ? {
+            ...group,
+            categories: [
+              ...group.categories,
+              { id: 'group-7-netflix', name: 'Netflix', isHidden: true, transactionCount: 9 },
+            ],
+          }
+        : group,
+    ),
+    {
+      id: 'group-car',
+      name: 'Car',
+      kind: 'Expense',
+      isHidden: true,
+      categories: [{ id: 'group-car-fuel', name: 'Fuel', isHidden: true, transactionCount: 14 }],
+    },
+  ],
 };
 
 export const NO_CATEGORIES: CategoriesOverview = { groups: [] };

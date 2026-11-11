@@ -1010,7 +1010,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The groups in the report's order, each with the categories in use. */
+        /** The groups in the report's order, each with its shown categories, then its hidden ones. */
         get: {
             parameters: {
                 query?: never;
@@ -1032,7 +1032,410 @@ export interface paths {
             };
         };
         put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AddCategoryRequest"];
+                    "text/json": components["schemas"]["AddCategoryRequest"];
+                    "application/*+json": components["schemas"]["AddCategoryRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AddedItem"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Renames it and puts it at a place in its group or another group of its kind. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateCategoryRequest"];
+                    "text/json": components["schemas"]["UpdateCategoryRequest"];
+                    "application/*+json": components["schemas"]["UpdateCategoryRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         post?: never;
+        /** Deletes it when no transaction has it, otherwise hides it: its transactions and the reports keep it. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RemovedItem"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Shows a hidden category again at the end of its group (and its group, when that was hidden). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AddGroupRequest"];
+                    "text/json": components["schemas"]["AddGroupRequest"];
+                    "application/*+json": components["schemas"]["AddGroupRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AddedItem"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Renames it and puts it at a place among the groups of its kind. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateGroupRequest"];
+                    "text/json": components["schemas"]["UpdateGroupRequest"];
+                    "application/*+json": components["schemas"]["UpdateGroupRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /**
+         * Deletes it when empty, hides it when it holds only hidden categories; a group with shown categories, or the only
+         *     one of its kind, stays (409).
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RemovedItem"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/groups/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1831,6 +2234,26 @@ export interface components {
             status: components["schemas"]["RatesStatus"];
             rates: components["schemas"]["RateItem"][];
         };
+        /** @description A new category in a group, at int? AddCategoryRequest.Place among its shown ones (0: first; null: at the end). */
+        AddCategoryRequest: {
+            /** Format: uuid */
+            groupId: string;
+            name: string;
+            /** Format: int32 */
+            place: null | number | string;
+        };
+        /** @description The id of what was added. */
+        AddedItem: {
+            /** Format: uuid */
+            id: string;
+        };
+        /** @description A new group of a kind, at int? AddGroupRequest.Place among the shown groups of that kind (null: at the end). */
+        AddGroupRequest: {
+            kind: components["schemas"]["CategoryKind"];
+            name: string;
+            /** Format: int32 */
+            place: null | number | string;
+        };
         /** @description An account's balance before and after a save or a delete, for the notification that counts it. */
         BalanceChange: {
             /** Format: uuid */
@@ -1853,25 +2276,32 @@ export interface components {
          */
         CardStyle: "Solid" | "Tinted" | "Envelope" | "Plain";
         /**
-         * @description Everything the Categories page shows (F-015): the person's groups in the report's order, each with the categories
-         *     in use. Archived categories are left out: they stay only for the transactions and reports that use them.
+         * @description The person's whole set (F-015, F-029): the groups in the report's order (income first), hidden ones included and
+         *     marked. The quick-add form leaves the hidden ones out; the Categories page shows them quiet, with Show again.
          */
         CategoriesOverview: {
             groups: components["schemas"]["CategoryGroupItem"][];
         };
-        /** @description One of the person's category groups with its categories in the report's order. */
+        /** @description One of the person's category groups with its shown categories in order, then the hidden ones. */
         CategoryGroupItem: {
             /** Format: uuid */
             id: string;
             name: string;
             kind: components["schemas"]["CategoryKind"];
+            isHidden: boolean;
             categories: components["schemas"]["CategoryItem"][];
         };
-        /** @description One category in a group. */
+        /**
+         * @description One category in a group. A hidden one (F-029) isn't offered for new transactions; its transactions keep it.
+         *     int CategoryItem.TransactionCount says whether removing it deletes it (none) or hides it.
+         */
         CategoryItem: {
             /** Format: uuid */
             id: string;
             name: string;
+            isHidden: boolean;
+            /** Format: int32 */
+            transactionCount: number | string;
         };
         /**
          * @description The report section of a group, and which form (expense or income) offers its categories.
@@ -2072,6 +2502,15 @@ export interface components {
             email: string;
             password: string;
             inviteToken?: null | string;
+        };
+        /**
+         * @description What removing did: deleted for good, or hidden because its transactions keep it.
+         * @enum {unknown}
+         */
+        Removal: "Deleted" | "Hidden";
+        /** @description What removing did: deleted for good, or hidden because its transactions keep it. */
+        RemovedItem: {
+            removal: components["schemas"]["Removal"];
         };
         /**
          * @description The spreadsheet-like report (F-021) in Currency, each amount at the NBU rate of its own day
@@ -2296,6 +2735,23 @@ export interface components {
          * @enum {unknown}
          */
         TransactionType: "Expense" | "Income" | "Transfer";
+        /**
+         * @description A category's name, group (one of its kind) and place among the group's other shown ones (null: kept, or the end of
+         *     another group).
+         */
+        UpdateCategoryRequest: {
+            name: string;
+            /** Format: uuid */
+            groupId: string;
+            /** Format: int32 */
+            place: null | number | string;
+        };
+        /** @description A group's name and place among the other shown groups of its kind (null: kept). */
+        UpdateGroupRequest: {
+            name: string;
+            /** Format: int32 */
+            place: null | number | string;
+        };
         /** @description One note as the person wrote it, how many transactions have it and when the last of them was added. */
         UsedNote: {
             note: string;

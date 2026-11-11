@@ -103,6 +103,12 @@ public static class ReportBuilder
                 categories.Add(new ReportCategory(category.Id, category.Name, category.IsArchived, Sums(sums)));
             }
 
+            // A hidden group (F-029) shows only while one of its hidden categories has an amount
+            if (group.IsArchived && categories.Count == 0)
+            {
+                continue;
+            }
+
             AddTo(group.Kind == CategoryKind.Income ? income : expenses, groupSums);
             groups.Add(new ReportGroup(group.Id, group.Name, group.Kind, categories, Sums(groupSums)));
         }
