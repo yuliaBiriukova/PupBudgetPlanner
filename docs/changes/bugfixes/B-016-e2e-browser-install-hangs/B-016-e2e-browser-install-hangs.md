@@ -4,7 +4,7 @@
 |---|---|
 | Type | Bugfix |
 | Priority | High (a red CI on every pull request and on `develop` while Ubuntu's package mirrors can't be reached; nothing wrong in the app or the tests) |
-| Status | In progress |
+| Status | Done |
 | Branch | `bugfix/B-016-e2e-browser-install-hangs` |
 | Found in | CI, 2026-11-11, `E2E (Playwright)` job, step "Install Playwright browser" |
 | Approved | 2026-11-11: the owner approved the root cause and fix option 2 ("Approved, build it") |
@@ -60,12 +60,17 @@ needs nothing kept in step by hand. If a future runner image lacks a library Chr
 once with a message naming it, not after 10 minutes.
 
 In `.github/workflows/ci.yml`, job `e2e`:
-- a step that reads the installed Playwright version (`npx playwright --version`);
+- a step that reads the installed Playwright version from `package-lock.json` (`playwright-core`; not
+  `npx playwright --version`, which without `node_modules` fetches the newest Playwright and names the wrong one);
 - `actions/cache` for `~/.cache/ms-playwright`, key `playwright-<os>-<version>`;
 - "Install Playwright browser": `npx playwright install chromium` (no `--with-deps`) with `timeout-minutes: 4`, so a
   download that hangs fails in 4 minutes, not 20. With the cache hit it only checks the browser is there.
 
 ## Tests
-- CI on this change's pull request: the E2E job green, the install step without apt in its log, the cache saved; a
-  re-run of the job restores the browser from the cache.
-- The whole E2E suite runs in CI as before (desktop and phone); a green job time compared with the ~5–6 minutes before.
+A CI change: there is no unit or E2E test for it. Checked on the pull request
+([#83](https://github.com/yuliaBiriukova/PupBudgetPlanner/pull/83)):
+- the E2E job runs the whole suite (desktop and phone) with the browser installed without apt (no `apt-get` in the
+  install step's log) and saves the browser cache;
+- the version step reads `1.64.1`, the lock file's version.
+
+A mirror outage can't be reproduced on purpose; with the fix there is no apt in the job for it to stop.

@@ -138,4 +138,4 @@ owner asks for one.
 | [B-013](changes/bugfixes/B-013-toast-hidden-on-phone/B-013-toast-hidden-on-phone.md) | The "saved" toast can't be seen on the phone | Medium | Todo |
 | [B-014](changes/bugfixes/B-014-gap-under-note-suggestions/B-014-gap-under-note-suggestions.md) | An empty gap under the Note's suggestions on the phone | Medium | Done |
 | [B-015](changes/bugfixes/B-015-e2e-day-after-midnight-kyiv/B-015-e2e-day-after-midnight-kyiv.md) | Two E2E tests fail in CI between midnight and 02:00 in Kyiv (red CI on PR #78) | High | Done |
-| [B-016](changes/bugfixes/B-016-e2e-browser-install-hangs/B-016-e2e-browser-install-hangs.md) | CI's E2E job hangs 10–20 minutes installing the browser when Ubuntu's package mirrors are down, then fails without a test | High | Todo |
+| [B-016](changes/bugfixes/B-016-e2e-browser-install-hangs/B-016-e2e-browser-install-hangs.md) | CI's E2E job hangs 10–20 minutes installing the browser when Ubuntu's package mirrors are down, then fails without a test | High | Done |
