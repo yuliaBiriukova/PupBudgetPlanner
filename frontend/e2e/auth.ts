@@ -28,20 +28,26 @@ export const E2E_ADMIN: Person = {
 };
 
 /**
+ * The emails newPerson makes, and only those: the clean-up deletes these accounts and no others. The tag has
+ * lowercase letters, digits and hyphens (`i024-shots`, B-018); the `-<ms>-<rand>` end keeps the admin out.
+ */
+export const TEST_PERSON_EMAIL = /^e2e-[a-z0-9-]+-\d+-[a-z0-9]{1,6}@example\.com$/;
+
+/**
  * A person nobody has used yet: every run creates new accounts, and cleanup.teardown.ts deletes them afterwards
- * (I-007; CI starts from an empty database).
+ * (I-007; CI starts from an empty database). Scripts run by hand use it too, so their people go as well.
  */
 export function newPerson(tag: string): Person {
   const id = `${String(Date.now())}-${Math.random().toString(36).slice(2, 8)}`;
-  return {
-    displayName: 'Olena',
-    email: `e2e-${tag}-${id}@example.com`,
-    password: 'kyiv-budget-26',
-  };
+  const email = `e2e-${tag}-${id}@example.com`;
+  // A tag the clean-up wouldn't find leaves the account in the shared dev database (B-018)
+  if (!TEST_PERSON_EMAIL.test(email)) {
+    throw new Error(
+      `The clean-up would not find ${email}: use lowercase letters, digits and hyphens in the tag`,
+    );
+  }
+  return { displayName: 'Olena', email, password: 'kyiv-budget-26' };
 }
-
-/** The emails newPerson makes, and only those: the clean-up deletes these accounts and no others. */
-export const TEST_PERSON_EMAIL = /^e2e-[a-z-]+-\d+-[a-z0-9]{1,6}@example\.com$/;
 
 /** The antiforgery token for whoever the context is signed in as (it changes when they sign in). */
 export async function antiforgery(request: APIRequestContext): Promise<Record<string, string>> {

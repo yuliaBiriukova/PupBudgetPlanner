@@ -1,7 +1,7 @@
 import { Navigate, type RouteObject } from 'react-router';
 import { AccountsPage } from '../features/accounts/AccountsPage';
 import { GuestOnly, SignInPage, SignUpPage } from '../features/auth/AuthPages';
-import { InvitePage } from '../features/auth/InvitePage';
+import { InviteRoute } from '../features/auth/InviteRoute';
 import { CategoriesPage } from '../features/categories/CategoriesPage';
 import { FamilyPage } from '../features/family/FamilyPage';
 import { PeoplePage } from '../features/people/PeoplePage';
@@ -34,11 +34,9 @@ export const routes: RouteObject[] = [
       { path: 'sign-up', element: <SignUpPage /> },
     ],
   },
-  // The invite link (F-028): the same frame without the Sign in / Create account switch
-  {
-    element: <GuestOnly withSwitch={false} />,
-    children: [{ path: 'invite/:token', element: <InvitePage /> }],
-  },
+  // The invite link (F-028): the same frame without the Sign in / Create account switch. Signed in, a family's link
+  // asks to join the family (F-023)
+  { path: 'invite/:token', element: <InviteRoute /> },
   // Everything else needs a signed-in person
   { element: <SignedInLayout />, children: sectionRoutes },
 ];

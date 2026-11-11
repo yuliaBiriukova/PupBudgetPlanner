@@ -35,9 +35,6 @@
     "seconds": "{{seconds}} s",
     "connected": "Connected"
   },
-  "placeholder": {
-    "family": "Invite your family and see your money together here."
-  },
   "colorScheme": {
     "switchToDark": "Switch to dark mode",
     "switchToLight": "Switch to light mode",
@@ -250,9 +247,134 @@
       "expired": "Expired, not used",
       "deletedAccount": "Deleted account",
       "cancelledStatus": "Cancelled",
-      "none": "None yet."
+      "none": "None yet.",
+      "family": "{{name}} family"
     },
     "metaBlocked": "Blocked {{date}}, {{invitedWith}}"
+  },
+  "family": {
+    "loadFailed": "Couldn’t load your family.",
+    "retry": "Try again",
+    "failed": "That didn’t go through. Try again.",
+    "means": {
+      "see": "Everyone in the family sees each other’s accounts, transactions and reports, and the family’s report.",
+      "own": "Each of you changes only your own.",
+      "leave": "Anyone can leave at any time; nothing of theirs is deleted."
+    },
+    "start": {
+      "title": "Start a family",
+      "nameLabel": "Family name",
+      "nameHint": "Everyone in it sees the name, for example your surname.",
+      "namePlaceholder": "Our family",
+      "button": "Start a family",
+      "started": "The {{name}} family is started.",
+      "already": "You’re already in a family."
+    },
+    "join": {
+      "title": "Join a family",
+      "text": "Someone already keeps one?",
+      "how": "Ask its owner for an invite link and open it. You can be in one family at a time."
+    },
+    "nameSection": {
+      "title": "Name",
+      "ownerText": "Everyone in the family sees it.",
+      "memberText": "The family’s owner can change it.",
+      "label": "Family name",
+      "cancel": "Cancel",
+      "save": "Save name",
+      "saved": "Family name saved."
+    },
+    "nameErrors": {
+      "required": "Give the family a name",
+      "tooLong": "Use at most {{max}} characters"
+    },
+    "members": {
+      "title": "Members",
+      "text": "They see each other’s accounts, transactions and reports; each changes only their own.",
+      "you": "You",
+      "owner": "Owner",
+      "started": "Started the family {{date}}",
+      "joined": "Joined {{date}}",
+      "actions": "Actions for {{name}}",
+      "remove": "Remove from family"
+    },
+    "invite": {
+      "title": "Invite someone",
+      "text": "A link for one person, for 7 days. Send it in any messenger; it works for someone new to the app too.",
+      "create": "Create invite link",
+      "waiting": "Waiting to be opened",
+      "forNote": "For {{note}}",
+      "noNote": "Invite link",
+      "worksUntil": "Works until {{date}}",
+      "daysLeft_one": "{{count}} day left",
+      "daysLeft_other": "{{count}} days left",
+      "cancel": "Cancel",
+      "cancelLabel": "Cancel the link: {{note}}",
+      "cancelled": "Link cancelled. It no longer works."
+    },
+    "inviteDialog": {
+      "title": "Invite to the family",
+      "lead": "A link for one person, for {{days}} days. Whoever opens it is asked to join the {{name}} family.",
+      "noteLabel": "Who is it for? (optional)",
+      "noteHint": "Only you see it, to tell your links apart.",
+      "notePlaceholder": "Their name",
+      "cancel": "Cancel",
+      "create": "Create link",
+      "readyTitle": "The link is ready",
+      "linkLabel": "Invite link",
+      "copy": "Copy link",
+      "copiedButton": "Copied",
+      "copied": "Link copied. Paste it into any messenger.",
+      "share": "Share",
+      "shareTitle": "Join the {{name}} family in Pup Budget",
+      "send": "Send it in any messenger. It works until {{date}}, for one person: they join the {{name}} family, and can create an account with it if they have none.",
+      "done": "Done"
+    },
+    "remove": {
+      "title": "Remove {{name}} from the family?",
+      "text": "{{name}} stops seeing the family’s money, and the family stops seeing theirs.",
+      "nothingDeleted": "Nothing is deleted: their accounts and transactions stay theirs. To come back they need a new link.",
+      "keep": "Keep {{name}}",
+      "confirm": "Remove",
+      "done": "{{name}} is no longer in the family."
+    },
+    "leave": {
+      "title": "Leave the family",
+      "deleteTitle": "Delete the family",
+      "memberText": "You stop seeing each other’s money. Nothing is deleted.",
+      "ownerText": "You name who looks after it next. Your money stays yours.",
+      "aloneText": "You are the only one in it. Your money stays yours.",
+      "button": "Leave family",
+      "deleteButton": "Delete family",
+      "dialogTitle": "Leave the {{name}} family?",
+      "deleteDialogTitle": "Delete the {{name}} family?",
+      "aloneDialogText": "You are the only one in it, so the family is deleted. Your accounts and transactions stay yours.",
+      "dialogText": "You stop seeing {{names}}’s money, and they stop seeing yours. Nothing is deleted. To come back you need a new link.",
+      "heirLabel": "Who looks after the family now?",
+      "heirText": "They can invite and remove people and rename the family.",
+      "heirMissing": "Pick who looks after the family",
+      "stay": "Stay",
+      "left": "You left the {{name}} family.",
+      "deleted": "The {{name}} family is deleted."
+    },
+    "joinPage": {
+      "invites": "{{name}} invites you to the {{family}} family",
+      "until": "The link works until {{date}}",
+      "title": "Join the {{family}} family?",
+      "inFamily": "In the family",
+      "owner": "owner",
+      "join": "Join family",
+      "notNow": "Not now",
+      "joined": "You joined the {{family}} family.",
+      "signedInAs": "Signed in as {{email}}.",
+      "notYou": "Not you?",
+      "alreadyTitle": "You’re already in a family",
+      "alreadyText": "You’re in the {{current}} family, and a person can be in one family at a time. To join {{family}}, leave {{current}} on the Family page first, then open this link again. It works until {{date}}.",
+      "sameTitle": "You’re already in the {{family}} family",
+      "sameText": "This link is for someone else. It still works for them until {{date}}.",
+      "goToFamily": "Go to Family",
+      "newNote": "Create your account and you join the family: you’ll see {{names}}’s money, and they’ll see yours."
+    }
   },
   "categories": {
     "count_one": "{{count}} category",
@@ -273,11 +395,92 @@
     "none": "No categories",
     "collapseAll": "Collapse all",
     "expandAll": "Expand all",
-    "later": "Adding your own categories, renaming and removing them come after the first release.",
+    "edit": {
+      "add": "Add",
+      "addTo": "Add a category to {{group}}",
+      "hiddenTag": "{{name}}, hidden",
+      "group": "Edit group",
+      "groupOf": "Edit the group {{name}}",
+      "addGroup": {
+        "Income": "Add income group",
+        "Expense": "Add expense group"
+      },
+      "hiddenGroup": "Hidden group",
+      "show": "Show",
+      "showAgainOf": "Show {{name}} again"
+    },
+    "sheet": {
+      "newCategory": "New category",
+      "editCategory": "Edit category",
+      "newGroup": "New group",
+      "editGroup": "Edit group",
+      "name": "Name",
+      "group": "Group",
+      "kind": "For",
+      "placeIn": "Place in {{group}}",
+      "placeAmong": {
+        "Income": "Place among income groups",
+        "Expense": "Place among expense groups"
+      },
+      "moveUp": "Move “{{name}}” up",
+      "moveDown": "Move “{{name}}” down",
+      "cancel": "Cancel",
+      "save": "Save",
+      "add": "Add",
+      "close": "Close",
+      "keep": "Keep it",
+      "hide": "Hide",
+      "delete": "Delete",
+      "hideCategory": "Hide this category",
+      "deleteCategory": "Delete this category",
+      "hideWhy_one": "It has {{count}} transaction, so it’s hidden, not deleted.",
+      "hideWhy_other": "It has {{count}} transactions, so it’s hidden, not deleted.",
+      "deleteWhy": "It has no transactions, so it’s deleted for good.",
+      "askHide": "Hide “{{name}}”?",
+      "askDelete": "Delete “{{name}}”?",
+      "deleteText": "It has no transactions, so it’s deleted for good. You can add it again later.",
+      "hideFacts": "You won’t see it when you add a transaction. Its transactions keep it, and the reports and the Transactions filters still show it. You can show it again here.",
+      "hiddenTitle": "“{{name}}” is hidden",
+      "hiddenText_one": "It has {{count}} transaction and keeps it. You don’t see it when you add a transaction; shown again, it’s back at the end of {{group}}.",
+      "hiddenText_other": "It has {{count}} transactions and keeps them. You don’t see it when you add a transaction; shown again, it’s back at the end of {{group}}.",
+      "showAgain": "Show again",
+      "removeGroup": "Remove this group",
+      "groupLast": {
+        "Income": "It’s your only income group, so it stays. Add another one first.",
+        "Expense": "It’s your only expense group, so it stays. Add another one first."
+      },
+      "groupInUse_one": "It still has {{count}} category. Move it to another group or remove it first.",
+      "groupInUse_other": "It still has {{count}} categories. Move them to another group or remove them first.",
+      "groupDelete": "It has no categories, so it’s deleted for good.",
+      "groupHide": "It holds only hidden categories, so it’s hidden with them. Their transactions keep them.",
+      "askDeleteGroup": "Delete the group “{{name}}”?",
+      "askHideGroup": "Hide the group “{{name}}”?"
+    },
+    "names": {
+      "empty": "Type a name",
+      "taken": "“{{name}}” is already in {{group}}",
+      "takenHidden": "“{{name}}” is already in {{group}}, hidden",
+      "showItAgain": "Show it again",
+      "groupTaken": "You already have a group “{{name}}”"
+    },
+    "done": {
+      "added": "“{{name}}” added",
+      "saved": "“{{name}}” saved",
+      "moved": "“{{name}}” moved to {{group}}",
+      "deleted": "“{{name}}” deleted",
+      "hidden": "“{{name}}” hidden. Its transactions keep it",
+      "back": "“{{name}}” is back in {{group}}",
+      "groupAdded": "Group “{{name}}” added",
+      "groupSaved": "Group “{{name}}” saved",
+      "groupDeleted": "Group “{{name}}” deleted",
+      "groupHidden": "Group “{{name}}” hidden",
+      "groupBack": "Group “{{name}}” is back"
+    },
     "loading": "Loading categories",
     "errors": {
       "load": "Couldn’t load your categories. Check the connection and try again.",
-      "retry": "Try again"
+      "retry": "Try again",
+      "save": "That didn’t go through. Try again in a moment."
     },
     "empty": {
       "title": "No categories here",

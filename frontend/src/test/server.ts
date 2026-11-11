@@ -15,6 +15,8 @@ const defaultHandlers = [
   http.get('/api/health', () => HttpResponse.json({ status: 'ok' })),
   http.get('/api/auth/me', () => HttpResponse.json(testUser)),
   http.get('/api/auth/sign-up', () => HttpResponse.json({ mode: 'InviteOnly' })),
+  // In no family (F-023), unless a test says otherwise
+  http.get('/api/family', () => new HttpResponse(null, { status: 204 })),
 ];
 
 /** MSW server for unit tests. Add handlers per test with `server.use(http.get(...))`. */

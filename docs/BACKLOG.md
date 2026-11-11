@@ -63,8 +63,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 | ID | Feature | Status |
 |----|---------|--------|
-| [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) | 🎨 Add, rename, reorder and remove categories and groups (priority High, added 2026-11-06) | Todo |
-| [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) | 🎨 Family and invitations | Todo |
+| [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) | 🎨 Add, rename, reorder and remove categories and groups (priority High, added 2026-11-06) | Done |
+| [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) | 🎨 Family and invitations | Done |
 | [F-024](changes/features/F-024-family-views/F-024-family-views.md) | Family views | Todo |
 
 ### M6 — MVP release
@@ -140,3 +140,4 @@ owner asks for one.
 | [B-015](changes/bugfixes/B-015-e2e-day-after-midnight-kyiv/B-015-e2e-day-after-midnight-kyiv.md) | Two E2E tests fail in CI between midnight and 02:00 in Kyiv (red CI on PR #78) | High | Done |
 | [B-016](changes/bugfixes/B-016-e2e-browser-install-hangs/B-016-e2e-browser-install-hangs.md) | CI's E2E job hangs 10–20 minutes installing the browser when Ubuntu's package mirrors are down, then fails without a test | High | Done |
 | [B-017](changes/bugfixes/B-017-flaky-ci-unit-tests/B-017-flaky-ci-unit-tests.md) | Two frontend unit tests fail on CI's `develop` runs that passed on their PRs (the Filters sheet drops its picks for a moment as it closes) | Medium | Done |
+| [B-018](changes/bugfixes/B-018-e2e-cleanup-digit-tags/B-018-e2e-cleanup-digit-tags.md) | The E2E clean-up leaves test accounts whose tag has digits (`e2e-i024-shots-…`): 51 left in the `dev` database | Medium | Done |

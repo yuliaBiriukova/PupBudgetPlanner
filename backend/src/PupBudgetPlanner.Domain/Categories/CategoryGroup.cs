@@ -17,5 +17,8 @@ public sealed class CategoryGroup
     /// <summary>Position among the person's groups, from 1.</summary>
     public int SortOrder { get; set; }
 
+    /// <summary>Hidden with its hidden categories (F-029): kept for the transactions and reports that use them.</summary>
+    public bool IsArchived { get; set; }
+
     public ICollection<Category> Categories { get; } = [];
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PupBudgetPlanner.Domain.Accounts;
 using PupBudgetPlanner.Domain.Categories;
 using PupBudgetPlanner.Domain.ExchangeRates;
+using PupBudgetPlanner.Domain.Families;
 using PupBudgetPlanner.Domain.Invitations;
 using PupBudgetPlanner.Domain.Transactions;
 using PupBudgetPlanner.Infrastructure.Identity;
@@ -23,6 +24,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Category> Categories => Set<Category>();
 
     public DbSet<Invitation> Invitations => Set<Invitation>();
+
+    /// <summary>Families (F-023) and who is in them.</summary>
+    public DbSet<Family> Families => Set<Family>();
+
+    public DbSet<FamilyMember> FamilyMembers => Set<FamilyMember>();
 
     public DbSet<Account> Accounts => Set<Account>();
 

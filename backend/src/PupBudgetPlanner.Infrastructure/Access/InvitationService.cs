@@ -26,8 +26,15 @@ internal sealed class InvitationService(AppDbContext dbContext, TimeProvider clo
                 from invitation in dbContext.Invitations.AsNoTracking()
                 join user in dbContext.Users on invitation.UsedById equals user.Id into used
                 from usedBy in used.DefaultIfEmpty()
+                join family in dbContext.Families on invitation.FamilyId equals family.Id into families
+                from forFamily in families.DefaultIfEmpty()
                 orderby invitation.CreatedAt descending
-                select new { invitation, UsedByName = usedBy == null ? null : usedBy.DisplayName })
+                select new
+                {
+                    invitation,
+                    UsedByName = usedBy == null ? null : usedBy.DisplayName,
+                    FamilyName = forFamily == null ? null : forFamily.Name,
+                })
             .ToListAsync(cancellationToken);
 
         return rows
@@ -39,7 +46,8 @@ internal sealed class InvitationService(AppDbContext dbContext, TimeProvider clo
                 row.invitation.ExpiresAt,
                 row.invitation.UsedAt,
                 row.UsedByName,
-                row.invitation.CancelledAt))
+                row.invitation.CancelledAt,
+                row.FamilyName))
             .ToList();
     }
 
@@ -72,8 +80,37 @@ internal sealed class InvitationService(AppDbContext dbContext, TimeProvider clo
                 select new { invitation, InviterName = createdBy == null ? null : createdBy.DisplayName })
             .SingleOrDefaultAsync(cancellationToken);
 
-        return found is null || found.invitation.StatusAt(now) != InvitationStatus.Waiting
-            ? null
-            : new InvitationPreview(found.InviterName ?? "Pup Budget", found.invitation.ExpiresAt);
+        if (found is null || found.invitation.StatusAt(now) != InvitationStatus.Waiting)
+        {
+            return null;
+        }
+
+        var family = found.invitation.FamilyId is { } familyId
+            ? await InvitedFamilyAsync(familyId, cancellationToken)
+            : null;
+        return new InvitationPreview(found.InviterName ?? "Pup Budget", found.invitation.ExpiresAt, family);
+    }
+
+    /// <summary>The family a link joins, for whoever holds the link: its name and its people's names (F-023).</summary>
+    private async Task<InvitedFamily?> InvitedFamilyAsync(Guid familyId, CancellationToken cancellationToken)
+    {
+        var family = await dbContext.Families.AsNoTracking()
+            .Include(f => f.Members)
+            .SingleOrDefaultAsync(f => f.Id == familyId, cancellationToken);
+        if (family is null)
+        {
+            return null;
+        }
+
+        var memberIds = family.Members.Select(m => m.UserId).ToList();
+        var names = await dbContext.Users.AsNoTracking()
+            .Where(user => memberIds.Contains(user.Id))
+            .ToDictionaryAsync(user => user.Id, user => user.DisplayName, cancellationToken);
+        var members = family.Members
+            .OrderByDescending(m => family.IsOwner(m.UserId))
+            .ThenBy(m => m.JoinedAt)
+            .Select(m => new InvitedFamilyMember(names.GetValueOrDefault(m.UserId, string.Empty), family.IsOwner(m.UserId)))
+            .ToList();
+        return new InvitedFamily(family.Id, family.Name, members);
     }
 }

@@ -2,6 +2,145 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-12 (B-018: The E2E clean-up finds test people whose tag has digits)
+
+**Done**
+- [B-018](changes/bugfixes/B-018-e2e-cleanup-digit-tags/B-018-e2e-cleanup-digit-tags.md) on
+  `bugfix/B-018-e2e-cleanup-digit-tags`; the owner approved the root cause and the fix on 2026-11-11. The clean-up's
+  `TEST_PERSON_EMAIL` allowed only letters and hyphens in the tag, so the screenshot scripts' people
+  (`e2e-i024-shots-…`, `e2e-b004-debug-…` …) were never deleted: 51 of them in the `dev` database.
+- `TEST_PERSON_EMAIL` takes digits in the tag (still needs the `-<ms>-<rand>@example.com` end, so never the admin);
+  `newPerson` throws for a tag the clean-up wouldn't find. CLAUDE.md "Clean up test data" says to make test people
+  with `newPerson`, in hand-run scripts too.
+- Tests: `e2e/test-people.spec.ts` (no browser, desktop project): fails on the old pattern, passes now.
+- Checked, after merging `develop` (F-023): the full E2E suite against this branch's API and web app (93 passed, 19
+  skipped); frontend lint, format, typecheck, unit tests (359 / 359) and build; backend build (0 warnings) and tests
+  (515 / 515).
+- Test data: before the first run the `dev` database had 51 leftover `e2e-…` people from earlier changes; that run's
+  clean-up deleted them with the run's own people. Checked through `GET /api/admin/people` as the tests' admin after
+  both runs: the admin is the only `e2e-…` account left; no invite link is waiting. The owner's account untouched.
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-11 (F-023: Family and invitations, built)
+
+**Done**
+- The owner approved F-023 for implementation on 2026-11-11 ("approved f-023, build it": the final prototype and the
+  six open points' proposals); recorded in the
+  [description](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) and DESIGN_RULES
+  "Screen decisions".
+- Backend: the `Family` aggregate in the Domain (one owner, members with the day they joined; rename, remove, leave
+  with the next owner, the last one leaving empties it); `families` and `family_members` with one family per person
+  as a unique index; a family's link is an F-028 invitation with a `family_id`, and `created_account` keeps "Invited"
+  to links that created the account (migration `AddFamilies`, applied to the `dev` database by the local API);
+  `/api/family` (get, start, rename, invite, cancel a link, remove, leave, join); sign-up with a family's link
+  (password or Google) joins the family; the admin's Delete hands an owner's family to whoever has been in it longest
+  and deletes an emptied one; the link preview names the family and its members; the admin's list has the family.
+- Frontend: the Family page replaces the placeholder (Name, Members, Invite someone, Leave / Delete the family; with
+  no family Start a family and Join a family), its dialogs (a new link shown once with Copy / Share, Remove, Leave
+  with the next owner picked); `/invite/:token` now also serves someone signed in: a family's link asks to join, or
+  to leave the current family first; someone new gets F-028's sign-up with the family named, and goes on to Family.
+  The admin's *Invite links* tab tags a family's links. The prototype stories were removed; *Family / Family page*
+  has the owner, member, no family, loading, error and the three join pages. `PlaceholderPage` went with the last
+  placeholder.
+- Added in the build (in the description's "Built"): a link to your own family, and a link that no longer works for
+  someone signed in, each get a line and Go to Family.
+- Decisions: [ADR 0029](decisions/0029-families.md) (the `Family` aggregate, one family per person in the database,
+  family links are invite links, nothing of anyone's deleted with a family or an account).
+- Tests: backend 515 / 515 (30 new: `FamilyTests`, a family link's lifetime, validators, `FamilyControllerTests`);
+  frontend unit tests 359 / 359 (13 new in `FamilyPage.test.tsx`); E2E `family.spec.ts` (someone new joins with the
+  link and is removed; someone with an account joins and leaves), desktop and phone.
+- Checked: backend build (0 warnings); frontend lint, format, typecheck, build; the design check on the Family page
+  (owner, no family) and the join page (signed in: no issues; signed out: only the password eye button "overlap" F-028's
+  page has too); screenshots of every state at 375 and 1440 px, light and dark, looked at (kept in the change folder's
+  `screenshots/`); they caught the join page's title sitting right under the card and a dialog's first line 12 px
+  low (a class losing to another stylesheet on load order), both fixed.
+- Test data: the E2E runs' `e2e-…@example.com` people and their families and links, and `e2e-manual-…@example.com`
+  people (with families Kovalenko and Melnyk and links noted `E2E …` and `Mom`) made for the screenshots and the design
+  check; the E2E clean-up deleted the people, which deleted their families and cancelled the families' waiting links.
+
+- Owner's review: generic placeholders, Family name "Our family" (was "Kovalenko") and Who is it for? "Their name"
+  (was "Mom"); the screenshots showing them taken again and looked at. Their two `e2e-manual-…` people were removed by
+  the E2E clean-up.
+
+**Next**
+- Owner: review the PR; try the Family page and a link in a second browser. Then F-024 (Family views).
+
+## 2026-11-11 (F-023: Family and invitations, design round 1)
+
+**Done**
+- [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) started on
+  `feature/F-023-family-and-invitations`: references (Spotify, Google, Apple, Monarch and YNAB help pages; Mobbin
+  needs a sign-in), the brief, the plan, and three prototype stories in *Prototypes / F-023 Family and invitations*:
+  Sections, Seats, Tickets. Each is the app opened on Family with a start picked in the link (owner, no family,
+  member, and opening a link signed in, while in a family, or as someone new); starting, renaming, inviting,
+  cancelling a link, removing, leaving and joining all work in the story.
+- Six open points with proposals in the description (the owner alone invites; an owner leaving names the next
+  owner; rename; no limit; family links on the People page; nothing deleted on leaving).
+- Checked: the design check on the three stories and six starts (only the password eye button "overlap" the app's
+  own invite page has too); typecheck, ESLint, Prettier; every state clicked through in Playwright, screenshots at
+  375 px light and dark and 1440 px looked at.
+- Test data: none (Storybook only).
+
+- The owner picked variant 1, "Sections", without changes; it is now the *Final prototype* story (variants 2 and 3
+  removed), with one fix (the Start a family button 16 px under its field on the desktop, was 44). Checked again:
+  the design check on its six starts, every state's screenshots at 375 and 1440 px, light and dark, kept in the change
+  folder's `prototypes/`.
+
+**Next**
+- Owner: approve the final prototype and the open points' proposals for implementation (or ask for changes).
+
+## 2026-11-11 (F-029: Manage categories, built)
+
+**Done**
+- The owner approved the final prototype ("Tap a tag") for implementation on 2026-11-11; recorded in the
+  [description](changes/features/F-029-manage-categories/F-029-manage-categories.md) and DESIGN_RULES "Screen
+  decisions".
+- Backend: `CategorySet` in the Domain with every rule (names unique ignoring case, hidden ones counting; moves within
+  a kind; places among the shown ones; hide instead of delete once used; a group goes only without shown categories,
+  never the last of its kind); `CategoryGroup.IsArchived` (migration `HideCategoryGroups`, applied to the `dev`
+  database by the local API); `GET /api/categories` with hidden ones and transaction counts; add, change, remove and
+  restore endpoints for categories and groups; the reports leave out a hidden group with nothing in the period.
+- Frontend: the Categories page's tags open the category's sheet (name, group, place with drag and ↑ ↓, Hide or
+  Delete asked again), + Add, hidden tags with Show again, the group's sheet, + Add income / expense group, hidden
+  groups with Show; the "come later" line is gone; the quick-add form leaves hidden ones out. The prototype stories
+  were removed; the page's stories cover the sheets, a clash, a hidden twin, Hide and Delete asked, hidden ones, a
+  failed save, loading and error.
+- Decisions: [ADR 0028](decisions/0028-changing-categories.md) (rules in the Domain, hide instead of delete, our own
+  small drag rather than dnd-kit).
+- Tests: backend 485 / 485 (22 new for `CategorySet`, validators, controller, overview, report); frontend unit tests
+  346 / 346; E2E `categories.spec.ts` (add, rename, reorder by keyboard, move, delete a category and a group; hide one
+  with a transaction: gone from the quick-add form, still in the month's report, shown again), desktop and phone.
+- Checked: backend build (0 warnings); frontend lint, format, typecheck, build, `build-storybook`; the full E2E suite
+  (86 passed, 16 skipped); the design check on 8 of the page's stories (no layout or axe issues once the stories show
+  full screen: Storybook's padded body had moved the phone's sheets 16 px; it still lists the dimmed backdrop under
+  each open sheet as an overlap); screenshots of the page and every sheet at 375 and 1440 px, light and dark, looked
+  at (kept in the change folder's `screenshots/`).
+- Test data: the E2E runs' `e2e-…@example.com` people, and one `e2e-manual-…@example.com` person with an invite link
+  noted `E2E manual F-029` made for a check in the browser; the E2E clean-up deleted them and cancelled the links.
+
+**Next**
+- Owner: review the PR. The Transactions filters keep listing the period's categories by amount (F-020), not in the
+  person's order: the owner's choice, 2026-11-11. Then F-023 (Family and invitations).
+
+## 2026-11-11 (F-029: Manage categories, design round 1)
+
+**Done**
+- [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) started on
+  `feature/F-029-manage-categories`: references (YNAB, Actual Budget, Lunch Money, AnyList, Atlassian's drag and drop
+  accessibility), the brief and three prototype stories in *Prototypes / F-029 Manage categories*: Edit mode, Tap a
+  tag, The ledger. Each is the app opened on Categories with the variant's page; changes stay in the story.
+- Checked: the design check on the three stories (0 issues after one fix), their states clicked through in Playwright
+  at 375 and 1440 px, light and dark, screenshots looked at; lint and typecheck on the prototype folder.
+- Test data: none (Storybook's fake API only).
+
+- The owner picked variant 2, "Tap a tag", the same day; it is the final prototype story (variants 1 and 3 removed),
+  checked again (design check 0 issues, its states in Playwright at 375 and 1440 px, light and dark).
+
+**Next**
+- Owner: approve the final prototype for implementation (or ask for changes); no code before that.
+
 ## 2026-11-11 (B-017: The Filters sheet keeps its picks as it closes; two flaky unit tests)
 
 **Done**

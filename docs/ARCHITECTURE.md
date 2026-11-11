@@ -89,9 +89,10 @@ Why this shape (details in [ADR 0002](decisions/0002-hosting-render-neon.md)):
 erDiagram
     USER ||--o| FAMILY_MEMBER : "is in (0..1)"
     FAMILY ||--|{ FAMILY_MEMBER : has
-    FAMILY ||--o{ FAMILY_INVITATION : has
-    USER ||--o{ INVITATION : "makes (admin)"
-    USER ||--o| INVITATION : "joined with"
+    USER ||--o{ FAMILY : "owns (one owner)"
+    FAMILY ||--o{ INVITATION : "has (family links)"
+    USER ||--o{ INVITATION : "makes (admin, family owner)"
+    USER ||--o{ INVITATION : "used"
     USER ||--o{ ACCOUNT : owns
     USER ||--o{ ACCOUNT_SOURCE : owns
     USER ||--o{ BANK : owns
@@ -106,14 +107,13 @@ erDiagram
     EXCHANGE_RATE
 
     USER { guid Id string Email string DisplayName string ReportCurrency datetime CreatedAt datetime BlockedAt }
-    INVITATION { guid Id bytes TokenHash string Note guid CreatedById datetime ExpiresAt guid UsedById datetime UsedAt datetime CancelledAt }
-    FAMILY { guid Id string Name guid OwnerUserId }
-    FAMILY_MEMBER { guid FamilyId guid UserId FamilyRole Role }
-    FAMILY_INVITATION { guid Id guid FamilyId string Token datetime ExpiresAt }
+    INVITATION { guid Id bytes TokenHash string Note guid CreatedById guid FamilyId datetime ExpiresAt guid UsedById datetime UsedAt bool CreatedAccount datetime CancelledAt }
+    FAMILY { guid Id string Name guid OwnerId datetime CreatedAt }
+    FAMILY_MEMBER { guid FamilyId guid UserId datetime JoinedAt }
     ACCOUNT { guid Id guid UserId string Name string Currency SourceKind Source guid SourceId guid BankId decimal OpeningBalance date OpeningDate CardStyle CardStyle datetime CreatedAt datetime ArchivedAt }
     ACCOUNT_SOURCE { guid Id guid UserId string Name }
     BANK { guid Id guid UserId string Name }
-    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder }
+    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder bool IsArchived }
     CATEGORY { guid Id guid GroupId string Name int SortOrder bool IsArchived }
     TRANSACTION { guid Id guid UserId TransactionType Type date Date guid AccountId decimal Amount guid CategoryId guid ToAccountId decimal ToAmount string Note }
     EXCHANGE_RATE { date Date string Currency decimal RateToUah RateSource Source }
@@ -125,10 +125,23 @@ erDiagram
   ([ADR 0018](decisions/0018-whole-amounts.md)).
 - Categories: every account gets its own copy of the default set (`DefaultCategories`) in the transaction that
   creates it; group names are unique per person, category names per group
-  ([ADR 0015](decisions/0015-default-categories-seeding.md)).
+  ([ADR 0015](decisions/0015-default-categories-seeding.md)). Each person changes their own set (F-029): the rules
+  live in `CategorySet` (names unique ignoring case, hidden ones counting; a category moves only within its kind;
+  places among the shown ones, sort orders renumbered from 1, income groups first). A category with transactions is
+  hidden (`IsArchived`), not deleted; a group goes only without shown categories, deleted when empty, hidden with its
+  hidden ones otherwise; the last group of a kind stays. `GET /api/categories` sends the hidden ones too, marked, with
+  each category's transaction count; the quick-add form leaves them out
+  ([ADR 0028](decisions/0028-changing-categories.md)).
 - Invitations (F-028): an invite link for one person, valid once for 7 days; only the token's SHA-256 is stored.
   Its status (waiting, used, expired, cancelled) comes from the dates. A blocked person keeps their data
-  (`BlockedAt`) ([ADR 0016](decisions/0016-invite-only-sign-up.md)). F-023 will attach a family to it.
+  (`BlockedAt`) ([ADR 0016](decisions/0016-invite-only-sign-up.md)). A family's link (F-023) has a `FamilyId`: it
+  joins its person to the family, whether it creates their account or they already have one; `CreatedAccount` tells
+  the two apart ("Invited" on the People page).
+- Families (F-023): a person is in one family at most (a unique index on `family_members.user_id`); the family has one
+  owner (`OwnerId`), who renames it, invites (family links) and removes people. The rules live in the `Family`
+  aggregate: an owner leaving others names the next owner, the last one to leave deletes the family (its waiting
+  links cancelled first); deleting an account hands its family to whoever has been in it longest. Nothing of anyone's
+  is deleted by joining, leaving or removing ([ADR 0029](decisions/0029-families.md)).
 - Accounts (F-014): the source is Cash, Bank or one of the person's own sources; a bank account names one of the
   person's banks. Own sources and banks are personal rows (a name unique per person) that stay while an account uses
   them. Balances are never stored: `BalanceSheet` adds each account's transactions to its opening balance and totals
@@ -167,7 +180,6 @@ erDiagram
 | `CategoryKind` | `Income`, `Expense` | `CategoryGroup.Kind` | Report section of the group; which categories the form offers for an expense or an income |
 | `SourceKind` | `Cash`, `Bank`, `Own` | `Account.Source` | Where the money is: cash, one of the person's banks, or one of their own sources (F-014) |
 | `CardStyle` | `Solid`, `Tinted`, `Envelope`, `Plain` | `Account.CardStyle` | How the account's card looks; a new account starts with its source's style (F-014) |
-| `FamilyRole` | `Owner`, `Member` | `FamilyMember.Role` | The owner can invite and remove members |
 | `RateSource` | `Nbu` | `ExchangeRate.Source` | Where the rate came from; leaves room for other sources |
 | `RatesStatus` | `Current`, `NotPublished`, `Unavailable`, `Missing` | API only (`AccountsTotal.Status`, `RatesOfDay.Status`) | Whether the rates are the asked day's, and if not, why (F-017) |
 | `ReportMonthState` | `Passed`, `Current`, `Future` | API only (`ReportMonth.State`) | Where a report's month is against Kyiv's today; a month still to come has no numbers (F-021) |

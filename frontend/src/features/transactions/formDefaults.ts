@@ -22,11 +22,15 @@ export function kindOf(type: TransactionType): CategoryKind {
   return type === 'Income' ? 'Income' : 'Expense';
 }
 
-/** The categories in use for the type, in the report's order. */
+/** The categories in use for the type, in the person's order; hidden ones are left out (F-029). */
 export function categoriesFor(groups: CategoryGroup[], type: TransactionType): CategoryOption[] {
   return groups
-    .filter((group) => group.kind === kindOf(type))
-    .flatMap((group) => group.categories.map((category) => ({ ...category, group: group.name })));
+    .filter((group) => group.kind === kindOf(type) && !group.isHidden)
+    .flatMap((group) =>
+      group.categories
+        .filter((category) => !category.isHidden)
+        .map(({ id, name }) => ({ id, name, group: group.name })),
+    );
 }
 
 /**

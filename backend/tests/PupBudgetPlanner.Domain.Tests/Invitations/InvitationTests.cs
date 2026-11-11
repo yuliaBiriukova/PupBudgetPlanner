@@ -52,4 +52,16 @@ public sealed class InvitationTests
         invitation.Cancel(Made.AddDays(8)).Should().BeFalse();
         invitation.StatusAt(Made.AddDays(8)).Should().Be(InvitationStatus.Expired);
     }
+
+    [Fact]
+    public void A_familys_link_is_for_its_family_and_lasts_seven_days_too()
+    {
+        var familyId = Guid.CreateVersion7();
+        var invitation = Invitation.Create(new byte[32], "Mom", Guid.CreateVersion7(), Made, familyId);
+
+        invitation.FamilyId.Should().Be(familyId);
+        invitation.ExpiresAt.Should().Be(Made.AddDays(7));
+        invitation.CreatedAccount.Should().BeFalse();
+        New().FamilyId.Should().BeNull();
+    }
 }

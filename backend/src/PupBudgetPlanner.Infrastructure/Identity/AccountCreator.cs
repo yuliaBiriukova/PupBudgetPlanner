@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PupBudgetPlanner.Domain.Categories;
+using PupBudgetPlanner.Infrastructure.Families;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
 namespace PupBudgetPlanner.Infrastructure.Identity;
@@ -73,16 +74,26 @@ internal sealed class AccountCreator(UserManager<AppUser> userManager, AppDbCont
 
     /// <summary>
     /// One conditional UPDATE: only a waiting invitation (not used, not cancelled, not expired) changes. A second
-    /// sign-up racing for the same link waits for the first one's row lock and then matches nothing.
+    /// sign-up racing for the same link waits for the first one's row lock and then matches nothing. A family's link
+    /// also takes the new person into its family (F-023).
     /// </summary>
     private async Task<bool> UseInvitationAsync(
         byte[] tokenHash, Guid userId, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        var updated = await dbContext.Invitations
-            .Where(i => i.TokenHash == tokenHash && i.UsedAt == null && i.CancelledAt == null && i.ExpiresAt > now)
-            .ExecuteUpdateAsync(
-                set => set.SetProperty(i => i.UsedById, userId).SetProperty(i => i.UsedAt, now),
-                cancellationToken);
-        return updated == 1;
+        var used = await FamilyCleanup.UseLinkAsync(
+            dbContext, tokenHash, userId, now, createdAccount: true, cancellationToken);
+        if (used is not { } link)
+        {
+            return false;
+        }
+
+        if (link.FamilyId is { } familyId)
+        {
+            var family = await dbContext.Families.Include(f => f.Members)
+                .SingleAsync(f => f.Id == familyId, cancellationToken);
+            family.Join(userId, now);
+        }
+
+        return true;
     }
 }

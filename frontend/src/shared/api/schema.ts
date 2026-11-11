@@ -1010,7 +1010,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** The groups in the report's order, each with the categories in use. */
+        /** The groups in the report's order, each with its shown categories, then its hidden ones. */
         get: {
             parameters: {
                 query?: never;
@@ -1032,7 +1032,886 @@ export interface paths {
             };
         };
         put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AddCategoryRequest"];
+                    "text/json": components["schemas"]["AddCategoryRequest"];
+                    "application/*+json": components["schemas"]["AddCategoryRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AddedItem"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Renames it and puts it at a place in its group or another group of its kind. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateCategoryRequest"];
+                    "text/json": components["schemas"]["UpdateCategoryRequest"];
+                    "application/*+json": components["schemas"]["UpdateCategoryRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         post?: never;
+        /** Deletes it when no transaction has it, otherwise hides it: its transactions and the reports keep it. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RemovedItem"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Shows a hidden category again at the end of its group (and its group, when that was hidden). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AddGroupRequest"];
+                    "text/json": components["schemas"]["AddGroupRequest"];
+                    "application/*+json": components["schemas"]["AddGroupRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AddedItem"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Renames it and puts it at a place among the groups of its kind. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateGroupRequest"];
+                    "text/json": components["schemas"]["UpdateGroupRequest"];
+                    "application/*+json": components["schemas"]["UpdateGroupRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /**
+         * Deletes it when empty, hides it when it holds only hidden categories; a group with shown categories, or the only
+         *     one of its kind, stays (409).
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RemovedItem"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/categories/groups/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The person's family, or 204 when they are in none. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FamilyView"];
+                    };
+                };
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /** Starts a family with the person as its owner. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StartFamilyRequest"];
+                    "text/json": components["schemas"]["StartFamilyRequest"];
+                    "application/*+json": components["schemas"]["StartFamilyRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RenameFamilyRequest"];
+                    "text/json": components["schemas"]["RenameFamilyRequest"];
+                    "application/*+json": components["schemas"]["RenameFamilyRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A new link for one person. Its token is in this answer only: the page shows it once. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateInvitationRequest"];
+                    "text/json": components["schemas"]["CreateInvitationRequest"];
+                    "application/*+json": components["schemas"]["CreateInvitationRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CreatedInvitation"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/invitations/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/members/{id}/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The owner takes someone out of the family; nothing of theirs is deleted. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/leave": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Leaves the family. An owner who leaves others behind names who looks after it next; the last one to leave
+         *     deletes it. Nothing of anyone's is deleted.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["LeaveFamilyRequest"];
+                    "text/json": components["schemas"]["LeaveFamilyRequest"];
+                    "application/*+json": components["schemas"]["LeaveFamilyRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Joins the family of an invite link and uses the link up. A used, expired, cancelled, made-up or admin's link
+         *     gets the same 410 as on sign-up.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["JoinFamilyRequest"];
+                    "text/json": components["schemas"]["JoinFamilyRequest"];
+                    "application/*+json": components["schemas"]["JoinFamilyRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Gone */
+                410: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1831,6 +2710,26 @@ export interface components {
             status: components["schemas"]["RatesStatus"];
             rates: components["schemas"]["RateItem"][];
         };
+        /** @description A new category in a group, at int? AddCategoryRequest.Place among its shown ones (0: first; null: at the end). */
+        AddCategoryRequest: {
+            /** Format: uuid */
+            groupId: string;
+            name: string;
+            /** Format: int32 */
+            place: null | number | string;
+        };
+        /** @description The id of what was added. */
+        AddedItem: {
+            /** Format: uuid */
+            id: string;
+        };
+        /** @description A new group of a kind, at int? AddGroupRequest.Place among the shown groups of that kind (null: at the end). */
+        AddGroupRequest: {
+            kind: components["schemas"]["CategoryKind"];
+            name: string;
+            /** Format: int32 */
+            place: null | number | string;
+        };
         /** @description An account's balance before and after a save or a delete, for the notification that counts it. */
         BalanceChange: {
             /** Format: uuid */
@@ -1853,25 +2752,32 @@ export interface components {
          */
         CardStyle: "Solid" | "Tinted" | "Envelope" | "Plain";
         /**
-         * @description Everything the Categories page shows (F-015): the person's groups in the report's order, each with the categories
-         *     in use. Archived categories are left out: they stay only for the transactions and reports that use them.
+         * @description The person's whole set (F-015, F-029): the groups in the report's order (income first), hidden ones included and
+         *     marked. The quick-add form leaves the hidden ones out; the Categories page shows them quiet, with Show again.
          */
         CategoriesOverview: {
             groups: components["schemas"]["CategoryGroupItem"][];
         };
-        /** @description One of the person's category groups with its categories in the report's order. */
+        /** @description One of the person's category groups with its shown categories in order, then the hidden ones. */
         CategoryGroupItem: {
             /** Format: uuid */
             id: string;
             name: string;
             kind: components["schemas"]["CategoryKind"];
+            isHidden: boolean;
             categories: components["schemas"]["CategoryItem"][];
         };
-        /** @description One category in a group. */
+        /**
+         * @description One category in a group. A hidden one (F-029) isn't offered for new transactions; its transactions keep it.
+         *     int CategoryItem.TransactionCount says whether removing it deletes it (none) or hides it.
+         */
         CategoryItem: {
             /** Format: uuid */
             id: string;
             name: string;
+            isHidden: boolean;
+            /** Format: int32 */
+            transactionCount: number | string;
         };
         /**
          * @description The report section of a group, and which form (expense or income) offers its categories.
@@ -1952,10 +2858,48 @@ export interface components {
         DeletedTransaction: {
             balances: components["schemas"]["BalanceChange"][];
         };
+        /** @description A family's link waiting to be opened; Note says who it is for. */
+        FamilyInvitationItem: {
+            /** Format: uuid */
+            id: string;
+            note: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        /**
+         * @description One person in the family. StartedFamily is true for the one who started it ("Started the family
+         *     …" rather than "Joined …").
+         */
+        FamilyMemberItem: {
+            /** Format: uuid */
+            id: string;
+            displayName: string;
+            isOwner: boolean;
+            isYou: boolean;
+            startedFamily: boolean;
+            /** Format: date-time */
+            joinedAt: string;
+        };
+        /**
+         * @description The signed-in person's family (F-023): its name, everyone in it and, for the owner only, the links still waiting
+         *     to be opened.
+         */
+        FamilyView: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** Format: date-time */
+            createdAt: string;
+            isOwner: boolean;
+            members: components["schemas"]["FamilyMemberItem"][];
+            invitations: components["schemas"]["FamilyInvitationItem"][];
+        };
         HealthResponse: {
             status: string;
         };
-        /** @description One invite link on the admin's list. */
+        /** @description One invite link on the admin's list. FamilyName is set for a family's link (F-023, open point 5). */
         InvitationItem: {
             /** Format: uuid */
             id: string;
@@ -1970,18 +2914,38 @@ export interface components {
             usedByName: null | string;
             /** Format: date-time */
             cancelledAt: null | string;
+            familyName?: null | string;
         };
-        /** @description What the invite page shows about a link that works: who invited and until when. */
+        /**
+         * @description What the invite page shows about a link that works: who invited and until when, and for a family's link the family
+         *     it joins (F-023).
+         */
         InvitationPreview: {
             inviterName: string;
             /** Format: date-time */
             expiresAt: string;
+            family?: null | components["schemas"]["InvitedFamily"];
         };
         /**
          * @description Where an invitation is in its life. Worked out from its dates, never stored (F-028).
          * @enum {unknown}
          */
         InvitationStatus: "Waiting" | "Used" | "Expired" | "Cancelled";
+        /** @description The family a link joins: its name and who is in it, the owner first. */
+        InvitedFamily: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            members: components["schemas"]["InvitedFamilyMember"][];
+        };
+        InvitedFamilyMember: {
+            displayName: string;
+            isOwner: boolean;
+        };
+        /** @description Join the family of the invite link with this token. */
+        JoinFamilyRequest: {
+            token: string;
+        };
         /** @description The account last used for a type: the form picks it when it opens (DESIGN_RULES §5). */
         LastAccount: {
             type: components["schemas"]["TransactionType"];
@@ -2002,6 +2966,11 @@ export interface components {
             fromAccountId: string;
             /** Format: uuid */
             toAccountId: string;
+        };
+        /** @description An owner who leaves others behind names who looks after the family next. */
+        LeaveFamilyRequest: {
+            /** Format: uuid */
+            newOwnerId: null | string;
         };
         /** @description A type's most used categories, most used first: the form's category pills. */
         MostUsedCategories: {
@@ -2072,6 +3041,18 @@ export interface components {
             email: string;
             password: string;
             inviteToken?: null | string;
+        };
+        /**
+         * @description What removing did: deleted for good, or hidden because its transactions keep it.
+         * @enum {unknown}
+         */
+        Removal: "Deleted" | "Hidden";
+        /** @description What removing did: deleted for good, or hidden because its transactions keep it. */
+        RemovedItem: {
+            removal: components["schemas"]["Removal"];
+        };
+        RenameFamilyRequest: {
+            name: string;
         };
         /**
          * @description The spreadsheet-like report (F-021) in Currency, each amount at the NBU rate of its own day
@@ -2221,6 +3202,9 @@ export interface components {
          * @enum {unknown}
          */
         SourceKind: "Cash" | "Bank" | "Own";
+        StartFamilyRequest: {
+            name: string;
+        };
         /**
          * @description One transaction as the lists show it, with its account's and category's names and the account's currency: an
          *     archived account or category is still named. A transfer (F-019) has no category; it has its To account's name and
@@ -2296,6 +3280,23 @@ export interface components {
          * @enum {unknown}
          */
         TransactionType: "Expense" | "Income" | "Transfer";
+        /**
+         * @description A category's name, group (one of its kind) and place among the group's other shown ones (null: kept, or the end of
+         *     another group).
+         */
+        UpdateCategoryRequest: {
+            name: string;
+            /** Format: uuid */
+            groupId: string;
+            /** Format: int32 */
+            place: null | number | string;
+        };
+        /** @description A group's name and place among the other shown groups of its kind (null: kept). */
+        UpdateGroupRequest: {
+            name: string;
+            /** Format: int32 */
+            place: null | number | string;
+        };
         /** @description One note as the person wrote it, how many transactions have it and when the last of them was added. */
         UsedNote: {
             note: string;
