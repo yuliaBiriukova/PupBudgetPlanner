@@ -13,11 +13,12 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   `newPerson` throws for a tag the clean-up wouldn't find. CLAUDE.md "Clean up test data" says to make test people
   with `newPerson`, in hand-run scripts too.
 - Tests: `e2e/test-people.spec.ts` (no browser, desktop project): fails on the old pattern, passes now.
-- Checked: the full E2E suite against this branch's API and web app (89 passed, 19 skipped); frontend lint, format,
-  typecheck, unit tests and build; backend tests.
-- Test data: before the run the `dev` database had 51 leftover `e2e-…` people from earlier changes; the run's
-  clean-up deleted them with the run's own people. Checked through `GET /api/admin/people` as the tests' admin: the
-  admin is the only `e2e-…` account left; no test invite link is waiting. The owner's account untouched.
+- Checked, after merging `develop` (F-023): the full E2E suite against this branch's API and web app (93 passed, 19
+  skipped); frontend lint, format, typecheck, unit tests (359 / 359) and build; backend build (0 warnings) and tests
+  (515 / 515).
+- Test data: before the first run the `dev` database had 51 leftover `e2e-…` people from earlier changes; that run's
+  clean-up deleted them with the run's own people. Checked through `GET /api/admin/people` as the tests' admin after
+  both runs: the admin is the only `e2e-…` account left; no invite link is waiting. The owner's account untouched.
 
 **Next**
 - Owner: review the PR.
