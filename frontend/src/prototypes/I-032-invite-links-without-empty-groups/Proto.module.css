@@ -1,0 +1,39 @@
+/* I-032 prototype: the one list's head and each row's status tag. The rest is I-006's InviteLinks.module.css */
+
+/* No fold to hover: the head is a quiet line over the list */
+.listHead {
+  min-height: 44px;
+}
+
+/* The status leads the details' line: the tag, then "5 days left, until 17 Nov" */
+.whatWithStatus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+/* Used: it did its job */
+.status[data-status='Used'] {
+  background: var(--pup-color-income-bg);
+  color: var(--pup-color-income);
+}
+
+/* Expired and cancelled: done with, quiet */
+.status[data-status='Expired'],
+.status[data-status='Cancelled'] {
+  background: var(--pup-color-choice);
+  color: var(--mantine-color-text);
+}
