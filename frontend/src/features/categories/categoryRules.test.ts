@@ -29,6 +29,7 @@ describe('the rules for changing categories (F-029)', () => {
       name: 'Pets',
       kind: 'Expense',
       isHidden: false,
+      isPrivate: false,
       categories: [],
     };
     const onlyHidden: CategoryGroup = { ...group('Car'), isHidden: false };

@@ -136,3 +136,28 @@ export function useKeepCategory() {
     },
   );
 }
+
+/** A whole group of yours, its categories added later too (owner, 2026-11-12). */
+export function useKeepGroup() {
+  return usePrivacyChange(
+    async ({ groupId, isPrivate }: { groupId: string; isPrivate: boolean }) => {
+      const { response } = await apiClient.PUT('/api/family/privacy/groups/{id}', {
+        params: { path: { id: groupId } },
+        body: { isPrivate },
+      });
+      check(response);
+    },
+    (queryClient, { groupId, isPrivate }) => {
+      queryClient.setQueryData<CategoriesOverview>(categoriesQuery.queryKey, (overview) =>
+        overview
+          ? {
+              ...overview,
+              groups: overview.groups.map((group) =>
+                group.id === groupId ? { ...group, isPrivate } : group,
+              ),
+            }
+          : overview,
+      );
+    },
+  );
+}

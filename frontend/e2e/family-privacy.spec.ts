@@ -61,6 +61,15 @@ async function expenseCategory(request: APIRequestContext, name: string): Promis
   );
 }
 
+/** The person's group of that name. */
+async function groupId(request: APIRequestContext, name: string): Promise<string> {
+  const categories = await get<{ groups: { id: string; name: string }[] }>(
+    request,
+    '/api/categories',
+  );
+  return categories.groups.find((group) => group.name === name)?.id ?? '';
+}
+
 async function spend(
   request: APIRequestContext,
   accountId: string,
@@ -137,6 +146,16 @@ test('what a member keeps is left out of the others’ money, and they still see
     });
     await send(andriyApi, 'put', `/api/family/privacy/accounts/${box}`, { share: 'Hidden' });
     await send(andriyApi, 'put', `/api/family/privacy/categories/${gifts}`, { isPrivate: true });
+    // A whole private group: his rent in Home expenses goes too
+    await spend(andriyApi, card, await expenseCategory(andriyApi, 'Rent'), 400);
+    await send(
+      andriyApi,
+      'put',
+      `/api/family/privacy/groups/${await groupId(andriyApi, 'Home expenses')}`,
+      {
+        isPrivate: true,
+      },
+    );
 
     // Olena: no box, the pocket with its balance and its share; the family says Andriy keeps some
     const accounts = await get<{ accounts: { id: string; familySees: string; balance: number }[] }>(
@@ -188,15 +207,16 @@ test('what a member keeps is left out of the others’ money, and they still see
       `/api/transactions/summary?who=${andriyId}&${range}`,
     );
     expect(totals).toMatchObject({ spent: 120, count: 0 });
-    const report = await get<{ summary: { expenses: { total: number | null } } }>(
-      page.request,
-      `/api/reports/month?month=${month}&who=${andriyId}`,
-    );
+    const report = await get<{
+      groups: { name: string }[];
+      summary: { expenses: { total: number | null } };
+    }>(page.request, `/api/reports/month?month=${month}&who=${andriyId}`);
     expect(report.summary.expenses.total).toBe(120);
+    expect(report.groups.map((group) => group.name)).not.toContain('Home expenses');
 
     // Andriy himself sees all of his own
     const his = await get<{ items: Line[] }>(andriyApi, `/api/transactions?${range}`);
-    expect(his.items).toHaveLength(5);
+    expect(his.items).toHaveLength(6);
   } finally {
     await andriyApi.dispose();
   }

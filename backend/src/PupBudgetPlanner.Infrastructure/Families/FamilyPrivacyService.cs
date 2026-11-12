@@ -47,4 +47,20 @@ internal sealed class FamilyPrivacyService(AppDbContext dbContext) : IFamilyPriv
         await dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
+
+    /// <summary>Only the person's own groups, hidden ones too.</summary>
+    public async Task<bool> KeepGroupAsync(
+        Guid userId, Guid groupId, bool isPrivate, CancellationToken cancellationToken)
+    {
+        var group = await dbContext.CategoryGroups.SingleOrDefaultAsync(
+            categoryGroup => categoryGroup.Id == groupId && categoryGroup.UserId == userId, cancellationToken);
+        if (group is null)
+        {
+            return false;
+        }
+
+        group.IsPrivate = isPrivate;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
 }

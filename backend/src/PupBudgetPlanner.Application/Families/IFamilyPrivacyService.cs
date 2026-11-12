@@ -17,4 +17,7 @@ public interface IFamilyPrivacyService
 
     /// <summary>False when the person has no such category.</summary>
     Task<bool> KeepCategoryAsync(Guid userId, Guid categoryId, bool isPrivate, CancellationToken cancellationToken);
+
+    /// <summary>A whole group, its categories added later too; false when the person has no such group.</summary>
+    Task<bool> KeepGroupAsync(Guid userId, Guid groupId, bool isPrivate, CancellationToken cancellationToken);
 }

@@ -206,6 +206,50 @@ describe('what the family sees, on the Family page (F-030)', () => {
     });
   });
 
+  it('keeps a whole group private, its categories with it, and shares it again', async () => {
+    const sent = privacyServer(ownersFamily());
+    const user = userEvent.setup();
+    renderApp('/family');
+
+    const part = within(await waitFor(() => section('What the family sees'), LOADED));
+    await user.click(part.getByRole('button', { name: /Private categories.*None/ }));
+    await user.click(part.getByRole('button', { name: 'Choose categories' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Private categories' });
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Keep all of Home expenses private' }),
+    );
+
+    expect(
+      within(dialog).getByRole('button', { name: 'Keep all of Home expenses private' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    const rent = within(dialog).getByRole('button', { name: 'Rent' });
+    expect(rent).toHaveAttribute('aria-pressed', 'true');
+    expect(rent).toBeDisabled();
+    await user.click(within(dialog).getByRole('button', { name: 'Done' }));
+
+    expect(
+      await part.findByRole('button', { name: /Private categories.*Home expenses/ }),
+    ).toBeInTheDocument();
+    await user.click(
+      part.getByRole('button', { name: 'Share the whole Home expenses group again' }),
+    );
+
+    await waitFor(() => {
+      expect(sent).toEqual([
+        {
+          method: 'PUT',
+          path: expect.stringMatching(/^\/api\/family\/privacy\/groups\//) as string,
+          body: { isPrivate: true },
+        },
+        {
+          method: 'PUT',
+          path: expect.stringMatching(/^\/api\/family\/privacy\/groups\//) as string,
+          body: { isPrivate: false },
+        },
+      ]);
+    });
+  });
+
   it('says so when a change doesn’t go through', async () => {
     privacyServer(ownersFamily(), NOTHING_KEPT, { fail: true });
     const user = userEvent.setup();

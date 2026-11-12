@@ -2121,6 +2121,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/family/privacy/groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Keeps a whole group of yours from the family, its categories added later too, or shares it again. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["KeepCategoryRequest"];
+                    "text/json": components["schemas"]["KeepCategoryRequest"];
+                    "application/*+json": components["schemas"]["KeepCategoryRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -3017,7 +3068,10 @@ export interface components {
         CategoriesOverview: {
             groups: components["schemas"]["CategoryGroupItem"][];
         };
-        /** @description One of the person's category groups with its shown categories in order, then the hidden ones. */
+        /**
+         * @description One of the person's category groups with its shown categories in order, then the hidden ones.
+         *     bool CategoryGroupItem.IsPrivate: the family sees nothing of the whole group, its categories added later too (F-030).
+         */
         CategoryGroupItem: {
             /** Format: uuid */
             id: string;
@@ -3025,6 +3079,7 @@ export interface components {
             kind: components["schemas"]["CategoryKind"];
             isHidden: boolean;
             categories: components["schemas"]["CategoryItem"][];
+            isPrivate: boolean;
         };
         /**
          * @description One category in a group. A hidden one (F-029) isn't offered for new transactions; its transactions keep it.
@@ -3211,7 +3266,7 @@ export interface components {
         JoinFamilyRequest: {
             token: string;
         };
-        /** @description Whether the family sees nothing of one of your categories (F-030). */
+        /** @description Whether the family sees nothing of one of your categories, or of a whole group (F-030). */
         KeepCategoryRequest: {
             isPrivate: boolean;
         };

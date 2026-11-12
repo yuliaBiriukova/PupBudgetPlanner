@@ -182,6 +182,39 @@ public sealed class KeptFromFamilyTests
     }
 
     [Fact]
+    public void A_private_group_is_gone_with_every_category_in_it()
+    {
+        var home = GroupOf("Home expenses");
+        var rent = Guid.CreateVersion7();
+        home.Categories.Add(new Category { Id = rent, GroupId = home.Id, Name = "Rent" });
+        var daily = GroupOf("Daily living");
+        daily.Categories.Add(new Category { Id = Groceries, GroupId = daily.Id, Name = "Groceries" });
+        var empty = GroupOf("Saved for later");
+        // The service gives the group's categories as kept ones too
+        var kept = KeptFromFamily.For(
+            Olena,
+            [],
+            [new KeptCategory(rent, Andriy)],
+            [],
+            [new KeptGroup(home.Id, Andriy), new KeptGroup(empty.Id, Andriy)]);
+
+        kept.IsNothing.Should().BeFalse();
+        kept.Shown([home, daily, empty]).Select(group => group.Name).Should().Equal("Daily living");
+        Counted(kept, Expense(Card, rent)).Should().BeFalse();
+        Listed(kept, Expense(Card, Groceries)).Should().BeTrue();
+    }
+
+    [Fact]
+    public void The_viewers_own_private_group_is_theirs_to_see()
+    {
+        var home = GroupOf("Home expenses");
+        var kept = KeptFromFamily.For(Olena, [], [], [], [new KeptGroup(home.Id, Olena)]);
+
+        kept.IsNothing.Should().BeTrue();
+        kept.Shown([home]).Should().ContainSingle();
+    }
+
+    [Fact]
     public void An_account_starts_shared_in_full_and_its_share_can_change()
     {
         var account = Account.Create(

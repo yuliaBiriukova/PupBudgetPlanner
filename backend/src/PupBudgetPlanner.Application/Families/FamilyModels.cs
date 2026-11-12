@@ -48,7 +48,7 @@ public sealed record ShareTransactionsRequest(TransactionShare Share);
 /// <summary>What the family sees of one of your accounts (F-030).</summary>
 public sealed record ShareAccountRequest(AccountShare Share);
 
-/// <summary>Whether the family sees nothing of one of your categories (F-030).</summary>
+/// <summary>Whether the family sees nothing of one of your categories, or of a whole group (F-030).</summary>
 public sealed record KeepCategoryRequest(bool IsPrivate);
 
 public enum FamilyActionOutcome

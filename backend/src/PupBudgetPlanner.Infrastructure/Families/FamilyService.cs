@@ -35,6 +35,9 @@ internal sealed class FamilyService(AppDbContext dbContext, TimeProvider clock) 
                 join categoryGroup in dbContext.CategoryGroups on category.GroupId equals categoryGroup.Id
                 where category.IsPrivate && memberIds.Contains(categoryGroup.UserId)
                 select categoryGroup.UserId)
+            .Union(dbContext.CategoryGroups
+                .Where(categoryGroup => categoryGroup.IsPrivate && memberIds.Contains(categoryGroup.UserId))
+                .Select(categoryGroup => categoryGroup.UserId))
             .Distinct()
             .ToListAsync(cancellationToken);
 
@@ -205,15 +208,19 @@ internal sealed class FamilyService(AppDbContext dbContext, TimeProvider clock) 
         var categories = await (
                 from category in dbContext.Categories
                 join categoryGroup in dbContext.CategoryGroups on category.GroupId equals categoryGroup.Id
-                where category.IsPrivate && others.Contains(categoryGroup.UserId)
+                where (category.IsPrivate || categoryGroup.IsPrivate) && others.Contains(categoryGroup.UserId)
                 select new KeptCategory(category.Id, categoryGroup.UserId))
+            .ToListAsync(cancellationToken);
+        var groups = await dbContext.CategoryGroups.AsNoTracking()
+            .Where(categoryGroup => categoryGroup.IsPrivate && others.Contains(categoryGroup.UserId))
+            .Select(categoryGroup => new KeptGroup(categoryGroup.Id, categoryGroup.UserId))
             .ToListAsync(cancellationToken);
         var totalsOnly = await dbContext.Users.AsNoTracking()
             .Where(user => others.Contains(user.Id) && user.FamilySeesTransactions == TransactionShare.Totals)
             .Select(user => user.Id)
             .ToListAsync(cancellationToken);
 
-        return KeptFromFamily.For(viewerId, accounts, categories, totalsOnly);
+        return KeptFromFamily.For(viewerId, accounts, categories, totalsOnly, groups);
     }
 
     public async Task<FamilyActionOutcome> JoinAsync(

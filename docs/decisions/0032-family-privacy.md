@@ -17,11 +17,13 @@ take a `MoneyScope` (ADR 0031), which that ADR said F-030 would narrow.
 
 - **The settings live on what they are about**, not in a table of their own: `accounts.family_sees` (`AccountShare`:
   Everything, BalanceOnly, Hidden), `categories.is_private`, `users.family_sees_transactions` (`TransactionShare`:
-  Every, Totals). They don't depend on being in a family: leaving one and joining another keeps them. The migration
-  gives everything that exists the shared values, so nothing changes for anyone until they choose.
+  Every, Totals), and `category_groups.is_private` for a whole group, its categories added later too (owner,
+  2026-11-12, on the PR). They don't depend on being in a family: leaving one and joining another keeps them. The
+  migrations give everything that exists the shared values, so nothing changes for anyone until they choose.
 - **The rules are a pure Domain type, `KeptFromFamily`** (next to `Family`): built for one viewer from the others'
-  settings (the viewer's own never count). It answers which accounts the viewer sees, which of them only by their
-  balance, which categories and who shares only totals, and gives two `Expression`s on `Transaction`: `Counted` (in
+  settings (the viewer's own never count; a private group's categories are given as private ones). It answers which
+  accounts the viewer sees, which of them only by their balance, which categories and groups, and who shares only
+  totals, and gives two `Expression`s on `Transaction`: `Counted` (in
   any total: not in a private category, not on a hidden account, a transfer unless both its accounts are hidden) and
   `Listed` / `Unlisted` (a line, or only in the totals: its owner shares only totals, or it touches a balance-only
   account). Being expressions, they are applied in the queries, so what is kept never leaves the database; they are
@@ -35,10 +37,11 @@ take a `MoneyScope` (ADR 0031), which that ADR said F-030 would narrow.
   count (`SummaryRow.Listed`); Reports count `Counted` amounts by category, the balances of the accounts shown with
   all their transactions, and leave out the others' private categories (`KeptFromFamily.Shown`), also before
   F-024's merge. A filter on a hidden account finds nothing.
-- **The settings are changed by `PUT /api/family/privacy/transactions`, `…/accounts/{id}` and `…/categories/{id}`**
-  (`IFamilyPrivacyService`), each person on their own only (someone else's id is a 404). The page reads them from
-  what it has already: `AccountItem.FamilySees`, `CategoryItem.IsPrivate`, and on the family's members
-  `Transactions` and `KeepsPrivate` (what the band says about the others).
+- **The settings are changed by `PUT /api/family/privacy/transactions`, `…/accounts/{id}`, `…/categories/{id}` and
+  `…/groups/{id}`** (`IFamilyPrivacyService`), each person on their own only (someone else's id is a 404). The page
+  reads them from what it has already: `AccountItem.FamilySees`, `CategoryItem.IsPrivate`,
+  `CategoryGroupItem.IsPrivate`, and on the family's members `Transactions` and `KeepsPrivate` (what the band says
+  about the others).
 
 ## Consequences
 

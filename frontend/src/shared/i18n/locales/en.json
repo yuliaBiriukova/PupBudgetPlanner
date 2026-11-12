@@ -1069,13 +1069,17 @@
     "categories": {
       "title": "Private categories",
       "none": "None",
-      "many": "{{count}} categories",
+      "many": "{{count}} private",
       "text_one": "{{names}} sees nothing of a private category: not it, its transactions or its total.",
       "text_other": "{{names}} see nothing of a private category: not it, its transactions or its total.",
       "choose": "Choose categories",
-      "lead": "{{names}} won’t see a private category, its transactions or its total.",
+      "lead": "{{names}} won’t see a private category, its transactions or its total. Keep a whole group to keep the categories added to it later too.",
       "done": "Done",
-      "shareAgain": "Share {{name}} ({{group}}) again"
+      "shareAgain": "Share {{name}} ({{group}}) again",
+      "wholeGroup": "Whole group",
+      "wholeGroupLabel": "Keep all of {{group}} private",
+      "wholeGroupTag": "whole group",
+      "shareGroupAgain": "Share the whole {{group}} group again"
     },
     "marks": {
       "hidden": "Hidden from the family",

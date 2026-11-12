@@ -172,10 +172,25 @@
   margin-top: 16px;
 }
 
+/* The group's name and its Whole group pill */
+.pickGroupHead {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
 .pickGroupName {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 14px;
   font-weight: 500;
+}
+
+/* A category of a whole private group: locked, the group decides */
+.inWholeGroup:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 /* ---------- The three rows that fold ---------- */

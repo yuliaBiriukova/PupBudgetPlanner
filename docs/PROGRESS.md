@@ -39,6 +39,13 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   light and dark. Test data: none (stories and unit tests only).
 - The owner asked for Hidden and Balance only in the same style as Everything: the share pill is quiet for all three
   (DESIGN_RULES updated). Checked: lint, format, typecheck, family unit tests, the section at 375 and 1440 px.
+- The owner asked that a whole category group can be private, and chose that categories added to it later are private
+  too: `category_groups.is_private` (migration `AddPrivateCategoryGroups`), `PUT /api/family/privacy/groups/{id}`, the
+  group's categories left out with it and the group gone from the others' reports; in Choose categories a *Whole group*
+  pill per group locks its categories, and the Family page shows it as one tag "… · whole group" (ADR 0032,
+  ARCHITECTURE.md, DESIGN_RULES updated). Checked: backend build and tests (560 / 560), frontend lint, format,
+  typecheck, unit tests, `family-privacy.spec.ts` with a private group on the real database, the dialog and the tag at
+  375 and 1440 px, light and dark. Test data: the E2E's people, cleaned up by its teardown.
 
 **Next**
 - Owner: review the PR. M6 (MVP release) is next.

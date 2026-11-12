@@ -47,4 +47,14 @@ public sealed class FamilyPrivacyController(IFamilyPrivacyService privacy) : Con
         await privacy.KeepCategoryAsync(UserId, id, request.IsPrivate, cancellationToken)
             ? NoContent()
             : Problem(statusCode: StatusCodes.Status404NotFound, title: "You have no such category.");
+
+    /// <summary>Keeps a whole group of yours from the family, its categories added later too, or shares it again.</summary>
+    [HttpPut("groups/{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> KeepGroup(
+        Guid id, KeepCategoryRequest request, CancellationToken cancellationToken) =>
+        await privacy.KeepGroupAsync(UserId, id, request.IsPrivate, cancellationToken)
+            ? NoContent()
+            : Problem(statusCode: StatusCodes.Status404NotFound, title: "You have no such group.");
 }

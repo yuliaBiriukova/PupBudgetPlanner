@@ -113,7 +113,7 @@ erDiagram
     ACCOUNT { guid Id guid UserId string Name string Currency SourceKind Source guid SourceId guid BankId decimal OpeningBalance date OpeningDate CardStyle CardStyle AccountShare FamilySees datetime CreatedAt datetime ArchivedAt }
     ACCOUNT_SOURCE { guid Id guid UserId string Name }
     BANK { guid Id guid UserId string Name }
-    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder bool IsArchived }
+    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder bool IsArchived bool IsPrivate }
     CATEGORY { guid Id guid GroupId string Name int SortOrder bool IsArchived bool IsPrivate }
     TRANSACTION { guid Id guid UserId TransactionType Type date Date guid AccountId decimal Amount guid CategoryId guid ToAccountId decimal ToAmount string Note }
     EXCHANGE_RATE { date Date string Currency decimal RateToUah RateSource Source }
@@ -149,7 +149,8 @@ erDiagram
   each read (`FamilyCategories`), amounts in the viewer's report currency ([ADR 0031](decisions/0031-family-views.md)).
 - Privacy in the family (F-030): each person sets what the others see of their money: all their transactions or only
   the totals (`users.family_sees_transactions`), each account Everything / BalanceOnly / Hidden (`accounts.family_sees`),
-  any category private (`categories.is_private`); set on the Family page (`PUT /api/family/privacy/…`). The scope
+  any category or a whole group private (`categories.is_private`, `category_groups.is_private`, the group's categories
+  added later too); set on the Family page (`PUT /api/family/privacy/…`). The scope
   carries `KeptFromFamily` (Domain), whose `Counted` and `Listed` expressions the reads apply in SQL: what is kept
   never leaves the database, a hidden transfer side is sent unnamed ([ADR 0032](decisions/0032-family-privacy.md)).
 - Accounts (F-014): the source is Cash, Bank or one of the person's own sources; a bank account names one of the

@@ -25,6 +25,7 @@ import type { Family } from './familyApi';
 import { ACCOUNT_SHARES, listOf, othersOf, TRANSACTION_SHARES } from './privacy';
 import {
   useKeepCategory,
+  useKeepGroup,
   useShareAccount,
   useShareTransactions,
   type AccountShare,
@@ -85,12 +86,19 @@ export function PrivacySection({ family }: { family: Family }) {
           ]
             .filter(Boolean)
             .join(', ');
-  const kept = groups.flatMap((group) => group.categories.filter((category) => category.isPrivate));
+  // A whole group counts once, by its name; then the categories kept one by one outside such a group
+  const kept = [
+    ...groups.filter((group) => group.isPrivate).map((group) => group.name),
+    ...groups
+      .filter((group) => !group.isPrivate)
+      .flatMap((group) => group.categories.filter((category) => category.isPrivate))
+      .map((category) => category.name),
+  ];
   const categoriesSummary =
     kept.length === 0
       ? t('privacy.categories.none')
       : kept.length <= 2
-        ? kept.map((category) => category.name).join(', ')
+        ? kept.join(', ')
         : t('privacy.categories.many', { count: kept.length });
   const lines = me?.transactions ?? 'Every';
 
@@ -282,19 +290,44 @@ function AccountRow({ account }: { account: Account }) {
   );
 }
 
-/** The private categories as tags, each with an × that shares it again. */
+/**
+ * What is private as tags, each with an × that shares it again: a whole group as one tag ("Home expenses · whole
+ * group"), then the categories kept one by one outside such a group.
+ */
 function PrivateTags({ groups }: { groups: CategoryGroup[] }) {
   const { t } = useTranslation();
   const keep = useKeepCategory();
+  const keepGroup = useKeepGroup();
   const failed = useFailed();
-  const kept = groups.flatMap((group) =>
-    group.categories
-      .filter((category) => category.isPrivate)
-      .map((category) => ({ ...category, group: group.name })),
-  );
-  if (kept.length === 0) return null;
+  const keptGroups = groups.filter((group) => group.isPrivate);
+  const kept = groups
+    .filter((group) => !group.isPrivate)
+    .flatMap((group) =>
+      group.categories
+        .filter((category) => category.isPrivate)
+        .map((category) => ({ ...category, group: group.name })),
+    );
+  if (kept.length === 0 && keptGroups.length === 0) return null;
   return (
     <ul className={tags.tags}>
+      {keptGroups.map((group) => (
+        <li key={group.id}>
+          <span className={cx(tags.tag, classes.privateTag)}>
+            <IconLock size={16} stroke={1.7} aria-hidden />
+            {group.name}
+            <span className={classes.tagGroup}>{t('privacy.categories.wholeGroupTag')}</span>
+            <UnstyledButton
+              className={classes.tagX}
+              aria-label={t('privacy.categories.shareGroupAgain', { group: group.name })}
+              onClick={() => {
+                keepGroup.mutate({ groupId: group.id, isPrivate: false }, { onError: failed });
+              }}
+            >
+              <IconX size={16} stroke={1.7} aria-hidden />
+            </UnstyledButton>
+          </span>
+        </li>
+      ))}
       {kept.map((category) => (
         <li key={category.id}>
           <span className={cx(tags.tag, classes.privateTag)}>
@@ -320,7 +353,10 @@ function PrivateTags({ groups }: { groups: CategoryGroup[] }) {
   );
 }
 
-/** Every shown category by group as pills: a picked one is private, with a lock. */
+/**
+ * Every shown category by group as pills: a picked one is private, with a lock. Each group has a "Whole group" pill
+ * (owner, 2026-11-12): then the group decides, its categories (and ones added later) all private.
+ */
 function CategoriesDialog({
   opened,
   onClose,
@@ -334,6 +370,7 @@ function CategoriesDialog({
 }) {
   const { t } = useTranslation();
   const keep = useKeepCategory();
+  const keepGroup = useKeepGroup();
   const failed = useFailed();
   return (
     <ResponsiveDialog
@@ -348,26 +385,46 @@ function CategoriesDialog({
         .filter((group) => !group.isHidden)
         .map((group) => (
           <section key={group.id} className={classes.pickGroup}>
-            <h3 className={classes.pickGroupName}>{group.name}</h3>
-            <div className={pills.pills}>
+            <div className={classes.pickGroupHead}>
+              <h3 className={classes.pickGroupName}>{group.name}</h3>
+              <UnstyledButton
+                className={pills.pill}
+                aria-pressed={group.isPrivate}
+                aria-label={t('privacy.categories.wholeGroupLabel', { group: group.name })}
+                onClick={() => {
+                  keepGroup.mutate(
+                    { groupId: group.id, isPrivate: !group.isPrivate },
+                    { onError: failed },
+                  );
+                }}
+              >
+                {group.isPrivate && <IconLock size={16} stroke={1.7} aria-hidden />}
+                {t('privacy.categories.wholeGroup')}
+              </UnstyledButton>
+            </div>
+            <div className={pills.pills} data-whole={group.isPrivate || undefined}>
               {group.categories
                 .filter((category) => !category.isHidden)
-                .map((category) => (
-                  <UnstyledButton
-                    key={category.id}
-                    className={pills.pill}
-                    aria-pressed={category.isPrivate}
-                    onClick={() => {
-                      keep.mutate(
-                        { categoryId: category.id, isPrivate: !category.isPrivate },
-                        { onError: failed },
-                      );
-                    }}
-                  >
-                    {category.isPrivate && <IconLock size={16} stroke={1.7} aria-hidden />}
-                    {category.name}
-                  </UnstyledButton>
-                ))}
+                .map((category) => {
+                  const locked = group.isPrivate || category.isPrivate;
+                  return (
+                    <UnstyledButton
+                      key={category.id}
+                      className={cx(pills.pill, group.isPrivate && classes.inWholeGroup)}
+                      aria-pressed={locked}
+                      disabled={group.isPrivate}
+                      onClick={() => {
+                        keep.mutate(
+                          { categoryId: category.id, isPrivate: !category.isPrivate },
+                          { onError: failed },
+                        );
+                      }}
+                    >
+                      {locked && <IconLock size={16} stroke={1.7} aria-hidden />}
+                      {category.name}
+                    </UnstyledButton>
+                  );
+                })}
             </div>
           </section>
         ))}

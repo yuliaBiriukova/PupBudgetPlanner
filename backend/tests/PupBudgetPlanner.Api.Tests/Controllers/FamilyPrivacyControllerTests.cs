@@ -61,5 +61,17 @@ public sealed class FamilyPrivacyControllerTests
             .Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         (await controller.KeepCategory(someoneElses, new KeepCategoryRequest(true), CancellationToken.None))
             .Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        (await controller.KeepGroup(someoneElses, new KeepCategoryRequest(true), CancellationToken.None))
+            .Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task A_whole_group_is_kept_for_the_signed_in_person()
+    {
+        var groupId = Guid.CreateVersion7();
+        privacy.KeepGroupAsync(UserId, groupId, true, Arg.Any<CancellationToken>()).Returns(true);
+
+        (await controller.KeepGroup(groupId, new KeepCategoryRequest(true), CancellationToken.None))
+            .Should().BeOfType<NoContentResult>();
     }
 }

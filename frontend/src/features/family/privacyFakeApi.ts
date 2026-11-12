@@ -12,11 +12,15 @@ import { familyViewsRoutes } from './familyViewsFakeApi';
 import { PRIVATE_ACCOUNT_ID } from './privacy';
 import type { AccountShare, TransactionShare } from './privacyApi';
 
-/** What someone keeps from the rest of the family (F-030): accounts not shared in full, private categories. */
+/**
+ * What someone keeps from the rest of the family (F-030): accounts not shared in full, private categories and whole
+ * groups.
+ */
 export interface Kept {
   transactions: TransactionShare;
   accounts: Record<string, AccountShare>;
   categories: string[];
+  groups?: string[];
 }
 
 export const NOTHING_KEPT: Kept = { transactions: 'Every', accounts: {}, categories: [] };
@@ -38,7 +42,8 @@ export const ANDRIY_KEEPS: Kept = {
 const keepsAny = (kept: Kept) =>
   kept.transactions === 'Totals' ||
   Object.keys(kept.accounts).length > 0 ||
-  kept.categories.length > 0;
+  kept.categories.length > 0 ||
+  (kept.groups ?? []).length > 0;
 
 const shareOf = (kept: Kept, accountId: string | null | undefined): AccountShare =>
   (accountId ? kept.accounts[accountId] : undefined) ?? 'Everything';
@@ -71,6 +76,7 @@ export function fakePrivacyRoutes(
   const ownCategories = (): CategoriesOverview => ({
     groups: categories.groups.map((group) => ({
       ...group,
+      isPrivate: (kept.groups ?? []).includes(group.id),
       categories: group.categories.map((category) => ({
         ...category,
         isPrivate: kept.categories.includes(category.id),
@@ -101,6 +107,13 @@ export function fakePrivacyRoutes(
       kept.accounts = Object.fromEntries(
         share === 'Everything' ? others : [...others, [id, share]],
       );
+      return { status: 204 };
+    },
+    'PUT /api/family/privacy/groups/{id}': (body, _query, { id = '' }) => {
+      if (fail) return { status: 500 };
+      const { isPrivate } = body as { isPrivate: boolean };
+      kept.groups = (kept.groups ?? []).filter((item) => item !== id);
+      if (isPrivate) kept.groups.push(id);
       return { status: 204 };
     },
     'PUT /api/family/privacy/categories/{id}': (body, _query, { id = '' }) => {

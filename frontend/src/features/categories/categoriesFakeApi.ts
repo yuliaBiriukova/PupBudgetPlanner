@@ -130,6 +130,7 @@ export function fakeCategoriesRoutes(
         name,
         kind,
         isHidden: false,
+        isPrivate: false,
         categories: [],
       };
       placeGroup(group, at);

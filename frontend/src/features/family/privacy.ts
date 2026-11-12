@@ -57,7 +57,9 @@ export function useKeptLine(): (line: LineParts) => boolean {
   );
   const kept = new Set(
     groups.flatMap((group) =>
-      group.categories.filter((category) => category.isPrivate).map((category) => category.id),
+      group.categories
+        .filter((category) => group.isPrivate || category.isPrivate)
+        .map((category) => category.id),
     ),
   );
   return (line) => isKept(line, (id) => shares.get(id) ?? 'Everything', kept);

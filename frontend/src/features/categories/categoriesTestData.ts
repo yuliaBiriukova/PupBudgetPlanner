@@ -49,6 +49,7 @@ export const DEFAULT_CATEGORIES: CategoriesOverview = {
     name,
     kind,
     isHidden: false,
+    isPrivate: false,
     categories: categories.map((category, index) => ({
       id: `group-${String(group + 1)}-${String(index + 1)}`,
       name: category,
@@ -87,6 +88,7 @@ export const EDITED_CATEGORIES: CategoriesOverview = {
       name: 'Car',
       kind: 'Expense',
       isHidden: true,
+      isPrivate: false,
       categories: [
         {
           id: 'group-car-fuel',

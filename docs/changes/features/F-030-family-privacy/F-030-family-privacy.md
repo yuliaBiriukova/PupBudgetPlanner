@@ -31,7 +31,8 @@ Settled with the owner on 2026-11-12 (see "Open points"):
       your totals by category*. With totals only, the others' Transactions page shows none of your lines (so none of
       your notes either); their Reports still show your totals by category.
 - [x] **Categories:** any of your categories can be private (e.g. Gifts). The others see nothing of it: not the
-      category, its transactions or its total.
+      category, its transactions or its total. A whole group can be private too, with the categories added to it later
+      (owner, 2026-11-12).
 - [x] The same settings for every member of the family (not per member).
 - [x] What is private is **left out completely** of the others' views (F-024's lens: someone's money and Family),
       everywhere: Transactions, Accounts, Reports, the filters, the calendar, "Where it went", "In total", the
@@ -192,6 +193,11 @@ A private category: the others see nothing of it (owner, 2026-11-12; not only it
 
 ### Built (2026-11-12)
 
+- **A whole category group can be private** (owner, 2026-11-12, on the PR: "user should be able to hide the whole
+  category group"; asked whether a category added later goes with it: "Private too"). The group itself is private
+  (`category_groups.is_private`): the others see nothing of it, its categories now or added later. In Choose categories
+  each group has a *Whole group* pill; its categories' pills then show the lock and can't be picked one by one. On the
+  Family page it is one tag, "Home expenses · whole group", with its ×.
 - **One style for every share** (owner, 2026-11-12, on the PR): Hidden and Balance only are the same quiet pill as
   Everything, not in the accent; the icon and the word tell them apart.
 - **Shown alone in a family too** (owner, 2026-11-12, on the PR: "always show the privacy settings"): the prototype
