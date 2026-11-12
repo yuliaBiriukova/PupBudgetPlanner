@@ -19,14 +19,15 @@ and details.
 
 ## Acceptance criteria
 
-- [x] Family page: a group with no links isn't shown (no title, no count, no "No links…" line). With no links at all,
-      only "Create invite link" shows.
+- [x] Family page: no groups either (owner's review of PR #97, 2026-11-13: "it still groups links in Family"): the
+      same one list as the People page, with the status tags and one Select all. With no links at all, only "Create
+      invite link" shows.
 - [x] People page, Invite links tab: no groups; one list of every link: waiting ones first, then the rest, each part
       newest first. Each row shows its status as a tag leading its details line (*Waiting* 5 days left, until 17 Nov ·
       *Used* by Olena on 3 Nov · *Expired* on 1 Nov · *Cancelled* on 2 Nov: the details don't repeat the status, as
       in the approved prototype) and its note and family as today.
-- [x] People page: one *Select all* at the list's head (the first 200); the bulk bar, Cancel links and Delete as in
-      I-006. The groups' folds, and what the browser kept of them, go away there.
+- [x] One *Select all* at the list's head (the first 200), on both pages; the bulk bar, Cancel links and Delete as in
+      I-006. The groups' folds, and what the browser kept of them, go away.
 - [x] Picking links and deleting or cancelling them works as in I-006 on both pages.
 
 ## Tasks
@@ -86,14 +87,23 @@ and with no links (`family-none-…`), each at 375 and 1440 px, light and dark.
 - [x] Unit (`PeoplePage.test.tsx`): one list in the order waiting first, then newest first, each row's tag and its
   details without the status word, no group heads or folds, one Select all and the count; no links at all says so;
   Select all picks every link and is half-checked with one picked; cancel says "shows as cancelled".
-- [x] Unit (`FamilyPage.test.tsx`): after deleting Used and Expired and cancelled the two groups are gone (no title,
-  no Select all), Waiting stays; with every link deleted only Create invite link is left.
+- [x] Unit (`FamilyPage.test.tsx`, after the review): one list in the same order with the tags and no group heads;
+  a cancelled link stays with its tag Cancelled; two picked and deleted leave "1 link"; with every link deleted only
+  Create invite link is left.
 - [x] E2E (`invite-links.spec.ts`, phone and desktop): the admin's rows show their status tags, there is no Used group,
-  cancelling turns the row's tag to Cancelled; on the Family page the emptied groups go away.
+  cancelling turns the row's tag to Cancelled; the Family page lists its links in one list with their tags, no groups,
+  and two deleted leave one.
 - [x] Stories: the 14 changed People and Family stories run their play functions with no error at 375 and 1440 px,
   light and dark; their screenshots looked at.
 
 ## Notes
+
+### Review of PR #97 (owner, 2026-11-13)
+
+The Family page still had groups (only the ones with links, as the approved prototype showed); the owner wants no
+groups there either. The Family page now uses the People page's one list: waiting links first, then newest first,
+the status tag leading each row's details, one Select all, and nothing to fold. Its folds' saved state
+(`pup.family.links.open`) is no longer read; the group titles, their Select all and Show / Hide texts are gone.
 
 ### Open points: settled 2026-11-12, the owner took all five proposals ("Yes, as proposed")
 

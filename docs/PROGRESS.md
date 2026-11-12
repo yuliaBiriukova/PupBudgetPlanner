@@ -2,6 +2,23 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-13 (I-032: review of PR #97, the Family page in one list too)
+
+**Done**
+- The owner's review: "it still groups links in Family". The Family page now uses the People page's one list
+  (waiting first, then newest first, the status tag leading each row's details, one Select all); the groups, their
+  folds and what the browser kept of them are gone, and so are the texts only they used. Recorded in the
+  [I-032 description](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md#review-of-pr-97-owner-2026-11-13)
+  and DESIGN_RULES "Screen decisions".
+- Checked: ESLint, Prettier, typecheck and build; every frontend unit test (389); every E2E test, phone and desktop
+  (108 passed); the changed People and Family stories run with no error at 375 and 1440 px, light and dark,
+  screenshots looked at. The backend didn't change (its 584 tests passed on 2026-11-12).
+- Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` links in `dev`; the `cleanup` teardown deleted
+  them. Nothing of the owner's was touched.
+
+**Next**
+- Owner: review the PR again.
+
 ## 2026-11-12 (B-020 – B-023 and I-032 built, one PR)
 
 **Done**

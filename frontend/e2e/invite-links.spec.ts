@@ -74,7 +74,7 @@ test('the admin sees every link in one list with its status, deletes a used and 
   await expect(row(used)).toContainText(en.inviteLinks.status.Used);
   await expect(row(used)).toContainText(`by ${person.displayName} on`);
   await expect(row(waiting)).toContainText(en.inviteLinks.status.Waiting);
-  await expect(page.getByRole('region', { name: en.inviteLinks.groups.used })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Used/ })).toHaveCount(0);
 
   // Only this test's links are picked: the admin's list is the shared dev database's (never Select all here)
   await page.getByRole('checkbox', { name: `Pick ${used}` }).check();
@@ -119,7 +119,7 @@ test('the admin sees every link in one list with its status, deletes a used and 
   );
 });
 
-test('a family owner clears the Used and Expired and cancelled groups on the Family page, and they go away', async ({
+test('a family owner sees the family’s links in one list with their status, and deletes the old ones', async ({
   page,
 }) => {
   const owner = newPerson('i006-owner');
@@ -143,8 +143,20 @@ test('a family owner clears the Used and Expired and cancelled groups on the Fam
 
   await page.goto('/family');
   await expect(page.getByText(mom, { exact: true })).toBeVisible();
-  await page.getByRole('checkbox', { name: en.inviteLinks.pickAll.used }).check();
-  await page.getByRole('checkbox', { name: en.inviteLinks.pickAll.old }).check();
+  // One list, as on the People page (owner's review of I-032): waiting first, then newest first, each with its tag
+  const rows = page.getByRole('listitem').filter({ hasText: /E2E/ });
+  await expect(rows).toHaveCount(3);
+  await expect(rows.nth(0)).toContainText(mom);
+  await expect(rows.nth(0)).toContainText(en.inviteLinks.status.Waiting);
+  await expect(rows.nth(1)).toContainText(grandpa);
+  await expect(rows.nth(1)).toContainText(en.inviteLinks.status.Cancelled);
+  await expect(rows.nth(2)).toContainText(iryna);
+  await expect(rows.nth(2)).toContainText(`${en.inviteLinks.status.Used}by Iryna on`);
+  await expect(page.getByRole('button', { name: /^(Waiting|Used)/ })).toHaveCount(0);
+  await expect(page.getByText('3 links', { exact: true })).toBeVisible();
+
+  await page.getByRole('checkbox', { name: `Pick ${iryna}` }).check();
+  await page.getByRole('checkbox', { name: `Pick ${grandpa}` }).check();
   await page
     .getByRole('region', { name: en.inviteLinks.bulk.label })
     .getByRole('button', { name: en.inviteLinks.bulk.delete })
@@ -154,11 +166,8 @@ test('a family owner clears the Used and Expired and cancelled groups on the Fam
   await dialog.getByRole('button', { name: 'Delete 2 links' }).click();
 
   await expect(page.getByText('2 links deleted')).toBeVisible();
-  // An emptied group isn't shown at all (I-032): no title, no count, no Select all
-  await expect(page.getByRole('region', { name: en.inviteLinks.groups.used })).toHaveCount(0);
-  await expect(page.getByRole('region', { name: en.inviteLinks.groups.old })).toHaveCount(0);
-  await expect(page.getByRole('checkbox', { name: en.inviteLinks.pickAll.used })).toHaveCount(0);
-  await expect(page.getByRole('region', { name: en.inviteLinks.groups.waiting })).toBeVisible();
+  await expect(rows).toHaveCount(1);
+  await expect(page.getByText('1 link', { exact: true })).toBeVisible();
   // The waiting link stays, and Iryna stays in the family
   await expect(page.getByText(mom, { exact: true })).toBeVisible();
   const family = (await (await page.request.get('/api/family')).json()) as {
