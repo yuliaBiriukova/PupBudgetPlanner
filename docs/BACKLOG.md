@@ -120,7 +120,7 @@ owner asks for one.
 | [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) | 🎨 Phone pop-ups as tall as their content up to the whole screen, every one above the keyboard; a form opens without the keyboard (prototype approved 2026-11-11) | Medium | Done |
 | [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) | 🎨 An Add button people find on the phone: one + that opens Transfer, Income and Expense; a menu with every place named (design approved 2026-11-09) | High | Done |
 | [I-031](changes/improvements/I-031-fewer-ci-minutes/I-031-fewer-ci-minutes.md) | CI checks each change once: no run on the push to `develop` or for docs-only PRs, the Docker image only for releases (90% of the month's Actions minutes used by 2026-11-12; approved 2026-11-12) | High | Done |
-| [I-032](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md) | 🎨 Invite links: no empty groups on the Family page; one list with each link's status on the People page (added 2026-11-12) | Medium | In progress |
+| [I-032](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md) | 🎨 Invite links: no empty groups on the Family page; one list with each link's status on the People page (added 2026-11-12) | Medium | Done |
 
 ## Bugfixes
 

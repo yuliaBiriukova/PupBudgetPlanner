@@ -5,7 +5,7 @@
 | Type | Improvement |
 | Milestone | M6 — MVP release (polish before the launch) |
 | Priority | Medium (proposed: a side screen, nothing broken; owner's feedback on I-006 after the release) |
-| Status | In progress |
+| Status | Done (built 2026-11-12) |
 | Branch | `bugfix/B-020-B-022-I-032-ui-fixes` (one PR with B-020 – B-022, as the owner asked) |
 | Design | 🎨 changes I-006's approved screens: a final prototype story to approve |
 | Approved | 2026-11-12, the owner in chat ("Approved, build it"): the description and the final prototype |
@@ -19,20 +19,27 @@ and details.
 
 ## Acceptance criteria
 
-- [ ] Family page: a group with no links isn't shown (no title, no count, no "No links…" line). With no links at all,
+- [x] Family page: a group with no links isn't shown (no title, no count, no "No links…" line). With no links at all,
       only "Create invite link" shows.
-- [ ] People page, Invite links tab: no groups; one list of every link: waiting ones first, then the rest, each part
-      newest first. Each row shows its status as a tag (*Waiting · 5 days left*, *Used by Olena · 3 Nov*,
-      *Expired 1 Nov*, *Cancelled 2 Nov*) and its details (note, family) as today.
-- [ ] People page: one *Select all* at the list's head (the first 200); the bulk bar, Cancel links and Delete as in
+- [x] People page, Invite links tab: no groups; one list of every link: waiting ones first, then the rest, each part
+      newest first. Each row shows its status as a tag leading its details line (*Waiting* 5 days left, until 17 Nov ·
+      *Used* by Olena on 3 Nov · *Expired* on 1 Nov · *Cancelled* on 2 Nov: the details don't repeat the status, as
+      in the approved prototype) and its note and family as today.
+- [x] People page: one *Select all* at the list's head (the first 200); the bulk bar, Cancel links and Delete as in
       I-006. The groups' folds, and what the browser kept of them, go away there.
-- [ ] Picking links and deleting or cancelling them works as in I-006 on both pages.
+- [x] Picking links and deleting or cancelling them works as in I-006 on both pages.
 
 ## Tasks
 
-- [ ] Final prototype story (owner's direction, one story instead of 3 variants, agreed 2026-11-12) — to approve before
+- [x] Final prototype story (owner's direction, one story instead of 3 variants, agreed 2026-11-12) — to approve before
       any code.
-- [ ] Build it; update the People and Family stories, unit tests and `invite-links.spec.ts`.
+- [x] Build it; update the People and Family stories, unit tests and `invite-links.spec.ts`.
+- [x] The cancel confirmation on the People page says the link "shows as cancelled" (there is no Expired and
+      cancelled group there to move to); the Family page keeps its words.
+- [x] The People tab no longer reads the folds it kept in the browser (`pup.people.links.open`, and the older
+      `pup.people.links.shown`); the Family page keeps `pup.family.links.open`.
+- [x] The prototype stories are deleted; the People and Family stories show the new list (*Links none*, *Links
+      picked*, *Links all deleted*, *Owner no links* and others).
 
 ## Design
 
@@ -76,9 +83,15 @@ and with no links (`family-none-…`), each at 375 and 1440 px, light and dark.
 
 ## Tests
 
-- Unit: an empty group isn't shown (Family); the People tab lists every status in one list.
-- E2E (Playwright): `invite-links.spec.ts` on the new list.
-- Screens checked in Playwright screenshots (phone / desktop, light / dark).
+- [x] Unit (`PeoplePage.test.tsx`): one list in the order waiting first, then newest first, each row's tag and its
+  details without the status word, no group heads or folds, one Select all and the count; no links at all says so;
+  Select all picks every link and is half-checked with one picked; cancel says "shows as cancelled".
+- [x] Unit (`FamilyPage.test.tsx`): after deleting Used and Expired and cancelled the two groups are gone (no title,
+  no Select all), Waiting stays; with every link deleted only Create invite link is left.
+- [x] E2E (`invite-links.spec.ts`, phone and desktop): the admin's rows show their status tags, there is no Used group,
+  cancelling turns the row's tag to Cancelled; on the Family page the emptied groups go away.
+- [x] Stories: the 14 changed People and Family stories run their play functions with no error at 375 and 1440 px,
+  light and dark; their screenshots looked at.
 
 ## Notes
 

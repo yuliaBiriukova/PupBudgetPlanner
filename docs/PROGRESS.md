@@ -2,7 +2,7 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
-## 2026-11-12 (B-020 – B-023 built; I-032 planned)
+## 2026-11-12 (B-020 – B-023 and I-032 built, one PR)
 
 **Done**
 - The owner reported four issues from production and asked to plan them and fix them one by one in one PR; a fifth
@@ -24,12 +24,19 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   fail with the fixes taken out and pass with them; a B-021 unit test the same; typecheck, ESLint, Prettier and the
   transactions, settings, family and shell unit tests (198); screenshots at 375 and 1440 px, light and dark, looked
   at and kept in the change folders.
-- Test data: the E2E runs and a screenshot run made `e2e-…@example.com` people in `dev`; the `cleanup` teardown
-  deleted them after each run. Nothing of the owner's was touched.
+- I-032: the owner took all five proposals; one final prototype story (*Prototypes / I-032 Invite links*, the
+  owner's direction, no variants), design check clean, approved ("Approved, build it"; DESIGN_RULES "Screen
+  decisions"). Built: the People page's Invite links tab is one list (waiting first, then newest first) with a status
+  tag leading each row's details and one Select all; the Family page shows only the groups with links. The cancel
+  confirmation on People says the link "shows as cancelled". The prototype stories are deleted.
+- Checked before the push: ESLint, Prettier, typecheck and build; every frontend unit test and the backend's build and
+  tests; every E2E test, phone and desktop; the 14 changed People and Family stories run with no error at 375 and
+  1440 px, light and dark, screenshots looked at.
+- Test data: the E2E runs and a screenshot run made `e2e-…@example.com` people and `E2E…` invite links in `dev`;
+  the `cleanup` teardown deleted them after each run. Nothing of the owner's was touched.
 
 **Next**
-- I-032: the owner answers its open points, then a final prototype story to approve before it is built. The PR goes
-  up with all five once I-032 is built.
+- Owner: review the PR.
 
 ## 2026-11-12 (B-019: Flaky Family privacy test, fixed in the release PR)
 
