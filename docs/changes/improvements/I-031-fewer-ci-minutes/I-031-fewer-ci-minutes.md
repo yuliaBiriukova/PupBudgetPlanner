@@ -5,7 +5,7 @@
 | Type | Improvement |
 | Milestone | M6 — MVP release (development) |
 | Priority | High (proposed: on 2026-11-12 GitHub warned that 90% of the month's 2,000 free Actions minutes were used, with 20 days left; past the limit, minutes are billed or CI stops) |
-| Status | Todo |
+| Status | Done (built 2026-11-12) |
 | Branch | `improvement/I-031-fewer-ci-minutes` |
 | Design | not needed (CI only) |
 | Approved | 2026-11-12, the owner in chat ("Approved, build it") |
@@ -49,20 +49,20 @@ What stays:
 Expected: about 900 minutes a month at this month's pace instead of about 1,760 (roughly half).
 
 ## Acceptance criteria
-- [ ] A pull request into `develop` that changes code runs Backend, Frontend and E2E; not the Docker image.
-- [ ] A pull request that changes only docs (`docs/**`, `*.md`) starts no CI run.
-- [ ] A squash merge into `develop` starts no CI run.
-- [ ] A release PR `develop` → `main` and the push to `main` run all four jobs, the Docker image included; Render
+- [x] A pull request into `develop` that changes code runs Backend, Frontend and E2E; not the Docker image.
+- [x] A pull request that changes only docs (`docs/**`, `*.md`) starts no CI run.
+- [x] A squash merge into `develop` starts no CI run.
+- [x] A release PR `develop` → `main` and the push to `main` run all four jobs, the Docker image included; Render
       still deploys only after they pass.
-- [ ] Docs say when CI runs and why: ARCHITECTURE.md "CI/CD", ADR 0010's "Consequences", a new ADR for the triggers.
+- [x] Docs say when CI runs and why: ARCHITECTURE.md "CI/CD", ADR 0010's "Consequences", a new ADR for the triggers.
 
 ## Tasks
-- [ ] `ci.yml`: triggers `pull_request` (with `paths-ignore: docs/**, **/*.md`) and `push` to `main` only.
-- [ ] `ci.yml`: the `docker` job runs only when the PR's base is `main` or on the push to `main`
+- [x] `ci.yml`: triggers `pull_request` (with `paths-ignore: docs/**, **/*.md`) and `push` to `main` only.
+- [x] `ci.yml`: the `docker` job runs only when the PR's base is `main` or on the push to `main`
       (`if: github.base_ref == 'main' || github.ref == 'refs/heads/main'`).
-- [ ] Check on this branch's PR: no Docker job, the other three run. Check with a docs-only commit on a scratch PR (or
+- [x] Check on this branch's PR: no Docker job, the other three run. Check with a docs-only commit on a scratch PR (or
       the next `plan/…` PR) that no run starts.
-- [ ] ADR `docs/decisions/0030-ci-runs-once-per-change.md`; ARCHITECTURE.md "CI/CD" (diagram and text: no run on
+- [x] ADR `docs/decisions/0030-ci-runs-once-per-change.md`; ARCHITECTURE.md "CI/CD" (diagram and text: no run on
       `develop` pushes; the "enough for this project" line); ADR 0010 "Consequences": the image is tested on release
       PRs and `main`, not on every PR.
 
