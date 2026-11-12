@@ -14,8 +14,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import { DESKTOP_QUERY } from '../../app/shell/sections';
 import { cx } from '../../shared/ui/cx';
-import { accountsQuery } from '../accounts/accountsApi';
+import { accountsQueryOf } from '../accounts/accountsApi';
 import { categoriesQuery } from '../categories/categoriesApi';
+import { ME, useWhose, whoParam } from '../family/whose';
 import {
   cleared,
   filterCount,
@@ -61,24 +62,30 @@ export function TransactionsPage() {
   const wide = useMediaQuery(WIDE_QUERY, false, { getInitialValueInEffect: false });
   const tablet = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
   const dayTitle = useDayTitle();
+  // Whose money (F-024): someone else's lines open nothing and the slip has no Add
+  const whose = useWhose();
+  const who = whoParam(whose.who);
 
-  const accounts = useQuery(accountsQuery);
+  const accounts = useQuery(accountsQueryOf(who));
   const categories = useQuery(categoriesQuery);
   const allAccounts = [...(accounts.data?.accounts ?? []), ...(accounts.data?.archived ?? [])];
   const filters = withKnown(
     address.filters,
     accounts.data && allAccounts.map((account) => account.id),
-    categories.data?.groups.flatMap((group) => group.categories.map((category) => category.id)),
+    // Your own categories: someone else's (or the family's merged ones) come only with the summary
+    whose.who === ME
+      ? categories.data?.groups.flatMap((group) => group.categories.map((category) => category.id))
+      : undefined,
   );
   // A picked day: every Add transaction, the shell's too, starts on it (I-025)
   useFormDay(filters.day);
 
   const summary = useQuery({
-    ...transactionSummaryQuery(summaryQueryOf(filters)),
+    ...transactionSummaryQuery({ ...summaryQueryOf(filters), who }),
     placeholderData: keepPreviousData,
   });
   const pages = useInfiniteQuery({
-    ...transactionPagesQuery(listQueryOf(filters)),
+    ...transactionPagesQuery({ ...listQueryOf(filters), who }),
     placeholderData: keepPreviousData,
   });
   const slip = useRef<HTMLElement>(null);
@@ -106,6 +113,11 @@ export function TransactionsPage() {
   const filterProps = {
     filters,
     accounts: allAccounts,
+    // In the family's money every account says whose it is (F-024, open point 6)
+    whoseOf: (ownerId: string) =>
+      whose.isMine(ownerId)
+        ? undefined
+        : whose.nameOf(ownerId) && t('whose.theirs', { name: whose.nameOf(ownerId) }),
     categoryName,
     categories: summary.data?.categories ?? [],
     currency: summary.data?.currency ?? 'UAH',
@@ -154,6 +166,14 @@ export function TransactionsPage() {
           </UnstyledButton>
         </div>
       </div>
+    );
+  } else if (items.length === 0 && noTransactions && whose.theirs) {
+    const name = whose.person?.displayName;
+    list = (
+      <Empty
+        title={t('transactions.list.emptyTitle', { context: 'their', name })}
+        text={t('transactions.list.emptyText', { context: 'their', name })}
+      />
     );
   } else if (items.length === 0 && noTransactions) {
     list = (
@@ -321,11 +341,17 @@ export function TransactionsPage() {
         }}
         picked={picked}
         swipe={!tablet}
-        onAdd={() => {
-          // With one account in use picked, the form opens with it, as from its card (F-018)
-          const account = accounts.data?.accounts.find((item) => item.id === filters.accountId);
-          form.add(account ? { accountId: account.id } : undefined);
-        }}
+        onAdd={
+          whose.theirs
+            ? undefined
+            : () => {
+                // With one account of yours in use picked, the form opens with it, as from its card (F-018)
+                const account = accounts.data?.accounts.find(
+                  (item) => item.id === filters.accountId && whose.isMine(item.ownerId),
+                );
+                form.add(account ? { accountId: account.id } : undefined);
+              }
+        }
       />
       {!wide && controls}
       <div className={classes.columns} data-one={(!calendar && !bars) || undefined}>

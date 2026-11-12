@@ -24,13 +24,17 @@ export interface Filters {
   day?: string;
 }
 
-/** What the API is asked for: the period as days, the other filters as they are. */
+/**
+ * What the API is asked for: the period as days, the other filters as they are, and whose money (F-024: a member's id
+ * or `family`; none for your own).
+ */
 export interface TransactionQuery {
   from?: string;
   to?: string;
   accountId?: string;
   categoryId?: string;
   type?: TransactionType;
+  who?: string;
 }
 
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;

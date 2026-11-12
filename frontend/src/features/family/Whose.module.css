@@ -1,4 +1,4 @@
-/* F-024 prototype: the switchers of whose money and the marks of whose a line or card is. */
+/* Whose money (F-024): the lens, the band over the page, and the marks of whose a line or card is. */
 
 /* A person's initial: the People page's grey circle, smaller */
 .initial {
@@ -189,18 +189,22 @@
   flex: none;
 }
 
+/* A 44 px tall target (DESIGN_RULES §4) that leaves the band's height as it is: the margins take it back */
 .backToMine {
+  display: inline-flex;
   flex: none;
-  margin: -4px -4px -4px 0;
-  padding: 4px 8px;
-  border-radius: var(--mantine-radius-sm);
+  align-items: center;
+  min-height: 44px;
+  margin: -12px -4px -12px 0;
+  padding: 0 8px;
   color: var(--pup-color-accent);
   font-size: 14px;
   font-weight: 500;
 }
 
 .backToMine:hover {
-  background: var(--pup-color-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* A line or card of someone else's: a picture, nothing happens under the pointer */

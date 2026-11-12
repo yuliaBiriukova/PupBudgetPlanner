@@ -152,6 +152,17 @@ internal sealed class FamilyService(AppDbContext dbContext, TimeProvider clock) 
         }
     }
 
+    public async Task<MoneyScope?> ScopeAsync(Guid userId, Who who, CancellationToken cancellationToken)
+    {
+        if (who.IsMe || who.PersonId == userId)
+        {
+            return MoneyScope.Own(userId);
+        }
+
+        var family = await FamilyOfAsync(userId, tracked: false, cancellationToken);
+        return family?.SeenBy(userId, who.PersonId) is { } people ? new MoneyScope(userId, people) : null;
+    }
+
     public async Task<FamilyActionOutcome> JoinAsync(
         Guid userId, JoinFamilyRequest request, CancellationToken cancellationToken)
     {

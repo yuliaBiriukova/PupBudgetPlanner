@@ -2,6 +2,34 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-12 (F-024: Family views, built)
+
+**Done**
+- The owner approved F-024 for implementation on 2026-11-12 ("F-024 final prototype is approved, build it": the final
+  prototype "One lens" and the open points' proposals); recorded in the
+  [description](changes/features/F-024-family-views/F-024-family-views.md) and DESIGN_RULES "Screen decisions".
+- Backend: `who` (`me`, `family`, a member's id) on the read endpoints of Accounts, Transactions and Reports;
+  `Family.SeenBy` decides whose money that is, the services read a `MoneyScope`; accounts and transactions carry
+  `ownerId`; the family's categories of one group and name are merged on each read (`FamilyCategories`); amounts in
+  the viewer's report currency. The saving endpoints are unchanged, so only your own money can be changed
+  ([ADR 0031](decisions/0031-family-views.md); ARCHITECTURE.md). No migration.
+- Frontend: the lens in the sidebar and the phone's top bar (`WhoseLens`, `WhoseProvider`, kept on the device), the
+  band with Back to mine over the three pages, someone else's lines and cards only to look at, their pages without
+  Add, whose each card, line and archived account is in the family's money, the pages' "your" words naming whose
+  money it is. The prototype stories were removed; *Family / Family views* replaces them.
+- Checked: backend build (0 warnings) and tests (537 / 537); frontend lint, format, typecheck, build, unit tests
+  (369 / 369), Storybook build; the full E2E suite against this branch's API and web app (96 passed, 20 skipped); the design
+  check on the six new stories (0 issues after fixing Back to mine's touch target and the rail lens's spoken name);
+  Transactions, Accounts and Reports as yours, Andriy's and the family's, and the open lens, in Playwright at 375 and
+  1440 px, light and dark, screenshots looked at (they match the final prototype's). The Browser pane was hidden, so
+  the walk-through was in headless Playwright only.
+- Test data: the E2E runs and a screenshot script made `e2e-…@example.com` people (with newPerson), their families and
+  their `E2E …` family links; the E2E clean-up deleted them after each run. Checked through `GET /api/admin/people` and `/api/admin/invitations` as the tests' admin after the last run: the admin is the only `e2e-…` account left, and no link is waiting. The owner's account
+  untouched.
+
+**Next**
+- Owner: review the PR. F-030 (privacy in the family) is next in M5.
+
 ## 2026-11-12 (F-030: Privacy in the family, planned)
 
 **Done**

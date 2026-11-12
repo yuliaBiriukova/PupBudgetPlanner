@@ -20,10 +20,11 @@ public sealed record SaveTransactionRequest(
 /// <summary>
 /// One transaction as the lists show it, with its account's and category's names and the account's currency: an
 /// archived account or category is still named. A transfer (F-019) has no category; it has its To account's name and
-/// currency and what that account got instead.
+/// currency and what that account got instead. <paramref name="OwnerId"/> is whose it is: only they change it (F-024).
 /// </summary>
 public sealed record TransactionItem(
     Guid Id,
+    Guid OwnerId,
     TransactionType Type,
     DateOnly Date,
     Guid AccountId,

@@ -26,6 +26,13 @@ public interface IFamilyService
     /// <summary>Leaves; an owner with others hands the family over, the last one to leave deletes it.</summary>
     Task<FamilyActionOutcome> LeaveAsync(Guid userId, LeaveFamilyRequest request, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Whose money <paramref name="who"/> asks for, as <paramref name="userId"/> may look at it (F-024): their own,
+    /// one member's, or the family's with their own first. Null when it isn't theirs to look at: no family, or the
+    /// person isn't in it.
+    /// </summary>
+    Task<MoneyScope?> ScopeAsync(Guid userId, Who who, CancellationToken cancellationToken);
+
     /// <summary>Joins the family of a waiting family link and uses the link up.</summary>
     Task<FamilyActionOutcome> JoinAsync(Guid userId, JoinFamilyRequest request, CancellationToken cancellationToken);
 }

@@ -90,15 +90,15 @@ export const reportsKey = ['reports'] as const;
 const reportKey = (...parts: (string | number | null)[]) => [...reportsKey, ...parts];
 
 /**
- * January to December of `year`, in `currency` or the person's report currency. The last report stays on screen
- * while the next one loads.
+ * January to December of `year`, in `currency` or the person's report currency; someone else's or the family's with
+ * `who` (F-024). The last report stays on screen while the next one loads.
  */
-export const yearReportQuery = (year: number, currency?: string) =>
+export const yearReportQuery = (year: number, currency?: string, who?: string) =>
   queryOptions({
-    queryKey: reportKey('year', year, currency ?? null),
+    queryKey: reportKey('year', year, currency ?? null, ...(who ? [who] : [])),
     queryFn: async ({ signal }): Promise<Report> => {
       const { data, response } = await apiClient.GET('/api/reports/year', {
-        params: { query: { year, currency } },
+        params: { query: { year, currency, who } },
         signal,
       });
       if (!response.ok || !data)
@@ -108,13 +108,13 @@ export const yearReportQuery = (year: number, currency?: string) =>
     placeholderData: keepPreviousData,
   });
 
-/** One month (`2026-10`), in `currency` or the person's report currency. */
-export const monthReportQuery = (month: string, currency?: string) =>
+/** One month (`2026-10`), in `currency` or the person's report currency; whose as for the year. */
+export const monthReportQuery = (month: string, currency?: string, who?: string) =>
   queryOptions({
-    queryKey: reportKey('month', month, currency ?? null),
+    queryKey: reportKey('month', month, currency ?? null, ...(who ? [who] : [])),
     queryFn: async ({ signal }): Promise<Report> => {
       const { data, response } = await apiClient.GET('/api/reports/month', {
-        params: { query: { month, currency } },
+        params: { query: { month, currency, who } },
         signal,
       });
       if (!response.ok || !data)

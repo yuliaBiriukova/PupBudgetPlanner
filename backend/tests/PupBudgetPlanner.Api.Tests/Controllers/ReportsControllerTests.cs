@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PupBudgetPlanner.Api.Controllers;
+using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Application.Reports;
 
 namespace PupBudgetPlanner.Api.Tests.Controllers;
@@ -29,6 +30,7 @@ public sealed class ReportsControllerTests
     }
 
     private readonly IReportService reports = Substitute.For<IReportService>();
+    private readonly IFamilyService families = Substitute.For<IFamilyService>();
     private readonly ReportsController controller;
 
     public ReportsControllerTests()
@@ -38,7 +40,7 @@ public sealed class ReportsControllerTests
         var person = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, UserId.ToString())], "cookie"));
         var clock = new November4();
         controller = new ReportsController(
-            reports, new YearReportQueryValidator(clock), new MonthReportQueryValidator(clock))
+            reports, new YearReportQueryValidator(clock), new MonthReportQueryValidator(clock), families)
         {
             ControllerContext = new ControllerContext
             {
@@ -57,7 +59,8 @@ public sealed class ReportsControllerTests
     [Fact]
     public async Task The_yearly_report_is_the_signed_in_persons_january_to_december()
     {
-        reports.ReportAsync(UserId, ReportPeriod.Year(2026), "USD", Arg.Any<CancellationToken>()).Returns(Report);
+        reports.ReportAsync(MoneyScope.Own(UserId), ReportPeriod.Year(2026), "USD", Arg.Any<CancellationToken>())
+            .Returns(Report);
 
         (await controller.Year(2026, CancellationToken.None, "USD")).Result
             .Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(Report);
@@ -66,7 +69,8 @@ public sealed class ReportsControllerTests
     [Fact]
     public async Task The_monthly_report_is_the_signed_in_persons_one_month_in_the_report_currency_by_default()
     {
-        reports.ReportAsync(UserId, ReportPeriod.Month(2026, 10), null, Arg.Any<CancellationToken>()).Returns(Report);
+        reports.ReportAsync(MoneyScope.Own(UserId), ReportPeriod.Month(2026, 10), null, Arg.Any<CancellationToken>())
+            .Returns(Report);
 
         (await controller.Month("2026-10", CancellationToken.None)).Result
             .Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(Report);
@@ -89,6 +93,22 @@ public sealed class ReportsControllerTests
         currency.Should().BeAssignableTo<ObjectResult>().Which.Value.Should().BeOfType<ValidationProblemDetails>()
             .Which.Errors.Should().ContainKey("currency");
         await reports.DidNotReceiveWithAnyArgs()
-            .ReportAsync(default, default!, default, TestContext.Current.CancellationToken);
+            .ReportAsync(default!, default!, default, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task A_family_members_report_is_theirs_and_someone_outside_the_family_is_not_found()
+    {
+        var andriy = Guid.CreateVersion7();
+        var stranger = Guid.CreateVersion7();
+        var theirs = new MoneyScope(UserId, [andriy]);
+        families.ScopeAsync(UserId, Who.Person(andriy), Arg.Any<CancellationToken>()).Returns(theirs);
+        families.ScopeAsync(UserId, Who.Person(stranger), Arg.Any<CancellationToken>()).Returns((MoneyScope?)null);
+        reports.ReportAsync(theirs, ReportPeriod.Month(2026, 10), null, Arg.Any<CancellationToken>()).Returns(Report);
+
+        (await controller.Month("2026-10", CancellationToken.None, who: andriy.ToString())).Result
+            .Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(Report);
+        (await controller.Year(2026, CancellationToken.None, who: stranger.ToString())).Result
+            .Should().BeAssignableTo<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 }

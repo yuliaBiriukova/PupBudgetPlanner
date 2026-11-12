@@ -1,6 +1,10 @@
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import type { CSSProperties } from 'react';
-import { Outlet } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import { Outlet, useLocation } from 'react-router';
+import { FAMILY, useWhose } from '../../features/family/whose';
+import { WhoseBand } from '../../features/family/WhoseLens';
+import { WhoseProvider } from '../../features/family/WhoseProvider';
 import { TransactionFormProvider } from '../../features/transactions/TransactionFormProvider';
 import { useTransactionForm } from '../../features/transactions/transactionForm';
 import { AddDial } from './AddDial';
@@ -18,15 +22,33 @@ interface AppLayoutProps {
   onSignOut?: () => void;
 }
 
+/** The pages whose money can be someone else's or the family's (F-024). */
+const WHOSE_PAGES = ['/transactions', '/accounts', '/reports'];
+
 /**
  * The frame around every page: sidebar on desktop; top bar, tab bar and More on the phone. The sidebar's Add and the
- * phone's floating + (its ⇄ + −, I-030) open the quick-add form (F-018), which every page inside can open too.
+ * phone's floating + (its ⇄ + −, I-030) open the quick-add form (F-018), which every page inside can open too. In a
+ * family the lens of whose money (F-024) sits in the sidebar and the phone's top bar; the Add buttons still add your
+ * own.
  */
 export function AppLayout(props: AppLayoutProps) {
   return (
-    <TransactionFormProvider>
-      <Shell {...props} />
-    </TransactionFormProvider>
+    <WhoseProvider>
+      <TransactionFormProvider>
+        <Shell {...props} />
+      </TransactionFormProvider>
+    </WhoseProvider>
+  );
+}
+
+/** Over Transactions, Accounts and Reports when the money isn't only yours: whose it is, and Back to mine. */
+function PageBand() {
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const { who } = useWhose();
+  if (!WHOSE_PAGES.some((path) => pathname.startsWith(path))) return null;
+  return (
+    <WhoseBand>{who === FAMILY && pathname.startsWith('/reports') && t('whose.merged')}</WhoseBand>
   );
 }
 
@@ -52,6 +74,7 @@ function Shell({ user, onSignOut }: AppLayoutProps) {
         <WakePill waking={wake.waking} seconds={wake.seconds} />
         <main className={classes.main}>
           <div className={classes.content}>
+            <PageBand />
             <Outlet />
           </div>
         </main>

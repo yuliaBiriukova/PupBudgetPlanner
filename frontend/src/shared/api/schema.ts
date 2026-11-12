@@ -11,10 +11,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Everything the Accounts page shows, and what its form offers. */
+        /**
+         * Everything the Accounts page shows, and what its form offers. who: `me` (the default),
+         *     `family` or a family member's id (F-024).
+         */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    who?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -28,6 +33,24 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["AccountsOverview"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -83,11 +106,13 @@ export interface paths {
         };
         /**
          * "In total, in UAH": the accounts in use together in the report currency at today's NBU rates (F-017), or the
-         *     latest earlier ones, marked.
+         *     latest earlier ones, marked. Whose accounts: as for the overview (F-024), always in your report currency.
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    who?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -101,6 +126,24 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["AccountsTotal"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -2069,12 +2112,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** January to December of year: the months still to come have no numbers. */
+        /**
+         * January to December of year: the months still to come have no numbers.
+         *     who: `me` (the default), `family` or a family member's id (F-024).
+         */
         get: {
             parameters: {
                 query?: {
                     year?: number | string;
                     currency?: string;
+                    who?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2098,6 +2145,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -2117,12 +2173,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** One month, month written `yyyy-MM`; no Avg. */
+        /** One month, month written `yyyy-MM`; no Avg. Whose: as for the year. */
         get: {
             parameters: {
                 query?: {
                     month?: string;
                     currency?: string;
+                    who?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2146,6 +2203,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -2330,7 +2396,8 @@ export interface paths {
         };
         /**
          * The Transactions page (F-020): the ones the filters find, newest day first, limit at a time
-         *     from offset; the answer says where the next page starts.
+         *     from offset; the answer says where the next page starts. who: `me`
+         *     (the default), `family` or a family member's id (F-024).
          */
         get: {
             parameters: {
@@ -2342,6 +2409,7 @@ export interface paths {
                     type?: components["schemas"]["TransactionType"];
                     offset?: number | string;
                     limit?: number | string;
+                    who?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2365,6 +2433,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -2420,7 +2497,7 @@ export interface paths {
         };
         /**
          * What the ones the filters find come to (F-020): spent and received, each day's, and each category's, in the
-         *     report currency at the NBU rates of their days (one account picked: in its own).
+         *     report currency at the NBU rates of their days (one account picked: in its own). Whose: as for the list (F-024).
          */
         get: {
             parameters: {
@@ -2430,6 +2507,7 @@ export interface paths {
                     accountId?: string;
                     categoryId?: string;
                     type?: components["schemas"]["TransactionType"];
+                    who?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2453,6 +2531,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -2654,10 +2741,13 @@ export interface components {
          *     TransactionCount keeps an account with transactions from being deleted or changing its
          *     currency (I-011, F-018). LastUsedAt is when its latest transaction was added (a transfer's
          *     for both its accounts), none without transactions: the quick-add form lists the account used last first (I-024).
+         *     OwnerId is whose it is: someone else's only opens to look at (F-024).
          */
         AccountItem: {
             /** Format: uuid */
             id: string;
+            /** Format: uuid */
+            ownerId: string;
             name: string;
             currency: string;
             source: components["schemas"]["SourceKind"];
@@ -3208,11 +3298,13 @@ export interface components {
         /**
          * @description One transaction as the lists show it, with its account's and category's names and the account's currency: an
          *     archived account or category is still named. A transfer (F-019) has no category; it has its To account's name and
-         *     currency and what that account got instead.
+         *     currency and what that account got instead. OwnerId is whose it is: only they change it (F-024).
          */
         TransactionItem: {
             /** Format: uuid */
             id: string;
+            /** Format: uuid */
+            ownerId: string;
             type: components["schemas"]["TransactionType"];
             /** Format: date */
             date: string;

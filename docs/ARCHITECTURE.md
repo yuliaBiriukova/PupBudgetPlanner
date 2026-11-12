@@ -142,6 +142,11 @@ erDiagram
   aggregate: an owner leaving others names the next owner, the last one to leave deletes the family (its waiting
   links cancelled first); deleting an account hands its family to whoever has been in it longest. Nothing of anyone's
   is deleted by joining, leaving or removing ([ADR 0029](decisions/0029-families.md)).
+- Family views (F-024): the read endpoints of Transactions, Accounts and Reports take `who` (`me`, `family` or a
+  member's id); `Family.SeenBy` decides whose money that is, and the services read a `MoneyScope` (the viewer and the
+  people) instead of a user id. Writes still take the signed-in person only, so someone else's money is only to look
+  at. Accounts and transactions carry their `OwnerId`; the family's categories of one group and name are merged on
+  each read (`FamilyCategories`), amounts in the viewer's report currency ([ADR 0031](decisions/0031-family-views.md)).
 - Accounts (F-014): the source is Cash, Bank or one of the person's own sources; a bank account names one of the
   person's banks. Own sources and banks are personal rows (a name unique per person) that stay while an account uses
   them. Balances are never stored: `BalanceSheet` adds each account's transactions to its opening balance and totals

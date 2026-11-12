@@ -1,4 +1,5 @@
 import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
+import { OLENA_ID } from '../family/familyTestData';
 import { addDays, today } from './days';
 import type { Transaction, TransactionSuggestions } from './transactionsApi';
 
@@ -23,6 +24,7 @@ const tx = (
   note: string | null = null,
 ): Transaction => ({
   id,
+  ownerId: OLENA_ID,
   type,
   date: addDays(today(), -daysAgo),
   accountId,
@@ -45,6 +47,7 @@ const transfer = (
   note: string | null = null,
 ): Transaction => ({
   id,
+  ownerId: OLENA_ID,
   type: 'Transfer',
   date: addDays(today(), -daysAgo),
   accountId,

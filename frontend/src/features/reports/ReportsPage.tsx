@@ -7,6 +7,7 @@ import { useSearchParams } from 'react-router';
 import { DESKTOP_QUERY } from '../../app/shell/sections';
 import { afterPopupsClose } from '../../shared/ui/popupHistory';
 import { cx } from '../../shared/ui/cx';
+import { useWhose, whoParam } from '../family/whose';
 import { settingsQuery } from '../settings/settingsApi';
 import { MonthReport } from './MonthReport';
 import {
@@ -36,10 +37,13 @@ export function ReportsPage() {
   const { period, currency } = address;
   const isPhone = !useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
   const settings = useQuery(settingsQuery);
+  // Whose money (F-024): someone else's report, or the family's with categories of one group and name as one
+  const whose = useWhose();
+  const who = whoParam(whose.who);
   const report = useQuery(
     period.kind === 'year'
-      ? yearReportQuery(period.year, currency)
-      : monthReportQuery(period.month, currency),
+      ? yearReportQuery(period.year, currency, who)
+      : monthReportQuery(period.month, currency, who),
   );
 
   // A pick in a phone sheet lands on the page's own history entry once the sheet's step is gone (I-015)
@@ -94,7 +98,9 @@ export function ReportsPage() {
     body = (
       <div className={classes.empty}>
         <h2 className={classes.emptyTitle}>{t('reports.emptyTitle')}</h2>
-        <p className={classes.emptyText}>{t('reports.emptyText')}</p>
+        <p className={classes.emptyText}>
+          {t('reports.emptyText', { context: whose.context, name: whose.person?.displayName })}
+        </p>
       </div>
     );
   } else if (period.kind === 'month') {

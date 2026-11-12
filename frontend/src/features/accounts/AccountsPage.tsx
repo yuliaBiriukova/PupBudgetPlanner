@@ -30,13 +30,16 @@ import classes from './Accounts.module.css';
 import {
   AccountCopyError,
   accountsQuery,
-  accountsTotalQuery,
+  accountsQueryOf,
+  accountsTotalQueryOf,
   useArchiveAccount,
   type Account,
   type AccountsOverview,
   type AccountsTotal,
 } from './accountsApi';
 import { CountUp } from '../../shared/ui/CountUp';
+import { FAMILY, useWhose, whoParam, type Whose } from '../family/whose';
+import whoseClasses from '../family/Whose.module.css';
 import { useTransactionForm, type LastChange } from '../transactions/transactionForm';
 import { DeleteAccountDialog } from './DeleteAccountDialog';
 import { TotalRates } from './TotalRates';
@@ -80,7 +83,11 @@ const FRESH_MS = 1700;
  */
 export function AccountsPage() {
   const { t } = useTranslation();
-  const accounts = useQuery(accountsQuery);
+  // Whose money (F-024): someone else's cards open nothing, and their page has nothing to add
+  const whose = useWhose();
+  const accounts = useQuery(accountsQueryOf(whoParam(whose.who)));
+  // The form always works on your own accounts, sources and banks (the same data when the page is yours)
+  const mine = useQuery(accountsQuery);
   const [groupBy, setGroupBy] = useState<GroupBy>(readGroupBy);
   const [dialog, setDialog] = useState<{ mode: AccountDialogMode; opened: boolean; key: number }>();
   const [fresh, setFresh] = useState<Fresh>();
@@ -109,7 +116,7 @@ export function AccountsPage() {
     <Button
       className={classes.addButton}
       leftSection={<IconPlus size={20} stroke={1.7} />}
-      disabled={!accounts.isSuccess}
+      disabled={!mine.isSuccess}
       onClick={() => {
         openForm({ kind: 'new', preset: {} });
       }}
@@ -122,7 +129,7 @@ export function AccountsPage() {
       <Title order={1} className={classes.title}>
         {t('nav.accounts')}
       </Title>
-      {withButton && addButton}
+      {withButton && !whose.theirs && addButton}
     </header>
   );
 
@@ -176,7 +183,19 @@ export function AccountsPage() {
 
   return (
     <>
-      {empty ? (
+      {empty && whose.theirs ? (
+        <>
+          {head(false)}
+          <div className={classes.emptyBox}>
+            <h2 className={classes.emptyTitle}>
+              {t('accounts.empty.title', { context: 'their', name: whose.person?.displayName })}
+            </h2>
+            <p className={classes.dim}>
+              {t('accounts.empty.text', { context: 'their', name: whose.person?.displayName })}
+            </p>
+          </div>
+        </>
+      ) : empty ? (
         <>
           {head(false)}
           <div className={classes.emptyBox}>
@@ -215,7 +234,7 @@ export function AccountsPage() {
               className={classes.switch}
             />
           </div>
-          <Totals overview={overview} fresh={fresh} />
+          <Totals overview={overview} fresh={fresh} who={whoParam(whose.who)} />
           <div className={classes.groups}>
             {groupAccounts(overview, groupBy).map((group) => (
               <Group
@@ -240,6 +259,7 @@ export function AccountsPage() {
 
       <Archived
         accounts={overview.archived}
+        whose={whose}
         onRestored={(account) => {
           setFresh([{ id: account.id, currency: account.currency, amount: account.balance }]);
         }}
@@ -257,12 +277,12 @@ export function AccountsPage() {
         }}
       />
 
-      {dialog && (
+      {dialog && mine.data && (
         <AccountDialog
           key={dialog.key}
           mode={dialog.mode}
           opened={dialog.opened}
-          overview={overview}
+          overview={mine.data}
           onClose={closeForm}
           onSaved={(saved, added) => {
             closeForm();
@@ -330,10 +350,19 @@ function useFreshAfterTransaction(
  * "In total": everything in the report currency at today's NBU rates first, with the rates and their date (F-017),
  * then each currency's total over the accounts in use. With the report currency only, its total is all there is.
  */
-function Totals({ overview, fresh }: { overview: AccountsOverview; fresh?: Fresh }) {
+function Totals({
+  overview,
+  fresh,
+  who,
+}: {
+  overview: AccountsOverview;
+  fresh?: Fresh;
+  /** Whose accounts (F-024): none for your own. */
+  who?: string;
+}) {
   const { t } = useTranslation();
   const title = useCurrencyTitle();
-  const grand = useQuery(accountsTotalQuery);
+  const grand = useQuery(accountsTotalQueryOf(who));
   const currency = grand.data?.currency ?? REPORT_CURRENCY;
   const others = overview.totals.some((total) => total.currency !== currency);
 
@@ -418,9 +447,13 @@ interface GroupProps {
   onAddTransaction: (account: Account) => void;
 }
 
-/** One group of cards: its heading (and total, by currency), the cards, and the ghost card that adds to it. */
+/**
+ * One group of cards: its heading (and total, by currency), the cards, and the ghost card that adds to it. Someone
+ * else's card is only to look at (no + edge); in the family's money it says whose it is (F-024).
+ */
 function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: GroupProps) {
   const { t } = useTranslation();
+  const whose = useWhose();
   const currencyTitle = useCurrencyTitle();
   const headingId = useId();
   const { key, accounts } = group;
@@ -470,28 +503,59 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
         )}
       </div>
       <ul className={classes.cards}>
-        {accounts.map((account) => (
-          <li key={account.id}>
-            <AccountCard
-              name={account.name}
-              meta={groupBy === 'currency' ? sourceOf(account) : undefined}
-              code={groupBy === 'source' ? account.currency : undefined}
-              balance={account.balance}
-              currency={account.currency}
-              cardStyle={account.cardStyle}
-              isNew={fresh?.some((item) => item.id === account.id)}
-              className={classes.card}
-              onClick={() => {
-                onOpen(account);
-              }}
-              addLabel={t('accounts.addTransaction', { name: account.name })}
-              onAdd={() => {
-                onAddTransaction(account);
-              }}
-            />
-          </li>
-        ))}
-        <li>
+        {accounts.map((account) => {
+          const meta = groupBy === 'currency' ? sourceOf(account) : undefined;
+          if (!whose.isMine(account.ownerId)) {
+            const name = whose.who === FAMILY ? whose.nameOf(account.ownerId) : undefined;
+            return (
+              <li key={account.id}>
+                <AccountCard
+                  name={account.name}
+                  meta={
+                    name
+                      ? meta
+                        ? t('whose.theirsWith', { name, what: meta })
+                        : t('whose.theirs', { name })
+                      : meta
+                  }
+                  code={groupBy === 'source' ? account.currency : undefined}
+                  balance={account.balance}
+                  currency={account.currency}
+                  cardStyle={account.cardStyle}
+                  className={cx(classes.card, whoseClasses.theirCard)}
+                />
+              </li>
+            );
+          }
+          return (
+            <li key={account.id}>
+              <AccountCard
+                name={account.name}
+                meta={meta}
+                code={groupBy === 'source' ? account.currency : undefined}
+                balance={account.balance}
+                currency={account.currency}
+                cardStyle={account.cardStyle}
+                isNew={fresh?.some((item) => item.id === account.id)}
+                className={classes.card}
+                onClick={() => {
+                  onOpen(account);
+                }}
+                addLabel={t('accounts.addTransaction', { name: account.name })}
+                onAdd={() => {
+                  onAddTransaction(account);
+                }}
+              />
+            </li>
+          );
+        })}
+        {/* Nothing to add to someone else's; in the family's, not to a source of theirs */}
+        <li
+          hidden={
+            whose.theirs ||
+            (key.by === 'own' && !accounts.some((account) => whose.isMine(account.ownerId)))
+          }
+        >
           <AddCard
             label={t('accounts.addTo', { name: addName })}
             className={classes.ghost}
@@ -505,13 +569,18 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
   );
 }
 
-/** Archived accounts, folded under the list; each can be restored or deleted for good (I-011). */
+/**
+ * Archived accounts, folded under the list; each of yours can be restored or deleted for good (I-011). Someone
+ * else's are only to look at; in the family's money they say whose they are (F-024).
+ */
 function Archived({
   accounts,
+  whose,
   onRestored,
   onDelete,
 }: {
   accounts: Account[];
+  whose: Whose;
   onRestored: (account: Account) => void;
   onDelete: (account: Account) => void;
 }) {
@@ -553,7 +622,13 @@ function Archived({
               <span>{account.name}</span>
               <span className={classes.archivedMeta}>
                 {t('accounts.archived.meta', {
-                  source: sourceOf(account),
+                  source:
+                    whose.who === FAMILY && !whose.isMine(account.ownerId)
+                      ? t('whose.theirsWith', {
+                          name: whose.nameOf(account.ownerId) ?? '',
+                          what: sourceOf(account),
+                        })
+                      : sourceOf(account),
                   date: formatDate(account.archivedAt ?? ''),
                 })}
                 {account.balance !== 0 && (
@@ -567,7 +642,7 @@ function Archived({
                   </>
                 )}
               </span>
-              <span className={classes.archivedActions}>
+              <span className={classes.archivedActions} hidden={!whose.isMine(account.ownerId)}>
                 <Button
                   variant="quiet"
                   leftSection={<IconRestore size={20} stroke={1.7} />}

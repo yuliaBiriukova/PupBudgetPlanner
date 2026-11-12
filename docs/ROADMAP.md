@@ -13,7 +13,7 @@ Feature details are in [BACKLOG.md](BACKLOG.md) and [changes/](changes/).
 | M2 | Accounts & categories | F-014 – F-016 | Accounts with opening balances and balances overview, categories view, settings | Done |
 | M3 | Transactions | F-017 – F-020 | Quick add expense / income / transfer (incl. currency exchange), list, edit, delete; NBU rates | Done |
 | M4 | Reports | F-021 – F-022 | Monthly and yearly reports like the spreadsheet, in the report currency | Done |
-| M5 | Categories & family | F-029, F-023 – F-024, F-030 | Add / rename / reorder / remove categories and groups; create family, invite link, member and combined views; each person decides what the family sees of their money | In progress (F-029, F-023 done) |
+| M5 | Categories & family | F-029, F-023 – F-024, F-030 | Add / rename / reorder / remove categories and groups; create family, invite link, member and combined views; each person decides what the family sees of their money | In progress (F-029, F-023, F-024 done) |
 | M6 | MVP release | F-025 – F-026 | PWA, polish, launch | Todo |
 
 ## After MVP

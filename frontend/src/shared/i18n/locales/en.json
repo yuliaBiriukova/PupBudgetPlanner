@@ -515,7 +515,9 @@
     "empty": {
       "title": "Where is your money?",
       "text": "Add each bank card, savings account and pocket of cash, in any currency. Each one becomes a card: solid, tinted, an envelope or plain, as you like.",
-      "button": "Add your first account"
+      "button": "Add your first account",
+      "title_their": "{{name}} has no accounts yet",
+      "text_their": "Once {{name}} adds a bank card or some cash, it shows here."
     },
     "errors": {
       "load": "Couldn’t load your accounts. Check the connection and try again.",
@@ -846,7 +848,9 @@
       "Transfer": "Transfer",
       "Exchange": "Exchange",
       "to": "to",
-      "into": "into"
+      "into": "into",
+      "emptyTitle_their": "No transactions yet",
+      "emptyText_their": "Nothing of {{name}}’s yet: what {{name}} adds shows here."
     },
     "totals": {
       "label": "Totals",
@@ -964,7 +968,9 @@
       "net": "NET",
       "otherChanges": "Other changes",
       "balance": "Balance at month end",
-      "showTransactions": "{{amount}}: {{category}} in {{period}}, show the transactions"
+      "showTransactions": "{{amount}}: {{category}} in {{period}}, show the transactions",
+      "before_their": "before the first entry",
+      "before_family": "before the first entry"
     },
     "heat": {
       "long": "A month over the category’s usual:",
@@ -990,7 +996,13 @@
       "inOut": "In {{income}}, out {{expenses}}",
       "whereYearWent": "Where the year went",
       "usuallyMonth": "Usually {{amount}} a month",
-      "usually": "Usually {{amount}}"
+      "usually": "Usually {{amount}}",
+      "onAccountsNow_their": "On {{name}}’s accounts now",
+      "onAccountsNow_family": "On the family’s accounts now",
+      "onAccountsAtEnd_their": "On {{name}}’s accounts at the year’s end",
+      "onAccountsAtEnd_family": "On the family’s accounts at the year’s end",
+      "before_their": "Before the first entry",
+      "before_family": "Before the first entry"
     },
     "ledger": {
       "title": "The month",
@@ -1000,6 +1012,27 @@
       "otherChanges": "Other changes",
       "end": "Balance at the end",
       "note": "Other changes: the rates, exchanges and new accounts."
-    }
+    },
+    "emptyText_their": "Nothing of {{name}}’s yet: the report fills itself in as {{name}} adds expenses and incomes.",
+    "emptyText_family": "Nothing of the family’s yet: the report fills itself in as you add expenses and incomes."
+  },
+  "whose": {
+    "lens": "Whose money",
+    "lensNamed": "Whose money: {{name}}",
+    "mine": "Mine",
+    "me": "Me",
+    "family": "Family",
+    "meHint": "Your own money",
+    "memberHint": "Only to look at",
+    "familyHint": "Everyone together",
+    "theirMoney": "{{name}}’s money.",
+    "familyMoney": "The family’s money.",
+    "onlyTheyChange": "Only {{name}} changes it.",
+    "youChangeYours": "You change only your own.",
+    "merged": "Categories of the same group and name count as one.",
+    "backToMine": "Back to mine",
+    "theirs": "{{name}}’s",
+    "theirsWith": "{{name}}’s, {{what}}",
+    "theirsLine": "{{name}}’s:"
   }
 }

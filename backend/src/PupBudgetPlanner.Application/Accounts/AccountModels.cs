@@ -9,9 +9,11 @@ namespace PupBudgetPlanner.Application.Accounts;
 /// <paramref name="TransactionCount"/> keeps an account with transactions from being deleted or changing its
 /// currency (I-011, F-018). <paramref name="LastUsedAt"/> is when its latest transaction was added (a transfer's
 /// for both its accounts), none without transactions: the quick-add form lists the account used last first (I-024).
+/// <paramref name="OwnerId"/> is whose it is: someone else's only opens to look at (F-024).
 /// </summary>
 public sealed record AccountItem(
     Guid Id,
+    Guid OwnerId,
     string Name,
     string Currency,
     SourceKind Source,

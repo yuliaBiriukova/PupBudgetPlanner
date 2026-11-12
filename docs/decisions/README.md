@@ -35,6 +35,7 @@ decision — write a new ADR that supersedes it.
 | [0028](0028-changing-categories.md) | Changing categories: one rule set in the Domain, hide instead of delete, our own small drag | Accepted |
 | [0029](0029-families.md) | Families: one per person, family links are invite links, the owner hands the family over | Accepted |
 | [0030](0030-ci-runs-once-per-change.md) | CI checks each change once: on its pull request, and a release on `main` | Accepted |
+| [0031](0031-family-views.md) | A family's money is read through `who`; only your own is ever changed | Accepted |
 
 Template for new ADRs:
 

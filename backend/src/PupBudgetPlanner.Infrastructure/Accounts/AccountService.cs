@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.ExchangeRates;
+using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Domain.Accounts;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
@@ -10,20 +11,24 @@ namespace PupBudgetPlanner.Infrastructure.Accounts;
 internal sealed class AccountService(AppDbContext dbContext, IExchangeRateService rates, TimeProvider clock)
     : IAccountService
 {
-    public async Task<AccountsOverview> OverviewAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<AccountsOverview> OverviewAsync(MoneyScope scope, CancellationToken cancellationToken)
     {
-        var accounts = await dbContext.Accounts.AsNoTracking()
-            .Where(account => account.UserId == userId)
-            .OrderBy(account => account.CreatedAt)
-            .ToListAsync(cancellationToken);
-        var sums = await dbContext.SumsOfAsync(userId, null, cancellationToken);
+        var people = scope.People;
+        // Each person's oldest first, the viewer's before the others' (F-024)
+        var accounts = (await dbContext.Accounts.AsNoTracking()
+                .Where(account => people.Contains(account.UserId))
+                .OrderBy(account => account.CreatedAt)
+                .ToListAsync(cancellationToken))
+            .OrderBy(account => IndexOf(people, account.UserId))
+            .ToList();
+        var sums = await dbContext.SumsOfAsync(people, null, cancellationToken);
         var sources = await dbContext.AccountSources.AsNoTracking()
-            .Where(source => source.UserId == userId)
+            .Where(source => people.Contains(source.UserId))
             .OrderBy(source => source.Name)
             .Select(source => new SourceItem(source.Id, source.Name))
             .ToListAsync(cancellationToken);
         var banks = await dbContext.Banks.AsNoTracking()
-            .Where(bank => bank.UserId == userId)
+            .Where(bank => people.Contains(bank.UserId))
             .OrderBy(bank => bank.Name)
             .Select(bank => new BankItem(bank.Id, bank.Name))
             .ToListAsync(cancellationToken);
@@ -51,16 +56,16 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             Currencies.All);
     }
 
-    public async Task<AccountsTotal> TotalAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<AccountsTotal> TotalAsync(MoneyScope scope, CancellationToken cancellationToken)
     {
         var accounts = await dbContext.Accounts.AsNoTracking()
-            .Where(account => account.UserId == userId)
+            .Where(account => scope.People.Contains(account.UserId))
             .ToListAsync(cancellationToken);
-        var sums = await dbContext.SumsOfAsync(userId, null, cancellationToken);
+        var sums = await dbContext.SumsOfAsync(scope.People, null, cancellationToken);
         var totals = BalanceSheet.TotalsOf(BalanceSheet.BalancesOf(accounts, BalanceSheet.MovementsOf(sums)));
-        // The person's own, picked in Settings (F-016)
+        // The viewer's own, picked in Settings (F-016), whoever's money it is (F-024)
         var currency = await dbContext.Users.AsNoTracking()
-            .Where(user => user.Id == userId)
+            .Where(user => user.Id == scope.ViewerId)
             .Select(user => user.ReportCurrency)
             .SingleOrDefaultAsync(cancellationToken) ?? ReportCurrency.Default;
         var day = TotalInReportCurrency.NeedsRates(totals, currency)
@@ -201,6 +206,20 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
     private Task<bool> HasTransactionsAsync(Guid accountId, CancellationToken cancellationToken) =>
         dbContext.IsUsedAsync(accountId, cancellationToken);
 
+    /// <summary>Where a person is in the scope's order: the viewer first.</summary>
+    private static int IndexOf(IReadOnlyList<Guid> people, Guid userId)
+    {
+        for (var index = 0; index < people.Count; index++)
+        {
+            if (people[index] == userId)
+            {
+                return index;
+            }
+        }
+
+        return people.Count;
+    }
+
     private static Dictionary<Guid, int> CountsOf(IEnumerable<TransactionSum> sums) =>
         sums.GroupBy(sum => sum.AccountId).ToDictionary(group => group.Key, group => group.Sum(sum => sum.Count));
 
@@ -273,7 +292,7 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             ? (await dbContext.Banks.FindAsync([bankId], cancellationToken))?.Name
             : null;
 
-        var sums = await dbContext.SumsOfAsync(account.UserId, [account.Id], cancellationToken);
+        var sums = await dbContext.SumsOfAsync([account.UserId], [account.Id], cancellationToken);
 
         return ToItem(
             BalanceSheet.BalancesOf([account], BalanceSheet.MovementsOf(sums))[0],
@@ -293,6 +312,7 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         var account = balance.Account;
         return new AccountItem(
             account.Id,
+            account.UserId,
             account.Name,
             account.Currency,
             account.Source,

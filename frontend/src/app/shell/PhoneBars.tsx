@@ -8,22 +8,28 @@ import {
 import { IconDots, IconLogout, IconMoon, IconSun } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { Link, NavLink, useLocation } from 'react-router';
+import { useWhose } from '../../features/family/whose';
+import { WhoseLens } from '../../features/family/WhoseLens';
 import { BottomSheet } from '../../shared/ui/BottomSheet';
 import { ColorSchemeToggle } from '../../shared/ui/ColorSchemeToggle';
 import { Brand } from './Logo';
 import classes from './PhoneBars.module.css';
 import { moreSectionsFor, TAB_SECTIONS, type ShellUser } from './sections';
 
-/** Phone top bar: logo and name, the theme switch and the avatar (a link to Settings). */
+/**
+ * Phone top bar: logo and name, the theme switch and the avatar (a link to Settings). In a family the lens of whose
+ * money takes the theme switch's place (F-024); More keeps the theme.
+ */
 export function TopBar({ user }: { user?: ShellUser }) {
   const { t } = useTranslation();
+  const { lens } = useWhose();
 
   return (
     <header className={classes.top}>
       <span className={classes.topBrand}>
         <Brand />
       </span>
-      <ColorSchemeToggle />
+      {lens ? <WhoseLens place="top" /> : <ColorSchemeToggle />}
       {user && (
         <ActionIcon
           component={Link}

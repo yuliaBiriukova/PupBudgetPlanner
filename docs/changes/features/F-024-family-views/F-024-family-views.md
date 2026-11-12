@@ -4,10 +4,10 @@
 |---|---|
 | Type | Feature |
 | Milestone | M5 — Categories & family |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-024-family-views` |
-| Design | 3 prototype stories required (a switcher on three screens) |
-| Approved | — |
+| Design | 3 prototype stories (round 1), final prototype: variant 1 "One lens" |
+| Approved | 2026-11-12, by the owner ("F-024 final prototype is approved, build it"): the final prototype and the open points' proposals |
 
 ## Goal
 
@@ -15,17 +15,17 @@ See a family member's and the combined family numbers.
 
 ## Acceptance criteria
 
-- [ ] Switcher "Me / <member> / Family" in transactions, accounts and reports
-- [ ] Members see each other's data read-only; each person edits only their own
-- [ ] Family report merges categories with the same group and name
+- [x] Switcher "Me / <member> / Family" in transactions, accounts and reports
+- [x] Members see each other's data read-only; each person edits only their own
+- [x] Family report merges categories with the same group and name
 
 ## Tasks
 
-- [ ] References, 3 prototype stories (design round), final prototype, the owner's approval
-- [ ] Authorization rules
-- [ ] API parameters for scope
-- [ ] Switcher UI
-- [ ] Combined report
+- [x] References, 3 prototype stories (design round), final prototype, the owner's approval
+- [x] Authorization rules
+- [x] API parameters for scope
+- [x] Switcher UI
+- [x] Combined report
 
 ## Design
 
@@ -187,10 +187,46 @@ the open list (two and three people) and no family at 375 and 1440 px, light and
 8. **Where it starts:** the app opens on your own money the first time; after that on the last choice, kept on the
    device (the lens, final prototype).
 
+## Built (2026-11-12)
+
+The final prototype as approved, with the open points' proposals ([ADR 0031](../../../decisions/0031-family-views.md)).
+
+- **API:** `who` (`me`, `family` or a member's id) on `GET /api/accounts`, `/api/accounts/total`,
+  `/api/transactions`, `/api/transactions/summary`, `/api/reports/year` and `/month`; a `who` that is none of
+  them is a 400, someone outside your family (or no family) a 404. `Family.SeenBy` is the rule; the read services take
+  a `MoneyScope` (the viewer and the people, the viewer first). Accounts and transactions carry `ownerId`. The
+  saving endpoints are unchanged: they take the signed-in person only, so someone else's money can't be changed.
+- **Merging** (`FamilyCategories`): groups of the same kind and name, and in them categories of the same name, are
+  one, ignoring case and spaces at the ends; the viewer's first in their order, someone else's only ones after. A merged
+  one keeps the viewer's id, so a category picked in the family's money (or opened from its report) finds everyone's.
+  Hidden only when every part is hidden. Used by the report, the Transactions page's "Where it went" and its category
+  filter.
+- **App:** the lens (`WhoseLens`) in the sidebar under Add and in the phone's top bar in the theme switch's place;
+  `WhoseProvider` keeps the choice on the device (`pup.whose`) and forgets one that isn't in the family any more; the
+  band over the three pages with Back to mine; someone else's lines and cards are plain (no button, no + edge), their
+  page has no Add transaction on the slip, no Add account and no ghost cards; in the family's money their cards say
+  "Andriy's, Monobank", their lines carry the initial, their archived accounts have no Restore / Delete. The pages'
+  words that say "your" name whose money it is (empty states, "On Andriy's accounts now", "before the first entry").
+  The account filter lists whose each account is in the family's money.
+- **Decided while building** (small, within the approved behaviour): picking another lens on the Transactions page
+  clears its account and category filters (they were someone else's) and keeps the period and type; the Add account
+  form always works on your own accounts, sources and banks; in the family's money the ghost card of an own source of
+  someone else's is left out.
+- The prototype stories were removed; *Family / Family views* replaces them (the real shell and pages on a fake API
+  that answers per `who`).
+
 ## Tests
 
-- Unit: Authorization and merge logic.
-- E2E (Playwright): Member's expense appears in the family report.
+- Backend unit: `Family.SeenBy` (who sees whose money, someone who left), `Who` and `MoneyScope`, `FamilyCategories`
+  (merging, order, kinds apart, hidden parts, a member's expense counted in the merged category of the family's
+  report), the three controllers with `who` (a member's, the family's, 404 outside the family, 400 for a made-up
+  `who`).
+- Frontend unit: `whose.ts`; `FamilyViews.test.tsx` (no lens without a family, a member's money only to look at on
+  every page and kept on the device, the family's accounts with whose they are, the family's report's line, a kept
+  choice of someone who left is forgotten).
+- E2E (`e2e/family-views.spec.ts`): through the API, the family's report merges two members' Groceries, a member's
+  report is theirs, someone outside the family gets a 404 and a member can't delete another's expense; in the app
+  (phone and desktop), a member's expense appears in the family's report, a member's lines open nothing, Back to mine.
 
 ## Notes
 
