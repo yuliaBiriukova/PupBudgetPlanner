@@ -148,3 +148,4 @@ owner asks for one.
 | [B-020](changes/bugfixes/B-020-theme-switch-scroll-jump/B-020-theme-switch-scroll-jump.md) | Changing the theme scrolls the More page to the middle on the phone | Medium | Todo |
 | [B-021](changes/bugfixes/B-021-amount-digits-out-of-sight/B-021-amount-digits-out-of-sight.md) | The digits typed past the amount's width can't be seen (calculator) | High | Todo |
 | [B-022](changes/bugfixes/B-022-sidebar-user-row-misaligned/B-022-sidebar-user-row-misaligned.md) | The name and the icon buttons are not aligned at the bottom of the sidebar (desktop) | Medium | Todo |
+| [B-023](changes/bugfixes/B-023-fold-hover-corners/B-023-fold-hover-corners.md) | A fold's hover is rounded on every corner inside a card whose cells are square (Family privacy) | Low | Todo |
