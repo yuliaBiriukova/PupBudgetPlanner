@@ -76,3 +76,9 @@ public enum CancelInvitationOutcome
     /// <summary>It was already used, expired or cancelled.</summary>
     NotWaiting,
 }
+
+/// <summary>The invite links an action is for: everything picked on the Invite links tab or the Family page (I-006).</summary>
+public sealed record InvitationsRequest(IReadOnlyList<Guid> Ids);
+
+/// <summary>How many links were deleted or cancelled; links already gone, or not waiting for a cancel, don't count.</summary>
+public sealed record InvitationsChanged(int Count);

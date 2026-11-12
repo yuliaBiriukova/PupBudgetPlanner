@@ -21,6 +21,21 @@ public interface IFamilyService
 
     Task<FamilyActionOutcome> CancelInvitationAsync(Guid userId, Guid invitationId, CancellationToken cancellationToken);
 
+    /// <summary>The family's links of every status, newest first; the owner only (I-006).</summary>
+    Task<(FamilyActionOutcome Outcome, IReadOnlyList<InvitationItem> Invitations)> InvitationsAsync(
+        Guid userId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Cancels the picked links of the owner's family that are still waiting; another family's links and the ones that
+    /// don't wait any more are left as they are (I-006).
+    /// </summary>
+    Task<(FamilyActionOutcome Outcome, InvitationsChanged Changed)> CancelInvitationsAsync(
+        Guid userId, InvitationsRequest request, CancellationToken cancellationToken);
+
+    /// <summary>Deletes the picked links of the owner's family, of any status; another family's are left (I-006).</summary>
+    Task<(FamilyActionOutcome Outcome, InvitationsChanged Changed)> DeleteInvitationsAsync(
+        Guid userId, InvitationsRequest request, CancellationToken cancellationToken);
+
     Task<FamilyActionOutcome> RemoveAsync(Guid userId, Guid memberId, CancellationToken cancellationToken);
 
     /// <summary>Leaves; an owner with others hands the family over, the last one to leave deletes it.</summary>

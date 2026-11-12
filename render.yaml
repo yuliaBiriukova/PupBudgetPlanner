@@ -33,6 +33,10 @@ services:
       # InviteOnly (the default) or Open.
       - key: Access__SignUp
         value: InviteOnly
+      # The secret cron-job.org sends to start the morning clean-up (I-006, ADR 0033). Set in the dashboard; without
+      # it the clean-up is off.
+      - key: Cleanup__Secret
+        sync: false
 
   # Storybook: a static site (no sleeping, no instance hours).
   - type: web

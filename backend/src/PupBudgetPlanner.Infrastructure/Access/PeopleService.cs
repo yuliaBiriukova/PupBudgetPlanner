@@ -16,21 +16,18 @@ internal sealed class PeopleService(
 {
     public async Task<IReadOnlyList<PersonItem>> ListAsync(Guid adminId, CancellationToken cancellationToken)
     {
-        var rows = await (
-                from user in dbContext.Users.AsNoTracking()
-                join invitation in dbContext.Invitations.Where(i => i.CreatedAccount)
-                    on user.Id equals invitation.UsedById into used
-                from invitedWith in used.DefaultIfEmpty()
-                select new
-                {
-                    user.Id,
-                    user.DisplayName,
-                    user.Email,
-                    user.CreatedAt,
-                    user.BlockedAt,
-                    Invited = invitedWith != null,
-                    Note = invitedWith == null ? null : invitedWith.Note,
-                })
+        // "Invited" and its note are kept on the account, so deleting the link doesn't drop them (I-006)
+        var rows = await dbContext.Users.AsNoTracking()
+            .Select(user => new
+            {
+                user.Id,
+                user.DisplayName,
+                user.Email,
+                user.CreatedAt,
+                user.BlockedAt,
+                user.Invited,
+                user.InvitationNote,
+            })
             .ToListAsync(cancellationToken);
 
         return rows
@@ -42,7 +39,7 @@ internal sealed class PeopleService(
                 access.Value.IsAdmin(row.Email),
                 row.Id == adminId,
                 row.Invited,
-                row.Note,
+                row.InvitationNote,
                 row.BlockedAt))
             .OrderByDescending(person => person.IsYou)
             .ThenBy(person => person.DisplayName, StringComparer.CurrentCultureIgnoreCase)

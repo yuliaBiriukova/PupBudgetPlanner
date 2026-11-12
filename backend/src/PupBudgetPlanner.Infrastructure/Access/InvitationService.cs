@@ -19,37 +19,14 @@ internal sealed class InvitationService(AppDbContext dbContext, TimeProvider clo
         return new CreatedInvitation(invitation.Id, token, invitation.Note, invitation.ExpiresAt);
     }
 
-    public async Task<IReadOnlyList<InvitationItem>> ListAsync(CancellationToken cancellationToken)
-    {
-        var now = clock.GetUtcNow();
-        var rows = await (
-                from invitation in dbContext.Invitations.AsNoTracking()
-                join user in dbContext.Users on invitation.UsedById equals user.Id into used
-                from usedBy in used.DefaultIfEmpty()
-                join family in dbContext.Families on invitation.FamilyId equals family.Id into families
-                from forFamily in families.DefaultIfEmpty()
-                orderby invitation.CreatedAt descending
-                select new
-                {
-                    invitation,
-                    UsedByName = usedBy == null ? null : usedBy.DisplayName,
-                    FamilyName = forFamily == null ? null : forFamily.Name,
-                })
-            .ToListAsync(cancellationToken);
+    public Task<IReadOnlyList<InvitationItem>> ListAsync(CancellationToken cancellationToken) =>
+        InvitationLinks.ListAsync(dbContext, _ => true, clock.GetUtcNow(), cancellationToken);
 
-        return rows
-            .Select(row => new InvitationItem(
-                row.invitation.Id,
-                row.invitation.Note,
-                row.invitation.StatusAt(now),
-                row.invitation.CreatedAt,
-                row.invitation.ExpiresAt,
-                row.invitation.UsedAt,
-                row.UsedByName,
-                row.invitation.CancelledAt,
-                row.FamilyName))
-            .ToList();
-    }
+    public Task<InvitationsChanged> CancelManyAsync(InvitationsRequest request, CancellationToken cancellationToken) =>
+        InvitationLinks.CancelAsync(dbContext.Invitations, request, clock.GetUtcNow(), cancellationToken);
+
+    public Task<InvitationsChanged> DeleteAsync(InvitationsRequest request, CancellationToken cancellationToken) =>
+        InvitationLinks.DeleteAsync(dbContext.Invitations, request, cancellationToken);
 
     public async Task<CancelInvitationOutcome> CancelAsync(Guid id, CancellationToken cancellationToken)
     {

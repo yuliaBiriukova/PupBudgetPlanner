@@ -2,6 +2,75 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-12 (I-006: Delete invite links, built)
+
+**Done**
+- The owner approved I-006 and its final prototype ("approved I-006, build it"); recorded in the
+  [description](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md) and DESIGN_RULES
+  "Screen decisions". Built on `improvement/I-006-delete-old-invite-links`; M5 is done.
+- Backend: `POST /api/admin/invitations/delete` and `…/cancel` (any link, 1–200, the answer says how many);
+  `GET /api/family/invitations` (the owner's links of every status), `POST /api/family/invitations/delete` and
+  `…/cancel` (the owner's family only). The family view no longer carries the waiting links. "Invited" and the
+  link's note are kept on the account (migration `KeepInvitedOnAccount` copies them), so any link can be deleted.
+- The morning clean-up ([ADR 0033](decisions/0033-morning-clean-up.md)): `POST /api/cleanup` with the
+  `X-Cleanup-Secret` header deletes links 30 days after they stopped working (`Cleanup:InvitationsKeptFor`), logs the
+  count, is off without `Cleanup__Secret`; `render.yaml` lists the secret (set in the dashboard). The cron-job.org job
+  at 07:05 Kyiv time is the owner's step at the release (steps in the description).
+- Frontend: one `InviteLinks` list for the Invite links tab and the Family page, as the final prototype: check boxes,
+  Select all per group, every group folds (Waiting open at first; a fold saved before keeps Waiting open), the bulk
+  bar with Cancel links and Delete, the confirmations, the 30-day line. The prototype stories are deleted; the People
+  and Family stories cover picking, the confirmations, a group cleared, loading and error.
+- The E2E clean-up deletes the tests' `E2E…` links of any status; CLAUDE.md "Clean up test data" and I-007's notes
+  say how to delete links (and never with a group's Select all on the shared `dev` database).
+- Checked: backend build (warnings as errors) and all 584 tests; frontend typecheck, ESLint, Prettier, build and all
+  387 unit tests; E2E `invite-links.spec.ts` (new) and every other spec, phone and desktop; the clean-up endpoint by
+  hand (401 without or with a wrong secret, 200 twice with it, run with a 10-year keep period so nothing in `dev` was
+  deleted); the Family page and the Invite links tab at 375 and 1440 px, light and dark, screenshots looked at.
+- Test data: the E2E runs and the screenshot run made `e2e-…@example.com` people (owners, members, invited people)
+  and `E2E…` links in `dev`; the `cleanup` teardown deleted them after each run. Nothing of the owner's was touched.
+
+- Review of PR #95 (owner): a group with no links shows no Select all at all (it was a disabled box), and its title
+  moves left to where the box would be (the empty gap looked odd). Checked: typecheck, ESLint, Prettier, the People and
+  Family unit tests, the E2E `invite-links.spec.ts` (phone and desktop), empty groups at 375 and 1440 px, light and
+  dark, screenshots looked at. A group's count had no space before it ("Waiting0": the People page's `.groupTitle`
+  margin won over the list's own); fixed, checked the same way.
+  The test people made were deleted by the E2E clean-up.
+
+**Next**
+- Owner: review the PR; at the release set `Cleanup__Secret` on Render and the cron-job.org job (I-006 description,
+  "Setting up the morning clean-up"). Then M6 (MVP release).
+
+## 2026-11-12 (I-006: Delete invite links, design round 1)
+
+**Done**
+- [I-006](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md) started on
+  `improvement/I-006-delete-old-invite-links`. The owner answered open points 1–4: "Invited" and its note are copied
+  onto the account; every link has a check box, waiting ones too, and each group (Waiting, Used, Expired and
+  cancelled) has its own Select all, deleting through the bulk bar; family owners delete their own links on the
+  Family page, which lists every status. Acceptance criteria, tasks and tests updated to match.
+- References (open pages: Carbon's batch actions, Google Photos' select a day, eBay's bulk editing, SaaS UI's bulk
+  bars, the app's People tab) and 3 prototype stories, *Prototypes / I-006 Delete invite links*: 1 "Check boxes",
+  2 "Select mode", 3 "Ledger"; each on the Invite links tab and the Family page.
+- Checked: typecheck, ESLint, Prettier; the design check on the three stories (one finding, a false positive: at
+  360 / 375 px a check box scrolled under the phone's tab bar, which paints over it); the states inside the page
+  (a group and links picked, the confirmation, the group cleared, the Family page) in Playwright at 375 and 1440 px,
+  light and dark, screenshots looked at; clicked through in the Browser pane.
+- No backend or app code; no test data made (stories only).
+
+- Round 2: the owner chose variant 1, asked for batch Cancel in this change (as Block on People), questioned
+  "Deleted on" and found the folded group's hover odd. The final prototype (*Final prototype* story; variants 2 and 3
+  removed) adds Cancel links to the bulk bar with its confirmation, says "Auto-deletes 10 Dec", tints the whole group
+  head on hover, and keeps long group titles tidy on the phone. Checked: typecheck, ESLint, Prettier, the design check
+  (the same false positive), every state (picked, cancel, delete, Family page, the hover) at 375 and 1440 px, light
+  and dark, screenshots looked at. No test data made.
+- The owner asked that Waiting folds too, open by default: done in the final prototype, added to the criteria and
+  tasks (a fold saved in the browser before the change keeps Waiting open).
+- The owner didn't like "Auto-deletes 10 Dec" and chose no delete date on each link: only the line under the groups
+  says old links are deleted automatically after 30 days. Removed from the prototype, the criteria and the tasks.
+
+**Next**
+- Owner: approve the final prototype for implementation (or comment on it).
+
 ## 2026-11-12 (F-030: Privacy in the family, built)
 
 **Done**

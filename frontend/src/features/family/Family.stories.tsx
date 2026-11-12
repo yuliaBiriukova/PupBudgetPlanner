@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { expect, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { MockFetch, type MockRoutes } from '../../test/mockFetch';
 import type { MockAnswer } from '../../test/mockRoutes';
 import { InviteRoute } from '../auth/InviteRoute';
@@ -42,7 +42,7 @@ const FAMILIES: Record<NonNullable<ScreenProps['family']>, () => Family | null> 
   other: otherFamily,
   alone: () => {
     const family = ownersFamily();
-    return { ...family, members: family.members.slice(0, 1), invitations: [] };
+    return { ...family, members: family.members.slice(0, 1) };
   },
 };
 
@@ -110,14 +110,14 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** Olena owns Kovalenko: rename, invite, cancel the waiting link, remove, leave naming the next owner. */
+/** Olena owns Kovalenko: rename, invite, cancel or delete links (I-006), remove, leave naming the next owner. */
 export const Owner: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(await canvas.findByRole('textbox', { name: 'Family name' })).toHaveValue(
       'Kovalenko',
     );
-    await expect(canvas.getByText('For Mom')).toBeInTheDocument();
+    await expect(await canvas.findByText('Mom')).toBeInTheDocument();
   },
 };
 
@@ -126,6 +126,44 @@ export const OwnerDark: Story = { globals: { colorScheme: 'dark' } };
 export const OwnerDesktop: Story = { globals: desktop };
 
 export const OwnerDesktopDark: Story = { globals: { ...desktop, colorScheme: 'dark' } };
+
+/** Every group of links starts as at first: Waiting open, the others folded (I-006). */
+const freshFolds = () => {
+  localStorage.removeItem('pup.family.links.open');
+};
+
+/** The owner picks her waiting link and the whole folded Used group: the bar has Cancel links and Delete (I-006). */
+export const OwnerLinksPicked: Story = {
+  beforeEach: freshFolds,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('checkbox', { name: 'Pick Mom' }));
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Select all used links' }));
+    await expect(canvas.getByRole('region', { name: 'Picked links' })).toHaveTextContent(
+      '2 picked',
+    );
+  },
+};
+
+/** Expired and cancelled cleared with Select all and Delete, after one confirmation (I-006). */
+export const OwnerLinksGroupCleared: Story = {
+  globals: desktop,
+  beforeEach: freshFolds,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+    );
+    await userEvent.click(canvas.getByRole('button', { name: 'Delete' }));
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await body.findByRole('button', { name: 'Delete link' }));
+    await waitFor(() =>
+      expect(
+        canvas.queryByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+      ).not.toBeInTheDocument(),
+    );
+  },
+};
 
 /** Olena joined Andriy's family: the name as text, no menus, no invite links; she can leave. */
 export const Member: Story = {

@@ -124,13 +124,6 @@
   min-width: 0;
 }
 
-.subhead {
-  margin: 8px 0 8px;
-  color: var(--mantine-color-dimmed);
-  font-size: 14px;
-  font-weight: 500;
-}
-
 /* ---------- The dialogs ---------- */
 /* The first paragraph of a dialog: over the People page's dialog text margin */
 .first.first {

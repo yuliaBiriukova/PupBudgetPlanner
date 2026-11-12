@@ -19,6 +19,13 @@ public sealed class AntiforgeryFilter(IAntiforgery antiforgery) : IAsyncAuthoriz
             return;
         }
 
+        // An endpoint nobody calls with a cookie opts out with [RequireAntiforgeryToken(false)]: the clean-up (I-006)
+        if (context.ActionDescriptor.EndpointMetadata.OfType<IAntiforgeryMetadata>().LastOrDefault() is
+            { RequiresValidation: false })
+        {
+            return;
+        }
+
         if (!await antiforgery.IsRequestValidAsync(context.HttpContext))
         {
             context.Result = new ObjectResult(new ProblemDetails

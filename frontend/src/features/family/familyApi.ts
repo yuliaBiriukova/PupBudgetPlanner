@@ -4,7 +4,6 @@ import type { components } from '../../shared/api/schema';
 
 export type Family = components['schemas']['FamilyView'];
 export type FamilyMember = components['schemas']['FamilyMemberItem'];
-export type FamilyInvitation = components['schemas']['FamilyInvitationItem'];
 export type CreatedFamilyInvitation = components['schemas']['CreatedInvitation'];
 export type InvitedFamily = components['schemas']['InvitedFamily'];
 
@@ -85,15 +84,7 @@ export function useCreateFamilyInvitation() {
   });
 }
 
-export function useCancelFamilyInvitation() {
-  return useFamilyChange(async (id: string) => {
-    const { response } = await apiClient.POST('/api/family/invitations/{id}/cancel', {
-      params: { path: { id } },
-    });
-    // Already used, expired or cancelled: the family is fetched again either way
-    if (response.status !== 409) check(response);
-  });
-}
+// Cancelling and deleting the family's links: `inviteLinksApi.ts` (I-006), shared with the Invite links tab
 
 export function useRemoveFromFamily() {
   return useFamilyChange(async (id: string) => {

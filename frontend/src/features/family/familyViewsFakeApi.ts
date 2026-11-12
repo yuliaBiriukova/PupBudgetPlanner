@@ -8,7 +8,7 @@ import { fakePage, fakeSummary, twoMonths } from '../transactions/transactionsFa
 import type { Transaction } from '../transactions/transactionsApi';
 import type { MockRoutes } from '../../test/mockRoutes';
 import type { Family } from './familyApi';
-import { ANDRIY_ID, IRYNA_ID, OLENA_ID, ownersFamily } from './familyTestData';
+import { ANDRIY_ID, IRYNA_ID, OLENA_ID, ownersFamily, ownersLinks } from './familyTestData';
 import { FAMILY, ME } from './whose';
 
 /**
@@ -183,6 +183,8 @@ export function familyViewsRoutes(family: Family | null): MockRoutes {
       json: { displayName: 'Olena', email: 'olena@example.com', reportCurrency: 'UAH' },
     },
     '/api/family': family ? { json: family } : { status: 204 },
+    // The owner's links on the Family page (I-006)
+    '/api/family/invitations': family?.isOwner ? { json: ownersLinks() } : { status: 403 },
     '/api/auth/me': {
       json: { id: OLENA_ID, displayName: 'Olena', email: 'olena@example.com', isAdmin: false },
     },

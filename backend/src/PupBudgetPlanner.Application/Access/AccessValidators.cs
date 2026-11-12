@@ -25,3 +25,16 @@ public sealed class PeopleRequestValidator : AbstractValidator<PeopleRequest>
             .Must(ids => ids.Count <= MaxPeople).WithMessage($"Pick at most {MaxPeople} people at a time.");
     }
 }
+
+public sealed class InvitationsRequestValidator : AbstractValidator<InvitationsRequest>
+{
+    /// <summary>As for people: more than the app will have, and one request never touches the whole table.</summary>
+    public const int MaxLinks = 200;
+
+    public InvitationsRequestValidator()
+    {
+        RuleFor(r => r.Ids)
+            .NotEmpty().WithMessage("Pick at least one link.")
+            .Must(ids => ids.Count <= MaxLinks).WithMessage($"Pick at most {MaxLinks} links at a time.");
+    }
+}

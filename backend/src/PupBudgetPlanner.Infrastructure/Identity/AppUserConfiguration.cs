@@ -22,6 +22,7 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
         builder.Property(user => user.ReportCurrency)
             .HasMaxLength(Currencies.CodeLength)
             .HasDefaultValue(ReportCurrency.Default);
+        builder.Property(user => user.InvitationNote).HasMaxLength(Domain.Invitations.Invitation.NoteMaxLength);
         // Everyone shares every transaction until they choose otherwise (F-030; the migration's default)
         builder.Property(user => user.FamilySeesTransactions).HasConversion<string>().HasMaxLength(ShareMaxLength);
         builder.HasIndex(user => user.NormalizedEmail).HasDatabaseName("ix_users_normalized_email");

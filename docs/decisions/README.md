@@ -37,6 +37,7 @@ decision — write a new ADR that supersedes it.
 | [0030](0030-ci-runs-once-per-change.md) | CI checks each change once: on its pull request, and a release on `main` | Accepted |
 | [0031](0031-family-views.md) | A family's money is read through `who`; only your own is ever changed | Accepted |
 | [0032](0032-family-privacy.md) | What a member keeps from the family is left out by the database, from settings on the money itself | Accepted |
+| [0033](0033-morning-clean-up.md) | A morning clean-up job, started by cron-job.org with a secret, deletes links 30 days after they stopped working | Accepted |
 
 Template for new ADRs:
 

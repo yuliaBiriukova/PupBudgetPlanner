@@ -1,0 +1,185 @@
+/* I-006: deleting and cancelling invite links, on the Invite links tab and the Family page. The People page's styles
+   are reused; only the parts of this list are here */
+
+.links {
+  container: links / inline-size;
+}
+
+.group + .group {
+  margin-top: 24px;
+}
+
+/* A group's head: Select all, its title, count and how many are picked, and the fold for Used / Expired and
+   cancelled */
+.head {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-height: 48px;
+  margin-bottom: 8px;
+  border-radius: var(--mantine-radius-md);
+}
+
+/* The fold's hover tints the whole head, the box included: one strip, not a grey pill beside the box */
+.head:has(> .disclosure:hover) {
+  background: var(--pup-color-hover);
+}
+
+.head .disclosure:hover {
+  background: none;
+}
+
+.headPick {
+  flex: none;
+  margin-left: 4px;
+}
+
+.disclosure {
+  flex: 1;
+  width: auto;
+}
+
+.titleLine {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+  text-align: left;
+}
+
+/* Inside the title line, so it wins over the People page's `.groupTitle { margin: 0 }`, which loads later: without
+   it the count stuck to the title ("Waiting0") */
+.titleLine > .inlineTitle {
+  display: inline;
+  margin-right: 8px;
+}
+
+.titleLine > span + span {
+  margin-left: 8px;
+}
+
+.smallTitle {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pickedHere {
+  display: inline-block;
+  color: var(--pup-color-accent);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.legend {
+  margin: 16px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+/* On a narrow list a head keeps only the chevron, so the title fits on one line; a waiting link's card keeps to two
+   lines next to Cancel (the days left say enough) */
+@container links (max-width: 479px) {
+  .hint,
+  .card .until {
+    display: none;
+  }
+}
+
+/* ---------- The links: card rows ---------- */
+
+.cards {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: grid;
+  grid-template-areas:
+    'pick icon note end'
+    'pick icon what end';
+  grid-template-columns: 32px 40px minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  align-items: center;
+  min-height: 72px;
+  padding: 12px 12px 12px 4px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-surface);
+}
+
+.card[data-picked] {
+  border-color: var(--pup-color-accent);
+  box-shadow: 0 0 0 1px var(--pup-color-accent);
+}
+
+.card > label {
+  grid-area: pick;
+}
+
+.card > span[aria-hidden] {
+  grid-area: icon;
+}
+
+.note {
+  display: flex;
+  grid-area: note;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  font-weight: 500;
+}
+
+.noteText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.what {
+  grid-area: what;
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.left {
+  color: var(--pup-color-accent);
+  font-weight: 500;
+}
+
+.end {
+  grid-area: end;
+  justify-self: end;
+}
+
+/* With a mouse a row's box shows on hover, on focus and once anything is picked (as on the People tab); the groups'
+   Select all boxes always show. A phone has no hover: there every box is shown */
+@media (hover: hover) {
+  .hoverBox {
+    opacity: 0;
+  }
+
+  .card:hover .hoverBox,
+  [data-picking] .hoverBox,
+  label:focus-within .hoverBox {
+    opacity: 1;
+  }
+}
+
+/* ---------- The confirmations ---------- */
+
+.nameWhat {
+  margin-left: 8px;
+  color: var(--mantine-color-dimmed);
+}
+
+.warn {
+  font-weight: 500;
+}

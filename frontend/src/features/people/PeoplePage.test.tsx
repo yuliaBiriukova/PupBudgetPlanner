@@ -79,10 +79,31 @@ const LINKS: Invitation[] = [
 
 function adminServer(people: Person[] = PEOPLE) {
   const actions: { url: string; body: unknown }[] = [];
+  let links = [...LINKS];
+  const idsOf = async (request: Request) => ((await request.json()) as { ids: string[] }).ids;
   server.use(
     http.get('/api/auth/me', () => HttpResponse.json(admin)),
     http.get('/api/admin/people', () => HttpResponse.json(people)),
-    http.get('/api/admin/invitations', () => HttpResponse.json(LINKS)),
+    http.get('/api/admin/invitations', () => HttpResponse.json(links)),
+    // I-006: only waiting links are cancelled; any link is deleted
+    http.post('/api/admin/invitations/cancel', async ({ request }) => {
+      const ids = await idsOf(request);
+      actions.push({ url: '/api/admin/invitations/cancel', body: { ids } });
+      const count = links.filter((l) => ids.includes(l.id) && l.status === 'Waiting').length;
+      links = links.map((l) =>
+        ids.includes(l.id) && l.status === 'Waiting'
+          ? { ...l, status: 'Cancelled', cancelledAt: '2026-11-12T10:00:00Z' }
+          : l,
+      );
+      return HttpResponse.json({ count });
+    }),
+    http.post('/api/admin/invitations/delete', async ({ request }) => {
+      const ids = await idsOf(request);
+      actions.push({ url: '/api/admin/invitations/delete', body: { ids } });
+      const before = links.length;
+      links = links.filter((l) => !ids.includes(l.id));
+      return HttpResponse.json({ count: before - links.length });
+    }),
     http.post('/api/admin/people/:action', async ({ request }) => {
       actions.push({ url: new URL(request.url).pathname, body: await request.json() });
       return new HttpResponse(null, { status: 204 });
@@ -333,17 +354,106 @@ describe('invite links', () => {
     const { unmount } = renderApp('/people/links');
 
     expect(await screen.findByText('For Mom')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cancel link: For Mom' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel the link For Mom' })).toBeInTheDocument();
     expect(screen.queryByText('For Ira')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /Used/ }));
     expect(screen.getByText('For Ira')).toBeInTheDocument();
+    expect(screen.getByText(/Used by Iryna Melnyk on 6 Nov/)).toBeInTheDocument();
     expect(screen.queryByText('For Taras')).not.toBeInTheDocument();
+    // Waiting folds too (I-006)
+    await user.click(screen.getByRole('button', { name: /Waiting/ }));
+    expect(screen.queryByText('For Mom')).not.toBeInTheDocument();
     unmount();
 
     renderApp('/people/links');
     expect(await screen.findByText('For Ira')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Used/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('button', { name: /Waiting/ })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+    expect(
+      screen.getByText(/deleted automatically 30 days after they stop working/),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps Waiting open for a fold saved before Waiting could fold', async () => {
+    adminServer();
+    localStorage.setItem('pup.people.links.shown', JSON.stringify(['old']));
+    renderApp('/people/links');
+
+    expect(await screen.findByText('For Mom')).toBeInTheDocument();
+    expect(screen.getByText('For Taras')).toBeInTheDocument();
+    expect(screen.queryByText('For Ira')).not.toBeInTheDocument();
+  });
+
+  it('selects a whole folded group and deletes it after one confirmation', async () => {
+    const actions = adminServer();
+    const user = userEvent.setup();
+    renderApp('/people/links');
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Select all used links' }));
+    expect(screen.getByText('1 picked', { selector: 'span span' })).toBeInTheDocument();
+    const bar = screen.getByRole('region', { name: 'Picked links' });
+    // Nothing waiting is picked: no Cancel links
+    expect(within(bar).queryByRole('button', { name: /Cancel/ })).not.toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+    );
+    await user.click(within(bar).getByRole('button', { name: 'Delete' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Delete 2 links?' });
+    expect(within(dialog).getByText(/used by Iryna Melnyk/)).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(/Whoever joined with one keeps their account/),
+    ).toBeInTheDocument();
+    expect(within(dialog).queryByText(/still work/)).not.toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole('button', { name: 'Delete 2 links' }));
+
+    expect(await screen.findByText('2 links deleted')).toBeInTheDocument();
+    expect(actions).toEqual([
+      { url: '/api/admin/invitations/delete', body: { ids: ['l-ira', 'l-taras'] } },
+    ]);
+    expect(screen.queryByRole('region', { name: 'Picked links' })).not.toBeInTheDocument();
+  });
+
+  it('warns that a waiting link stops working when it is deleted', async () => {
+    adminServer();
+    const user = userEvent.setup();
+    renderApp('/people/links');
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Pick For Mom' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Delete “For Mom”?' });
+    expect(within(dialog).getByText(/This link still works/)).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Keep it' }));
+    expect(screen.getByText('For Mom')).toBeInTheDocument();
+  });
+
+  it('cancels only the waiting ones of the picked links', async () => {
+    const actions = adminServer();
+    const user = userEvent.setup();
+    renderApp('/people/links');
+
+    await user.click(await screen.findByRole('checkbox', { name: 'Pick For Mom' }));
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+    );
+    const bar = screen.getByRole('region', { name: 'Picked links' });
+    expect(within(bar).getByText('2 picked')).toBeInTheDocument();
+    await user.click(within(bar).getByRole('button', { name: /Cancel/ }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Cancel “For Mom”?' });
+    expect(
+      within(dialog).getByText('The other picked link doesn’t work any more and stays as it is.'),
+    ).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel link' }));
+
+    expect(await screen.findByText('Link cancelled')).toBeInTheDocument();
+    expect(actions).toEqual([{ url: '/api/admin/invitations/cancel', body: { ids: ['l-mom'] } }]);
   });
 
   it('makes a new link with a note and shows it once with Copy link', async () => {

@@ -3,16 +3,15 @@ using PupBudgetPlanner.Domain.Families;
 namespace PupBudgetPlanner.Application.Families;
 
 /// <summary>
-/// The signed-in person's family (F-023): its name, everyone in it and, for the owner only, the links still waiting
-/// to be opened.
+/// The signed-in person's family (F-023): its name and everyone in it. The owner's invite links come on their own, from
+/// <c>GET /api/family/invitations</c> (I-006).
 /// </summary>
 public sealed record FamilyView(
     Guid Id,
     string Name,
     DateTimeOffset CreatedAt,
     bool IsOwner,
-    IReadOnlyList<FamilyMemberItem> Members,
-    IReadOnlyList<FamilyInvitationItem> Invitations);
+    IReadOnlyList<FamilyMemberItem> Members);
 
 /// <summary>
 /// One person in the family. <paramref name="StartedFamily"/> is true for the one who started it ("Started the family
@@ -28,9 +27,6 @@ public sealed record FamilyMemberItem(
     DateTimeOffset JoinedAt,
     TransactionShare Transactions,
     bool KeepsPrivate);
-
-/// <summary>A family's link waiting to be opened; <paramref name="Note"/> says who it is for.</summary>
-public sealed record FamilyInvitationItem(Guid Id, string? Note, DateTimeOffset CreatedAt, DateTimeOffset ExpiresAt);
 
 public sealed record StartFamilyRequest(string Name);
 

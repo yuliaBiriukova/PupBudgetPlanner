@@ -113,6 +113,19 @@ public sealed class AdminControllerTests
 
         result.Result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(list);
     }
+
+    [Fact]
+    public async Task Picked_links_are_deleted_or_cancelled_and_the_answer_says_how_many()
+    {
+        var request = new InvitationsRequest([Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7()]);
+        invitations.DeleteAsync(request, Arg.Any<CancellationToken>()).Returns(new InvitationsChanged(3));
+        invitations.CancelManyAsync(request, Arg.Any<CancellationToken>()).Returns(new InvitationsChanged(1));
+
+        (await controller.DeleteInvitations(request, CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
+            .Which.Value.Should().Be(new InvitationsChanged(3));
+        (await controller.CancelInvitations(request, CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
+            .Which.Value.Should().Be(new InvitationsChanged(1));
+    }
 }
 
 public sealed class InvitationsControllerTests
