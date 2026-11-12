@@ -120,6 +120,7 @@ owner asks for one.
 | [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) | 🎨 Phone pop-ups as tall as their content up to the whole screen, every one above the keyboard; a form opens without the keyboard (prototype approved 2026-11-11) | Medium | Done |
 | [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) | 🎨 An Add button people find on the phone: one + that opens Transfer, Income and Expense; a menu with every place named (design approved 2026-11-09) | High | Done |
 | [I-031](changes/improvements/I-031-fewer-ci-minutes/I-031-fewer-ci-minutes.md) | CI checks each change once: no run on the push to `develop` or for docs-only PRs, the Docker image only for releases (90% of the month's Actions minutes used by 2026-11-12; approved 2026-11-12) | High | Done |
+| [I-032](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md) | 🎨 Invite links: no empty groups on the Family page; one list with each link's status on the People page (added 2026-11-12) | Medium | Done |
 
 ## Bugfixes
 
@@ -144,3 +145,7 @@ owner asks for one.
 | [B-017](changes/bugfixes/B-017-flaky-ci-unit-tests/B-017-flaky-ci-unit-tests.md) | Two frontend unit tests fail on CI's `develop` runs that passed on their PRs (the Filters sheet drops its picks for a moment as it closes) | Medium | Done |
 | [B-018](changes/bugfixes/B-018-e2e-cleanup-digit-tags/B-018-e2e-cleanup-digit-tags.md) | The E2E clean-up leaves test accounts whose tag has digits (`e2e-i024-shots-…`): 51 left in the `dev` database | Medium | Done |
 | [B-019](changes/bugfixes/B-019-flaky-family-privacy-test/B-019-flaky-family-privacy-test.md) | A Family privacy unit test fails on CI's release run: it looks inside a fold that is still opening (fixed in the release PR #96) | High | Done |
+| [B-020](changes/bugfixes/B-020-theme-switch-scroll-jump/B-020-theme-switch-scroll-jump.md) | Changing the theme scrolls the More page to the middle on the phone | Medium | Done |
+| [B-021](changes/bugfixes/B-021-amount-digits-out-of-sight/B-021-amount-digits-out-of-sight.md) | The digits typed past the amount's width can't be seen (calculator) | High | Done |
+| [B-022](changes/bugfixes/B-022-sidebar-user-row-misaligned/B-022-sidebar-user-row-misaligned.md) | The name and the icon buttons are not aligned at the bottom of the sidebar (desktop) | Medium | Done |
+| [B-023](changes/bugfixes/B-023-fold-hover-corners/B-023-fold-hover-corners.md) | A fold's hover is rounded on every corner inside a card whose cells are square (Family privacy) | Low | Done |

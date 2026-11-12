@@ -77,3 +77,39 @@ test('a person picks the report currency and sees their total in it, then change
   await page.reload();
   await expect(page.getByLabel(en.settings.name, { exact: true })).toHaveValue('Olena K.');
 });
+
+test('picking a theme low on the phone’s page leaves the app where it was (B-020)', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'On the desktop the Theme row is in sight without scrolling');
+  // Short enough that Theme is below the screen until the page is scrolled
+  await page.setViewportSize({ width: 412, height: 560 });
+  const response = await signUpThroughApi(page.request, newPerson('theme-jump'));
+  expect(response.ok()).toBe(true);
+
+  await page.goto('/settings');
+  const theme = page.getByRole('radiogroup', { name: en.settings.themeTitle });
+  await theme.getByText(en.settings.themes.dark).scrollIntoViewIfNeeded();
+  const more = page.getByRole('button', { name: en.nav.more, exact: true });
+  const menuBottom = async () => {
+    const box = await more.boundingBox();
+    return box ? box.y + box.height : 0;
+  };
+  const before = await menuBottom();
+  expect(before).toBeGreaterThan(500);
+
+  // The radio is hidden behind its pill: a tap on the pill picks it
+  await theme.getByText(en.settings.themes.dark).click();
+  await expect(theme.getByRole('radio', { name: en.settings.themes.dark })).toBeChecked();
+  await expect(page.locator('html')).toHaveAttribute('data-mantine-color-scheme', 'dark');
+
+  // The bottom menu is still at the screen's foot and nothing outside the page's own scroll area moved
+  expect(await menuBottom()).toBeCloseTo(before, 0);
+  const moved = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('body, body *'))
+      .filter((element) => element.tagName !== 'MAIN' && element.scrollTop > 0)
+      .map((element) => `${element.tagName}.${element.className}`),
+  );
+  expect(moved).toEqual([]);
+});

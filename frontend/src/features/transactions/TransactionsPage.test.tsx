@@ -1122,6 +1122,29 @@ describe('the phone keys (I-028)', () => {
     await userEvent.click(within(keys).getByRole('button', { name: '7' }));
     expect(timesOnDisplay()).toBe(2);
   });
+
+  it('show the end of a sum wider than the amount: its newest digits (B-021)', async () => {
+    transactionsServer();
+    renderApp('/transactions');
+
+    const form = await openForm();
+    const amount = within(form).getByLabelText<HTMLInputElement>('Amount');
+    await userEvent.click(amount);
+    const keys = keysOf(form);
+    if (!keys) throw new Error('no keys');
+
+    // jsdom has no layout: the input is made 300 px wide with 600 px of text in it
+    Object.defineProperty(amount, 'clientWidth', { configurable: true, value: 300 });
+    Object.defineProperty(amount, 'scrollWidth', { configurable: true, value: 600 });
+    amount.scrollLeft = 0;
+
+    await userEvent.click(within(keys).getByRole('button', { name: '7' }));
+    expect(amount.scrollLeft).toBe(600);
+
+    amount.scrollLeft = 0;
+    await userEvent.click(within(keys).getByRole('button', { name: 'Plus' }));
+    expect(amount.scrollLeft).toBe(600);
+  });
 });
 
 describe('the phone’s form while its data loads (I-029)', () => {

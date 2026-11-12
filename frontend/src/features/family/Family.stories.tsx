@@ -33,6 +33,8 @@ interface ScreenProps {
   link?: 'signed-in' | 'someone-new';
   /** What Olena keeps from the family when the page opens (F-030); every change is kept while it is shown. */
   kept?: 'nothing' | 'some';
+  /** The owner's invite links: a waiting, a used and a cancelled one, or none (I-032). */
+  inviteLinks?: 'some' | 'none';
 }
 
 const FAMILIES: Record<NonNullable<ScreenProps['family']>, () => Family | null> = {
@@ -47,10 +49,17 @@ const FAMILIES: Record<NonNullable<ScreenProps['family']>, () => Family | null> 
 };
 
 /** The Family page (F-023) or a family's invite link, with a fake API that keeps every change. */
-function FamilyScreen({ family = 'owner', data = 'loaded', link, kept = 'nothing' }: ScreenProps) {
+function FamilyScreen({
+  family = 'owner',
+  data = 'loaded',
+  link,
+  kept = 'nothing',
+  inviteLinks = 'some',
+}: ScreenProps) {
   const [routes] = useState<MockRoutes>(() => {
     const fake = fakeFamilyRoutes(FAMILIES[family](), {
       links: { [KOVALENKO_TOKEN]: KOVALENKO_PREVIEW },
+      ...(inviteLinks === 'none' ? { invitations: [] } : {}),
     });
     // Olena's accounts and categories, and what the family sees of them (F-030)
     const privacy = fakePrivacyRoutes(kept === 'some' ? OLENA_KEEPS : NOTHING_KEPT);
@@ -127,42 +136,39 @@ export const OwnerDesktop: Story = { globals: desktop };
 
 export const OwnerDesktopDark: Story = { globals: { ...desktop, colorScheme: 'dark' } };
 
-/** Every group of links starts as at first: Waiting open, the others folded (I-006). */
-const freshFolds = () => {
-  localStorage.removeItem('pup.family.links.open');
-};
-
-/** The owner picks her waiting link and the whole folded Used group: the bar has Cancel links and Delete (I-006). */
+/** The owner picks her waiting link and the used one: the bar has Cancel links and Delete (I-006). */
 export const OwnerLinksPicked: Story = {
-  beforeEach: freshFolds,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByRole('checkbox', { name: 'Pick Mom' }));
-    await userEvent.click(canvas.getByRole('checkbox', { name: 'Select all used links' }));
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Pick Iryna' }));
     await expect(canvas.getByRole('region', { name: 'Picked links' })).toHaveTextContent(
       '2 picked',
     );
   },
 };
 
-/** Expired and cancelled cleared with Select all and Delete, after one confirmation (I-006). */
-export const OwnerLinksGroupCleared: Story = {
+/** Every link picked with Select all and deleted after one confirmation: only Create invite link is left (I-032). */
+export const OwnerLinksAllDeleted: Story = {
   globals: desktop,
-  beforeEach: freshFolds,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByRole('checkbox', { name: 'Select all expired and cancelled links' }),
-    );
+    await userEvent.click(await canvas.findByRole('checkbox', { name: 'Select all links' }));
     await userEvent.click(canvas.getByRole('button', { name: 'Delete' }));
     const body = within(canvasElement.ownerDocument.body);
-    await userEvent.click(await body.findByRole('button', { name: 'Delete link' }));
+    await userEvent.click(await body.findByRole('button', { name: 'Delete 3 links' }));
     await waitFor(() =>
-      expect(
-        canvas.queryByRole('checkbox', { name: 'Select all expired and cancelled links' }),
-      ).not.toBeInTheDocument(),
+      expect(canvas.queryByRole('checkbox', { name: 'Select all links' })).not.toBeInTheDocument(),
     );
   },
+};
+
+/** No invite links at all: only Create invite link (I-032). */
+export const OwnerNoLinks: Story = { args: { inviteLinks: 'none' } };
+
+export const OwnerNoLinksDesktopDark: Story = {
+  args: { inviteLinks: 'none' },
+  globals: { ...desktop, colorScheme: 'dark' },
 };
 
 /** Olena joined Andriy's family: the name as text, no menus, no invite links; she can leave. */

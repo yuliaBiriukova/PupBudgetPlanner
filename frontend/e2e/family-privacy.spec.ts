@@ -258,3 +258,46 @@ test('hiding an account on the Family page takes it from the others at once', as
     await andriyApi.dispose();
   }
 });
+
+test('the folds’ hover has its cell’s corners: the card’s only at its top and bottom (B-023)', async ({
+  page,
+}) => {
+  const { andriyApi } = await kovalenko(page);
+  try {
+    await page.goto('/family');
+    const section = page.locator('section').filter({
+      has: page.getByRole('heading', { name: en.privacy.title }),
+    });
+    const heads = section.locator('button[aria-expanded][aria-controls]');
+    await expect(heads).toHaveCount(3);
+
+    /** Each head's corners: top left, top right, bottom right, bottom left, in px. */
+    const corners = () =>
+      heads.evaluateAll((buttons) =>
+        buttons.map((button) => {
+          const style = getComputedStyle(button);
+          return [
+            style.borderTopLeftRadius,
+            style.borderTopRightRadius,
+            style.borderBottomRightRadius,
+            style.borderBottomLeftRadius,
+          ].map((radius) => parseFloat(radius));
+        }),
+      );
+    const [first, middle, last] = await corners();
+    expect(first[0]).toBeGreaterThan(0);
+    expect(first[1]).toBeGreaterThan(0);
+    expect(first.slice(2)).toEqual([0, 0]);
+    expect(middle).toEqual([0, 0, 0, 0]);
+    expect(last.slice(0, 2)).toEqual([0, 0]);
+    expect(last[2]).toBeGreaterThan(0);
+    expect(last[3]).toBeGreaterThan(0);
+
+    // Open, the last fold's body is at the card's bottom: its head is square
+    await heads.nth(2).click();
+    await expect(heads.nth(2)).toHaveAttribute('aria-expanded', 'true');
+    expect((await corners())[2]).toEqual([0, 0, 0, 0]);
+  } finally {
+    await andriyApi.dispose();
+  }
+});

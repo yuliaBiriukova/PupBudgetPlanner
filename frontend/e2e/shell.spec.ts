@@ -189,3 +189,27 @@ test('the light and dark mode switch works', async ({ page }) => {
     before === 'dark' ? 'light' : 'dark',
   );
 });
+
+test('the sidebar’s foot is on one line: the initial, the name, the theme button and Sign out (B-022)', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'The phone has no sidebar');
+  await page.goto('/transactions');
+  const signOut = page.getByRole('button', { name: en.shell.signOut });
+  await expect(signOut).toBeVisible();
+
+  // The foot holds the initial and the name, and a box with the two buttons
+  const middles = await signOut.evaluate((button) => {
+    const foot = button.parentElement?.parentElement;
+    if (!foot) throw new Error('no foot');
+    const middle = (element: Element) => {
+      const { top, height } = element.getBoundingClientRect();
+      return top + height / 2;
+    };
+    const [initial, name] = Array.from(foot.children);
+    return [initial, name, ...Array.from(foot.querySelectorAll('button'))].map(middle);
+  });
+  expect(middles).toHaveLength(4);
+  for (const middle of middles) expect(Math.abs(middle - middles[0])).toBeLessThanOrEqual(1);
+});
