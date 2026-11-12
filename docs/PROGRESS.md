@@ -29,6 +29,11 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Test data: the E2E runs and the screenshot run made `e2e-…@example.com` people (owners, members, invited people)
   and `E2E…` links in `dev`; the `cleanup` teardown deleted them after each run. Nothing of the owner's was touched.
 
+- Review of PR #95 (owner): a group with no links shows no Select all at all (it was a disabled box); its place stays
+  empty so the titles line up. Checked: typecheck, ESLint, Prettier, the People and Family unit tests, the E2E
+  `invite-links.spec.ts` (phone and desktop), empty groups at 375 and 1440 px, light and dark, screenshots looked at.
+  The test people made were deleted by the E2E clean-up.
+
 **Next**
 - Owner: review the PR; at the release set `Cleanup__Secret` on Render and the cron-job.org job (I-006 description,
   "Setting up the morning clean-up"). Then M6 (MVP release).

@@ -196,7 +196,10 @@ describe('the Family page', () => {
         body: { ids: ['inv-iryna', 'inv-grandpa'] },
       },
     ]);
-    expect(screen.getByRole('checkbox', { name: 'Select all used links' })).toBeDisabled();
+    // An empty group has no Select all
+    expect(
+      screen.queryByRole('checkbox', { name: 'Select all used links' }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows a member who isn’t the owner no links to delete', async () => {

@@ -21,7 +21,7 @@ the used and expired/cancelled invite links"), now that F-023's family links lan
 - [x] On the Invite links tab, any link — waiting, used, expired or cancelled — can be deleted on its own.
 - [x] Every link has a check box; several can be selected and deleted at once through the bulk bar.
 - [x] Each group (Waiting, Used, Expired and cancelled) has its own "Select all"; a whole group is cleared by
-      selecting it all and deleting through the bulk bar.
+      selecting it all and deleting through the bulk bar. An empty group shows no Select all (owner, PR #95 review).
 - [x] Every group folds, Waiting too: Waiting starts open, Used and Expired and cancelled folded; what the person
       opened or folded is kept in the browser, as today (owner, 2026-11-12).
 - [x] Deleting asks for confirmation and says how many links go; when waiting links are among them, it says they
@@ -234,3 +234,5 @@ After the release PR is merged and Render has deployed `main`:
   the past, so the final prototype said "Auto-deletes".
 - Owner, 2026-11-12 (final prototype): didn't like "Auto-deletes" either; chose no date on each link, only the line
   under the groups.
+- Owner, 2026-11-12 (review of PR #95): no Select all at all on a group with no links (it was a disabled box). Its
+  place stays empty, so the titles of the groups still line up.

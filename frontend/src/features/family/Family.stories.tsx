@@ -159,8 +159,8 @@ export const OwnerLinksGroupCleared: Story = {
     await userEvent.click(await body.findByRole('button', { name: 'Delete link' }));
     await waitFor(() =>
       expect(
-        canvas.getByRole('checkbox', { name: 'Select all expired and cancelled links' }),
-      ).toBeDisabled(),
+        canvas.queryByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+      ).not.toBeInTheDocument(),
     );
   },
 };

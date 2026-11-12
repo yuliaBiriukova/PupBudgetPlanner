@@ -217,7 +217,8 @@ interface GroupHeadProps {
 
 /**
  * Select all, the group's title and count, how many of it are picked, and the fold. The fold's hover tints the whole
- * head, the box included, so the box doesn't sit beside a grey pill.
+ * head, the box included, so the box doesn't sit beside a grey pill. An empty group has no Select all (owner,
+ * 2026-11-12): its place stays empty, so the titles of all groups line up.
  */
 function GroupHead({ group, small, count, pickedHere, open, onPickAll, onToggle }: GroupHeadProps) {
   const { t } = useTranslation();
@@ -225,17 +226,20 @@ function GroupHead({ group, small, count, pickedHere, open, onPickAll, onToggle 
 
   return (
     <div className={classes.head}>
-      <label className={cx(people.pick, classes.headPick)}>
-        <Checkbox
-          checked={all}
-          indeterminate={pickedHere > 0 && !all}
-          disabled={count === 0}
-          aria-label={t(`inviteLinks.pickAll.${group}`)}
-          onChange={(event) => {
-            onPickAll(event.currentTarget.checked);
-          }}
-        />
-      </label>
+      {count > 0 ? (
+        <label className={cx(people.pick, classes.headPick)}>
+          <Checkbox
+            checked={all}
+            indeterminate={pickedHere > 0 && !all}
+            aria-label={t(`inviteLinks.pickAll.${group}`)}
+            onChange={(event) => {
+              onPickAll(event.currentTarget.checked);
+            }}
+          />
+        </label>
+      ) : (
+        <span className={cx(people.pick, classes.headPick)} aria-hidden="true" />
+      )}
       <Disclosure open={open} onToggle={onToggle}>
         {/* One line of text: on a narrow screen a long title wraps and its count and picks follow its last word */}
         <span className={classes.titleLine}>

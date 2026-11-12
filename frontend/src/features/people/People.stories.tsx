@@ -375,7 +375,7 @@ export const LinksCancelConfirm: Story = {
   },
 };
 
-/** Expired and cancelled cleared with Select all and Delete: the group is empty and its box off. */
+/** Expired and cancelled cleared with Select all and Delete: the group is empty and has no Select all. */
 export const LinksGroupCleared: Story = {
   args: { tab: 'links' },
   globals: desktop,
@@ -391,8 +391,8 @@ export const LinksGroupCleared: Story = {
     await userEvent.click(await body.findByRole('button', { name: 'Delete 2 links' }));
     await waitFor(() =>
       expect(
-        canvas.getByRole('checkbox', { name: 'Select all expired and cancelled links' }),
-      ).toBeDisabled(),
+        canvas.queryByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+      ).not.toBeInTheDocument(),
     );
   },
 };

@@ -152,8 +152,9 @@ test('a family owner clears the Used and Expired and cancelled groups on the Fam
   await dialog.getByRole('button', { name: 'Delete 2 links' }).click();
 
   await expect(page.getByText('2 links deleted')).toBeVisible();
-  await expect(page.getByRole('checkbox', { name: en.inviteLinks.pickAll.used })).toBeDisabled();
-  await expect(page.getByRole('checkbox', { name: en.inviteLinks.pickAll.old })).toBeDisabled();
+  // An emptied group has no Select all
+  await expect(page.getByRole('checkbox', { name: en.inviteLinks.pickAll.used })).toHaveCount(0);
+  await expect(page.getByRole('checkbox', { name: en.inviteLinks.pickAll.old })).toHaveCount(0);
   // The waiting link stays, and Iryna stays in the family
   await expect(page.getByText(mom, { exact: true })).toBeVisible();
   const family = (await (await page.request.get('/api/family')).json()) as {
