@@ -64,4 +64,60 @@ public sealed class InvitationTests
         invitation.CreatedAccount.Should().BeFalse();
         New().FamilyId.Should().BeNull();
     }
+
+    /// <summary>Using a link is one UPDATE in the database (FamilyCleanup), so a test sets the date by hand.</summary>
+    private static Invitation UsedOn(DateTimeOffset usedAt)
+    {
+        var invitation = New();
+        typeof(Invitation).GetProperty(nameof(Invitation.UsedAt))!.SetValue(invitation, usedAt);
+        return invitation;
+    }
+
+    private static Invitation CancelledOn(DateTimeOffset cancelledAt)
+    {
+        var invitation = New();
+        invitation.Cancel(cancelledAt);
+        return invitation;
+    }
+
+    [Fact]
+    public void It_stops_working_when_used_cancelled_or_expired()
+    {
+        var now = Made.AddDays(20);
+
+        New().StoppedAt(Made.AddDays(1)).Should().BeNull();
+        UsedOn(Made.AddDays(2)).StoppedAt(now).Should().Be(Made.AddDays(2));
+        CancelledOn(Made.AddDays(3)).StoppedAt(now).Should().Be(Made.AddDays(3));
+        New().StoppedAt(now).Should().Be(Made.AddDays(7));
+    }
+
+    [Fact]
+    public void The_clean_ups_query_finds_the_links_that_stopped_working_before_the_cutoff()
+    {
+        var cutoff = Made.AddDays(5);
+        var stoppedBefore = Invitation.StoppedBefore(cutoff).Compile();
+
+        stoppedBefore(UsedOn(Made.AddDays(4))).Should().BeTrue();
+        stoppedBefore(UsedOn(Made.AddDays(5))).Should().BeFalse("a link that stopped at the cutoff is kept that day");
+        stoppedBefore(CancelledOn(Made.AddDays(1))).Should().BeTrue();
+        stoppedBefore(CancelledOn(Made.AddDays(6))).Should().BeFalse();
+        stoppedBefore(New()).Should().BeFalse("it expires on day 7, after the cutoff");
+        Invitation.StoppedBefore(Made.AddDays(8)).Compile()(New()).Should().BeTrue("it expired on day 7");
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(3)]
+    [InlineData(6)]
+    public void The_query_and_the_date_agree(int day)
+    {
+        var now = Made.AddDays(40);
+        var cutoff = Made.AddDays(day);
+
+        foreach (var invitation in new[] { New(), UsedOn(Made.AddDays(2)), CancelledOn(Made.AddDays(4)) })
+        {
+            Invitation.StoppedBefore(cutoff).Compile()(invitation)
+                .Should().Be(invitation.StoppedAt(now) < cutoff);
+        }
+    }
 }

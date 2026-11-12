@@ -1,4 +1,5 @@
 import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
+import { OLENA_ID } from '../family/familyTestData';
 import { addDays, today } from './days';
 import { PAGE_SIZE, type Transaction } from './transactionsApi';
 import { categoryId } from './transactionsTestData';
@@ -135,6 +136,7 @@ export function twoMonths(now: string = today()): Transaction[] {
   ) => {
     out.push({
       id: `t${String(++id)}`,
+      ownerId: OLENA_ID,
       type,
       date,
       accountId,

@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using PupBudgetPlanner.Application.Categories;
 using PupBudgetPlanner.Application.ExchangeRates;
+using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Application.Transactions;
 using PupBudgetPlanner.Domain.Accounts;
 using PupBudgetPlanner.Domain.Transactions;
@@ -11,13 +13,22 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
     : ITransactionService
 {
     public async Task<TransactionPage> ListAsync(
-        Guid userId, TransactionFilter filter, int offset, int limit, CancellationToken cancellationToken)
+        MoneyScope scope, TransactionFilter filter, int offset, int limit, CancellationToken cancellationToken)
     {
-        // One more than asked: whether there is a next page
-        var items = await ItemsOf(Matching(userId, filter))
-            .Skip(offset)
-            .Take(limit + 1)
-            .ToListAsync(cancellationToken);
+        // Together, a category stands for everyone's of the same group and name (F-024)
+        IReadOnlyList<Guid>? categoryIds = null;
+        if (filter.CategoryId is { } categoryId && scope.IsTogether)
+        {
+            categoryIds = (await CategoriesOfAsync(scope, cancellationToken)).SameAs(categoryId);
+        }
+
+        // One more than asked: whether there is a next page. Only the lines the viewer may see (F-030)
+        var items = (await ItemsOf(Matching(scope, filter, categoryIds).ListedFor(scope.Kept))
+                .Skip(offset)
+                .Take(limit + 1)
+                .ToListAsync(cancellationToken))
+            .Select(item => item.SeenWith(scope.Kept))
+            .ToList();
 
         return items.Count > limit
             ? new TransactionPage(items[..limit], offset + limit)
@@ -25,32 +36,27 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
     }
 
     public async Task<TransactionSummary> SummaryAsync(
-        Guid userId, TransactionFilter filter, CancellationToken cancellationToken)
+        MoneyScope scope, TransactionFilter filter, CancellationToken cancellationToken)
     {
+        var people = scope.People;
         // The categories leave the picked one out of their filters (TransactionSummary): it is picked in memory
-        var rows = await (
-                from transaction in Matching(userId, filter with { CategoryId = null })
-                join account in dbContext.Accounts on transaction.AccountId equals account.Id
-                group transaction by new { transaction.Date, transaction.Type, account.Currency, transaction.CategoryId }
-                into same
-                select new SummaryRow(
-                    same.Key.Date,
-                    same.Key.Type,
-                    same.Key.Currency,
-                    same.Key.CategoryId,
-                    same.Count(),
-                    same.Sum(transaction => transaction.Amount)))
-            .ToListAsync(cancellationToken);
+        var matching = Matching(scope, filter with { CategoryId = null }, null);
+        var rows = await RowsOf(matching.ListedFor(scope.Kept), listed: true, cancellationToken);
+        if (!scope.Kept.IsNothing)
+        {
+            // Lines the viewer sees only in the totals: not on the calendar's days or in the count (F-030)
+            rows.AddRange(await RowsOf(matching.UnlistedFor(scope.Kept), listed: false, cancellationToken));
+        }
 
-        // One account: its own currency; else the person's report currency (F-016)
+        // One account: its own currency; else the viewer's report currency (F-016), whoever's money it is (F-024)
         var currency = filter.AccountId is { } accountId
             ? await dbContext.Accounts.AsNoTracking()
-                .Where(account => account.Id == accountId && account.UserId == userId)
+                .Where(account => account.Id == accountId && people.Contains(account.UserId))
                 .Select(account => account.Currency)
                 .SingleOrDefaultAsync(cancellationToken)
             : null;
         currency ??= await dbContext.Users.AsNoTracking()
-            .Where(user => user.Id == userId)
+            .Where(user => user.Id == scope.ViewerId)
             .Select(user => user.ReportCurrency)
             .SingleOrDefaultAsync(cancellationToken) ?? ReportCurrency.Default;
 
@@ -64,6 +70,17 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
             ratesOf[day] = (await rates.RatesOnAsync(day, cancellationToken)).ToUah;
         }
 
+        if (scope.IsTogether)
+        {
+            // Together, categories of the same group and name are one line of "Where it went" (F-024)
+            var merged = await CategoriesOfAsync(scope, cancellationToken);
+            var mergedRows = rows
+                .Select(row => row.CategoryId is { } id ? row with { CategoryId = merged.MergedIdOf(id) } : row)
+                .ToList();
+            var picked = filter.CategoryId is { } pickedId ? merged.MergedIdOf(pickedId) : (Guid?)null;
+            return TransactionSummary.Of(mergedRows, currency, ratesOf, picked, filter.Type, merged.Names());
+        }
+
         var categoryIds = rows.Select(row => row.CategoryId).OfType<Guid>().Distinct().ToList();
         var names = await dbContext.Categories.AsNoTracking()
             .Where(category => categoryIds.Contains(category.Id))
@@ -72,13 +89,51 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
         return TransactionSummary.Of(rows, currency, ratesOf, filter.CategoryId, filter.Type, names);
     }
 
+    /// <summary>The transactions counted and summed by the database per day, type, currency and category.</summary>
+    private Task<List<SummaryRow>> RowsOf(
+        IQueryable<Transaction> transactions, bool listed, CancellationToken cancellationToken) => (
+            from transaction in transactions
+            join account in dbContext.Accounts on transaction.AccountId equals account.Id
+            group transaction by new { transaction.Date, transaction.Type, account.Currency, transaction.CategoryId }
+            into same
+            select new SummaryRow(
+                same.Key.Date,
+                same.Key.Type,
+                same.Key.Currency,
+                same.Key.CategoryId,
+                same.Count(),
+                same.Sum(transaction => transaction.Amount),
+                listed))
+        .ToListAsync(cancellationToken);
+
     /// <summary>
-    /// The person's transactions the filters find; one account's are on it and the transfers it is the To of
-    /// (F-019).
+    /// The scope's people's categories, every one of them, as one set (F-024); the others' private ones left out
+    /// (F-030).
     /// </summary>
-    private IQueryable<Transaction> Matching(Guid userId, TransactionFilter filter)
+    private async Task<FamilyCategories> CategoriesOfAsync(MoneyScope scope, CancellationToken cancellationToken)
     {
-        var transactions = dbContext.Transactions.Where(transaction => transaction.UserId == userId);
+        var groups = await dbContext.CategoryGroups.AsNoTracking()
+            .Where(group => scope.People.Contains(group.UserId))
+            .Include(group => group.Categories)
+            .ToListAsync(cancellationToken);
+        return FamilyCategories.Of(scope.People, scope.Kept.Shown(groups));
+    }
+
+    /// <summary>
+    /// The people's transactions the filters find; one account's are on it and the transfers it is the To of
+    /// (F-019). <paramref name="categoryIds"/>, when given, are the categories that count as the filter's (F-024).
+    /// An account the viewer may not see finds nothing (F-030).
+    /// </summary>
+    private IQueryable<Transaction> Matching(
+        MoneyScope scope, TransactionFilter filter, IReadOnlyList<Guid>? categoryIds)
+    {
+        var people = scope.People;
+        var transactions = dbContext.Transactions.Where(transaction => people.Contains(transaction.UserId));
+        if (filter.AccountId is { } hiddenId && !scope.Kept.Shows(hiddenId))
+        {
+            return transactions.Where(_ => false);
+        }
+
         if (filter.From is { } from)
         {
             transactions = transactions.Where(transaction => transaction.Date >= from);
@@ -95,7 +150,12 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
                 transaction.AccountId == accountId || transaction.ToAccountId == accountId);
         }
 
-        if (filter.CategoryId is { } categoryId)
+        if (categoryIds is not null)
+        {
+            transactions = transactions.Where(transaction =>
+                transaction.CategoryId != null && categoryIds.Contains(transaction.CategoryId.Value));
+        }
+        else if (filter.CategoryId is { } categoryId)
         {
             transactions = transactions.Where(transaction => transaction.CategoryId == categoryId);
         }
@@ -299,6 +359,7 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
         orderby transaction.Date descending, transaction.CreatedAt descending, transaction.Id descending
         select new TransactionItem(
             transaction.Id,
+            transaction.UserId,
             transaction.Type,
             transaction.Date,
             account.Id,
@@ -320,7 +381,7 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
         var accounts = await dbContext.Accounts.AsNoTracking()
             .Where(account => account.UserId == userId && accountIds.Contains(account.Id))
             .ToListAsync(cancellationToken);
-        var sums = await dbContext.SumsOfAsync(userId, accountIds, cancellationToken);
+        var sums = await dbContext.SumsOfAsync([userId], accountIds, cancellationToken);
 
         return BalanceSheet.BalancesOf(accounts, BalanceSheet.MovementsOf(sums))
             .ToDictionary(balance => balance.Account.Id, balance => balance.Balance);

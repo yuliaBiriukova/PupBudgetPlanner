@@ -63,6 +63,28 @@ public sealed class TransactionSummaryTests
     }
 
     [Fact]
+    public void Lines_seen_only_in_the_totals_count_in_them_and_where_it_went_but_not_on_the_days()
+    {
+        // Someone in the family shares only totals (F-030): their groceries on October 2 aren't lines
+        SummaryRow[] rows =
+        [
+            .. Rows,
+            new(October2, TransactionType.Expense, "UAH", Groceries, 3, 1_000m, Listed: false),
+            new(October2, TransactionType.Income, "UAH", Salary, 1, 5_000m, Listed: false),
+        ];
+
+        var summary = Of(rows);
+
+        summary.Spent.Should().Be(900m + (10m * 45.53m) + 380m + 120m + 1_000m);
+        summary.Received.Should().Be(62_000m + 5_000m);
+        summary.Count.Should().Be(7);
+        summary.Days.Should().Equal(
+            new DayTotal(October1, 900m + (10m * 45.53m), 62_000m, 4),
+            new DayTotal(October2, 500m, 0m, 3, Transfers: 1));
+        summary.Categories.Single(category => category.CategoryId == Groceries).Amount.Should().Be(2_020m);
+    }
+
+    [Fact]
     public void A_report_currency_other_than_the_hryvnia_converts_hryvnias_too()
     {
         var summary = Of([new(October2, TransactionType.Expense, "UAH", Groceries, 1, 456m)], "USD");

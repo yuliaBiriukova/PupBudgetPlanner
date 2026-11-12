@@ -45,4 +45,25 @@ public sealed class AccessTests
 
         new PeopleRequestValidator().Validate(request).IsValid.Should().Be(valid);
     }
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(1, true)]
+    [InlineData(InvitationsRequestValidator.MaxLinks, true)]
+    [InlineData(InvitationsRequestValidator.MaxLinks + 1, false)]
+    public void Deleting_or_cancelling_links_is_for_one_to_200_of_them(int count, bool valid)
+    {
+        var request = new InvitationsRequest(Enumerable.Range(0, count).Select(_ => Guid.CreateVersion7()).ToList());
+
+        new InvitationsRequestValidator().Validate(request).IsValid.Should().Be(valid);
+    }
+
+    [Fact]
+    public void Old_links_are_kept_30_days_and_the_clean_up_has_no_secret_until_one_is_set()
+    {
+        var options = new Application.Cleanup.CleanupOptions();
+
+        options.InvitationsKeptFor.Should().Be(TimeSpan.FromDays(30));
+        options.Secret.Should().BeNull();
+    }
 }

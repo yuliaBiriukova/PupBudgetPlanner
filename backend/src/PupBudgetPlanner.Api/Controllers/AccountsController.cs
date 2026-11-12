@@ -2,13 +2,17 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using PupBudgetPlanner.Application.Accounts;
+using PupBudgetPlanner.Application.Families;
 
 namespace PupBudgetPlanner.Api.Controllers;
 
-/// <summary>The signed-in person's accounts, with their balances and totals (F-014).</summary>
+/// <summary>
+/// The signed-in person's accounts, with their balances and totals (F-014); a family member's or the family's to look
+/// at (F-024).
+/// </summary>
 [ApiController]
 [Route("api/accounts")]
-public sealed class AccountsController(IAccountService accounts) : ControllerBase
+public sealed class AccountsController(IAccountService accounts, IFamilyService families) : ControllerBase
 {
     private const string NoSuchAccount = "There is no such account.";
 
@@ -17,20 +21,35 @@ public sealed class AccountsController(IAccountService accounts) : ControllerBas
 
     private Guid UserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-    /// <summary>Everything the Accounts page shows, and what its form offers.</summary>
+    /// <summary>
+    /// Everything the Accounts page shows, and what its form offers. <paramref name="who"/>: <c>me</c> (the default),
+    /// <c>family</c> or a family member's id (F-024).
+    /// </summary>
     [HttpGet]
     [ProducesResponseType<AccountsOverview>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<AccountsOverview>> Overview(CancellationToken cancellationToken) =>
-        Ok(await accounts.OverviewAsync(UserId, cancellationToken));
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<AccountsOverview>> Overview(
+        CancellationToken cancellationToken, [FromQuery] string? who = null)
+    {
+        var (scope, refusal) = await this.ScopeOfAsync(families, who, cancellationToken);
+        return scope is null ? refusal! : Ok(await accounts.OverviewAsync(scope, cancellationToken));
+    }
 
     /// <summary>
     /// "In total, in UAH": the accounts in use together in the report currency at today's NBU rates (F-017), or the
-    /// latest earlier ones, marked.
+    /// latest earlier ones, marked. Whose accounts: as for the overview (F-024), always in your report currency.
     /// </summary>
     [HttpGet("total")]
     [ProducesResponseType<AccountsTotal>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<AccountsTotal>> Total(CancellationToken cancellationToken) =>
-        Ok(await accounts.TotalAsync(UserId, cancellationToken));
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<AccountsTotal>> Total(
+        CancellationToken cancellationToken, [FromQuery] string? who = null)
+    {
+        var (scope, refusal) = await this.ScopeOfAsync(families, who, cancellationToken);
+        return scope is null ? refusal! : Ok(await accounts.TotalAsync(scope, cancellationToken));
+    }
 
     [HttpPost]
     [ProducesResponseType<AccountItem>(StatusCodes.Status200OK)]

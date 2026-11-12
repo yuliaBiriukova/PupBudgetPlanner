@@ -15,6 +15,7 @@ flowchart LR
     A --> N[NBU exchange rate API]
     A --> G[Google OAuth]
     P["cron-job.org ping<br/>every 14 min, 07:00–23:00 Kyiv"] -.->|"/api/health"| A
+    C["cron-job.org clean-up<br/>every morning, 07:05 Kyiv"] -.->|"POST /api/cleanup + secret"| A
     SB["Render Static Site (free)<br/>Storybook"]
 ```
 
@@ -106,15 +107,15 @@ erDiagram
     CATEGORY ||--o{ TRANSACTION : "classifies"
     EXCHANGE_RATE
 
-    USER { guid Id string Email string DisplayName string ReportCurrency datetime CreatedAt datetime BlockedAt }
+    USER { guid Id string Email string DisplayName string ReportCurrency TransactionShare FamilySeesTransactions datetime CreatedAt datetime BlockedAt }
     INVITATION { guid Id bytes TokenHash string Note guid CreatedById guid FamilyId datetime ExpiresAt guid UsedById datetime UsedAt bool CreatedAccount datetime CancelledAt }
     FAMILY { guid Id string Name guid OwnerId datetime CreatedAt }
     FAMILY_MEMBER { guid FamilyId guid UserId datetime JoinedAt }
-    ACCOUNT { guid Id guid UserId string Name string Currency SourceKind Source guid SourceId guid BankId decimal OpeningBalance date OpeningDate CardStyle CardStyle datetime CreatedAt datetime ArchivedAt }
+    ACCOUNT { guid Id guid UserId string Name string Currency SourceKind Source guid SourceId guid BankId decimal OpeningBalance date OpeningDate CardStyle CardStyle AccountShare FamilySees datetime CreatedAt datetime ArchivedAt }
     ACCOUNT_SOURCE { guid Id guid UserId string Name }
     BANK { guid Id guid UserId string Name }
-    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder bool IsArchived }
-    CATEGORY { guid Id guid GroupId string Name int SortOrder bool IsArchived }
+    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder bool IsArchived bool IsPrivate }
+    CATEGORY { guid Id guid GroupId string Name int SortOrder bool IsArchived bool IsPrivate }
     TRANSACTION { guid Id guid UserId TransactionType Type date Date guid AccountId decimal Amount guid CategoryId guid ToAccountId decimal ToAmount string Note }
     EXCHANGE_RATE { date Date string Currency decimal RateToUah RateSource Source }
 ```
@@ -136,12 +137,26 @@ erDiagram
   Its status (waiting, used, expired, cancelled) comes from the dates. A blocked person keeps their data
   (`BlockedAt`) ([ADR 0016](decisions/0016-invite-only-sign-up.md)). A family's link (F-023) has a `FamilyId`: it
   joins its person to the family, whether it creates their account or they already have one; `CreatedAccount` tells
-  the two apart ("Invited" on the People page).
+  the two apart. The account keeps "Invited" and the link's note (`users.invited`, `users.invitation_note`), so the
+  admin (any link) and a family's owner (the family's links) can delete links of any status, one or 200 at a time
+  (I-006). The morning clean-up (`POST /api/cleanup`, started by cron-job.org with a secret) deletes a link 30 days
+  after it stopped working ([ADR 0033](decisions/0033-morning-clean-up.md)).
 - Families (F-023): a person is in one family at most (a unique index on `family_members.user_id`); the family has one
   owner (`OwnerId`), who renames it, invites (family links) and removes people. The rules live in the `Family`
   aggregate: an owner leaving others names the next owner, the last one to leave deletes the family (its waiting
   links cancelled first); deleting an account hands its family to whoever has been in it longest. Nothing of anyone's
   is deleted by joining, leaving or removing ([ADR 0029](decisions/0029-families.md)).
+- Family views (F-024): the read endpoints of Transactions, Accounts and Reports take `who` (`me`, `family` or a
+  member's id); `Family.SeenBy` decides whose money that is, and the services read a `MoneyScope` (the viewer and the
+  people) instead of a user id. Writes still take the signed-in person only, so someone else's money is only to look
+  at. Accounts and transactions carry their `OwnerId`; the family's categories of one group and name are merged on
+  each read (`FamilyCategories`), amounts in the viewer's report currency ([ADR 0031](decisions/0031-family-views.md)).
+- Privacy in the family (F-030): each person sets what the others see of their money: all their transactions or only
+  the totals (`users.family_sees_transactions`), each account Everything / BalanceOnly / Hidden (`accounts.family_sees`),
+  any category or a whole group private (`categories.is_private`, `category_groups.is_private`, the group's categories
+  added later too); set on the Family page (`PUT /api/family/privacy/…`). The scope
+  carries `KeptFromFamily` (Domain), whose `Counted` and `Listed` expressions the reads apply in SQL: what is kept
+  never leaves the database, a hidden transfer side is sent unnamed ([ADR 0032](decisions/0032-family-privacy.md)).
 - Accounts (F-014): the source is Cash, Bank or one of the person's own sources; a bank account names one of the
   person's banks. Own sources and banks are personal rows (a name unique per person) that stay while an account uses
   them. Balances are never stored: `BalanceSheet` adds each account's transactions to its opening balance and totals
@@ -267,16 +282,21 @@ erDiagram
 flowchart LR
     F["feature / improvement / bugfix branch"] -->|PR| D[develop]
     D -->|release PR| M[main]
-    F & D & M --> CI["GitHub Actions<br/>backend: build + tests<br/>frontend: lint, typecheck, tests, build<br/>storybook build<br/>Playwright E2E<br/>Docker image + smoke test"]
+    F & D -->|"pull request"| CI["GitHub Actions<br/>backend: build + tests<br/>frontend: lint, typecheck, tests, build<br/>storybook build<br/>Playwright E2E<br/>Docker image + smoke test (releases only)"]
+    M -->|push| CI
     M -->|"all checks green"| R["Render auto-deploy<br/>app + Storybook"]
 ```
 
-- One workflow file: `.github/workflows/ci.yml`; it runs on pull requests and on pushes to `develop` and `main`.
+- One workflow file: `.github/workflows/ci.yml`; it runs on pull requests (except docs-only ones: `docs/**`,
+  `*.md`) and on the push to `main`, not on the push to `develop`, which would only repeat its PR's run (I-031,
+  [ADR 0030](decisions/0030-ci-runs-once-per-change.md)).
   Four parallel jobs: Backend, Frontend (incl. Storybook build), E2E (Playwright), Docker image (builds the
-  production image, starts it against PostgreSQL and smoke-tests the app and the API).
+  production image, starts it against PostgreSQL and smoke-tests the app and the API; only on a PR into `main` and
+  the push to `main`).
 - **Only `main` is deployed.** Render services are described in `render.yaml`, track `main`, and deploy
   **only after the GitHub checks pass**.
-- Private repo → GitHub Actions has 2,000 free minutes/month; enough for this project.
+- Private repo → GitHub Actions has 2,000 free minutes/month. Running on every push used 90% of them in 12 days
+  (November 2026); since I-031 each change is checked once, about half as many minutes.
 
 ## Environments and configuration
 

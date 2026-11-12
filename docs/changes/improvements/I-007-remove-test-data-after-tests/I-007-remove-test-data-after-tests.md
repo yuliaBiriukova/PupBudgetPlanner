@@ -66,13 +66,13 @@ clean the dev database by hand through the People page.
   its own throwaway Postgres, so nothing needs removing there.
 - How to remove it: the admin's People page or `POST /api/admin/people/delete` (at most 200 at a time). Deleting
   an account deletes its categories too; invite links it made or used stay, with the person cleared. Invite links
-  can only be cancelled until I-006 adds deleting them.
+  are deleted on the Invite links tab or with `POST /api/admin/invitations/delete` since I-006 (2026-11-12).
 - How to find it: test accounts have `@example.com` emails (`e2e-…` from E2E tests, `e2e-admin@example.com` for
   the tests' admin); E2E invite links have a note starting with `E2E`, or `For e2e-…@example.com`.
 - 18 waiting links in `dev` from 2026-10-29, made before this change (12 "For Petro", 3 "For Olena", 3 without a
   note), probably from checks by hand and from People test runs before its note was renamed. The clean-up doesn't
   recognise them, so they were cancelled once, by hand, at the owner's request (2026-10-29).
-- What the E2E clean-up can't do yet: used, cancelled and expired invite links can't be deleted until I-006. After
-  I-006, its 30-day job removes them, or the clean-up can delete them right away.
+- Until I-006 the E2E clean-up could only cancel the tests' waiting links. Since I-006 (2026-11-12) it deletes the
+  tests' links of any status, and the morning clean-up deletes any link 30 days after it stopped working.
 - Local runs share the `dev` database. If two E2E runs ran at the same time, one run's clean-up would delete the
   other run's accounts. Only one person runs them, so this is acceptable.

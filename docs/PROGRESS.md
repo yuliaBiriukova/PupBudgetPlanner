@@ -2,6 +2,270 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-12 (B-019: Flaky Family privacy test, fixed in the release PR)
+
+**Done**
+- The release PR #96 (`develop` → `main`) had a red Frontend job: `FamilyPrivacy.test.tsx` › "keeps a category private
+  and shares it again" didn't find "Choose categories". The fold it opens (Mantine `Collapse`, 160 ms) hides its body
+  until the transition ends, and the test looked at once with `getByRole`.
+- At the owner's request the fix went straight onto `develop`, in the scope of the release PR:
+  [B-019](changes/bugfixes/B-019-flaky-family-privacy-test/B-019-flaky-family-privacy-test.md). The four places that
+  look inside a just-opened fold now wait with `findByRole(…, LOADED)`. Only the test file changed.
+- Checked: `npx vitest run src/features/family`, ESLint, Prettier and the typecheck. No test data was created.
+
+**Next**
+- The release PR's CI runs again; then the owner merges it and sets up the morning clean-up (I-006).
+
+## 2026-11-12 (I-006: Delete invite links, built)
+
+**Done**
+- The owner approved I-006 and its final prototype ("approved I-006, build it"); recorded in the
+  [description](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md) and DESIGN_RULES
+  "Screen decisions". Built on `improvement/I-006-delete-old-invite-links`; M5 is done.
+- Backend: `POST /api/admin/invitations/delete` and `…/cancel` (any link, 1–200, the answer says how many);
+  `GET /api/family/invitations` (the owner's links of every status), `POST /api/family/invitations/delete` and
+  `…/cancel` (the owner's family only). The family view no longer carries the waiting links. "Invited" and the
+  link's note are kept on the account (migration `KeepInvitedOnAccount` copies them), so any link can be deleted.
+- The morning clean-up ([ADR 0033](decisions/0033-morning-clean-up.md)): `POST /api/cleanup` with the
+  `X-Cleanup-Secret` header deletes links 30 days after they stopped working (`Cleanup:InvitationsKeptFor`), logs the
+  count, is off without `Cleanup__Secret`; `render.yaml` lists the secret (set in the dashboard). The cron-job.org job
+  at 07:05 Kyiv time is the owner's step at the release (steps in the description).
+- Frontend: one `InviteLinks` list for the Invite links tab and the Family page, as the final prototype: check boxes,
+  Select all per group, every group folds (Waiting open at first; a fold saved before keeps Waiting open), the bulk
+  bar with Cancel links and Delete, the confirmations, the 30-day line. The prototype stories are deleted; the People
+  and Family stories cover picking, the confirmations, a group cleared, loading and error.
+- The E2E clean-up deletes the tests' `E2E…` links of any status; CLAUDE.md "Clean up test data" and I-007's notes
+  say how to delete links (and never with a group's Select all on the shared `dev` database).
+- Checked: backend build (warnings as errors) and all 584 tests; frontend typecheck, ESLint, Prettier, build and all
+  387 unit tests; E2E `invite-links.spec.ts` (new) and every other spec, phone and desktop; the clean-up endpoint by
+  hand (401 without or with a wrong secret, 200 twice with it, run with a 10-year keep period so nothing in `dev` was
+  deleted); the Family page and the Invite links tab at 375 and 1440 px, light and dark, screenshots looked at.
+- Test data: the E2E runs and the screenshot run made `e2e-…@example.com` people (owners, members, invited people)
+  and `E2E…` links in `dev`; the `cleanup` teardown deleted them after each run. Nothing of the owner's was touched.
+
+- Review of PR #95 (owner): a group with no links shows no Select all at all (it was a disabled box), and its title
+  moves left to where the box would be (the empty gap looked odd). Checked: typecheck, ESLint, Prettier, the People and
+  Family unit tests, the E2E `invite-links.spec.ts` (phone and desktop), empty groups at 375 and 1440 px, light and
+  dark, screenshots looked at. A group's count had no space before it ("Waiting0": the People page's `.groupTitle`
+  margin won over the list's own); fixed, checked the same way.
+  The test people made were deleted by the E2E clean-up.
+
+**Next**
+- Owner: review the PR; at the release set `Cleanup__Secret` on Render and the cron-job.org job (I-006 description,
+  "Setting up the morning clean-up"). Then M6 (MVP release).
+
+## 2026-11-12 (I-006: Delete invite links, design round 1)
+
+**Done**
+- [I-006](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md) started on
+  `improvement/I-006-delete-old-invite-links`. The owner answered open points 1–4: "Invited" and its note are copied
+  onto the account; every link has a check box, waiting ones too, and each group (Waiting, Used, Expired and
+  cancelled) has its own Select all, deleting through the bulk bar; family owners delete their own links on the
+  Family page, which lists every status. Acceptance criteria, tasks and tests updated to match.
+- References (open pages: Carbon's batch actions, Google Photos' select a day, eBay's bulk editing, SaaS UI's bulk
+  bars, the app's People tab) and 3 prototype stories, *Prototypes / I-006 Delete invite links*: 1 "Check boxes",
+  2 "Select mode", 3 "Ledger"; each on the Invite links tab and the Family page.
+- Checked: typecheck, ESLint, Prettier; the design check on the three stories (one finding, a false positive: at
+  360 / 375 px a check box scrolled under the phone's tab bar, which paints over it); the states inside the page
+  (a group and links picked, the confirmation, the group cleared, the Family page) in Playwright at 375 and 1440 px,
+  light and dark, screenshots looked at; clicked through in the Browser pane.
+- No backend or app code; no test data made (stories only).
+
+- Round 2: the owner chose variant 1, asked for batch Cancel in this change (as Block on People), questioned
+  "Deleted on" and found the folded group's hover odd. The final prototype (*Final prototype* story; variants 2 and 3
+  removed) adds Cancel links to the bulk bar with its confirmation, says "Auto-deletes 10 Dec", tints the whole group
+  head on hover, and keeps long group titles tidy on the phone. Checked: typecheck, ESLint, Prettier, the design check
+  (the same false positive), every state (picked, cancel, delete, Family page, the hover) at 375 and 1440 px, light
+  and dark, screenshots looked at. No test data made.
+- The owner asked that Waiting folds too, open by default: done in the final prototype, added to the criteria and
+  tasks (a fold saved in the browser before the change keeps Waiting open).
+- The owner didn't like "Auto-deletes 10 Dec" and chose no delete date on each link: only the line under the groups
+  says old links are deleted automatically after 30 days. Removed from the prototype, the criteria and the tasks.
+
+**Next**
+- Owner: approve the final prototype for implementation (or comment on it).
+
+## 2026-11-12 (F-030: Privacy in the family, built)
+
+**Done**
+- The owner approved F-030 for implementation on 2026-11-12 ("F-030 final prototype is approved, build it": the final
+  prototype "Rows", folding, and the three small points as built); recorded in the
+  [description](changes/features/F-030-family-privacy/F-030-family-privacy.md) and DESIGN_RULES "Screen decisions".
+- Backend: the settings on the money itself (`accounts.family_sees`, `categories.is_private`,
+  `users.family_sees_transactions`; migration `AddFamilyPrivacy`, everything shared as before);
+  `PUT /api/family/privacy/transactions`, `…/accounts/{id}`, `…/categories/{id}`; `KeptFromFamily` in the Domain
+  (which accounts, categories and people's lines a viewer may see, as `Counted` / `Listed` expressions applied in SQL),
+  carried by F-024's `MoneyScope` and applied by the Accounts, Transactions (list, summary) and Reports reads; a hidden
+  transfer side sent unnamed; the family's members say what each shares (`transactions`, `keepsPrivate`)
+  ([ADR 0032](decisions/0032-family-privacy.md); ARCHITECTURE.md). Every M5 feature is done; I-006, moved to M5
+  meanwhile, is left.
+- Frontend: "What the family sees" on the Family page (three rows that fold), the eye-off / coins marks on your own
+  cards and the lock on your kept lines (while you are in a family with others), someone else's balance-only card
+  marked, the band's "… keeps some of it private" / "Some of …'s money is private" / "… shares only totals", the
+  Transactions page's "Only totals by category", "A private account" on a hidden transfer side, F-023's texts saying
+  each person decides. The prototype stories were removed; *Family / Family privacy* and the Family page's and the
+  account card's new stories replace them.
+- Checked: backend Release build (0 warnings) and tests (557 / 557, 20 new: the rules compiled against transactions,
+  the summary's lines and totals, the unnamed transfer side, the settings' endpoints); frontend lint, format, typecheck,
+  build, unit tests (380 / 380), Storybook build; the full E2E suite against this branch's API and web app (99 passed,
+  21 skipped), with the new `family-privacy.spec.ts` (every rule on the real database, and hiding an account on the
+  Family page); the design check on the new stories (0 issues); the stories and the real app (two people with their
+  settings) in Playwright at 375 and 1440 px, light and dark, screenshots looked at (they match the final prototype's);
+  the section clicked through in the Browser pane.
+- Test data: the E2E runs and a throwaway screenshot spec made `e2e-…@example.com` people (with newPerson), their
+  families and `E2E …` family links; the E2E clean-up deleted them after each run. Checked through
+  `GET /api/admin/people` and `/api/admin/invitations` as the tests' admin after the last run: the admin is the only
+  `e2e-…` account left, and no test link is waiting. The owner's account untouched.
+
+- The owner asked on the PR to always show the settings: the section is now there alone in a family too ("Whoever
+  joins the family sees your money as you set it here"), the members' line always says each sees the others' money
+  as they set it. Checked: typecheck, lint, format, the family unit tests (34 / 34), the new story at 375 and 1440 px,
+  light and dark. Test data: none (stories and unit tests only).
+- The owner asked for Hidden and Balance only in the same style as Everything: the share pill is quiet for all three
+  (DESIGN_RULES updated). Checked: lint, format, typecheck, family unit tests, the section at 375 and 1440 px.
+- The owner asked that a whole category group can be private, and chose that categories added to it later are private
+  too: `category_groups.is_private` (migration `AddPrivateCategoryGroups`), `PUT /api/family/privacy/groups/{id}`, the
+  group's categories left out with it and the group gone from the others' reports; in Choose categories a *Whole group*
+  pill per group locks its categories, and the Family page shows it as one tag "… · whole group" (ADR 0032,
+  ARCHITECTURE.md, DESIGN_RULES updated). Checked: backend build and tests (560 / 560), frontend lint, format,
+  typecheck, unit tests, `family-privacy.spec.ts` with a private group on the real database, the dialog and the tag at
+  375 and 1440 px, light and dark. Test data: the E2E's people, cleaned up by its teardown.
+- The owner found the Whole group pill too like a category: it is the app's checkbox now (DESIGN_RULES updated).
+  Checked: lint, format, typecheck, the family unit tests, the dialog at 375 and 1440 px, light and dark.
+
+**Next**
+- Owner: review the PR. I-006 is left in M5, then M6 (MVP release).
+
+## 2026-11-12 (I-006: Delete old invite links, plan updated)
+
+**Done**
+- The owner asked to plan batch deleting the used and expired / cancelled invite links. It was already planned as
+  [I-006](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md); the owner chose to
+  update it rather than split it, and raised it from Medium to **High**. Moved from M2 (done) to M5.
+- Updated on `plan/i006-batch-delete-invite-links`: clearing a whole group at once, F-023's family links on the same
+  tab, reuse of the People tab's check boxes and bulk bar, the 200 limit of the other bulk actions, Storybook
+  prototype stories (I-021), the E2E clean-up deleting the tests' old links. Five open points with proposals; the
+  main one: the People page's "Invited" tag and note come from the used link today, so deleting it would drop them
+  (proposal: copy them onto the account first).
+- Nothing built; no test data made.
+
+**Next**
+- Owner: review the plan PR and answer the open points; then references and 3 prototype stories for I-006.
+
+## 2026-11-12 (F-030: Privacy in the family, design round 1)
+
+**Done**
+- [F-030](changes/features/F-030-family-privacy/F-030-family-privacy.md) started on `feature/F-030-family-privacy`.
+  The owner answered the open points: accounts, transactions and categories can be private; an account is
+  *Everything*, *Balance only* or *Hidden* (new ones *Everything*); one switch for all your transactions (every one, or
+  only totals by category); a private category shows nothing; private money is left out of the family's totals; the
+  same for every member; set on the Family page only. Three smaller points are left with proposals for the design round
+  (a balance-only account in the reports, transfers with a hidden account, the stricter setting wins).
+- References (Honeydue's help pages and a review, Google Photos' partner sharing, Monarch), the brief, the plan, and
+  three prototype stories in *Prototypes / F-030 Family privacy*: Rows, Mirror, Sentence. Each is the app as Olena on
+  the Family page with the new section; Andriy's own settings are fixed, so the lens on his money shows his hidden
+  account and its lines gone.
+- Checked: typecheck, ESLint, Prettier; the design check on the three stories (it caught a 36 px × on a private
+  category's tag and the sentence's links 38 px high, both made 44 px; the one left is the Mirror's pill switch
+  "overlapping" the phone's menu, page content scrolling under the fixed bar); every state clicked through in the
+  Browser pane at 375 and 1440 px, light and dark.
+- Test data: none (Storybook's fake API only).
+
+- The owner picked variant 1, "Rows", asking for it to fold. It is now the *Final prototype* story (variants 2 and 3
+  removed): the three parts as rows that fold, each with what is set now; the marks on your own cards and lines;
+  Andriy's money without what he keeps, the band saying so, and his Transactions page when he shares only totals.
+  The three small points are built as proposed. Checked again: the design check (0 issues), typecheck, ESLint,
+  Prettier; the states clicked through in the Browser pane; screenshots at 375 and 1440 px, light and dark, kept in
+  the change folder's `prototypes/`.
+
+**Next**
+- Owner: approve the final prototype (and the three small points as built) for implementation, or ask for changes.
+
+## 2026-11-12 (F-024: Family views, built)
+
+**Done**
+- The owner approved F-024 for implementation on 2026-11-12 ("F-024 final prototype is approved, build it": the final
+  prototype "One lens" and the open points' proposals); recorded in the
+  [description](changes/features/F-024-family-views/F-024-family-views.md) and DESIGN_RULES "Screen decisions".
+- Backend: `who` (`me`, `family`, a member's id) on the read endpoints of Accounts, Transactions and Reports;
+  `Family.SeenBy` decides whose money that is, the services read a `MoneyScope`; accounts and transactions carry
+  `ownerId`; the family's categories of one group and name are merged on each read (`FamilyCategories`); amounts in
+  the viewer's report currency. The saving endpoints are unchanged, so only your own money can be changed
+  ([ADR 0031](decisions/0031-family-views.md); ARCHITECTURE.md). No migration.
+- Frontend: the lens in the sidebar and the phone's top bar (`WhoseLens`, `WhoseProvider`, kept on the device), the
+  band with Back to mine over the three pages, someone else's lines and cards only to look at, their pages without
+  Add, whose each card, line and archived account is in the family's money, the pages' "your" words naming whose
+  money it is. The prototype stories were removed; *Family / Family views* replaces them.
+- Checked: backend build (0 warnings) and tests (537 / 537); frontend lint, format, typecheck, build, unit tests
+  (369 / 369), Storybook build; the full E2E suite against this branch's API and web app (96 passed, 20 skipped); the design
+  check on the six new stories (0 issues after fixing Back to mine's touch target and the rail lens's spoken name);
+  Transactions, Accounts and Reports as yours, Andriy's and the family's, and the open lens, in Playwright at 375 and
+  1440 px, light and dark, screenshots looked at (they match the final prototype's). The Browser pane was hidden, so
+  the walk-through was in headless Playwright only.
+- Test data: the E2E runs and a screenshot script made `e2e-…@example.com` people (with newPerson), their families and
+  their `E2E …` family links; the E2E clean-up deleted them after each run. Checked through `GET /api/admin/people` and `/api/admin/invitations` as the tests' admin after the last run: the admin is the only `e2e-…` account left, and no link is waiting. The owner's account
+  untouched.
+
+**Next**
+- Owner: review the PR. F-030 (privacy in the family) is next in M5.
+
+## 2026-11-12 (F-030: Privacy in the family, planned)
+
+**Done**
+- The owner asked, on `feature/F-024-family-views`, to plan one more family feature: each person sets what the other
+  members can see of their data. Planned as
+  [F-030](changes/features/F-030-family-privacy/F-030-family-privacy.md) (🎨): a draft of the goal, acceptance
+  criteria and tasks, and eight open points with proposals (what can be private, levels, default, whether private
+  money counts in the family's totals, per member or for all, notes, where it is set, milestone). Backlog row,
+  ROADMAP M9 and PRODUCT's after-MVP list point to it; F-024's first open point links it.
+- The owner put it **before the MVP launch** the same day: M5 after F-024, priority Medium. Moved in the backlog,
+  ROADMAP (M5; gone from M9) and PRODUCT (the MVP's Family item; gone from the after-MVP list).
+- Nothing built: F-030 stays `Todo` until its design round and the owner's approval.
+
+**Next**
+- Owner: approve F-024's final prototype. F-030 comes after F-024; its open points are settled in its design round.
+
+## 2026-11-12 (F-024: Family views, design round 1)
+
+**Done**
+- [F-024](changes/features/F-024-family-views/F-024-family-views.md) started on `feature/F-024-family-views`; marked
+  🎨 (a switcher on three screens needs the design round the description had said it didn't).
+- References (Monarch's Owners filter and shared views, Honeydue, Apple's Screen Time for a family member, Lunch
+  Money, the spreadsheet's sheet per person), the brief, eight open points with proposals, and three prototype stories
+  in *Prototypes / F-024 Family views*: One lens (in the shell), A filter (on each page), Ledger tabs (on the slip).
+  Each is the app as Olena with Transactions, Accounts and Reports answering for her, Andriy or the family.
+- Checked: the design check on the three stories (0 issues after two fixes), typecheck, ESLint and Prettier on the
+  prototype folder, every state in Playwright at 375 and 1440 px, light and dark, screenshots looked at.
+- Test data: none (Storybook's fake API only).
+
+- The owner picked variant 1, "One lens", the same day; it is the final prototype story (variants 2 and 3 removed),
+  checked again (design check 0 issues, its states in Playwright at 375 and 1440 px, light and dark, kept in the change
+  folder's `prototypes/`). The lens's choice is kept on the device.
+
+**Next**
+- Owner: approve the final prototype and the eight open points' proposals for implementation (or ask for changes);
+  no code before that.
+
+## 2026-11-12 (I-031: CI checks each change once)
+
+**Done**
+- GitHub warned that 90% of the month's 2,000 free Actions minutes were used (1,801), with 20 days left. Counted
+  the 129 runs since 2026-11-01: E2E 754 minutes, Frontend 524, Docker image 333, Backend 149; pushes to `develop`
+  repeat their PR's run (563 minutes), docs-only `plan/…` PRs run everything (about 200).
+- Planned and built [I-031](changes/improvements/I-031-fewer-ci-minutes/I-031-fewer-ci-minutes.md) (High) on
+  `improvement/I-031-fewer-ci-minutes`; the owner approved it on 2026-11-12. `ci.yml` runs on pull requests (not
+  docs-only ones: `docs/**`, `**/*.md`) and on the push to `main`, no longer on the push to `develop`; the Docker
+  image job only on a PR into `main` and the push to `main`. About half the minutes.
+  [ADR 0030](decisions/0030-ci-runs-once-per-change.md); ARCHITECTURE.md "CI/CD" and ADR 0010 updated.
+- Making the repo public for free minutes was looked at and not chosen: it stays private.
+- Checked: the workflow parses (js-yaml); pushing the branch started no run; a scratch draft PR with only a docs
+  change (into this branch, closed and its branch deleted) started no run; this PR runs Backend, Frontend and E2E,
+  and skips the Docker image. No app code changed, so no local build or test run. No test accounts or data created.
+
+**Next**
+- Owner: review the PR. After merging it, the squash merge into `develop` should start no run; the next release PR
+  and the push to `main` run all four jobs.
+
 ## 2026-11-12 (B-018: The E2E clean-up finds test people whose tag has digits)
 
 **Done**

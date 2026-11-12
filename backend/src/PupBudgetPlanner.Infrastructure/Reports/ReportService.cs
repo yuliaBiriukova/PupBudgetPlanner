@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using PupBudgetPlanner.Application.Categories;
 using PupBudgetPlanner.Application.ExchangeRates;
+using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Application.Reports;
 using PupBudgetPlanner.Domain.Transactions;
 using PupBudgetPlanner.Infrastructure.Persistence;
@@ -10,14 +12,15 @@ internal sealed class ReportService(AppDbContext dbContext, IExchangeRateService
     : IReportService
 {
     public async Task<Report> ReportAsync(
-        Guid userId, ReportPeriod period, string? currency, CancellationToken cancellationToken)
+        MoneyScope scope, ReportPeriod period, string? currency, CancellationToken cancellationToken)
     {
+        // The viewer's own, whoever's money it is (F-024)
         currency ??= await dbContext.Users.AsNoTracking()
-            .Where(user => user.Id == userId)
+            .Where(user => user.Id == scope.ViewerId)
             .Select(user => user.ReportCurrency)
             .SingleOrDefaultAsync(cancellationToken) ?? ReportCurrency.Default;
         var today = Kyiv.Today(clock);
-        var data = await DataAsync(userId, period, cancellationToken);
+        var data = await DataAsync(scope, period, cancellationToken);
 
         // Rates are kept once asked for (ADR 0019): only days not kept yet ask the NBU, one at a time
         var ratesOf = new Dictionary<DateOnly, DayRates>();
@@ -29,18 +32,24 @@ internal sealed class ReportService(AppDbContext dbContext, IExchangeRateService
         return ReportBuilder.Build(period, currency, today, data, ratesOf);
     }
 
-    private async Task<ReportData> DataAsync(Guid userId, ReportPeriod period, CancellationToken cancellationToken)
+    private async Task<ReportData> DataAsync(MoneyScope scope, ReportPeriod period, CancellationToken cancellationToken)
     {
-        var groups = await dbContext.CategoryGroups.AsNoTracking()
-            .Where(group => group.UserId == userId)
+        var people = scope.People;
+        var kept = scope.Kept;
+        // The others' private categories aren't rows of the viewer's report (F-030)
+        var groups = kept.Shown(await dbContext.CategoryGroups.AsNoTracking()
+            .Where(group => people.Contains(group.UserId))
             .Include(group => group.Categories)
-            .ToListAsync(cancellationToken);
+            .ToListAsync(cancellationToken));
 
-        var transactions = dbContext.Transactions.AsNoTracking().Where(transaction => transaction.UserId == userId);
+        var transactions = dbContext.Transactions.AsNoTracking()
+            .Where(transaction => people.Contains(transaction.UserId));
+        // What the others keep is left out of the totals by category; a balance-only account's still count (F-030)
+        var counted = transactions.CountedFor(kept);
 
         // Transfers are neither income nor expense (business rule 2): they only move the balances below
         var amounts = await (
-                from transaction in transactions
+                from transaction in counted
                 where transaction.Type != TransactionType.Transfer &&
                       transaction.Date >= period.First && transaction.Date <= period.Last
                 join account in dbContext.Accounts on transaction.AccountId equals account.Id
@@ -55,8 +64,9 @@ internal sealed class ReportService(AppDbContext dbContext, IExchangeRateService
             .ToListAsync(cancellationToken);
 
         var accounts = (await dbContext.Accounts.AsNoTracking()
-                .Where(account => account.UserId == userId)
+                .Where(account => people.Contains(account.UserId))
                 .ToListAsync(cancellationToken))
+            .Where(account => kept.Shows(account.Id))
             .Select(account => new ReportAccount(
                 account.Id,
                 account.Currency,
@@ -65,9 +75,12 @@ internal sealed class ReportService(AppDbContext dbContext, IExchangeRateService
                 account.ArchivedAt is { } archivedAt ? Kyiv.DateOf(archivedAt) : null))
             .ToList();
 
-        // Each account's movement a month up to the period's end, on both sides of a transfer (F-019)
+        // Each account's movement a month up to the period's end, on both sides of a transfer (F-019): every
+        // transaction, as the balances are; only a hidden account's are left out (F-030)
+        var hidden = kept.HiddenAccounts;
         var upToEnd = transactions.Where(transaction => transaction.Date <= period.Last);
         var outgoing = await upToEnd
+            .Where(transaction => !hidden.Contains(transaction.AccountId))
             .GroupBy(transaction => new
             {
                 transaction.AccountId, transaction.Type, transaction.Date.Year, transaction.Date.Month,
@@ -82,7 +95,7 @@ internal sealed class ReportService(AppDbContext dbContext, IExchangeRateService
             })
             .ToListAsync(cancellationToken);
         var incoming = await upToEnd
-            .Where(transaction => transaction.ToAccountId != null)
+            .Where(transaction => transaction.ToAccountId != null && !hidden.Contains(transaction.ToAccountId.Value))
             .GroupBy(transaction => new { AccountId = transaction.ToAccountId!.Value, transaction.Date.Year, transaction.Date.Month })
             .Select(same => new MonthMovement(
                 same.Key.AccountId, same.Key.Year, same.Key.Month, same.Sum(transaction => transaction.ToAmount ?? 0)))
@@ -93,10 +106,20 @@ internal sealed class ReportService(AppDbContext dbContext, IExchangeRateService
             .Concat(incoming)
             .ToList();
 
-        var firstTransaction = await transactions.MinAsync(transaction => (DateOnly?)transaction.Date, cancellationToken);
+        var firstTransaction = await counted.MinAsync(transaction => (DateOnly?)transaction.Date, cancellationToken);
         var firstOpening = accounts.Count == 0 ? (DateOnly?)null : accounts.Min(account => account.OpeningDate);
         var firstDay = new[] { firstTransaction, firstOpening }.Min();
 
-        return new ReportData(groups, amounts, accounts, movements, firstDay);
+        if (!scope.IsTogether)
+        {
+            return new ReportData(groups, amounts, accounts, movements, firstDay);
+        }
+
+        // Together, categories of the same group and name are one row (F-024, open point 5)
+        var merged = FamilyCategories.Of(people, groups);
+        var mergedAmounts = amounts
+            .Select(amount => amount with { CategoryId = merged.MergedIdOf(amount.CategoryId) })
+            .ToList();
+        return new ReportData(merged.Groups, mergedAmounts, accounts, movements, firstDay);
     }
 }

@@ -58,7 +58,7 @@ internal sealed class AccountCreator(UserManager<AppUser> userManager, AppDbCont
             return AccountCreation.Refused;
         }
 
-        if (invitation is not null && !await UseInvitationAsync(invitation.TokenHash, user.Id, now, cancellationToken)
+        if (invitation is not null && !await UseInvitationAsync(invitation.TokenHash, user, now, cancellationToken)
             && invitation.Required)
         {
             // Disposing the transaction without committing rolls the account back
@@ -75,23 +75,27 @@ internal sealed class AccountCreator(UserManager<AppUser> userManager, AppDbCont
     /// <summary>
     /// One conditional UPDATE: only a waiting invitation (not used, not cancelled, not expired) changes. A second
     /// sign-up racing for the same link waits for the first one's row lock and then matches nothing. A family's link
-    /// also takes the new person into its family (F-023).
+    /// also takes the new person into its family (F-023). The account keeps "Invited" and the link's note, so the link
+    /// can be deleted later (I-006); the save after this stores them.
     /// </summary>
     private async Task<bool> UseInvitationAsync(
-        byte[] tokenHash, Guid userId, DateTimeOffset now, CancellationToken cancellationToken)
+        byte[] tokenHash, AppUser user, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var used = await FamilyCleanup.UseLinkAsync(
-            dbContext, tokenHash, userId, now, createdAccount: true, cancellationToken);
+            dbContext, tokenHash, user.Id, now, createdAccount: true, cancellationToken);
         if (used is not { } link)
         {
             return false;
         }
 
+        user.Invited = true;
+        user.InvitationNote = link.Note;
+
         if (link.FamilyId is { } familyId)
         {
             var family = await dbContext.Families.Include(f => f.Members)
                 .SingleAsync(f => f.Id == familyId, cancellationToken);
-            family.Join(userId, now);
+            family.Join(user.Id, now);
         }
 
         return true;

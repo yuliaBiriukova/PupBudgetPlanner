@@ -17,6 +17,7 @@ public sealed record CategoryTotal(Guid CategoryId, string Name, decimal Amount)
 /// <summary>
 /// The transactions the filters find, counted and summed by the database: one day's, one type's, one account
 /// currency's, one category's (none for a transfer). What <see cref="TransactionSummary.Of"/> is worked out from.
+/// <paramref name="Listed"/> is false for transactions the viewer sees only in the totals, not as lines (F-030).
 /// </summary>
 public sealed record SummaryRow(
     DateOnly Date,
@@ -24,7 +25,8 @@ public sealed record SummaryRow(
     string Currency,
     Guid? CategoryId,
     int Count,
-    decimal Amount);
+    decimal Amount,
+    bool Listed = true);
 
 /// <summary>
 /// The Transactions page's totals (F-020): what the period's transactions came to, each day's, and where the money went.
@@ -75,7 +77,9 @@ public sealed record TransactionSummary(
         }
 
         var picked = rows.Where(row => categoryId is null || row.CategoryId == categoryId).ToList();
+        // The days and the count are the lines' (the calendar, the receipts); the totals count every row (F-030)
         var days = picked
+            .Where(row => row.Listed)
             .GroupBy(row => row.Date)
             .OrderBy(day => day.Key)
             .Select(day => new DayTotal(
@@ -102,8 +106,8 @@ public sealed record TransactionSummary(
 
         return new TransactionSummary(
             currency,
-            days.Sum(day => day.Spent),
-            days.Sum(day => day.Received),
+            SumOf(picked, TransactionType.Expense, InCurrency),
+            SumOf(picked, TransactionType.Income, InCurrency),
             days.Sum(day => day.Count),
             days,
             categories,

@@ -2,16 +2,21 @@ using System.Security.Claims;
 using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Application.Transactions;
 using PupBudgetPlanner.Domain.Transactions;
 
 namespace PupBudgetPlanner.Api.Controllers;
 
-/// <summary>The signed-in person's expenses and incomes (F-018), transfers (F-019) and their list (F-020).</summary>
+/// <summary>
+/// The signed-in person's expenses and incomes (F-018), transfers (F-019) and their list (F-020); a family member's or
+/// the family's list to look at (F-024).
+/// </summary>
 [ApiController]
 [Route("api/transactions")]
 public sealed class TransactionsController(
-    ITransactionService transactions, IValidator<TransactionFilter> filterValidator) : ControllerBase
+    ITransactionService transactions, IValidator<TransactionFilter> filterValidator, IFamilyService families)
+    : ControllerBase
 {
     private const string NoSuchTransaction = "There is no such transaction.";
 
@@ -19,11 +24,13 @@ public sealed class TransactionsController(
 
     /// <summary>
     /// The Transactions page (F-020): the ones the filters find, newest day first, <paramref name="limit"/> at a time
-    /// from <paramref name="offset"/>; the answer says where the next page starts.
+    /// from <paramref name="offset"/>; the answer says where the next page starts. <paramref name="who"/>: <c>me</c>
+    /// (the default), <c>family</c> or a family member's id (F-024).
     /// </summary>
     [HttpGet]
     [ProducesResponseType<TransactionPage>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TransactionPage>> List(
         CancellationToken cancellationToken,
         [FromQuery] DateOnly? from = null,
@@ -32,7 +39,8 @@ public sealed class TransactionsController(
         [FromQuery] Guid? categoryId = null,
         [FromQuery] TransactionType? type = null,
         [FromQuery] int offset = 0,
-        [FromQuery] int limit = TransactionPage.DefaultLimit)
+        [FromQuery] int limit = TransactionPage.DefaultLimit,
+        [FromQuery] string? who = null)
     {
         var filter = new TransactionFilter(from, to, accountId, categoryId, type);
         Check(filter);
@@ -46,32 +54,41 @@ public sealed class TransactionsController(
             ModelState.AddModelError(nameof(limit), $"Ask for 1 to {TransactionPage.MaxLimit} at a time.");
         }
 
-        return ModelState.IsValid
-            ? Ok(await transactions.ListAsync(UserId, filter, offset, limit, cancellationToken))
-            : ValidationProblem(ModelState);
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        var (scope, refusal) = await this.ScopeOfAsync(families, who, cancellationToken);
+        return scope is null ? refusal! : Ok(await transactions.ListAsync(scope, filter, offset, limit, cancellationToken));
     }
 
     /// <summary>
     /// What the ones the filters find come to (F-020): spent and received, each day's, and each category's, in the
-    /// report currency at the NBU rates of their days (one account picked: in its own).
+    /// report currency at the NBU rates of their days (one account picked: in its own). Whose: as for the list (F-024).
     /// </summary>
     [HttpGet("summary")]
     [ProducesResponseType<TransactionSummary>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TransactionSummary>> Summary(
         CancellationToken cancellationToken,
         [FromQuery] DateOnly? from = null,
         [FromQuery] DateOnly? to = null,
         [FromQuery] Guid? accountId = null,
         [FromQuery] Guid? categoryId = null,
-        [FromQuery] TransactionType? type = null)
+        [FromQuery] TransactionType? type = null,
+        [FromQuery] string? who = null)
     {
         var filter = new TransactionFilter(from, to, accountId, categoryId, type);
         Check(filter);
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
 
-        return ModelState.IsValid
-            ? Ok(await transactions.SummaryAsync(UserId, filter, cancellationToken))
-            : ValidationProblem(ModelState);
+        var (scope, refusal) = await this.ScopeOfAsync(families, who, cancellationToken);
+        return scope is null ? refusal! : Ok(await transactions.SummaryAsync(scope, filter, cancellationToken));
     }
 
     /// <summary>

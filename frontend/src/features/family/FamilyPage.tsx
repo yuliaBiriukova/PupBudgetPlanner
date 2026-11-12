@@ -10,7 +10,6 @@ import {
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
-  IconClock,
   IconDoorExit,
   IconDots,
   IconLink,
@@ -20,7 +19,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { daysUntil, formatDate } from '../../shared/format/date';
+import { formatDate } from '../../shared/format/date';
+import { InviteLinks } from '../people/InviteLinks';
 import people from '../people/People.module.css';
 import settings from '../settings/Settings.module.css';
 import classes from './Family.module.css';
@@ -28,15 +28,14 @@ import {
   FAMILY_NAME_MAX,
   familyQuery,
   initialsOf,
-  useCancelFamilyInvitation,
   useRenameFamily,
   type Family,
-  type FamilyInvitation,
   type FamilyMember,
 } from './familyApi';
 import { InviteDialog, LeaveDialog, RemoveDialog } from './FamilyDialogs';
 import { StartFamilyForm, WhatItMeans } from './FamilyParts';
 import { useFamilyNameError } from './familyText';
+import { PrivacySection } from './PrivacySection';
 
 const ICON = { size: 20, stroke: 1.7 } as const;
 
@@ -63,7 +62,8 @@ function Section({
 
 /**
  * Family (F-023, final prototype variant 1 "Sections"): the family as Settings is, a section each for its name, its
- * members, invite links (the owner only) and leaving. With no family: start one, or how to join one.
+ * members, what the family sees of your money (F-030), invite links (the owner only) and
+ * leaving. With no family: start one, or how to join one.
  */
 export function FamilyPage() {
   const { t } = useTranslation();
@@ -126,6 +126,8 @@ export function FamilyPage() {
             {/* A new name starts the section again, with the saved one in the field */}
             <NameSection key={family.data.name} family={family.data} />
             <MembersSection family={family.data} />
+            {/* What the others see of your money (F-030), alone too: set it up before anyone joins (owner) */}
+            <PrivacySection family={family.data} />
             {family.data.isOwner && <InviteSection family={family.data} />}
             <LeaveSection family={family.data} />
           </>
@@ -281,14 +283,8 @@ function InviteSection({ family }: { family: Family }) {
           {t('family.invite.create')}
         </Button>
       </div>
-      {family.invitations.length > 0 && (
-        <div>
-          <p className={classes.subhead}>{t('family.invite.waiting')}</p>
-          {family.invitations.map((invitation) => (
-            <WaitingLink key={invitation.id} invitation={invitation} />
-          ))}
-        </div>
-      )}
+      {/* The owner's links of every status, to cancel or delete one or many as on the Invite links tab (I-006) */}
+      <InviteLinks place="family" />
       <InviteDialog
         familyName={family.name}
         opened={open}
@@ -297,46 +293,6 @@ function InviteSection({ family }: { family: Family }) {
         }}
       />
     </Section>
-  );
-}
-
-/** A link waiting to be opened. It is shown only once (F-028): it can't be copied again, only cancelled. */
-function WaitingLink({ invitation }: { invitation: FamilyInvitation }) {
-  const { t } = useTranslation();
-  const cancel = useCancelFamilyInvitation();
-  const label = invitation.note
-    ? t('family.invite.forNote', { note: invitation.note })
-    : t('family.invite.noNote');
-
-  return (
-    <div className={people.waiting}>
-      <span className={people.clock} aria-hidden="true">
-        <IconClock {...ICON} />
-      </span>
-      <div className={classes.rowText}>
-        <p className={people.name}>{label}</p>
-        <p className={people.email}>
-          {t('family.invite.worksUntil', { date: formatDate(invitation.expiresAt) })}
-        </p>
-      </div>
-      <p className={people.left}>
-        {t('family.invite.daysLeft', { count: daysUntil(invitation.expiresAt) })}
-      </p>
-      <Button
-        variant="quiet"
-        className={people.cancel}
-        loading={cancel.isPending}
-        aria-label={t('family.invite.cancelLabel', { note: label })}
-        onClick={() => {
-          cancel.mutate(invitation.id, {
-            onSuccess: () => notifications.show({ message: t('family.invite.cancelled') }),
-            onError: () => notifications.show({ color: 'red', message: t('family.failed') }),
-          });
-        }}
-      >
-        {t('family.invite.cancel')}
-      </Button>
-    </div>
   );
 }
 

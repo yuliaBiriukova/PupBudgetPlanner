@@ -101,12 +101,45 @@ const MANY: Person[] = [
 interface ScreenProps {
   tab: 'people' | 'links';
   people?: 'data' | 'loading' | 'error' | 'many';
-  links?: 'data' | 'noneWaiting';
+  links?: 'data' | 'noneWaiting' | 'loading' | 'error';
+}
+
+/** The links' fake API (I-006), keeping cancels and deletes while the story is shown. */
+function linkRoutes(start: Invitation[]): MockRoutes {
+  let links = [...start];
+  const idsOf = (body: unknown) => (body as { ids?: string[] } | null)?.ids ?? [];
+  return {
+    '/api/admin/invitations': () => ({ json: links }),
+    'POST /api/admin/invitations/cancel': (body) => {
+      const ids = idsOf(body);
+      const count = links.filter((l) => ids.includes(l.id) && l.status === 'Waiting').length;
+      links = links.map((l) =>
+        ids.includes(l.id) && l.status === 'Waiting'
+          ? { ...l, status: 'Cancelled', cancelledAt: new Date().toISOString() }
+          : l,
+      );
+      return { json: { count } };
+    },
+    'POST /api/admin/invitations/delete': (body) => {
+      const ids = idsOf(body);
+      const before = links.length;
+      links = links.filter((l) => !ids.includes(l.id));
+      return { json: { count: before - links.length } };
+    },
+  };
 }
 
 /** The People page with a fake API: who is signed in, the people and the links. */
 function PeopleScreen({ tab, people = 'data', links = 'data' }: ScreenProps) {
+  const [linkApi] = useState(() =>
+    links === 'loading'
+      ? { '/api/admin/invitations': 'pending' as const }
+      : links === 'error'
+        ? { '/api/admin/invitations': { status: 500 } }
+        : linkRoutes(links === 'noneWaiting' ? LINKS.filter((l) => l.status !== 'Waiting') : LINKS),
+  );
   const routes: MockRoutes = {
+    ...linkApi,
     '/api/auth/me': { json: admin },
     '/api/health': { json: { status: 'Healthy' } },
     '/api/admin/people':
@@ -115,9 +148,6 @@ function PeopleScreen({ tab, people = 'data', links = 'data' }: ScreenProps) {
         : people === 'error'
           ? { status: 500 }
           : { json: people === 'many' ? MANY : PEOPLE },
-    '/api/admin/invitations': {
-      json: links === 'noneWaiting' ? LINKS.filter((l) => l.status !== 'Waiting') : LINKS,
-    },
     'POST /api/admin/invitations': {
       json: {
         id: 'l-new',
@@ -277,16 +307,93 @@ export const LinksDesktopDark: Story = {
 
 export const LinksNoneWaiting: Story = { args: { tab: 'links', links: 'noneWaiting' } };
 
+export const LinksLoading: Story = { args: { tab: 'links', links: 'loading' } };
+
+export const LinksError: Story = { args: { tab: 'links', links: 'error' } };
+
+/** Every group starts as at first: Waiting open, the others folded (I-006). */
+const freshFolds = () => {
+  localStorage.removeItem('pup.people.links.open');
+  localStorage.removeItem('pup.people.links.shown');
+};
+
 /** Used and Expired and cancelled opened. */
 export const LinksAllOpen: Story = {
   args: { tab: 'links' },
   globals: desktop,
+  beforeEach: freshFolds,
   play: async ({ canvasElement }) => {
-    localStorage.removeItem('pup.people.links.shown');
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByRole('button', { name: /^Used/ }));
-    await userEvent.click(canvas.getByRole('button', { name: /^Expired and cancelled/ }));
+    await userEvent.click(await canvas.findByRole('button', { name: /Used/ }));
+    await userEvent.click(canvas.getByRole('button', { name: /Expired and cancelled/ }));
     await expect(canvas.getByText('For Taras')).toBeInTheDocument();
+  },
+};
+
+/** A waiting link and the whole folded Used group picked: the bar has Cancel links and Delete (I-006). */
+export const LinksPicked: Story = {
+  args: { tab: 'links' },
+  beforeEach: freshFolds,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('checkbox', { name: 'Pick For Mom' }));
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Select all used links' }));
+    await expect(canvas.getByRole('region', { name: 'Picked links' })).toHaveTextContent(
+      '3 picked',
+    );
+  },
+};
+
+/** Delete asks once, lists the links and says the waiting one stops working. */
+export const LinksDeleteConfirm: Story = {
+  args: { tab: 'links' },
+  globals: desktop,
+  beforeEach: freshFolds,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('checkbox', { name: 'Pick For Mom' }));
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Select all used links' }));
+    await userEvent.click(canvas.getByRole('button', { name: 'Delete' }));
+    const body = within(canvasElement.ownerDocument.body);
+    await expect(await body.findByRole('dialog', { name: 'Delete 3 links?' })).toBeInTheDocument();
+  },
+};
+
+/** Cancel links asks once for the waiting ones only. */
+export const LinksCancelConfirm: Story = {
+  args: { tab: 'links' },
+  beforeEach: freshFolds,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole('checkbox', { name: 'Select all waiting links' }),
+    );
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Select all used links' }));
+    await userEvent.click(canvas.getByRole('button', { name: /Cancel/ }));
+    const body = within(canvasElement.ownerDocument.body);
+    await expect(await body.findByRole('dialog', { name: 'Cancel 2 links?' })).toBeInTheDocument();
+  },
+};
+
+/** Expired and cancelled cleared with Select all and Delete: the group is empty and has no Select all. */
+export const LinksGroupCleared: Story = {
+  args: { tab: 'links' },
+  globals: desktop,
+  beforeEach: freshFolds,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('button', { name: /Expired and cancelled/ }));
+    await userEvent.click(
+      canvas.getByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+    );
+    await userEvent.click(canvas.getByRole('button', { name: 'Delete' }));
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await body.findByRole('button', { name: 'Delete 2 links' }));
+    await waitFor(() =>
+      expect(
+        canvas.queryByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+      ).not.toBeInTheDocument(),
+    );
   },
 };
 

@@ -49,11 +49,13 @@ export const DEFAULT_CATEGORIES: CategoriesOverview = {
     name,
     kind,
     isHidden: false,
+    isPrivate: false,
     categories: categories.map((category, index) => ({
       id: `group-${String(group + 1)}-${String(index + 1)}`,
       name: category,
       isHidden: false,
       transactionCount: countOf(category),
+      isPrivate: false,
     })),
   })),
 };
@@ -70,7 +72,13 @@ export const EDITED_CATEGORIES: CategoriesOverview = {
             ...group,
             categories: [
               ...group.categories,
-              { id: 'group-7-netflix', name: 'Netflix', isHidden: true, transactionCount: 9 },
+              {
+                id: 'group-7-netflix',
+                name: 'Netflix',
+                isHidden: true,
+                transactionCount: 9,
+                isPrivate: false,
+              },
             ],
           }
         : group,
@@ -80,7 +88,16 @@ export const EDITED_CATEGORIES: CategoriesOverview = {
       name: 'Car',
       kind: 'Expense',
       isHidden: true,
-      categories: [{ id: 'group-car-fuel', name: 'Fuel', isHidden: true, transactionCount: 14 }],
+      isPrivate: false,
+      categories: [
+        {
+          id: 'group-car-fuel',
+          name: 'Fuel',
+          isHidden: true,
+          transactionCount: 14,
+          isPrivate: false,
+        },
+      ],
     },
   ],
 };

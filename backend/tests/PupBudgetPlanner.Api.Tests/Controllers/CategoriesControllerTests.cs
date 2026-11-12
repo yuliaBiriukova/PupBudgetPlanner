@@ -56,7 +56,7 @@ public sealed class CategoriesControllerTests
     {
         var salary = new CategoryItem(Guid.CreateVersion7(), "Salary", false, 3);
         var overview = new CategoriesOverview(
-            [new CategoryGroupItem(Guid.CreateVersion7(), "Income", CategoryKind.Income, false, [salary])]);
+            [new CategoryGroupItem(Guid.CreateVersion7(), "Income", CategoryKind.Income, false, [salary], false)]);
         categories.OverviewAsync(UserId, Arg.Any<CancellationToken>()).Returns(overview);
 
         (await controller.Overview(CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()

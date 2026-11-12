@@ -59,6 +59,22 @@ public sealed class AntiforgeryFilterTests
         context.Result.Should().BeNull();
         await antiforgery.DidNotReceive().IsRequestValidAsync(Arg.Any<HttpContext>());
     }
+
+    [Fact]
+    public async Task Skips_an_endpoint_that_opts_out_and_checks_one_that_asks_for_it()
+    {
+        antiforgery.IsRequestValidAsync(Arg.Any<HttpContext>()).Returns(false);
+        var optedOut = ContextFor("POST");
+        optedOut.ActionDescriptor.EndpointMetadata = [new RequireAntiforgeryTokenAttribute(required: false)];
+        var required = ContextFor("POST");
+        required.ActionDescriptor.EndpointMetadata = [new RequireAntiforgeryTokenAttribute()];
+
+        await new AntiforgeryFilter(antiforgery).OnAuthorizationAsync(optedOut);
+        await new AntiforgeryFilter(antiforgery).OnAuthorizationAsync(required);
+
+        optedOut.Result.Should().BeNull();
+        required.Result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
 }
 
 public sealed class ValidationFilterTests

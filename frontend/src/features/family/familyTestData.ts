@@ -1,4 +1,5 @@
 import type { InvitationPreview } from '../auth/authApi';
+import type { Invitation } from '../people/peopleApi';
 import type { Family, FamilyMember } from './familyApi';
 
 /** Test data for the Family page (F-023): the Kovalenko family, as in the final prototype. */
@@ -32,11 +33,13 @@ function member(
     isYou: id === OLENA_ID,
     startedFamily: false,
     joinedAt: isoIn(-joinedDaysAgo),
+    transactions: 'Every',
+    keepsPrivate: false,
     ...extra,
   };
 }
 
-/** Olena started Kovalenko with Andriy and Iryna; a link for Mom is waiting. */
+/** Olena started Kovalenko with Andriy and Iryna (her links: `ownersLinks`). */
 export function ownersFamily(): Family {
   return {
     id: KOVALENKO_ID,
@@ -48,8 +51,45 @@ export function ownersFamily(): Family {
       member(ANDRIY_ID, 'Andriy', 38),
       member(IRYNA_ID, 'Iryna', 12),
     ],
-    invitations: [{ id: 'inv-mom', note: 'Mom', createdAt: isoIn(-1), expiresAt: isoIn(6) }],
   };
+}
+
+function familyLink(
+  id: string,
+  note: string | null,
+  status: Invitation['status'],
+  extra: Partial<Invitation> = {},
+): Invitation {
+  return {
+    id,
+    note,
+    status,
+    createdAt: isoIn(-1),
+    expiresAt: isoIn(6),
+    usedAt: null,
+    usedByName: null,
+    cancelledAt: null,
+    familyName: 'Kovalenko',
+    ...extra,
+  };
+}
+
+/** Olena's links to Kovalenko (I-006), newest first: Mom's is waiting, Iryna joined with hers, Grandpa's was cancelled. */
+export function ownersLinks(): Invitation[] {
+  return [
+    familyLink('inv-mom', 'Mom', 'Waiting'),
+    familyLink('inv-iryna', 'Iryna', 'Used', {
+      createdAt: isoIn(-13),
+      expiresAt: isoIn(-6),
+      usedAt: isoIn(-12),
+      usedByName: 'Iryna',
+    }),
+    familyLink('inv-grandpa', 'Grandpa', 'Cancelled', {
+      createdAt: isoIn(-20),
+      expiresAt: isoIn(-13),
+      cancelledAt: isoIn(-19),
+    }),
+  ];
 }
 
 /** Andriy's Kovalenko family, which Olena joined three days ago. */
@@ -64,7 +104,6 @@ export function membersFamily(): Family {
       member(IRYNA_ID, 'Iryna', 12),
       member(OLENA_ID, 'Olena', 3),
     ],
-    invitations: [],
   };
 }
 
@@ -79,7 +118,6 @@ export function otherFamily(): Family {
       member(TARAS_ID, 'Taras', 90, { isOwner: true, startedFamily: true }),
       member(OLENA_ID, 'Olena', 60),
     ],
-    invitations: [],
   };
 }
 

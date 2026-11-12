@@ -5,7 +5,7 @@ import { antiforgery, signedInAdmin, TEST_PERSON_EMAIL } from './auth.ts';
 type PersonItem = components['schemas']['PersonItem'];
 type InvitationItem = components['schemas']['InvitationItem'];
 
-/** The most people the API deletes at once (F-028). */
+/** The most people, or invite links, the API deletes at once (F-028, I-006). */
 const DELETE_BATCH = 200;
 
 /**
@@ -37,13 +37,15 @@ teardown('remove the accounts and invite links the tests made', async () => {
       expect(response.status(), 'deleting test accounts').toBe(204);
     }
 
-    // Used, cancelled and expired links can't be deleted until I-006; waiting ones are cancelled so they can't be used
+    // The tests' links of any status, families' too, are deleted (I-006); before it they could only be cancelled
     const links = (await (await admin.get('/api/admin/invitations')).json()) as InvitationItem[];
-    for (const link of links.filter((l) => l.status === 'Waiting' && isTestLink(l.note))) {
-      const response = await admin.post(`/api/admin/invitations/${link.id}/cancel`, {
+    const linkIds = links.filter((l) => isTestLink(l.note)).map((l) => l.id);
+    for (let start = 0; start < linkIds.length; start += DELETE_BATCH) {
+      const response = await admin.post('/api/admin/invitations/delete', {
         headers: await antiforgery(admin),
+        data: { ids: linkIds.slice(start, start + DELETE_BATCH) },
       });
-      expect(response.status(), 'cancelling a test invite link').toBe(204);
+      expect(response.status(), 'deleting test invite links').toBe(200);
     }
   } finally {
     await admin.dispose();

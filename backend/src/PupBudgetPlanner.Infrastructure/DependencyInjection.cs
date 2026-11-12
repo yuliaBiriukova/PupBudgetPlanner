@@ -8,6 +8,7 @@ using PupBudgetPlanner.Application.Access;
 using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.Auth;
 using PupBudgetPlanner.Application.Categories;
+using PupBudgetPlanner.Application.Cleanup;
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Application.Reports;
@@ -16,6 +17,7 @@ using PupBudgetPlanner.Application.Transactions;
 using PupBudgetPlanner.Infrastructure.Access;
 using PupBudgetPlanner.Infrastructure.Accounts;
 using PupBudgetPlanner.Infrastructure.Categories;
+using PupBudgetPlanner.Infrastructure.Cleanup;
 using PupBudgetPlanner.Infrastructure.ExchangeRates;
 using PupBudgetPlanner.Infrastructure.Families;
 using PupBudgetPlanner.Infrastructure.Identity;
@@ -96,6 +98,11 @@ public static class DependencyInjection
         services.AddScoped<IInvitationService, InvitationService>();
         services.AddScoped<IPeopleService, PeopleService>();
         services.AddScoped<IFamilyService, FamilyService>();
+        services.AddScoped<IFamilyPrivacyService, FamilyPrivacyService>();
+
+        // The morning clean-up of outdated data (I-006, ADR 0033)
+        services.Configure<CleanupOptions>(configuration.GetSection(CleanupOptions.SectionName));
+        services.AddScoped<ICleanupService, CleanupService>();
     }
 
     /// <summary>The NBU's rates, fetched on demand and kept in the database (F-017).</summary>

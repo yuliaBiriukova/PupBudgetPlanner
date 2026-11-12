@@ -166,6 +166,30 @@ public sealed class Family
     }
 
     /// <summary>
+    /// Whose money <paramref name="viewerId"/> may look at (F-024): <paramref name="personId"/>'s when they are in
+    /// the family, or with nobody named everyone's, the viewer first and then the others in the order they joined. Only
+    /// to look at: each person changes only their own. Null when the viewer or the person isn't in the family.
+    /// </summary>
+    public IReadOnlyList<Guid>? SeenBy(Guid viewerId, Guid? personId)
+    {
+        if (!Has(viewerId))
+        {
+            return null;
+        }
+
+        if (personId is { } id)
+        {
+            return Has(id) ? [id] : null;
+        }
+
+        return
+        [
+            viewerId,
+            .. Members.Where(m => m.UserId != viewerId).OrderBy(m => m.JoinedAt).Select(m => m.UserId),
+        ];
+    }
+
+    /// <summary>
     /// Takes out people whose accounts are being deleted. When the owner is one of them, whoever has been in the family
     /// longest looks after it. Returns whether anyone is left.
     /// </summary>

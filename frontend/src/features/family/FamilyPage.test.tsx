@@ -64,6 +64,7 @@ function section(title: string): HTMLElement {
 beforeEach(() => {
   setScreenWidth(1440);
   document.cookie = 'XSRF-TOKEN=token-from-the-api; path=/';
+  localStorage.removeItem('pup.family.links.open');
 });
 
 afterEach(() => {
@@ -106,7 +107,7 @@ describe('the Family page', () => {
     expect(andriy).toHaveTextContent(/Joined/);
     expect(screen.queryByRole('button', { name: 'Actions for Olena' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Actions for Andriy' })).toBeInTheDocument();
-    expect(screen.getByText('For Mom')).toBeInTheDocument();
+    expect(await screen.findByText('Mom')).toBeInTheDocument();
     expect(screen.getByText('6 days left')).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Family name' })).toHaveValue('Kovalenko');
   });
@@ -149,7 +150,7 @@ describe('the Family page', () => {
     ]);
 
     await user.click(within(ready).getByRole('button', { name: 'Done' }));
-    expect(await screen.findByText('For Dad')).toBeInTheDocument();
+    expect(await screen.findByText('Dad')).toBeInTheDocument();
   });
 
   it('cancels a waiting link', async () => {
@@ -157,17 +158,56 @@ describe('the Family page', () => {
     const user = userEvent.setup();
     renderApp('/family');
 
-    await user.click(
-      await screen.findByRole('button', { name: 'Cancel the link: For Mom' }, LOADED),
-    );
+    await user.click(await screen.findByRole('button', { name: 'Cancel the link Mom' }, LOADED));
 
-    expect(await screen.findByText('Link cancelled. It no longer works.')).toBeInTheDocument();
+    expect(await screen.findByText('Link cancelled')).toBeInTheDocument();
+    // It moves to Expired and cancelled, folded at first
     await waitFor(() => {
-      expect(screen.queryByText('For Mom')).not.toBeInTheDocument();
+      expect(screen.queryByText('Mom')).not.toBeInTheDocument();
     });
     expect(sent).toEqual([
       { method: 'POST', path: '/api/family/invitations/inv-mom/cancel', body: undefined },
     ]);
+  });
+
+  it('lets the owner delete the family’s old links in one go (I-006)', async () => {
+    const sent = familyServer(ownersFamily());
+    const user = userEvent.setup();
+    renderApp('/family');
+
+    await user.click(
+      await screen.findByRole('checkbox', { name: 'Select all used links' }, LOADED),
+    );
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Delete 2 links?' });
+    expect(
+      within(dialog).getByText(/keeps their account and stays in the family/),
+    ).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Delete 2 links' }));
+
+    expect(await screen.findByText('2 links deleted')).toBeInTheDocument();
+    expect(sent).toEqual([
+      {
+        method: 'POST',
+        path: '/api/family/invitations/delete',
+        body: { ids: ['inv-iryna', 'inv-grandpa'] },
+      },
+    ]);
+    // An empty group has no Select all
+    expect(
+      screen.queryByRole('checkbox', { name: 'Select all used links' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows a member who isn’t the owner no links to delete', async () => {
+    familyServer(membersFamily());
+    renderApp('/family');
+
+    expect(await screen.findByRole('heading', { name: 'Members' }, LOADED)).toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: /Select all/ })).not.toBeInTheDocument();
   });
 
   it('removes someone after asking', async () => {

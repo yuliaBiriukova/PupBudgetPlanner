@@ -45,7 +45,7 @@ export const categoriesQuery = queryOptions({
       })),
     };
   },
-  // Changed only on the Categories page, which fetches it again after every change
+  // Changed on the Categories page and the Family page (F-030), which fetch it again after every change
   staleTime: 5 * 60_000,
 });
 

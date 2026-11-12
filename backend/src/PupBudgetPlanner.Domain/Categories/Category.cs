@@ -16,4 +16,9 @@ public sealed class Category
 
     /// <summary>Hidden from the forms but kept for the transactions and reports that use it.</summary>
     public bool IsArchived { get; set; }
+
+    /// <summary>
+    /// The other members of the family see nothing of it (F-030): not the category, its transactions or its total.
+    /// </summary>
+    public bool IsPrivate { get; set; }
 }

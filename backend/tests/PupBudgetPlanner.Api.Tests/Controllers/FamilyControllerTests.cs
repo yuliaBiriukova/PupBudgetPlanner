@@ -6,6 +6,7 @@ using NSubstitute;
 using PupBudgetPlanner.Api.Controllers;
 using PupBudgetPlanner.Application.Access;
 using PupBudgetPlanner.Application.Families;
+using PupBudgetPlanner.Domain.Invitations;
 
 namespace PupBudgetPlanner.Api.Tests.Controllers;
 
@@ -43,7 +44,7 @@ public sealed class FamilyControllerTests
     [Fact]
     public async Task Get_returns_the_signed_in_persons_family()
     {
-        var family = new FamilyView(Guid.CreateVersion7(), "Kovalenko", DateTimeOffset.UnixEpoch, true, [], []);
+        var family = new FamilyView(Guid.CreateVersion7(), "Kovalenko", DateTimeOffset.UnixEpoch, true, []);
         families.GetAsync(UserId, Arg.Any<CancellationToken>()).Returns(family);
 
         (await controller.Get(CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
@@ -111,6 +112,46 @@ public sealed class FamilyControllerTests
 
         (await controller.Invite(request, CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeSameAs(made);
+    }
+
+    [Fact]
+    public async Task The_owner_lists_deletes_and_cancels_the_familys_links()
+    {
+        IReadOnlyList<InvitationItem> links =
+            [new(Guid.CreateVersion7(), "Mom", InvitationStatus.Used, DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch, null, "Iryna", null, "Kovalenko")];
+        var request = new InvitationsRequest([links[0].Id]);
+        families.InvitationsAsync(UserId, Arg.Any<CancellationToken>()).Returns((FamilyActionOutcome.Done, links));
+        families.DeleteInvitationsAsync(UserId, request, Arg.Any<CancellationToken>())
+            .Returns((FamilyActionOutcome.Done, new InvitationsChanged(1)));
+        families.CancelInvitationsAsync(UserId, request, Arg.Any<CancellationToken>())
+            .Returns((FamilyActionOutcome.Done, new InvitationsChanged(0)));
+
+        (await controller.Invitations(CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
+            .Which.Value.Should().BeSameAs(links);
+        (await controller.DeleteInvitations(request, CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
+            .Which.Value.Should().Be(new InvitationsChanged(1));
+        (await controller.CancelInvitations(request, CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
+            .Which.Value.Should().Be(new InvitationsChanged(0));
+    }
+
+    [Theory]
+    [InlineData(FamilyActionOutcome.NotOwner, StatusCodes.Status403Forbidden)]
+    [InlineData(FamilyActionOutcome.NoFamily, StatusCodes.Status404NotFound)]
+    public async Task Someone_who_isnt_the_owner_gets_no_links_and_changes_none(FamilyActionOutcome outcome, int status)
+    {
+        var request = new InvitationsRequest([Guid.CreateVersion7()]);
+        families.InvitationsAsync(UserId, Arg.Any<CancellationToken>())
+            .Returns((outcome, (IReadOnlyList<InvitationItem>)[]));
+        families.DeleteInvitationsAsync(UserId, request, Arg.Any<CancellationToken>())
+            .Returns((outcome, new InvitationsChanged(0)));
+        families.CancelInvitationsAsync(UserId, request, Arg.Any<CancellationToken>())
+            .Returns((outcome, new InvitationsChanged(0)));
+
+        ((await controller.Invitations(CancellationToken.None)).Result as ObjectResult)!.StatusCode.Should().Be(status);
+        ((await controller.DeleteInvitations(request, CancellationToken.None)).Result as ObjectResult)!
+            .StatusCode.Should().Be(status);
+        ((await controller.CancelInvitations(request, CancellationToken.None)).Result as ObjectResult)!
+            .StatusCode.Should().Be(status);
     }
 
     [Fact]

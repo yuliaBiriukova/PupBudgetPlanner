@@ -1,20 +1,22 @@
+using PupBudgetPlanner.Domain.Families;
+
 namespace PupBudgetPlanner.Application.Families;
 
 /// <summary>
-/// The signed-in person's family (F-023): its name, everyone in it and, for the owner only, the links still waiting
-/// to be opened.
+/// The signed-in person's family (F-023): its name and everyone in it. The owner's invite links come on their own, from
+/// <c>GET /api/family/invitations</c> (I-006).
 /// </summary>
 public sealed record FamilyView(
     Guid Id,
     string Name,
     DateTimeOffset CreatedAt,
     bool IsOwner,
-    IReadOnlyList<FamilyMemberItem> Members,
-    IReadOnlyList<FamilyInvitationItem> Invitations);
+    IReadOnlyList<FamilyMemberItem> Members);
 
 /// <summary>
 /// One person in the family. <paramref name="StartedFamily"/> is true for the one who started it ("Started the family
-/// …" rather than "Joined …").
+/// …" rather than "Joined …"). <paramref name="Transactions"/> is what they share of their transactions and
+/// <paramref name="KeepsPrivate"/> whether they keep anything from the others (F-030): the family views say so.
 /// </summary>
 public sealed record FamilyMemberItem(
     Guid Id,
@@ -22,10 +24,9 @@ public sealed record FamilyMemberItem(
     bool IsOwner,
     bool IsYou,
     bool StartedFamily,
-    DateTimeOffset JoinedAt);
-
-/// <summary>A family's link waiting to be opened; <paramref name="Note"/> says who it is for.</summary>
-public sealed record FamilyInvitationItem(Guid Id, string? Note, DateTimeOffset CreatedAt, DateTimeOffset ExpiresAt);
+    DateTimeOffset JoinedAt,
+    TransactionShare Transactions,
+    bool KeepsPrivate);
 
 public sealed record StartFamilyRequest(string Name);
 
@@ -36,6 +37,15 @@ public sealed record LeaveFamilyRequest(Guid? NewOwnerId);
 
 /// <summary>Join the family of the invite link with this token.</summary>
 public sealed record JoinFamilyRequest(string Token);
+
+/// <summary>What the family sees of all your transactions (F-030).</summary>
+public sealed record ShareTransactionsRequest(TransactionShare Share);
+
+/// <summary>What the family sees of one of your accounts (F-030).</summary>
+public sealed record ShareAccountRequest(AccountShare Share);
+
+/// <summary>Whether the family sees nothing of one of your categories, or of a whole group (F-030).</summary>
+public sealed record KeepCategoryRequest(bool IsPrivate);
 
 public enum FamilyActionOutcome
 {

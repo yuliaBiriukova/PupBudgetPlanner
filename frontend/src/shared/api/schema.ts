@@ -11,10 +11,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Everything the Accounts page shows, and what its form offers. */
+        /**
+         * Everything the Accounts page shows, and what its form offers. who: `me` (the default),
+         *     `family` or a family member's id (F-024).
+         */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    who?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -28,6 +33,24 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["AccountsOverview"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -83,11 +106,13 @@ export interface paths {
         };
         /**
          * "In total, in UAH": the accounts in use together in the report currency at today's NBU rates (F-017), or the
-         *     latest earlier ones, marked.
+         *     latest earlier ones, marked. Whose accounts: as for the overview (F-024), always in your report currency.
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    who?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -101,6 +126,24 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["AccountsTotal"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -641,6 +684,111 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/invitations/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancels the picked links that are still waiting; the others stay as they are (I-006). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InvitationsRequest"];
+                    "text/json": components["schemas"]["InvitationsRequest"];
+                    "application/*+json": components["schemas"]["InvitationsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationsChanged"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/invitations/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Deletes the picked links of any status, families' too (I-006). The confirmation is the page's job; links already
+         *     gone are skipped.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InvitationsRequest"];
+                    "text/json": components["schemas"]["InvitationsRequest"];
+                    "application/*+json": components["schemas"]["InvitationsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationsChanged"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
                     };
                 };
             };
@@ -1442,6 +1590,62 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cleanup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deletes outdated data and says how much; a second run the same day deletes nothing more. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "X-Cleanup-Secret"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CleanupReport"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/family": {
         parameters: {
             query?: never;
@@ -1600,7 +1804,45 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** The family's links of every status, newest first; the owner only (I-006). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationItem"][];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         put?: never;
         /** A new link for one person. Its token is in this answer only: the page shows it once. */
         post: {
@@ -1625,6 +1867,144 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["CreatedInvitation"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/invitations/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancels the picked links of the family that are still waiting (I-006). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InvitationsRequest"];
+                    "text/json": components["schemas"]["InvitationsRequest"];
+                    "application/*+json": components["schemas"]["InvitationsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationsChanged"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/invitations/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deletes the picked links of the family, of any status (I-006). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InvitationsRequest"];
+                    "text/json": components["schemas"]["InvitationsRequest"];
+                    "application/*+json": components["schemas"]["InvitationsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationsChanged"];
                     };
                 };
                 /** @description Bad Request */
@@ -1918,6 +2298,217 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/family/privacy/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** All your transactions, or only their totals by category. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ShareTransactionsRequest"];
+                    "text/json": components["schemas"]["ShareTransactionsRequest"];
+                    "application/*+json": components["schemas"]["ShareTransactionsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/privacy/accounts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Everything, its balance only, or nothing of one of your accounts. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ShareAccountRequest"];
+                    "text/json": components["schemas"]["ShareAccountRequest"];
+                    "application/*+json": components["schemas"]["ShareAccountRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/privacy/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Keeps one of your categories from the family, or shares it again. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["KeepCategoryRequest"];
+                    "text/json": components["schemas"]["KeepCategoryRequest"];
+                    "application/*+json": components["schemas"]["KeepCategoryRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/privacy/groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Keeps a whole group of yours from the family, its categories added later too, or shares it again. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["KeepCategoryRequest"];
+                    "text/json": components["schemas"]["KeepCategoryRequest"];
+                    "application/*+json": components["schemas"]["KeepCategoryRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -2069,12 +2660,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** January to December of year: the months still to come have no numbers. */
+        /**
+         * January to December of year: the months still to come have no numbers.
+         *     who: `me` (the default), `family` or a family member's id (F-024).
+         */
         get: {
             parameters: {
                 query?: {
                     year?: number | string;
                     currency?: string;
+                    who?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2098,6 +2693,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -2117,12 +2721,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** One month, month written `yyyy-MM`; no Avg. */
+        /** One month, month written `yyyy-MM`; no Avg. Whose: as for the year. */
         get: {
             parameters: {
                 query?: {
                     month?: string;
                     currency?: string;
+                    who?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2146,6 +2751,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -2330,7 +2944,8 @@ export interface paths {
         };
         /**
          * The Transactions page (F-020): the ones the filters find, newest day first, limit at a time
-         *     from offset; the answer says where the next page starts.
+         *     from offset; the answer says where the next page starts. who: `me`
+         *     (the default), `family` or a family member's id (F-024).
          */
         get: {
             parameters: {
@@ -2342,6 +2957,7 @@ export interface paths {
                     type?: components["schemas"]["TransactionType"];
                     offset?: number | string;
                     limit?: number | string;
+                    who?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2365,6 +2981,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -2420,7 +3045,7 @@ export interface paths {
         };
         /**
          * What the ones the filters find come to (F-020): spent and received, each day's, and each category's, in the
-         *     report currency at the NBU rates of their days (one account picked: in its own).
+         *     report currency at the NBU rates of their days (one account picked: in its own). Whose: as for the list (F-024).
          */
         get: {
             parameters: {
@@ -2430,6 +3055,7 @@ export interface paths {
                     accountId?: string;
                     categoryId?: string;
                     type?: components["schemas"]["TransactionType"];
+                    who?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2453,6 +3079,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -2654,10 +3289,15 @@ export interface components {
          *     TransactionCount keeps an account with transactions from being deleted or changing its
          *     currency (I-011, F-018). LastUsedAt is when its latest transaction was added (a transfer's
          *     for both its accounts), none without transactions: the quick-add form lists the account used last first (I-024).
+         *     OwnerId is whose it is: someone else's only opens to look at (F-024).
+         *     FamilySees is what the other members of the family see of it (F-030): your own as you set it,
+         *     someone else's Everything or BalanceOnly (a hidden one isn't there).
          */
         AccountItem: {
             /** Format: uuid */
             id: string;
+            /** Format: uuid */
+            ownerId: string;
             name: string;
             currency: string;
             source: components["schemas"]["SourceKind"];
@@ -2680,7 +3320,14 @@ export interface components {
             transactionCount: number | string;
             /** Format: date-time */
             lastUsedAt: null | string;
+            familySees: components["schemas"]["AccountShare"];
         };
+        /**
+         * @description What the other members of a person's family see of one of their accounts (F-030). The same for every member; a new
+         *     account is AccountShare.Everything.
+         * @enum {unknown}
+         */
+        AccountShare: "Everything" | "BalanceOnly" | "Hidden";
         /**
          * @description Everything the Accounts page shows: the accounts in use (oldest first), the archived ones (last archived first),
          *     the totals per currency, the person's own sources and banks (by name) for the form, and every currency an
@@ -2758,7 +3405,10 @@ export interface components {
         CategoriesOverview: {
             groups: components["schemas"]["CategoryGroupItem"][];
         };
-        /** @description One of the person's category groups with its shown categories in order, then the hidden ones. */
+        /**
+         * @description One of the person's category groups with its shown categories in order, then the hidden ones.
+         *     bool CategoryGroupItem.IsPrivate: the family sees nothing of the whole group, its categories added later too (F-030).
+         */
         CategoryGroupItem: {
             /** Format: uuid */
             id: string;
@@ -2766,10 +3416,12 @@ export interface components {
             kind: components["schemas"]["CategoryKind"];
             isHidden: boolean;
             categories: components["schemas"]["CategoryItem"][];
+            isPrivate: boolean;
         };
         /**
          * @description One category in a group. A hidden one (F-029) isn't offered for new transactions; its transactions keep it.
          *     int CategoryItem.TransactionCount says whether removing it deletes it (none) or hides it.
+         *     bool CategoryItem.IsPrivate: the other members of the family see nothing of it (F-030).
          */
         CategoryItem: {
             /** Format: uuid */
@@ -2778,6 +3430,8 @@ export interface components {
             isHidden: boolean;
             /** Format: int32 */
             transactionCount: number | string;
+            /** @default false */
+            isPrivate: boolean;
         };
         /**
          * @description The report section of a group, and which form (expense or income) offers its categories.
@@ -2799,6 +3453,11 @@ export interface components {
         /** @description The currency totals and reports are shown in: the hryvnia, or any other currency the NBU publishes a rate for. */
         ChangeReportCurrencyRequest: {
             currency: string;
+        };
+        /** @description What one run deleted. Other outdated data adds its own count here. */
+        CleanupReport: {
+            /** Format: int32 */
+            invitationsDeleted: number | string;
         };
         /**
          * @description The link just made. Token goes into `/invite/{token}`; it is never shown again, because
@@ -2858,19 +3517,10 @@ export interface components {
         DeletedTransaction: {
             balances: components["schemas"]["BalanceChange"][];
         };
-        /** @description A family's link waiting to be opened; Note says who it is for. */
-        FamilyInvitationItem: {
-            /** Format: uuid */
-            id: string;
-            note: null | string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            expiresAt: string;
-        };
         /**
          * @description One person in the family. StartedFamily is true for the one who started it ("Started the family
-         *     …" rather than "Joined …").
+         *     …" rather than "Joined …"). Transactions is what they share of their transactions and
+         *     KeepsPrivate whether they keep anything from the others (F-030): the family views say so.
          */
         FamilyMemberItem: {
             /** Format: uuid */
@@ -2881,10 +3531,12 @@ export interface components {
             startedFamily: boolean;
             /** Format: date-time */
             joinedAt: string;
+            transactions: components["schemas"]["TransactionShare"];
+            keepsPrivate: boolean;
         };
         /**
-         * @description The signed-in person's family (F-023): its name, everyone in it and, for the owner only, the links still waiting
-         *     to be opened.
+         * @description The signed-in person's family (F-023): its name and everyone in it. The owner's invite links come on their own, from
+         *     `GET /api/family/invitations` (I-006).
          */
         FamilyView: {
             /** Format: uuid */
@@ -2894,7 +3546,6 @@ export interface components {
             createdAt: string;
             isOwner: boolean;
             members: components["schemas"]["FamilyMemberItem"][];
-            invitations: components["schemas"]["FamilyInvitationItem"][];
         };
         HealthResponse: {
             status: string;
@@ -2926,6 +3577,15 @@ export interface components {
             expiresAt: string;
             family?: null | components["schemas"]["InvitedFamily"];
         };
+        /** @description How many links were deleted or cancelled; links already gone, or not waiting for a cancel, don't count. */
+        InvitationsChanged: {
+            /** Format: int32 */
+            count: number | string;
+        };
+        /** @description The invite links an action is for: everything picked on the Invite links tab or the Family page (I-006). */
+        InvitationsRequest: {
+            ids: string[];
+        };
         /**
          * @description Where an invitation is in its life. Worked out from its dates, never stored (F-028).
          * @enum {unknown}
@@ -2945,6 +3605,10 @@ export interface components {
         /** @description Join the family of the invite link with this token. */
         JoinFamilyRequest: {
             token: string;
+        };
+        /** @description Whether the family sees nothing of one of your categories, or of a whole group (F-030). */
+        KeepCategoryRequest: {
+            isPrivate: boolean;
         };
         /** @description The account last used for a type: the form picks it when it opens (DESIGN_RULES §5). */
         LastAccount: {
@@ -3177,6 +3841,14 @@ export interface components {
             /** Format: double */
             toAmount?: null | number | string;
         };
+        /** @description What the family sees of one of your accounts (F-030). */
+        ShareAccountRequest: {
+            share: components["schemas"]["AccountShare"];
+        };
+        /** @description What the family sees of all your transactions (F-030). */
+        ShareTransactionsRequest: {
+            share: components["schemas"]["TransactionShare"];
+        };
         SignInRequest: {
             email: string;
             password: string;
@@ -3208,11 +3880,13 @@ export interface components {
         /**
          * @description One transaction as the lists show it, with its account's and category's names and the account's currency: an
          *     archived account or category is still named. A transfer (F-019) has no category; it has its To account's name and
-         *     currency and what that account got instead.
+         *     currency and what that account got instead. OwnerId is whose it is: only they change it (F-024).
          */
         TransactionItem: {
             /** Format: uuid */
             id: string;
+            /** Format: uuid */
+            ownerId: string;
             type: components["schemas"]["TransactionType"];
             /** Format: date */
             date: string;
@@ -3242,6 +3916,11 @@ export interface components {
             /** Format: int32 */
             next: null | number | string;
         };
+        /**
+         * @description What the other members of a person's family see of their transactions (F-030), all of them at once.
+         * @enum {unknown}
+         */
+        TransactionShare: "Every" | "Totals";
         /**
          * @description What the quick-add form picks and offers before the person does (F-018): the last account used for each type, the
          *     category last used with each account, the most used categories, and the last transfer's From and To (F-019). "Last"

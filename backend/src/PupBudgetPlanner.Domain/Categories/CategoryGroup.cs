@@ -20,5 +20,11 @@ public sealed class CategoryGroup
     /// <summary>Hidden with its hidden categories (F-029): kept for the transactions and reports that use them.</summary>
     public bool IsArchived { get; set; }
 
+    /// <summary>
+    /// The other members of the family see nothing of the group (F-030): its categories, the ones added later too, their
+    /// transactions and totals.
+    /// </summary>
+    public bool IsPrivate { get; set; }
+
     public ICollection<Category> Categories { get; } = [];
 }

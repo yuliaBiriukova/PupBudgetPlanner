@@ -74,7 +74,13 @@ export function fakeCategoriesRoutes(
       const group = groups.find((g) => g.id === groupId);
       if (!group) return notFound;
       if (clash(group, name)) return nameTaken;
-      const category = { id: `new-${String(next++)}`, name, isHidden: false, transactionCount: 0 };
+      const category = {
+        id: `new-${String(next++)}`,
+        name,
+        isHidden: false,
+        transactionCount: 0,
+        isPrivate: false,
+      };
       place(group, category, at);
       return { json: { id: category.id } };
     },
@@ -124,6 +130,7 @@ export function fakeCategoriesRoutes(
         name,
         kind,
         isHidden: false,
+        isPrivate: false,
         categories: [],
       };
       placeGroup(group, at);

@@ -1,8 +1,10 @@
+import { OLENA_ID } from '../family/familyTestData';
 import type { Account, AccountsOverview, AccountsTotal } from './accountsApi';
 
-/** The final prototype's accounts (F-014), for tests and stories. */
+/** The final prototype's accounts (F-014), for tests and stories: Olena's, the signed-in person's. */
 export const account = (id: string, name: string, extra: Partial<Account> = {}): Account => ({
   id,
+  ownerId: OLENA_ID,
   name,
   currency: 'UAH',
   source: 'Cash',
@@ -17,6 +19,7 @@ export const account = (id: string, name: string, extra: Partial<Account> = {}):
   archivedAt: null,
   transactionCount: 0,
   lastUsedAt: null,
+  familySees: 'Everything',
   ...extra,
 });
 

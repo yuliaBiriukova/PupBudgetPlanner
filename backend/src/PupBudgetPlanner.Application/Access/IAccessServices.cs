@@ -11,6 +11,15 @@ public interface IInvitationService
 
     Task<CancelInvitationOutcome> CancelAsync(Guid id, CancellationToken cancellationToken);
 
+    /// <summary>Cancels the picked links that are still waiting; the others stay as they are (I-006).</summary>
+    Task<InvitationsChanged> CancelManyAsync(InvitationsRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Deletes the picked links of any status, the admin's and families' alike (I-006). A deleted waiting link stops
+    /// working; the accounts made with used ones, and the families, are not touched.
+    /// </summary>
+    Task<InvitationsChanged> DeleteAsync(InvitationsRequest request, CancellationToken cancellationToken);
+
     /// <summary>
     /// Who invited and until when, for a link that still works; null for a used, expired, cancelled or made-up one,
     /// which are never told apart (they may be guesses).

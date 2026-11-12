@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PupBudgetPlanner.Api.Controllers;
+using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Application.Transactions;
 using PupBudgetPlanner.Domain.Transactions;
 
@@ -23,11 +24,12 @@ public sealed class TransactionsControllerTests
 
     private static readonly SavedTransaction Saved = new(
         new TransactionItem(
-            TransactionId, TransactionType.Expense, new DateOnly(2026, 11, 1), AccountId, "Mono black", "UAH",
+            TransactionId, UserId, TransactionType.Expense, new DateOnly(2026, 11, 1), AccountId, "Mono black", "UAH",
             CategoryId, "Groceries", 612m, "Silpo"),
         [new BalanceChange(AccountId, 48_211m, 47_599m)]);
 
     private readonly ITransactionService transactions = Substitute.For<ITransactionService>();
+    private readonly IFamilyService families = Substitute.For<IFamilyService>();
     private readonly TransactionsController controller;
 
     public TransactionsControllerTests()
@@ -35,7 +37,7 @@ public sealed class TransactionsControllerTests
         var services = new ServiceCollection().AddProblemDetails();
         services.AddMvcCore();
         var person = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, UserId.ToString())], "cookie"));
-        controller = new TransactionsController(transactions, new TransactionFilterValidator())
+        controller = new TransactionsController(transactions, new TransactionFilterValidator(), families)
         {
             ControllerContext = new ControllerContext
             {
@@ -58,8 +60,8 @@ public sealed class TransactionsControllerTests
         var page = new TransactionPage([Saved.Transaction], 30);
         var summary = new TransactionSummary("UAH", 612m, 0m, 1, [], [], false);
         var suggestions = new TransactionSuggestions([new LastAccount(TransactionType.Expense, AccountId)], [], []);
-        transactions.ListAsync(UserId, filter, 0, 30, Arg.Any<CancellationToken>()).Returns(page);
-        transactions.SummaryAsync(UserId, filter, Arg.Any<CancellationToken>()).Returns(summary);
+        transactions.ListAsync(MoneyScope.Own(UserId), filter, 0, 30, Arg.Any<CancellationToken>()).Returns(page);
+        transactions.SummaryAsync(MoneyScope.Own(UserId), filter, Arg.Any<CancellationToken>()).Returns(summary);
         transactions.SuggestionsAsync(UserId, Arg.Any<CancellationToken>()).Returns(suggestions);
 
         (await controller.List(CancellationToken.None, filter.From, filter.To, filter.AccountId))
@@ -107,7 +109,37 @@ public sealed class TransactionsControllerTests
             .Which.Value.Should().BeOfType<ValidationProblemDetails>()
             .Which.Errors.Should().ContainKey(field);
         await transactions.DidNotReceiveWithAnyArgs()
-            .ListAsync(default, default!, default, default, TestContext.Current.CancellationToken);
+            .ListAsync(default!, default!, default, default, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task The_familys_list_and_summary_are_of_everyone_the_family_lets_you_see()
+    {
+        var together = new MoneyScope(UserId, [UserId, Guid.CreateVersion7()]);
+        families.ScopeAsync(UserId, Who.Family, Arg.Any<CancellationToken>()).Returns(together);
+        var filter = new TransactionFilter(CategoryId: CategoryId);
+        var page = new TransactionPage([Saved.Transaction], null);
+        var summary = new TransactionSummary("UAH", 612m, 0m, 1, [], [], false);
+        transactions.ListAsync(together, filter, 0, 30, Arg.Any<CancellationToken>()).Returns(page);
+        transactions.SummaryAsync(together, filter, Arg.Any<CancellationToken>()).Returns(summary);
+
+        (await controller.List(CancellationToken.None, categoryId: CategoryId, who: "family"))
+            .Result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(page);
+        (await controller.Summary(CancellationToken.None, categoryId: CategoryId, who: "family"))
+            .Result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(summary);
+    }
+
+    [Fact]
+    public async Task Without_a_family_the_familys_list_is_not_found()
+    {
+        families.ScopeAsync(UserId, Who.Family, Arg.Any<CancellationToken>()).Returns((MoneyScope?)null);
+
+        (await controller.List(CancellationToken.None, who: "family")).Result.Should()
+            .BeAssignableTo<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        (await controller.Summary(CancellationToken.None, who: "family")).Result.Should()
+            .BeAssignableTo<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        await transactions.DidNotReceiveWithAnyArgs()
+            .ListAsync(default!, default!, default, default, TestContext.Current.CancellationToken);
     }
 
     [Fact]

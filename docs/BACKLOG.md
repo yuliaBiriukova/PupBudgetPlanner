@@ -65,7 +65,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 |----|---------|--------|
 | [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) | 🎨 Add, rename, reorder and remove categories and groups (priority High, added 2026-11-06) | Done |
 | [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) | 🎨 Family and invitations | Done |
-| [F-024](changes/features/F-024-family-views/F-024-family-views.md) | Family views | Todo |
+| [F-024](changes/features/F-024-family-views/F-024-family-views.md) | 🎨 Family views | Done |
+| [F-030](changes/features/F-030-family-privacy/F-030-family-privacy.md) | 🎨 Privacy in the family: each person decides what the other members see of their money (priority Medium, added 2026-11-12) | Done |
 
 ### M6 — MVP release
 
@@ -93,7 +94,7 @@ owner asks for one.
 | [I-003](changes/improvements/I-003-owner-approval-before-implementation/I-003-owner-approval-before-implementation.md) | Owner approval before implementation (backend or frontend) | High | Done |
 | [I-004](changes/improvements/I-004-custom-scroll-bars/I-004-custom-scroll-bars.md) | 🎨 Custom scroll bars; a dialog scrolls inside itself | Medium | Done |
 | [I-005](changes/improvements/I-005-people-pagination/I-005-people-pagination.md) | 🎨 Pages on the People list; "Select all" picks the current page | Medium | Todo |
-| [I-006](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md) | 🎨 Delete used, expired and cancelled invite links (one or many); morning cron job deletes them after 30 days | Medium | Todo |
+| [I-006](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md) | 🎨 Delete invite links (one or many, Select all per group; family owners on the Family page too); morning cron job deletes old ones after 30 days (raised to High 2026-11-12) | High | Done |
 | [I-007](changes/improvements/I-007-remove-test-data-after-tests/I-007-remove-test-data-after-tests.md) | Remove test accounts and data after tests; E2E tests clean up after themselves | High | Done |
 | [I-008](changes/improvements/I-008-instant-click-feedback/I-008-instant-click-feedback.md) | Instant response to clicks on check boxes and dialog buttons (closed: fine on production) | High | Done |
 | [I-009](changes/improvements/I-009-planning-only-branches/I-009-planning-only-branches.md) | Planning-only branches (`plan/…`) for lists the owner only wants in the backlog | High | Done |
@@ -118,6 +119,7 @@ owner asks for one.
 | [I-028](changes/improvements/I-028-fold-away-keys/I-028-fold-away-keys.md) | 🎨 The phone keys show on a tap on the amount and fold away with Back or a swipe down, not the whole form | Medium | Done |
 | [I-029](changes/improvements/I-029-popup-height-and-keyboard/I-029-popup-height-and-keyboard.md) | 🎨 Phone pop-ups as tall as their content up to the whole screen, every one above the keyboard; a form opens without the keyboard (prototype approved 2026-11-11) | Medium | Done |
 | [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) | 🎨 An Add button people find on the phone: one + that opens Transfer, Income and Expense; a menu with every place named (design approved 2026-11-09) | High | Done |
+| [I-031](changes/improvements/I-031-fewer-ci-minutes/I-031-fewer-ci-minutes.md) | CI checks each change once: no run on the push to `develop` or for docs-only PRs, the Docker image only for releases (90% of the month's Actions minutes used by 2026-11-12; approved 2026-11-12) | High | Done |
 
 ## Bugfixes
 
@@ -141,3 +143,4 @@ owner asks for one.
 | [B-016](changes/bugfixes/B-016-e2e-browser-install-hangs/B-016-e2e-browser-install-hangs.md) | CI's E2E job hangs 10–20 minutes installing the browser when Ubuntu's package mirrors are down, then fails without a test | High | Done |
 | [B-017](changes/bugfixes/B-017-flaky-ci-unit-tests/B-017-flaky-ci-unit-tests.md) | Two frontend unit tests fail on CI's `develop` runs that passed on their PRs (the Filters sheet drops its picks for a moment as it closes) | Medium | Done |
 | [B-018](changes/bugfixes/B-018-e2e-cleanup-digit-tags/B-018-e2e-cleanup-digit-tags.md) | The E2E clean-up leaves test accounts whose tag has digits (`e2e-i024-shots-…`): 51 left in the `dev` database | Medium | Done |
+| [B-019](changes/bugfixes/B-019-flaky-family-privacy-test/B-019-flaky-family-privacy-test.md) | A Family privacy unit test fails on CI's release run: it looks inside a fold that is still opening (fixed in the release PR #96) | High | Done |
