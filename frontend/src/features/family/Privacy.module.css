@@ -187,6 +187,13 @@
   font-weight: 500;
 }
 
+/* The group's Whole group checkbox: a setting, not a pill like the categories; 44 px to tap */
+.wholeGroup {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
 /* A category of a whole private group: locked, the group decides */
 .inWholeGroup:disabled {
   opacity: 0.6;

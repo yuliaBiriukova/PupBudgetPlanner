@@ -196,7 +196,7 @@ A private category: the others see nothing of it (owner, 2026-11-12; not only it
 - **A whole category group can be private** (owner, 2026-11-12, on the PR: "user should be able to hide the whole
   category group"; asked whether a category added later goes with it: "Private too"). The group itself is private
   (`category_groups.is_private`): the others see nothing of it, its categories now or added later. In Choose categories
-  each group has a *Whole group* pill; its categories' pills then show the lock and can't be picked one by one. On the
+  each group has a *Whole group* checkbox (the owner found a pill too like a category, 2026-11-12); its categories' pills then show the lock and can't be picked one by one. On the
   Family page it is one tag, "Home expenses · whole group", with its ×.
 - **One style for every share** (owner, 2026-11-12, on the PR): Hidden and Balance only are the same quiet pill as
   Everything, not in the accent; the icon and the word tell them apart.

@@ -1,4 +1,4 @@
-import { Button, Collapse, Menu, UnstyledButton } from '@mantine/core';
+import { Button, Checkbox, Collapse, Menu, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconCheck,
@@ -354,7 +354,7 @@ function PrivateTags({ groups }: { groups: CategoryGroup[] }) {
 }
 
 /**
- * Every shown category by group as pills: a picked one is private, with a lock. Each group has a "Whole group" pill
+ * Every shown category by group as pills: a picked one is private, with a lock. Each group has a "Whole group" checkbox
  * (owner, 2026-11-12): then the group decides, its categories (and ones added later) all private.
  */
 function CategoriesDialog({
@@ -387,20 +387,18 @@ function CategoriesDialog({
           <section key={group.id} className={classes.pickGroup}>
             <div className={classes.pickGroupHead}>
               <h3 className={classes.pickGroupName}>{group.name}</h3>
-              <UnstyledButton
-                className={pills.pill}
-                aria-pressed={group.isPrivate}
+              <Checkbox
+                className={classes.wholeGroup}
+                label={t('privacy.categories.wholeGroup')}
                 aria-label={t('privacy.categories.wholeGroupLabel', { group: group.name })}
-                onClick={() => {
+                checked={group.isPrivate}
+                onChange={(event) => {
                   keepGroup.mutate(
-                    { groupId: group.id, isPrivate: !group.isPrivate },
+                    { groupId: group.id, isPrivate: event.currentTarget.checked },
                     { onError: failed },
                   );
                 }}
-              >
-                {group.isPrivate && <IconLock size={16} stroke={1.7} aria-hidden />}
-                {t('privacy.categories.wholeGroup')}
-              </UnstyledButton>
+              />
             </div>
             <div className={pills.pills} data-whole={group.isPrivate || undefined}>
               {group.categories

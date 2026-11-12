@@ -46,6 +46,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   ARCHITECTURE.md, DESIGN_RULES updated). Checked: backend build and tests (560 / 560), frontend lint, format,
   typecheck, unit tests, `family-privacy.spec.ts` with a private group on the real database, the dialog and the tag at
   375 and 1440 px, light and dark. Test data: the E2E's people, cleaned up by its teardown.
+- The owner found the Whole group pill too like a category: it is the app's checkbox now (DESIGN_RULES updated).
+  Checked: lint, format, typecheck, the family unit tests, the dialog at 375 and 1440 px, light and dark.
 
 **Next**
 - Owner: review the PR. M6 (MVP release) is next.

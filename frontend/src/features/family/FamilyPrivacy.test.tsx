@@ -216,12 +216,12 @@ describe('what the family sees, on the Family page (F-030)', () => {
     await user.click(part.getByRole('button', { name: 'Choose categories' }));
     const dialog = await screen.findByRole('dialog', { name: 'Private categories' });
     await user.click(
-      within(dialog).getByRole('button', { name: 'Keep all of Home expenses private' }),
+      within(dialog).getByRole('checkbox', { name: 'Keep all of Home expenses private' }),
     );
 
     expect(
-      within(dialog).getByRole('button', { name: 'Keep all of Home expenses private' }),
-    ).toHaveAttribute('aria-pressed', 'true');
+      within(dialog).getByRole('checkbox', { name: 'Keep all of Home expenses private' }),
+    ).toBeChecked();
     const rent = within(dialog).getByRole('button', { name: 'Rent' });
     expect(rent).toHaveAttribute('aria-pressed', 'true');
     expect(rent).toBeDisabled();
