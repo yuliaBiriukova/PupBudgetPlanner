@@ -4,10 +4,10 @@
 |---|---|
 | Type | Bugfix |
 | Priority | Medium (proposed: visible on every desktop page, but nothing is broken) |
-| Status | Todo |
+| Status | Done |
 | Branch | `bugfix/B-020-B-022-I-032-ui-fixes` (one PR with B-020, B-021 and I-032, as the owner asked) |
 | Found in | Production, 2026-11-12, desktop |
-| Approved | — |
+| Approved | 2026-11-12 (root cause and planned fix, "Approved, build them") |
 
 ## Steps to reproduce
 
@@ -32,14 +32,15 @@ initial (32 px) and the name sit 20 px down. The two buttons are in a box of the
 
 ## Fix
 
-Planned, waiting for the owner's approval:
+Approved by the owner on 2026-11-12:
 
-- [ ] `.footTools` is centred on the row (top and bottom 0, its buttons centred) instead of `top: 2px`: all four
+- [x] `.footTools` is centred on the row (top and bottom 0, its buttons centred) instead of `top: 2px`: all four
   middles level, whatever the buttons' size.
-- [ ] The collapsed rail (where the buttons hide) and the phone (no sidebar) don't change.
+- [x] The collapsed rail (where the buttons hide) and the phone (no sidebar) don't change.
 
 ## Tests
 
-- [ ] E2E on the desktop (`shell.spec.ts`, 1440 px): the middles of the initial, the name, the theme button and Sign out
-  are within 1 px of each other. Fails before the fix (4 px), passes after it.
-- [ ] Screenshots of the sidebar's foot at 1440 px, light and dark, zoomed in; the collapsed rail unchanged.
+- [x] E2E on the desktop (`shell.spec.ts`): the middles of the initial, the name, the theme button and Sign out are
+  within 1 px of each other. Fails before the fix (4 px), passes after it.
+- [x] Screenshots of the sidebar's foot at 1440 px: [light](fixed-1440-light.png), [dark](fixed-1440-dark.png); in
+  Storybook all four middles at the same y (736 px). The collapsed rail hides the buttons as before.

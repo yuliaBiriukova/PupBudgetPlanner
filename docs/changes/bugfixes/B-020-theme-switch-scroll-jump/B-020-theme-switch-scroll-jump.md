@@ -4,10 +4,10 @@
 |---|---|
 | Type | Bugfix |
 | Priority | Medium (proposed: a visible jump on a side screen; the theme still changes) |
-| Status | Todo |
+| Status | Done |
 | Branch | `bugfix/B-020-B-022-I-032-ui-fixes` (one PR with B-021, B-022 and I-032, as the owner asked) |
 | Found in | Production, 2026-11-12, the owner's Android phone (Chrome), dark theme |
-| Approved | — |
+| Approved | 2026-11-12 (root cause and planned fix, "Approved, build them") |
 
 ## Steps to reproduce
 
@@ -41,15 +41,16 @@ The same `Choice` is the report currency's switch, so it jumped too.
 
 ## Fix
 
-Planned, waiting for the owner's approval:
+Approved by the owner on 2026-11-12:
 
-- [ ] `.option` (the label) gets `position: relative`, so the hidden radio sits inside it and scrolls with the page.
+- [x] `.option` (the label) gets `position: relative`, so the hidden radio sits inside it and scrolls with the page.
   Checked in the rebuilt layout: the frame stays at 0.
-- [ ] Nothing else changes: the arrow keys, the focus ring and screen readers work as before.
+- [x] Nothing else changes: the arrow keys, the focus ring and screen readers work as before.
 
 ## Tests
 
-- [ ] E2E on the phone (`settings.spec.ts`, 375 px): scroll to Theme, pick Dark; the app's frame hasn't moved (the bottom
-  menu still at the screen's foot) and the page is where it was. Fails before the fix, passes after it. (A unit test
-  can't see it: jsdom has no layout.)
-- [ ] Screenshots of the More page at 375 px after picking a theme, light and dark; the desktop unchanged.
+- [x] E2E on the phone (`settings.spec.ts`, 412 × 560 px, short enough that Theme is below the screen): scroll to
+  Theme, pick Dark; the bottom menu is still at the screen's foot and nothing but the page's own scroll area has
+  scrolled. Fails before the fix (the menu moved up), passes after it. (A unit test can't see it: jsdom has no layout.)
+- [x] Screenshots of the More page at 375 px after picking a theme: [dark](fixed-375-dark.png),
+  [light](fixed-375-light.png); the menu stays at the foot.

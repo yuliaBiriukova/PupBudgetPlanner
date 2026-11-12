@@ -4,10 +4,10 @@
 |---|---|
 | Type | Bugfix |
 | Priority | High (proposed: on the main form you can't see what you type) |
-| Status | Todo |
+| Status | Done |
 | Branch | `bugfix/B-020-B-022-I-032-ui-fixes` (one PR with B-020, B-022 and I-032, as the owner asked) |
 | Found in | Production, 2026-11-12, the owner's Android phone (Chrome), dark theme |
-| Approved | — |
+| Approved | 2026-11-12 (root cause and planned fix, "Approved, build them") |
 
 ## Steps to reproduce
 
@@ -36,17 +36,19 @@ scrolls the input. So the input stays scrolled to its start. A plain number that
 
 ## Fix
 
-Planned, waiting for the owner's approval:
+Approved by the owner on 2026-11-12:
 
-- [ ] `AmountDisplay` scrolls its input to the end (`scrollLeft = scrollWidth`) whenever its value changes while the
+- [x] `AmountDisplay` scrolls its input to the end (`scrollLeft = scrollWidth`) whenever its value changes while the
   caret is at the end, which is always so with the app's keys: the newest digits are in sight, the start moves out
   on the left, as on a calculator. Typed on a keyboard (the desktop) nothing changes: the browser follows the caret.
-- [ ] The result line on top (`= 57 720 ₴`) stays as it is; it already shows the whole sum's total.
+- [x] The result line on top (`= 57 720 ₴`) stays as it is; it already shows the whole sum's total.
 
 ## Tests
 
-- [ ] E2E on the phone (`transactions.spec.ts`, 375 px): type a sum wider than the amount on the app's keys; the input is
-  scrolled to its end (its last digits in sight). Fails before the fix, passes after it.
-- [ ] Unit (`TransactionsPage.test.tsx`): the display asks its input to scroll to the end on a key (jsdom has no layout,
-  so the check is that `scrollLeft` is set to `scrollWidth`).
-- [ ] Screenshots at 375 px with a long sum, light and dark; the desktop at 1440 px typed on the keyboard, unchanged.
+- [x] E2E on the phone (`transactions.spec.ts`, Pixel 7): type `99+666+66+777+888+12345` on the app's keys; the input
+  is scrolled to its end, and stays there after ⌫. Fails before the fix (scrolled 0 px), passes after it.
+- [x] Unit (`TransactionsPage.test.tsx`, *the phone keys*): with the input made 300 px wide and its text 600 px (jsdom
+  has no layout), a digit and + each set `scrollLeft` to the end. Fails before the fix, passes after it.
+- [x] Screenshots at 375 px with `99+666+66+777+888+12345` typed: [light](fixed-375-light.png),
+  [dark](fixed-375-dark.png) show `7 + 888 + 12 345`, the end. The desktop is typed on the keyboard, so the browser
+  already followed the caret there; nothing changed for it.

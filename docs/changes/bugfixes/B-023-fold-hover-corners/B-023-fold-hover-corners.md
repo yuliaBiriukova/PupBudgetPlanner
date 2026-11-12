@@ -4,10 +4,10 @@
 |---|---|
 | Type | Bugfix |
 | Priority | Low (proposed: polish on a side screen; nothing is hidden or broken) |
-| Status | Todo |
+| Status | Done |
 | Branch | `bugfix/B-020-B-022-I-032-ui-fixes` (one PR with B-020 – B-022 and I-032, as the owner asked) |
 | Found in | Production, 2026-11-12, desktop, light theme |
-| Approved | — |
+| Approved | 2026-11-12 (root cause and planned fix, "Approved, build them") |
 
 ## Steps to reproduce
 
@@ -35,16 +35,22 @@ hover, which fills the head, is a rounded box: right only where a head's corner 
 
 ## Fix
 
-Planned, waiting for the owner's approval:
+Approved by the owner on 2026-11-12:
 
-- [ ] `.foldHead` is square; the first fold's head takes the card's top corners and the last fold's head its bottom
+- [x] `.foldHead` is square; the first fold's head takes the card's top corners and the last fold's head its bottom
   corners while it is folded (open, its body is at the bottom, so its head is square there). The radius is the
   card's less its 1 px border, so the hover meets the border with no gap.
-- [ ] The other cards split into rows with a hover (the Family page, People, Accounts, Settings) are checked for the
-  same thing and fixed the same way if they have it.
+- [x] The other cards split into rows with a hover (the Family page, People, Accounts, Settings, Categories,
+  Transactions, Reports) are checked for the same thing. One more had it: the Transactions calendar's fold head
+  (*Calendar · This week*) was rounded on all four corners with the calendar under it in the same card. Its head now
+  has the card's top corners only (less the border), square at the bottom. The rest are standalone boxes, pills or
+  tiles, so their rounded hover is right.
 
 ## Tests
 
-- [ ] Unit can't see corners (jsdom has no layout), so E2E (`family-privacy.spec.ts`, desktop): the middle fold head's
-  corners are 0 px, the first's top and the last's bottom 11 px. Fails before the fix, passes after it.
-- [ ] Screenshots of each fold hovered at 1440 px, light and dark, zoomed in; the phone at 375 px.
+- [x] E2E (`family-privacy.spec.ts`, phone and desktop; jsdom has no layout, so no unit test): the middle head is square,
+  the first rounded only at the top, the last only at the bottom, and square once it is open. Fails before the fix,
+  passes after it.
+- [x] Screenshots of each fold hovered at 1440 and 375 px, light and dark: the middle one
+  ([light](fixed-1440-light-middle.png), [dark](fixed-1440-dark-middle.png)) fills its square cell. The calendar's
+  head hovered: [light](fixed-calendar-1440-light.png), [dark](fixed-calendar-1440-dark.png).

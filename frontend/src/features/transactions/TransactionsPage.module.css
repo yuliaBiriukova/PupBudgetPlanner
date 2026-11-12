@@ -552,7 +552,9 @@
   width: 100%;
   min-height: 52px;
   padding: 0 12px 0 14px;
-  border-radius: var(--mantine-radius-md);
+  /* The hover fills the head's cell: the card's top corners, less its border; square below, where the calendar or the
+     card's padding goes on (B-023) */
+  border-radius: calc(var(--mantine-radius-md) - 1px) calc(var(--mantine-radius-md) - 1px) 0 0;
   color: var(--mantine-color-text);
   font-weight: 500;
 }
