@@ -694,6 +694,111 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/invitations/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancels the picked links that are still waiting; the others stay as they are (I-006). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InvitationsRequest"];
+                    "text/json": components["schemas"]["InvitationsRequest"];
+                    "application/*+json": components["schemas"]["InvitationsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationsChanged"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/invitations/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Deletes the picked links of any status, families' too (I-006). The confirmation is the page's job; links already
+         *     gone are skipped.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InvitationsRequest"];
+                    "text/json": components["schemas"]["InvitationsRequest"];
+                    "application/*+json": components["schemas"]["InvitationsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationsChanged"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/me": {
         parameters: {
             query?: never;
@@ -1485,6 +1590,62 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cleanup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deletes outdated data and says how much; a second run the same day deletes nothing more. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "X-Cleanup-Secret"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CleanupReport"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/family": {
         parameters: {
             query?: never;
@@ -1643,7 +1804,45 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** The family's links of every status, newest first; the owner only (I-006). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationItem"][];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         put?: never;
         /** A new link for one person. Its token is in this answer only: the page shows it once. */
         post: {
@@ -1668,6 +1867,144 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["CreatedInvitation"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/invitations/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancels the picked links of the family that are still waiting (I-006). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InvitationsRequest"];
+                    "text/json": components["schemas"]["InvitationsRequest"];
+                    "application/*+json": components["schemas"]["InvitationsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationsChanged"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/invitations/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deletes the picked links of the family, of any status (I-006). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InvitationsRequest"];
+                    "text/json": components["schemas"]["InvitationsRequest"];
+                    "application/*+json": components["schemas"]["InvitationsRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InvitationsChanged"];
                     };
                 };
                 /** @description Bad Request */
@@ -3117,6 +3454,11 @@ export interface components {
         ChangeReportCurrencyRequest: {
             currency: string;
         };
+        /** @description What one run deleted. Other outdated data adds its own count here. */
+        CleanupReport: {
+            /** Format: int32 */
+            invitationsDeleted: number | string;
+        };
         /**
          * @description The link just made. Token goes into `/invite/{token}`; it is never shown again, because
          *     only its hash is stored.
@@ -3175,16 +3517,6 @@ export interface components {
         DeletedTransaction: {
             balances: components["schemas"]["BalanceChange"][];
         };
-        /** @description A family's link waiting to be opened; Note says who it is for. */
-        FamilyInvitationItem: {
-            /** Format: uuid */
-            id: string;
-            note: null | string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            expiresAt: string;
-        };
         /**
          * @description One person in the family. StartedFamily is true for the one who started it ("Started the family
          *     …" rather than "Joined …"). Transactions is what they share of their transactions and
@@ -3203,8 +3535,8 @@ export interface components {
             keepsPrivate: boolean;
         };
         /**
-         * @description The signed-in person's family (F-023): its name, everyone in it and, for the owner only, the links still waiting
-         *     to be opened.
+         * @description The signed-in person's family (F-023): its name and everyone in it. The owner's invite links come on their own, from
+         *     `GET /api/family/invitations` (I-006).
          */
         FamilyView: {
             /** Format: uuid */
@@ -3214,7 +3546,6 @@ export interface components {
             createdAt: string;
             isOwner: boolean;
             members: components["schemas"]["FamilyMemberItem"][];
-            invitations: components["schemas"]["FamilyInvitationItem"][];
         };
         HealthResponse: {
             status: string;
@@ -3245,6 +3576,15 @@ export interface components {
             /** Format: date-time */
             expiresAt: string;
             family?: null | components["schemas"]["InvitedFamily"];
+        };
+        /** @description How many links were deleted or cancelled; links already gone, or not waiting for a cancel, don't count. */
+        InvitationsChanged: {
+            /** Format: int32 */
+            count: number | string;
+        };
+        /** @description The invite links an action is for: everything picked on the Invite links tab or the Family page (I-006). */
+        InvitationsRequest: {
+            ids: string[];
         };
         /**
          * @description Where an invitation is in its life. Worked out from its dates, never stored (F-028).

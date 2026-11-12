@@ -62,19 +62,46 @@ internal sealed class FamilyService(AppDbContext dbContext, TimeProvider clock) 
             })
             .ToList();
 
-        // A link is shown once, when it is made (F-028); the owner sees the waiting ones to cancel them
-        IReadOnlyList<FamilyInvitationItem> invitations = [];
-        if (family.IsOwner(userId))
-        {
-            var now = clock.GetUtcNow();
-            invitations = await dbContext.Invitations.AsNoTracking()
-                .Where(FamilyCleanup.WaitingOf(family.Id, now))
-                .OrderByDescending(i => i.CreatedAt)
-                .Select(i => new FamilyInvitationItem(i.Id, i.Note, i.CreatedAt, i.ExpiresAt))
-                .ToListAsync(cancellationToken);
-        }
+        return new FamilyView(family.Id, family.Name, family.CreatedAt, family.IsOwner(userId), members);
+    }
 
-        return new FamilyView(family.Id, family.Name, family.CreatedAt, family.IsOwner(userId), members, invitations);
+    public async Task<(FamilyActionOutcome Outcome, IReadOnlyList<InvitationItem> Invitations)> InvitationsAsync(
+        Guid userId, CancellationToken cancellationToken)
+    {
+        var (outcome, familyId) = await OwnersFamilyAsync(userId, cancellationToken);
+        return familyId is { } id
+            ? (outcome, await InvitationLinks.ListAsync(dbContext, i => i.FamilyId == id, clock.GetUtcNow(), cancellationToken))
+            : (outcome, []);
+    }
+
+    public async Task<(FamilyActionOutcome Outcome, InvitationsChanged Changed)> CancelInvitationsAsync(
+        Guid userId, InvitationsRequest request, CancellationToken cancellationToken)
+    {
+        var (outcome, familyId) = await OwnersFamilyAsync(userId, cancellationToken);
+        return familyId is { } id
+            ? (outcome, await InvitationLinks.CancelAsync(
+                dbContext.Invitations.Where(i => i.FamilyId == id), request, clock.GetUtcNow(), cancellationToken))
+            : (outcome, new InvitationsChanged(0));
+    }
+
+    public async Task<(FamilyActionOutcome Outcome, InvitationsChanged Changed)> DeleteInvitationsAsync(
+        Guid userId, InvitationsRequest request, CancellationToken cancellationToken)
+    {
+        var (outcome, familyId) = await OwnersFamilyAsync(userId, cancellationToken);
+        return familyId is { } id
+            ? (outcome, await InvitationLinks.DeleteAsync(
+                dbContext.Invitations.Where(i => i.FamilyId == id), request, cancellationToken))
+            : (outcome, new InvitationsChanged(0));
+    }
+
+    /// <summary>The family whose links the person may see and change: their own, when they are its owner.</summary>
+    private async Task<(FamilyActionOutcome Outcome, Guid? FamilyId)> OwnersFamilyAsync(
+        Guid userId, CancellationToken cancellationToken)
+    {
+        var family = await FamilyOfAsync(userId, tracked: false, cancellationToken);
+        return family is null ? (FamilyActionOutcome.NoFamily, null)
+            : !family.IsOwner(userId) ? (FamilyActionOutcome.NotOwner, null)
+            : (FamilyActionOutcome.Done, family.Id);
     }
 
     public async Task<FamilyActionOutcome> StartAsync(

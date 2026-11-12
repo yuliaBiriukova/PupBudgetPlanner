@@ -1,7 +1,8 @@
 import type { MockAnswer, MockRoutes } from '../../test/mockRoutes';
 import type { InvitationPreview } from '../auth/authApi';
+import type { Invitation } from '../people/peopleApi';
 import { LINK_DAYS, type Family } from './familyApi';
-import { isoIn, OLENA_ID } from './familyTestData';
+import { isoIn, OLENA_ID, ownersLinks } from './familyTestData';
 
 const conflict: MockAnswer = { status: 409 };
 const notFound: MockAnswer = { status: 404 };
@@ -11,22 +12,42 @@ const done: MockAnswer = { status: 204 };
 interface FakeFamilyOptions {
   /** The family links the signed-in person may open: token → what the invite page shows. */
   links?: Record<string, InvitationPreview>;
+  /** The owner's links on the Family page (I-006); an owner's family starts with `ownersLinks`. */
+  invitations?: Invitation[];
   /** Answer every change with a 500. */
   fail?: boolean;
 }
 
+const idsOf = (body: Record<string, unknown>) =>
+  Array.isArray(body.ids) ? body.ids.filter((id): id is string => typeof id === 'string') : [];
+
 /**
  * The family API of the stories and unit tests (F-023), as the signed-in Olena, keeping every change while it runs,
  * with the API's rules: one family at a time, only the owner renames, invites and removes, an owner leaving others
- * names the next owner, a link works once.
+ * names the next owner, a link works once; only the owner lists, cancels and deletes the family's links (I-006).
  */
 export function fakeFamilyRoutes(
   start: Family | null,
-  { links = {}, fail = false }: FakeFamilyOptions = {},
+  { links = {}, invitations, fail = false }: FakeFamilyOptions = {},
 ): MockRoutes {
   let family: Family | null = structuredClone(start);
   const waiting = new Map(Object.entries(structuredClone(links)));
+  let familyLinks: Invitation[] = structuredClone(
+    invitations ?? (start?.isOwner ? ownersLinks() : []),
+  );
   let next = 1;
+  /** Only waiting links change; says how many did. */
+  const cancel = (ids: string[]) => {
+    let cancelled = 0;
+    familyLinks = familyLinks.map((l) => {
+      if (!ids.includes(l.id) || l.status !== 'Waiting') return l;
+      cancelled++;
+      return { ...l, status: 'Cancelled', cancelledAt: new Date().toISOString() };
+    });
+    return cancelled;
+  };
+  /** The owner's family, or why not. */
+  const owners = (): MockAnswer | null => (!family ? notFound : !family.isOwner ? forbidden : null);
   const change =
     (apply: (body: Record<string, unknown>, params: Record<string, string>) => MockAnswer) =>
     (body: unknown, _query: URLSearchParams, params: Record<string, string>): MockAnswer =>
@@ -54,8 +75,8 @@ export function fakeFamilyRoutes(
             keepsPrivate: false,
           },
         ],
-        invitations: [],
       };
+      familyLinks = [];
       return done;
     }),
     'PUT /api/family/name': change((body) => {
@@ -74,21 +95,42 @@ export function fakeFamilyRoutes(
         note,
         expiresAt: isoIn(LINK_DAYS),
       };
-      family = {
-        ...family,
-        invitations: [
-          { id: made.id, note, createdAt: new Date().toISOString(), expiresAt: made.expiresAt },
-          ...family.invitations,
-        ],
-      };
+      familyLinks = [
+        {
+          id: made.id,
+          note,
+          status: 'Waiting',
+          createdAt: new Date().toISOString(),
+          expiresAt: made.expiresAt,
+          usedAt: null,
+          usedByName: null,
+          cancelledAt: null,
+          familyName: family.name,
+        },
+        ...familyLinks,
+      ];
       return { json: made };
     }),
-    'POST /api/family/invitations/{id}/cancel': change((_, { id }) => {
-      if (!family) return notFound;
-      if (!family.isOwner) return forbidden;
-      if (!family.invitations.some((i) => i.id === id)) return notFound;
-      family = { ...family, invitations: family.invitations.filter((i) => i.id !== id) };
+    '/api/family/invitations': () => owners() ?? { json: familyLinks },
+    'POST /api/family/invitations/{id}/cancel': change((_, { id = '' }) => {
+      const refused = owners();
+      if (refused) return refused;
+      const link = familyLinks.find((l) => l.id === id);
+      if (!link) return notFound;
+      if (link.status !== 'Waiting') return conflict;
+      cancel([id]);
       return done;
+    }),
+    'POST /api/family/invitations/cancel': change(
+      (body) => owners() ?? { json: { count: cancel(idsOf(body)) } },
+    ),
+    'POST /api/family/invitations/delete': change((body) => {
+      const refused = owners();
+      if (refused) return refused;
+      const ids = idsOf(body);
+      const before = familyLinks.length;
+      familyLinks = familyLinks.filter((l) => !ids.includes(l.id));
+      return { json: { count: before - familyLinks.length } };
     }),
     'POST /api/family/members/{id}/remove': change((_, { id }) => {
       if (!family) return notFound;
@@ -139,7 +181,6 @@ export function fakeFamilyRoutes(
             keepsPrivate: false,
           },
         ],
-        invitations: [],
       };
       return done;
     }),

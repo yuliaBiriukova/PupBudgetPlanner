@@ -68,6 +68,25 @@ public sealed class AdminController(IPeopleService people, IInvitationService in
             _ => Problem(statusCode: StatusCodes.Status404NotFound, title: "There is no such link."),
         };
 
+    /// <summary>Cancels the picked links that are still waiting; the others stay as they are (I-006).</summary>
+    [HttpPost("invitations/cancel")]
+    [ProducesResponseType<InvitationsChanged>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<InvitationsChanged>> CancelInvitations(
+        InvitationsRequest request, CancellationToken cancellationToken) =>
+        Ok(await invitations.CancelManyAsync(request, cancellationToken));
+
+    /// <summary>
+    /// Deletes the picked links of any status, families' too (I-006). The confirmation is the page's job; links already
+    /// gone are skipped.
+    /// </summary>
+    [HttpPost("invitations/delete")]
+    [ProducesResponseType<InvitationsChanged>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<InvitationsChanged>> DeleteInvitations(
+        InvitationsRequest request, CancellationToken cancellationToken) =>
+        Ok(await invitations.DeleteAsync(request, cancellationToken));
+
     private IActionResult ResultOf(PeopleActionOutcome outcome) => outcome switch
     {
         PeopleActionOutcome.Done => NoContent(),

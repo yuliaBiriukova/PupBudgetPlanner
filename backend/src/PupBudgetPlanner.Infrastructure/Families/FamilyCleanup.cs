@@ -6,8 +6,8 @@ using PupBudgetPlanner.Infrastructure.Persistence;
 
 namespace PupBudgetPlanner.Infrastructure.Families;
 
-/// <summary>A link just used: the family it joins, if it is a family's.</summary>
-internal sealed record UsedLink(Guid? FamilyId);
+/// <summary>A link just used: the family it joins, if it is a family's, and its note (kept on a new account, I-006).</summary>
+internal sealed record UsedLink(Guid? FamilyId, string? Note);
 
 /// <summary>
 /// What the family service, sign-up and the admin's Delete share (F-023): using a family's link, deleting a family and
@@ -51,11 +51,10 @@ internal static class FamilyCleanup
             return null;
         }
 
-        var familyId = await dbContext.Invitations
+        return await dbContext.Invitations
             .Where(i => i.TokenHash == tokenHash)
-            .Select(i => i.FamilyId)
+            .Select(i => new UsedLink(i.FamilyId, i.Note))
             .SingleAsync(cancellationToken);
-        return new UsedLink(familyId);
     }
 
     /// <summary>Cancels the family's waiting links and deletes it; nobody's money is touched (open point 6).</summary>

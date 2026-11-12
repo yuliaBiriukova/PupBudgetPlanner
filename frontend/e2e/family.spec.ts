@@ -58,7 +58,7 @@ test('the owner invites someone new, who joins with the link, then removes them'
   const link = await ready.getByLabel(en.family.inviteDialog.linkLabel).inputValue();
   expect(link).toMatch(/\/invite\/[A-Za-z0-9_-]{43}$/);
   await ready.getByRole('button', { name: en.family.inviteDialog.done }).click();
-  await expect(page.getByText('For E2E Andriy')).toBeVisible();
+  await expect(page.getByText('E2E Andriy', { exact: true })).toBeVisible();
 
   // Andriy has no account: he opens the link in his own browser and creates one, which joins the family
   const andriy = { ...newPerson('family-new'), displayName: 'Andriy' };
@@ -77,7 +77,7 @@ test('the owner invites someone new, who joins with the link, then removes them'
     // Olena sees him, and the link is used up
     await page.reload();
     await expect(page.getByRole('button', { name: 'Actions for Andriy' })).toBeVisible();
-    await expect(page.getByText('For E2E Andriy')).toHaveCount(0);
+    await expect(page.getByText('E2E Andriy', { exact: true })).toHaveCount(0);
 
     // She removes him; his Family page has no family any more
     await page.getByRole('button', { name: 'Actions for Andriy' }).click();

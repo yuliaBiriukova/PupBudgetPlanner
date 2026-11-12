@@ -52,11 +52,13 @@ This file tells Claude (and any human contributor) how we work on this project.
     Make test people with `newPerson` (`frontend/e2e/auth.ts`), in hand-run scripts too: its tag takes lowercase
     letters, digits and hyphens (`i024-shots`), and it refuses one the clean-up wouldn't find (B-018).
   - **E2E tests clean up after themselves:** the `cleanup` teardown (`frontend/e2e/cleanup.teardown.ts`) runs after
-    every run, passed or failed. It deletes the `e2e-…` accounts and cancels the tests' waiting invite links; the
+    every run, passed or failed. It deletes the `e2e-…` accounts and the tests' invite links of any status; the
     tests' admin stays. New E2E tests make people with `newPerson` and links with an `E2E…` note, so it finds them.
   - **How to remove by hand** what you made outside the E2E tests: delete the accounts on the People page or
     through the admin API (`POST /api/admin/people/delete`, at most 200 at a time); deleting an account deletes its
-    data. Cancel test invite links on the People page's "Invite links" tab (until I-006 lets us delete them).
+    data. Delete test invite links on the People page's "Invite links" tab (pick them, Delete) or through
+    `POST /api/admin/invitations/delete` (at most 200 at a time) (I-006). Pick only your own links there: the tab
+    lists every link in the database, so never use a group's Select all on the shared `dev` database.
   - **Never touch** the owner's own account and data, or any account that isn't clearly a test one. Unsure → ask.
   - **Record it:** the change's PROGRESS entry says what was created for testing and that it was removed.
   - Why: after F-028 the owner had to clean the `dev` database by hand (I-007).

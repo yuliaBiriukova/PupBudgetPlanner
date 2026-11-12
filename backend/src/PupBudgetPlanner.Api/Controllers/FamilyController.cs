@@ -51,6 +51,43 @@ public sealed class FamilyController(IFamilyService families) : ControllerBase
         return invitation is null ? ResultOf(outcome) : Ok(invitation);
     }
 
+    /// <summary>The family's links of every status, newest first; the owner only (I-006).</summary>
+    [HttpGet("invitations")]
+    [ProducesResponseType<IReadOnlyList<InvitationItem>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyList<InvitationItem>>> Invitations(CancellationToken cancellationToken)
+    {
+        var (outcome, invitations) = await families.InvitationsAsync(UserId, cancellationToken);
+        return outcome == FamilyActionOutcome.Done ? Ok(invitations) : ResultOf(outcome);
+    }
+
+    /// <summary>Cancels the picked links of the family that are still waiting (I-006).</summary>
+    [HttpPost("invitations/cancel")]
+    [ProducesResponseType<InvitationsChanged>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<InvitationsChanged>> CancelInvitations(
+        InvitationsRequest request, CancellationToken cancellationToken)
+    {
+        var (outcome, changed) = await families.CancelInvitationsAsync(UserId, request, cancellationToken);
+        return outcome == FamilyActionOutcome.Done ? Ok(changed) : ResultOf(outcome);
+    }
+
+    /// <summary>Deletes the picked links of the family, of any status (I-006).</summary>
+    [HttpPost("invitations/delete")]
+    [ProducesResponseType<InvitationsChanged>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<InvitationsChanged>> DeleteInvitations(
+        InvitationsRequest request, CancellationToken cancellationToken)
+    {
+        var (outcome, changed) = await families.DeleteInvitationsAsync(UserId, request, cancellationToken);
+        return outcome == FamilyActionOutcome.Done ? Ok(changed) : ResultOf(outcome);
+    }
+
     [HttpPost("invitations/{id:guid}/cancel")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]

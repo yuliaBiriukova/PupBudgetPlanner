@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace PupBudgetPlanner.Domain.Invitations;
 
 /// <summary>Where an invitation is in its life. Worked out from its dates, never stored (F-028).</summary>
@@ -72,6 +74,26 @@ public sealed class Invitation
         : CancelledAt is not null ? InvitationStatus.Cancelled
         : now >= ExpiresAt ? InvitationStatus.Expired
         : InvitationStatus.Waiting;
+
+    /// <summary>
+    /// When it stopped working: used, cancelled or expired; null while it is waiting. The morning clean-up deletes it
+    /// a while after this (I-006).
+    /// </summary>
+    public DateTimeOffset? StoppedAt(DateTimeOffset now) => StatusAt(now) switch
+    {
+        InvitationStatus.Used => UsedAt,
+        InvitationStatus.Cancelled => CancelledAt,
+        InvitationStatus.Expired => ExpiresAt,
+        _ => null,
+    };
+
+    /// <summary>
+    /// Links that stopped working before <paramref name="cutoff"/>, as a query the database runs (I-006): the date of
+    /// <see cref="StoppedAt"/>. A link is used or cancelled only while it waits, before it expires, so the first of
+    /// the three dates that is set is the one; a waiting link's expiry is later than any cutoff in the past.
+    /// </summary>
+    public static Expression<Func<Invitation, bool>> StoppedBefore(DateTimeOffset cutoff) =>
+        i => (i.UsedAt ?? i.CancelledAt ?? i.ExpiresAt) < cutoff;
 
     // Using it happens in one conditional UPDATE in the account's or the joining's transaction (AccountCreator,
     // FamilyService), so two people racing for one link can't both win; the condition there is "waiting" as defined by

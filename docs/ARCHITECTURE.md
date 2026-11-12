@@ -15,6 +15,7 @@ flowchart LR
     A --> N[NBU exchange rate API]
     A --> G[Google OAuth]
     P["cron-job.org ping<br/>every 14 min, 07:00–23:00 Kyiv"] -.->|"/api/health"| A
+    C["cron-job.org clean-up<br/>every morning, 07:05 Kyiv"] -.->|"POST /api/cleanup + secret"| A
     SB["Render Static Site (free)<br/>Storybook"]
 ```
 
@@ -136,7 +137,10 @@ erDiagram
   Its status (waiting, used, expired, cancelled) comes from the dates. A blocked person keeps their data
   (`BlockedAt`) ([ADR 0016](decisions/0016-invite-only-sign-up.md)). A family's link (F-023) has a `FamilyId`: it
   joins its person to the family, whether it creates their account or they already have one; `CreatedAccount` tells
-  the two apart ("Invited" on the People page).
+  the two apart. The account keeps "Invited" and the link's note (`users.invited`, `users.invitation_note`), so the
+  admin (any link) and a family's owner (the family's links) can delete links of any status, one or 200 at a time
+  (I-006). The morning clean-up (`POST /api/cleanup`, started by cron-job.org with a secret) deletes a link 30 days
+  after it stopped working ([ADR 0033](decisions/0033-morning-clean-up.md)).
 - Families (F-023): a person is in one family at most (a unique index on `family_members.user_id`); the family has one
   owner (`OwnerId`), who renames it, invites (family links) and removes people. The rules live in the `Family`
   aggregate: an owner leaving others names the next owner, the last one to leave deletes the family (its waiting

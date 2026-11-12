@@ -705,6 +705,15 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("family_sees_transactions");
 
+                    b.Property<string>("InvitationNote")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("invitation_note");
+
+                    b.Property<bool>("Invited")
+                        .HasColumnType("boolean")
+                        .HasColumnName("invited");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("lockout_enabled");
