@@ -267,16 +267,21 @@ erDiagram
 flowchart LR
     F["feature / improvement / bugfix branch"] -->|PR| D[develop]
     D -->|release PR| M[main]
-    F & D & M --> CI["GitHub Actions<br/>backend: build + tests<br/>frontend: lint, typecheck, tests, build<br/>storybook build<br/>Playwright E2E<br/>Docker image + smoke test"]
+    F & D -->|"pull request"| CI["GitHub Actions<br/>backend: build + tests<br/>frontend: lint, typecheck, tests, build<br/>storybook build<br/>Playwright E2E<br/>Docker image + smoke test (releases only)"]
+    M -->|push| CI
     M -->|"all checks green"| R["Render auto-deploy<br/>app + Storybook"]
 ```
 
-- One workflow file: `.github/workflows/ci.yml`; it runs on pull requests and on pushes to `develop` and `main`.
+- One workflow file: `.github/workflows/ci.yml`; it runs on pull requests (except docs-only ones: `docs/**`,
+  `*.md`) and on the push to `main`, not on the push to `develop`, which would only repeat its PR's run (I-031,
+  [ADR 0030](decisions/0030-ci-runs-once-per-change.md)).
   Four parallel jobs: Backend, Frontend (incl. Storybook build), E2E (Playwright), Docker image (builds the
-  production image, starts it against PostgreSQL and smoke-tests the app and the API).
+  production image, starts it against PostgreSQL and smoke-tests the app and the API; only on a PR into `main` and
+  the push to `main`).
 - **Only `main` is deployed.** Render services are described in `render.yaml`, track `main`, and deploy
   **only after the GitHub checks pass**.
-- Private repo → GitHub Actions has 2,000 free minutes/month; enough for this project.
+- Private repo → GitHub Actions has 2,000 free minutes/month. Running on every push used 90% of them in 12 days
+  (November 2026); since I-031 each change is checked once, about half as many minutes.
 
 ## Environments and configuration
 

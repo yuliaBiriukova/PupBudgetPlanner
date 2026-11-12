@@ -2,6 +2,19 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-12 (I-031 planned: fewer CI minutes)
+
+**Done**
+- GitHub warned that 90% of the month's 2,000 free Actions minutes were used (1,801), with 20 days left. Counted
+  the 129 runs since 2026-11-01: E2E 754 minutes, Frontend 524, Docker image 333, Backend 149; pushes to `develop`
+  repeat their PR's run (563 minutes), docs-only `plan/…` PRs run everything (about 200).
+- Planned [I-031](changes/improvements/I-031-fewer-ci-minutes/I-031-fewer-ci-minutes.md) (High): CI on pull requests
+  (not docs-only ones) and on the push to `main`; the Docker image only for releases. About half the minutes.
+- Making the repo public for free minutes was looked at and not chosen: it stays private.
+
+**Next**
+- Owner: approve I-031; then it is built on `improvement/I-031-fewer-ci-minutes`.
+
 ## 2026-11-12 (B-018: The E2E clean-up finds test people whose tag has digits)
 
 **Done**
