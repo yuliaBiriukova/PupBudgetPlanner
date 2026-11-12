@@ -37,6 +37,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   joins the family sees your money as you set it here"), the members' line always says each sees the others' money
   as they set it. Checked: typecheck, lint, format, the family unit tests (34 / 34), the new story at 375 and 1440 px,
   light and dark. Test data: none (stories and unit tests only).
+- The owner asked for Hidden and Balance only in the same style as Everything: the share pill is quiet for all three
+  (DESIGN_RULES updated). Checked: lint, format, typecheck, family unit tests, the section at 375 and 1440 px.
 
 **Next**
 - Owner: review the PR. M6 (MVP release) is next.

@@ -251,7 +251,6 @@ function AccountRow({ account }: { account: Account }) {
         <Menu.Target>
           <UnstyledButton
             className={cx(pills.select, classes.levelPill)}
-            data-on={level !== 'Everything' || undefined}
             aria-label={t('privacy.accounts.level', {
               name: account.name,
               level: t(`privacy.shares.${level}`).toLowerCase(),

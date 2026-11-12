@@ -192,6 +192,8 @@ A private category: the others see nothing of it (owner, 2026-11-12; not only it
 
 ### Built (2026-11-12)
 
+- **One style for every share** (owner, 2026-11-12, on the PR): Hidden and Balance only are the same quiet pill as
+  Everything, not in the accent; the icon and the word tell them apart.
 - **Shown alone in a family too** (owner, 2026-11-12, on the PR: "always show the privacy settings"): the prototype
   showed the section once someone else was in the family; now it is there as soon as you have a family, so you can set
   it before anyone joins, saying "Whoever joins the family sees your money as you set it here". The marks on your own

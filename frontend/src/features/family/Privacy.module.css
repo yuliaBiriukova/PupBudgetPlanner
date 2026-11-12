@@ -116,16 +116,11 @@
   line-height: 20px;
 }
 
-/* Everything (the default) is quiet; a kept account's level stands out in the accent */
-.levelPill:not([data-on]) {
+/* Every share in the same quiet pill, Hidden and Balance only too (owner, 2026-11-12) */
+.accountRow .levelPill {
   border-color: transparent;
   background: transparent;
   color: var(--mantine-color-dimmed);
-}
-
-.levelPill[data-on] {
-  border-color: var(--pup-color-accent);
-  color: var(--pup-color-accent);
 }
 
 .menuLabel {
