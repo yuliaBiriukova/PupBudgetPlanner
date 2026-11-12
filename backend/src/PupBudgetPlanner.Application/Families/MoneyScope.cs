@@ -1,3 +1,5 @@
+using PupBudgetPlanner.Domain.Families;
+
 namespace PupBudgetPlanner.Application.Families;
 
 /// <summary>
@@ -13,7 +15,13 @@ public sealed record MoneyScope(Guid ViewerId, IReadOnlyList<Guid> People)
     /// <summary>More than one person's money together: their categories of one group and name count as one.</summary>
     public bool IsTogether => People.Count > 1;
 
-    /// <summary>Equal when the viewer and the people, in their order, are.</summary>
+    /// <summary>
+    /// What the others in <see cref="People"/> keep from the viewer (F-030): left out by every read of the scope.
+    /// Nothing for your own money.
+    /// </summary>
+    public KeptFromFamily Kept { get; init; } = KeptFromFamily.Nothing;
+
+    /// <summary>Equal when the viewer and the people, in their order, are (what is kept follows from them).</summary>
     public bool Equals(MoneyScope? other) =>
         other is not null && ViewerId == other.ViewerId && People.SequenceEqual(other.People);
 

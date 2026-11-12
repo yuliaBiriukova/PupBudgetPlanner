@@ -85,6 +85,16 @@ button.card:is([data-style='Plain'], [data-style='Envelope']):hover {
   white-space: nowrap;
 }
 
+/* What the family doesn't see of it (F-030), before the name in the card's own muted text */
+.mark {
+  margin-right: 6px;
+  color: var(--card-muted);
+}
+
+.mark > svg {
+  vertical-align: -2px;
+}
+
 .code {
   color: var(--card-muted);
   font-size: 13px;

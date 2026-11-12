@@ -449,7 +449,8 @@ interface GroupProps {
 
 /**
  * One group of cards: its heading (and total, by currency), the cards, and the ghost card that adds to it. Someone
- * else's card is only to look at (no + edge); in the family's money it says whose it is (F-024).
+ * else's card is only to look at (no + edge); in the family's money it says whose it is (F-024). A card the family
+ * doesn't see all of is marked (F-030).
  */
 function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: GroupProps) {
   const { t } = useTranslation();
@@ -477,6 +478,24 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
               { source: 'Bank', bank: key.bank },
             ]
           : [key.name, count, key.name, { source: `own:${key.sourceId}` }];
+
+  // What the family doesn't see of a card (F-030): your own as you set it, while you are in a family with others;
+  // someone else's whose balance only they share
+  const markOf = (account: Account) => {
+    if (account.familySees === 'Everything') return undefined;
+    if (!whose.isMine(account.ownerId)) {
+      return account.familySees === 'BalanceOnly'
+        ? {
+            share: 'BalanceOnly' as const,
+            label: t('privacy.marks.theirBalance', { name: whose.nameOf(account.ownerId) ?? '' }),
+          }
+        : undefined;
+    }
+    if (!whose.lens) return undefined;
+    return account.familySees === 'Hidden'
+      ? { share: 'Hidden' as const, label: t('privacy.marks.hidden') }
+      : { share: 'BalanceOnly' as const, label: t('privacy.marks.balance') };
+  };
 
   const sourceOf = (account: Account) =>
     account.source === 'Cash'
@@ -522,6 +541,7 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
                   balance={account.balance}
                   currency={account.currency}
                   cardStyle={account.cardStyle}
+                  mark={markOf(account)}
                   className={cx(classes.card, whoseClasses.theirCard)}
                 />
               </li>
@@ -537,6 +557,7 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
                 currency={account.currency}
                 cardStyle={account.cardStyle}
                 isNew={fresh?.some((item) => item.id === account.id)}
+                mark={markOf(account)}
                 className={classes.card}
                 onClick={() => {
                   onOpen(account);

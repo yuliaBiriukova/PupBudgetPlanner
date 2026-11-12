@@ -25,6 +25,8 @@ internal sealed class AccountConfiguration : IEntityTypeConfiguration<Account>
         builder.Property(account => account.CardStyle).HasConversion<string>().HasMaxLength(EnumMaxLength);
         builder.Property(account => account.OpeningBalance).HasPrecision(18, 2);
         builder.Ignore(account => account.IsArchived);
+        // Every account made before F-030 is shared in full, as it was (the migration's default)
+        builder.Property(account => account.FamilySees).HasConversion<string>().HasMaxLength(EnumMaxLength);
 
         // A person's accounts go with their account
         builder.HasOne<AppUser>().WithMany().HasForeignKey(account => account.UserId).OnDelete(DeleteBehavior.Cascade);

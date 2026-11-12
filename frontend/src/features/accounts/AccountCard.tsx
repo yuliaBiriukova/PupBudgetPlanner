@@ -1,5 +1,5 @@
-import { UnstyledButton } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
+import { UnstyledButton, VisuallyHidden } from '@mantine/core';
+import { IconCoins, IconEyeOff, IconPlus } from '@tabler/icons-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { formatMoney } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
@@ -26,6 +26,11 @@ interface AccountCardProps {
   onAdd?: () => void;
   addLabel?: string;
   className?: string;
+  /**
+   * What the family doesn't see of it (F-030): an eye-off before the name for a hidden account, coins for one whose
+   * balance only is shared; `label` says it for screen readers and on hover.
+   */
+  mark?: { share: 'BalanceOnly' | 'Hidden'; label: string };
 }
 
 /** One account as a card in its style: Solid, Tinted, Envelope or Plain (F-014). */
@@ -41,12 +46,25 @@ export function AccountCard({
   onAdd,
   addLabel,
   className,
+  mark,
 }: AccountCardProps) {
   const amount = formatMoney(balance, currency);
   const content = (
     <>
       <span className={classes.top}>
-        <span className={classes.name}>{name}</span>
+        <span className={classes.name}>
+          {mark && (
+            <span className={classes.mark} title={mark.label}>
+              {mark.share === 'Hidden' ? (
+                <IconEyeOff size={16} stroke={1.7} aria-hidden />
+              ) : (
+                <IconCoins size={16} stroke={1.7} aria-hidden />
+              )}
+              <VisuallyHidden>{mark.label}:</VisuallyHidden>
+            </span>
+          )}
+          {name}
+        </span>
         {code && <span className={classes.code}>{code}</span>}
         {meta && <span className={classes.meta}>{meta}</span>}
       </span>

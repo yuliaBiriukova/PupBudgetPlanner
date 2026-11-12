@@ -83,7 +83,8 @@ public sealed class CategoriesOverviewTests
             "Subscriptions",
             CategoryKind.Expense,
             false,
-            [new CategoryItem(phone.Id, "Phone", false, 0), new CategoryItem(netflix.Id, "Netflix", true, 9)]),
+            [new CategoryItem(phone.Id, "Phone", false, 0), new CategoryItem(netflix.Id, "Netflix", true, 9)],
+            false),
             options => options.WithStrictOrdering());
         overview.Groups[1].IsHidden.Should().BeTrue();
     }

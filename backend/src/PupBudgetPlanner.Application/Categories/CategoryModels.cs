@@ -5,12 +5,16 @@ namespace PupBudgetPlanner.Application.Categories;
 /// <summary>
 /// One category in a group. A hidden one (F-029) isn't offered for new transactions; its transactions keep it.
 /// <see cref="TransactionCount"/> says whether removing it deletes it (none) or hides it.
+/// <see cref="IsPrivate"/>: the other members of the family see nothing of it (F-030).
 /// </summary>
-public sealed record CategoryItem(Guid Id, string Name, bool IsHidden, int TransactionCount);
+public sealed record CategoryItem(Guid Id, string Name, bool IsHidden, int TransactionCount, bool IsPrivate = false);
 
-/// <summary>One of the person's category groups with its shown categories in order, then the hidden ones.</summary>
+/// <summary>
+/// One of the person's category groups with its shown categories in order, then the hidden ones.
+/// <see cref="IsPrivate"/>: the family sees nothing of the whole group, its categories added later too (F-030).
+/// </summary>
 public sealed record CategoryGroupItem(
-    Guid Id, string Name, CategoryKind Kind, bool IsHidden, IReadOnlyList<CategoryItem> Categories);
+    Guid Id, string Name, CategoryKind Kind, bool IsHidden, IReadOnlyList<CategoryItem> Categories, bool IsPrivate);
 
 /// <summary>
 /// The person's whole set (F-015, F-029): the groups in the report's order (income first), hidden ones included and
@@ -33,8 +37,10 @@ public sealed record CategoriesOverview(IReadOnlyList<CategoryGroupItem> Groups)
                         category.Id,
                         category.Name,
                         category.IsArchived,
-                        transactionCounts.GetValueOrDefault(category.Id)))
-                    .ToList()))
+                        transactionCounts.GetValueOrDefault(category.Id),
+                        category.IsPrivate))
+                    .ToList(),
+                group.IsPrivate))
             .ToList());
     }
 }

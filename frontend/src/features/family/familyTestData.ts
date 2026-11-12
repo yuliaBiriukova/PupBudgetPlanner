@@ -32,6 +32,8 @@ function member(
     isYou: id === OLENA_ID,
     startedFamily: false,
     joinedAt: isoIn(-joinedDaysAgo),
+    transactions: 'Every',
+    keepsPrivate: false,
     ...extra,
   };
 }

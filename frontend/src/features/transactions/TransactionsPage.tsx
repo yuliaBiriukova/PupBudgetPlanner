@@ -167,6 +167,14 @@ export function TransactionsPage() {
         </div>
       </div>
     );
+  } else if (whose.person?.transactions === 'Totals') {
+    // They share only the totals by category (F-030): the slip and Where it went stay, the lines don't come
+    list = (
+      <Empty
+        title={t('privacy.totalsOnly.title')}
+        text={t('privacy.totalsOnly.text', { name: whose.person.displayName })}
+      />
+    );
   } else if (items.length === 0 && noTransactions && whose.theirs) {
     const name = whose.person?.displayName;
     list = (

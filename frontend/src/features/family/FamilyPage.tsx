@@ -37,6 +37,7 @@ import {
 import { InviteDialog, LeaveDialog, RemoveDialog } from './FamilyDialogs';
 import { StartFamilyForm, WhatItMeans } from './FamilyParts';
 import { useFamilyNameError } from './familyText';
+import { PrivacySection } from './PrivacySection';
 
 const ICON = { size: 20, stroke: 1.7 } as const;
 
@@ -63,7 +64,8 @@ function Section({
 
 /**
  * Family (F-023, final prototype variant 1 "Sections"): the family as Settings is, a section each for its name, its
- * members, invite links (the owner only) and leaving. With no family: start one, or how to join one.
+ * members, what the family sees of your money (F-030), invite links (the owner only) and
+ * leaving. With no family: start one, or how to join one.
  */
 export function FamilyPage() {
   const { t } = useTranslation();
@@ -126,6 +128,8 @@ export function FamilyPage() {
             {/* A new name starts the section again, with the saved one in the field */}
             <NameSection key={family.data.name} family={family.data} />
             <MembersSection family={family.data} />
+            {/* What the others see of your money (F-030), alone too: set it up before anyone joins (owner) */}
+            <PrivacySection family={family.data} />
             {family.data.isOwner && <InviteSection family={family.data} />}
             <LeaveSection family={family.data} />
           </>

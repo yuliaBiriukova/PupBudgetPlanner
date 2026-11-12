@@ -1961,6 +1961,217 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/family/privacy/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** All your transactions, or only their totals by category. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ShareTransactionsRequest"];
+                    "text/json": components["schemas"]["ShareTransactionsRequest"];
+                    "application/*+json": components["schemas"]["ShareTransactionsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/privacy/accounts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Everything, its balance only, or nothing of one of your accounts. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ShareAccountRequest"];
+                    "text/json": components["schemas"]["ShareAccountRequest"];
+                    "application/*+json": components["schemas"]["ShareAccountRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/privacy/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Keeps one of your categories from the family, or shares it again. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["KeepCategoryRequest"];
+                    "text/json": components["schemas"]["KeepCategoryRequest"];
+                    "application/*+json": components["schemas"]["KeepCategoryRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/family/privacy/groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Keeps a whole group of yours from the family, its categories added later too, or shares it again. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["KeepCategoryRequest"];
+                    "text/json": components["schemas"]["KeepCategoryRequest"];
+                    "application/*+json": components["schemas"]["KeepCategoryRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -2742,6 +2953,8 @@ export interface components {
          *     currency (I-011, F-018). LastUsedAt is when its latest transaction was added (a transfer's
          *     for both its accounts), none without transactions: the quick-add form lists the account used last first (I-024).
          *     OwnerId is whose it is: someone else's only opens to look at (F-024).
+         *     FamilySees is what the other members of the family see of it (F-030): your own as you set it,
+         *     someone else's Everything or BalanceOnly (a hidden one isn't there).
          */
         AccountItem: {
             /** Format: uuid */
@@ -2770,7 +2983,14 @@ export interface components {
             transactionCount: number | string;
             /** Format: date-time */
             lastUsedAt: null | string;
+            familySees: components["schemas"]["AccountShare"];
         };
+        /**
+         * @description What the other members of a person's family see of one of their accounts (F-030). The same for every member; a new
+         *     account is AccountShare.Everything.
+         * @enum {unknown}
+         */
+        AccountShare: "Everything" | "BalanceOnly" | "Hidden";
         /**
          * @description Everything the Accounts page shows: the accounts in use (oldest first), the archived ones (last archived first),
          *     the totals per currency, the person's own sources and banks (by name) for the form, and every currency an
@@ -2848,7 +3068,10 @@ export interface components {
         CategoriesOverview: {
             groups: components["schemas"]["CategoryGroupItem"][];
         };
-        /** @description One of the person's category groups with its shown categories in order, then the hidden ones. */
+        /**
+         * @description One of the person's category groups with its shown categories in order, then the hidden ones.
+         *     bool CategoryGroupItem.IsPrivate: the family sees nothing of the whole group, its categories added later too (F-030).
+         */
         CategoryGroupItem: {
             /** Format: uuid */
             id: string;
@@ -2856,10 +3079,12 @@ export interface components {
             kind: components["schemas"]["CategoryKind"];
             isHidden: boolean;
             categories: components["schemas"]["CategoryItem"][];
+            isPrivate: boolean;
         };
         /**
          * @description One category in a group. A hidden one (F-029) isn't offered for new transactions; its transactions keep it.
          *     int CategoryItem.TransactionCount says whether removing it deletes it (none) or hides it.
+         *     bool CategoryItem.IsPrivate: the other members of the family see nothing of it (F-030).
          */
         CategoryItem: {
             /** Format: uuid */
@@ -2868,6 +3093,8 @@ export interface components {
             isHidden: boolean;
             /** Format: int32 */
             transactionCount: number | string;
+            /** @default false */
+            isPrivate: boolean;
         };
         /**
          * @description The report section of a group, and which form (expense or income) offers its categories.
@@ -2960,7 +3187,8 @@ export interface components {
         };
         /**
          * @description One person in the family. StartedFamily is true for the one who started it ("Started the family
-         *     …" rather than "Joined …").
+         *     …" rather than "Joined …"). Transactions is what they share of their transactions and
+         *     KeepsPrivate whether they keep anything from the others (F-030): the family views say so.
          */
         FamilyMemberItem: {
             /** Format: uuid */
@@ -2971,6 +3199,8 @@ export interface components {
             startedFamily: boolean;
             /** Format: date-time */
             joinedAt: string;
+            transactions: components["schemas"]["TransactionShare"];
+            keepsPrivate: boolean;
         };
         /**
          * @description The signed-in person's family (F-023): its name, everyone in it and, for the owner only, the links still waiting
@@ -3035,6 +3265,10 @@ export interface components {
         /** @description Join the family of the invite link with this token. */
         JoinFamilyRequest: {
             token: string;
+        };
+        /** @description Whether the family sees nothing of one of your categories, or of a whole group (F-030). */
+        KeepCategoryRequest: {
+            isPrivate: boolean;
         };
         /** @description The account last used for a type: the form picks it when it opens (DESIGN_RULES §5). */
         LastAccount: {
@@ -3267,6 +3501,14 @@ export interface components {
             /** Format: double */
             toAmount?: null | number | string;
         };
+        /** @description What the family sees of one of your accounts (F-030). */
+        ShareAccountRequest: {
+            share: components["schemas"]["AccountShare"];
+        };
+        /** @description What the family sees of all your transactions (F-030). */
+        ShareTransactionsRequest: {
+            share: components["schemas"]["TransactionShare"];
+        };
         SignInRequest: {
             email: string;
             password: string;
@@ -3334,6 +3576,11 @@ export interface components {
             /** Format: int32 */
             next: null | number | string;
         };
+        /**
+         * @description What the other members of a person's family see of their transactions (F-030), all of them at once.
+         * @enum {unknown}
+         */
+        TransactionShare: "Every" | "Totals";
         /**
          * @description What the quick-add form picks and offers before the person does (F-018): the last account used for each type, the
          *     category last used with each account, the most used categories, and the last transfer's From and To (F-019). "Last"

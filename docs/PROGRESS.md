@@ -2,6 +2,57 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-12 (F-030: Privacy in the family, built)
+
+**Done**
+- The owner approved F-030 for implementation on 2026-11-12 ("F-030 final prototype is approved, build it": the final
+  prototype "Rows", folding, and the three small points as built); recorded in the
+  [description](changes/features/F-030-family-privacy/F-030-family-privacy.md) and DESIGN_RULES "Screen decisions".
+- Backend: the settings on the money itself (`accounts.family_sees`, `categories.is_private`,
+  `users.family_sees_transactions`; migration `AddFamilyPrivacy`, everything shared as before);
+  `PUT /api/family/privacy/transactions`, `…/accounts/{id}`, `…/categories/{id}`; `KeptFromFamily` in the Domain
+  (which accounts, categories and people's lines a viewer may see, as `Counted` / `Listed` expressions applied in SQL),
+  carried by F-024's `MoneyScope` and applied by the Accounts, Transactions (list, summary) and Reports reads; a hidden
+  transfer side sent unnamed; the family's members say what each shares (`transactions`, `keepsPrivate`)
+  ([ADR 0032](decisions/0032-family-privacy.md); ARCHITECTURE.md). Every M5 feature is done; I-006, moved to M5
+  meanwhile, is left.
+- Frontend: "What the family sees" on the Family page (three rows that fold), the eye-off / coins marks on your own
+  cards and the lock on your kept lines (while you are in a family with others), someone else's balance-only card
+  marked, the band's "… keeps some of it private" / "Some of …'s money is private" / "… shares only totals", the
+  Transactions page's "Only totals by category", "A private account" on a hidden transfer side, F-023's texts saying
+  each person decides. The prototype stories were removed; *Family / Family privacy* and the Family page's and the
+  account card's new stories replace them.
+- Checked: backend Release build (0 warnings) and tests (557 / 557, 20 new: the rules compiled against transactions,
+  the summary's lines and totals, the unnamed transfer side, the settings' endpoints); frontend lint, format, typecheck,
+  build, unit tests (380 / 380), Storybook build; the full E2E suite against this branch's API and web app (99 passed,
+  21 skipped), with the new `family-privacy.spec.ts` (every rule on the real database, and hiding an account on the
+  Family page); the design check on the new stories (0 issues); the stories and the real app (two people with their
+  settings) in Playwright at 375 and 1440 px, light and dark, screenshots looked at (they match the final prototype's);
+  the section clicked through in the Browser pane.
+- Test data: the E2E runs and a throwaway screenshot spec made `e2e-…@example.com` people (with newPerson), their
+  families and `E2E …` family links; the E2E clean-up deleted them after each run. Checked through
+  `GET /api/admin/people` and `/api/admin/invitations` as the tests' admin after the last run: the admin is the only
+  `e2e-…` account left, and no test link is waiting. The owner's account untouched.
+
+- The owner asked on the PR to always show the settings: the section is now there alone in a family too ("Whoever
+  joins the family sees your money as you set it here"), the members' line always says each sees the others' money
+  as they set it. Checked: typecheck, lint, format, the family unit tests (34 / 34), the new story at 375 and 1440 px,
+  light and dark. Test data: none (stories and unit tests only).
+- The owner asked for Hidden and Balance only in the same style as Everything: the share pill is quiet for all three
+  (DESIGN_RULES updated). Checked: lint, format, typecheck, family unit tests, the section at 375 and 1440 px.
+- The owner asked that a whole category group can be private, and chose that categories added to it later are private
+  too: `category_groups.is_private` (migration `AddPrivateCategoryGroups`), `PUT /api/family/privacy/groups/{id}`, the
+  group's categories left out with it and the group gone from the others' reports; in Choose categories a *Whole group*
+  pill per group locks its categories, and the Family page shows it as one tag "… · whole group" (ADR 0032,
+  ARCHITECTURE.md, DESIGN_RULES updated). Checked: backend build and tests (560 / 560), frontend lint, format,
+  typecheck, unit tests, `family-privacy.spec.ts` with a private group on the real database, the dialog and the tag at
+  375 and 1440 px, light and dark. Test data: the E2E's people, cleaned up by its teardown.
+- The owner found the Whole group pill too like a category: it is the app's checkbox now (DESIGN_RULES updated).
+  Checked: lint, format, typecheck, the family unit tests, the dialog at 375 and 1440 px, light and dark.
+
+**Next**
+- Owner: review the PR. I-006 is left in M5, then M6 (MVP release).
+
 ## 2026-11-12 (I-006: Delete old invite links, plan updated)
 
 **Done**
@@ -17,6 +68,35 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 
 **Next**
 - Owner: review the plan PR and answer the open points; then references and 3 prototype stories for I-006.
+
+## 2026-11-12 (F-030: Privacy in the family, design round 1)
+
+**Done**
+- [F-030](changes/features/F-030-family-privacy/F-030-family-privacy.md) started on `feature/F-030-family-privacy`.
+  The owner answered the open points: accounts, transactions and categories can be private; an account is
+  *Everything*, *Balance only* or *Hidden* (new ones *Everything*); one switch for all your transactions (every one, or
+  only totals by category); a private category shows nothing; private money is left out of the family's totals; the
+  same for every member; set on the Family page only. Three smaller points are left with proposals for the design round
+  (a balance-only account in the reports, transfers with a hidden account, the stricter setting wins).
+- References (Honeydue's help pages and a review, Google Photos' partner sharing, Monarch), the brief, the plan, and
+  three prototype stories in *Prototypes / F-030 Family privacy*: Rows, Mirror, Sentence. Each is the app as Olena on
+  the Family page with the new section; Andriy's own settings are fixed, so the lens on his money shows his hidden
+  account and its lines gone.
+- Checked: typecheck, ESLint, Prettier; the design check on the three stories (it caught a 36 px × on a private
+  category's tag and the sentence's links 38 px high, both made 44 px; the one left is the Mirror's pill switch
+  "overlapping" the phone's menu, page content scrolling under the fixed bar); every state clicked through in the
+  Browser pane at 375 and 1440 px, light and dark.
+- Test data: none (Storybook's fake API only).
+
+- The owner picked variant 1, "Rows", asking for it to fold. It is now the *Final prototype* story (variants 2 and 3
+  removed): the three parts as rows that fold, each with what is set now; the marks on your own cards and lines;
+  Andriy's money without what he keeps, the band saying so, and his Transactions page when he shares only totals.
+  The three small points are built as proposed. Checked again: the design check (0 issues), typecheck, ESLint,
+  Prettier; the states clicked through in the Browser pane; screenshots at 375 and 1440 px, light and dark, kept in
+  the change folder's `prototypes/`.
+
+**Next**
+- Owner: approve the final prototype (and the three small points as built) for implementation, or ask for changes.
 
 ## 2026-11-12 (F-024: Family views, built)
 

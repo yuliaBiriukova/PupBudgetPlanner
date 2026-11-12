@@ -106,15 +106,15 @@ erDiagram
     CATEGORY ||--o{ TRANSACTION : "classifies"
     EXCHANGE_RATE
 
-    USER { guid Id string Email string DisplayName string ReportCurrency datetime CreatedAt datetime BlockedAt }
+    USER { guid Id string Email string DisplayName string ReportCurrency TransactionShare FamilySeesTransactions datetime CreatedAt datetime BlockedAt }
     INVITATION { guid Id bytes TokenHash string Note guid CreatedById guid FamilyId datetime ExpiresAt guid UsedById datetime UsedAt bool CreatedAccount datetime CancelledAt }
     FAMILY { guid Id string Name guid OwnerId datetime CreatedAt }
     FAMILY_MEMBER { guid FamilyId guid UserId datetime JoinedAt }
-    ACCOUNT { guid Id guid UserId string Name string Currency SourceKind Source guid SourceId guid BankId decimal OpeningBalance date OpeningDate CardStyle CardStyle datetime CreatedAt datetime ArchivedAt }
+    ACCOUNT { guid Id guid UserId string Name string Currency SourceKind Source guid SourceId guid BankId decimal OpeningBalance date OpeningDate CardStyle CardStyle AccountShare FamilySees datetime CreatedAt datetime ArchivedAt }
     ACCOUNT_SOURCE { guid Id guid UserId string Name }
     BANK { guid Id guid UserId string Name }
-    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder bool IsArchived }
-    CATEGORY { guid Id guid GroupId string Name int SortOrder bool IsArchived }
+    CATEGORY_GROUP { guid Id guid UserId string Name CategoryKind Kind int SortOrder bool IsArchived bool IsPrivate }
+    CATEGORY { guid Id guid GroupId string Name int SortOrder bool IsArchived bool IsPrivate }
     TRANSACTION { guid Id guid UserId TransactionType Type date Date guid AccountId decimal Amount guid CategoryId guid ToAccountId decimal ToAmount string Note }
     EXCHANGE_RATE { date Date string Currency decimal RateToUah RateSource Source }
 ```
@@ -147,6 +147,12 @@ erDiagram
   people) instead of a user id. Writes still take the signed-in person only, so someone else's money is only to look
   at. Accounts and transactions carry their `OwnerId`; the family's categories of one group and name are merged on
   each read (`FamilyCategories`), amounts in the viewer's report currency ([ADR 0031](decisions/0031-family-views.md)).
+- Privacy in the family (F-030): each person sets what the others see of their money: all their transactions or only
+  the totals (`users.family_sees_transactions`), each account Everything / BalanceOnly / Hidden (`accounts.family_sees`),
+  any category or a whole group private (`categories.is_private`, `category_groups.is_private`, the group's categories
+  added later too); set on the Family page (`PUT /api/family/privacy/…`). The scope
+  carries `KeptFromFamily` (Domain), whose `Counted` and `Listed` expressions the reads apply in SQL: what is kept
+  never leaves the database, a hidden transfer side is sent unnamed ([ADR 0032](decisions/0032-family-privacy.md)).
 - Accounts (F-014): the source is Cash, Bank or one of the person's own sources; a bank account names one of the
   person's banks. Own sources and banks are personal rows (a name unique per person) that stay while an account uses
   them. Balances are never stored: `BalanceSheet` adds each account's transactions to its opening balance and totals

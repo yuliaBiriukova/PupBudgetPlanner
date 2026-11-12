@@ -17,7 +17,7 @@ people the owner invites can sign up (F-028); later it can open to everyone.
 
 - **Person** — signs up, has their own accounts, categories and transactions.
 - **Family** — a group of people. Each person belongs to at most one family. Family members can see
-  each other's data and the combined family numbers.
+  each other's data and the combined family numbers, as each of them sets it (F-030).
 
 ## Features
 

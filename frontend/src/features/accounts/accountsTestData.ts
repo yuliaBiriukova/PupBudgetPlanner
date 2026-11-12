@@ -19,6 +19,7 @@ export const account = (id: string, name: string, extra: Partial<Account> = {}):
   archivedAt: null,
   transactionCount: 0,
   lastUsedAt: null,
+  familySees: 'Everything',
   ...extra,
 });
 
