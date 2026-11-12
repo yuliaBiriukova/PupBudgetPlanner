@@ -2,6 +2,43 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-12 (F-030: Privacy in the family, planned)
+
+**Done**
+- The owner asked, on `feature/F-024-family-views`, to plan one more family feature: each person sets what the other
+  members can see of their data. Planned as
+  [F-030](changes/features/F-030-family-privacy/F-030-family-privacy.md) (🎨): a draft of the goal, acceptance
+  criteria and tasks, and eight open points with proposals (what can be private, levels, default, whether private
+  money counts in the family's totals, per member or for all, notes, where it is set, milestone). Backlog row,
+  ROADMAP M9 and PRODUCT's after-MVP list point to it; F-024's first open point links it.
+- The owner put it **before the MVP launch** the same day: M5 after F-024, priority Medium. Moved in the backlog,
+  ROADMAP (M5; gone from M9) and PRODUCT (the MVP's Family item; gone from the after-MVP list).
+- Nothing built: F-030 stays `Todo` until its design round and the owner's approval.
+
+**Next**
+- Owner: approve F-024's final prototype. F-030 comes after F-024; its open points are settled in its design round.
+
+## 2026-11-12 (F-024: Family views, design round 1)
+
+**Done**
+- [F-024](changes/features/F-024-family-views/F-024-family-views.md) started on `feature/F-024-family-views`; marked
+  🎨 (a switcher on three screens needs the design round the description had said it didn't).
+- References (Monarch's Owners filter and shared views, Honeydue, Apple's Screen Time for a family member, Lunch
+  Money, the spreadsheet's sheet per person), the brief, eight open points with proposals, and three prototype stories
+  in *Prototypes / F-024 Family views*: One lens (in the shell), A filter (on each page), Ledger tabs (on the slip).
+  Each is the app as Olena with Transactions, Accounts and Reports answering for her, Andriy or the family.
+- Checked: the design check on the three stories (0 issues after two fixes), typecheck, ESLint and Prettier on the
+  prototype folder, every state in Playwright at 375 and 1440 px, light and dark, screenshots looked at.
+- Test data: none (Storybook's fake API only).
+
+- The owner picked variant 1, "One lens", the same day; it is the final prototype story (variants 2 and 3 removed),
+  checked again (design check 0 issues, its states in Playwright at 375 and 1440 px, light and dark, kept in the change
+  folder's `prototypes/`). The lens's choice is kept on the device.
+
+**Next**
+- Owner: approve the final prototype and the eight open points' proposals for implementation (or ask for changes);
+  no code before that.
+
 ## 2026-11-12 (B-018: The E2E clean-up finds test people whose tag has digits)
 
 **Done**

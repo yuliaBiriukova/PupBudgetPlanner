@@ -1,0 +1,232 @@
+/* F-024 prototype: the switchers of whose money and the marks of whose a line or card is. */
+
+/* A person's initial: the People page's grey circle, smaller */
+.initial {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--pup-color-tag);
+  color: var(--mantine-color-text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.initial[data-size='sm'] {
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+}
+
+/* The family: the initials overlapping, each with a ring of the background */
+.stack {
+  display: inline-flex;
+  flex: none;
+}
+
+.stack > .initial {
+  box-shadow: 0 0 0 2px var(--pup-color-surface);
+}
+
+.stack > .initial + .initial {
+  margin-left: -6px;
+}
+
+.stack[data-size='sm'] > .initial + .initial {
+  margin-left: -4px;
+}
+
+/* The list the switchers open */
+.whoItem {
+  gap: 12px;
+}
+
+.whoItemText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.whoItemSub {
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+}
+
+.tick {
+  flex: none;
+  color: var(--pup-color-accent);
+}
+
+/* In the sidebar: a row under Add, like the sections' rows, with its label above the name */
+.lensRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  margin-bottom: 12px;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+  white-space: nowrap;
+}
+
+.lensRow:hover {
+  background: var(--pup-color-hover);
+}
+
+.lensRow > svg {
+  flex: none;
+  color: var(--mantine-color-dimmed);
+}
+
+.lensRow[data-on] {
+  border-color: var(--pup-color-accent);
+  background: var(--pup-color-active-bg);
+}
+
+.lensRow[data-on] > svg {
+  color: var(--pup-color-accent);
+}
+
+.lensRow[data-collapsed] {
+  justify-content: center;
+  width: 48px;
+  min-height: 48px;
+  padding: 0;
+}
+
+.lensText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+}
+
+.lensLabel {
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.lensName {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+}
+
+/* On the phone: a pill in the top bar */
+.lensPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 148px;
+  height: 44px;
+  margin-inline: 4px;
+  padding: 0 10px 0 10px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: 999px;
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.lensPill[data-on] {
+  border-color: var(--pup-color-accent);
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+}
+
+.lensPill > svg {
+  flex: none;
+  color: inherit;
+}
+
+.lensPill .lensText {
+  flex: 0 1 auto;
+}
+
+/* Whose money it is, over the page */
+.whoseLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 8px 12px 8px 16px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-active-bg);
+  color: var(--mantine-color-text);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.whoseText {
+  flex: 1;
+  min-width: 0;
+}
+
+.whoseLine strong {
+  color: var(--mantine-color-text);
+  font-weight: 500;
+}
+
+.whoseIcon {
+  flex: none;
+}
+
+.backToMine {
+  flex: none;
+  margin: -4px -4px -4px 0;
+  padding: 4px 8px;
+  border-radius: var(--mantine-radius-sm);
+  color: var(--pup-color-accent);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.backToMine:hover {
+  background: var(--pup-color-hover);
+}
+
+/* A line or card of someone else's: a picture, nothing happens under the pointer */
+.still,
+.still:hover {
+  cursor: default;
+  background: transparent !important;
+}
+
+/* Whose a line is, in the family's receipts: the initial before the category */
+.lineWhose {
+  margin-right: 8px;
+  vertical-align: -4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Someone else's account card: a picture without the + edge */
+.theirCard {
+  cursor: default;
+}
+
+/* The list's initials in a column of one width, so the names line up behind one or two of them */
+.slot {
+  display: inline-flex;
+  flex: none;
+}
