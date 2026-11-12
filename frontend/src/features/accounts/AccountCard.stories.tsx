@@ -97,3 +97,44 @@ export const WithAddEdgeDark: Story = {
   render: () => <WithEdges />,
   globals: { colorScheme: 'dark' },
 };
+
+/** Kept from the family (F-030): an eye-off before a hidden account's name, coins before a balance-only one's. */
+function KeptCards() {
+  return (
+    <SimpleGrid cols={2} spacing={14}>
+      {CARD_STYLES.flatMap((style) => [
+        <AccountCard
+          key={`${style}-hidden`}
+          name="Dollars at home"
+          meta="Cash"
+          balance={500}
+          currency="USD"
+          cardStyle={style}
+          mark={{ share: 'Hidden', label: 'Hidden from the family' }}
+        />,
+        <AccountCard
+          key={`${style}-balance`}
+          name="Privat card"
+          meta="PrivatBank"
+          balance={12784}
+          currency="UAH"
+          cardStyle={style}
+          mark={{ share: 'BalanceOnly', label: 'The family sees the balance only' }}
+        />,
+      ])}
+    </SimpleGrid>
+  );
+}
+
+export const KeptFromTheFamily: Story = {
+  render: () => <KeptCards />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByText('Hidden from the family:')).toHaveLength(4);
+  },
+};
+
+export const KeptFromTheFamilyDark: Story = {
+  render: () => <KeptCards />,
+  globals: { colorScheme: 'dark' },
+};

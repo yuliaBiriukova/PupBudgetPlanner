@@ -36,6 +36,7 @@ decision — write a new ADR that supersedes it.
 | [0029](0029-families.md) | Families: one per person, family links are invite links, the owner hands the family over | Accepted |
 | [0030](0030-ci-runs-once-per-change.md) | CI checks each change once: on its pull request, and a release on `main` | Accepted |
 | [0031](0031-family-views.md) | A family's money is read through `who`; only your own is ever changed | Accepted |
+| [0032](0032-family-privacy.md) | What a member keeps from the family is left out by the database, from settings on the money itself | Accepted |
 
 Template for new ADRs:
 

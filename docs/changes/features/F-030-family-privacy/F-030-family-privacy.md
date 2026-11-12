@@ -5,7 +5,7 @@
 | Type | Feature |
 | Milestone | M5 — Categories & family (before the MVP launch; owner, 2026-11-12) |
 | Priority | Medium |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-030-family-privacy` |
 | Design | 3 prototype stories required |
 | Approved | 2026-11-12 by the owner ("F-030 final prototype is approved, build it": the final prototype, with the three small points as built) |
@@ -23,35 +23,36 @@ owner moved it before the launch (2026-11-12), so nobody shares more than they w
 
 Settled with the owner on 2026-11-12 (see "Open points"):
 
-- [ ] Everything is set in one place, the **Family page**: a section "What the family sees of your money".
-- [ ] **Accounts:** each of your accounts has one of three levels: *Everything* (as now), *Balance only* (the others
+- [x] Everything is set in one place, the **Family page**: a section "What the family sees of your money".
+- [x] **Accounts:** each of your accounts has one of three levels: *Everything* (as now), *Balance only* (the others
       see the account and its balance, not its transactions), *Hidden* (the others don't see the account, its balance
       or its transactions). A new account is *Everything*.
-- [ ] **Transactions:** one switch for all your transactions: the family sees *your transactions* (as now) or *only
+- [x] **Transactions:** one switch for all your transactions: the family sees *your transactions* (as now) or *only
       your totals by category*. With totals only, the others' Transactions page shows none of your lines (so none of
       your notes either); their Reports still show your totals by category.
-- [ ] **Categories:** any of your categories can be private (e.g. Gifts). The others see nothing of it: not the
+- [x] **Categories:** any of your categories can be private (e.g. Gifts). The others see nothing of it: not the
       category, its transactions or its total.
-- [ ] The same settings for every member of the family (not per member).
-- [ ] What is private is **left out completely** of the others' views (F-024's lens: someone's money and Family),
+- [x] The same settings for every member of the family (not per member).
+- [x] What is private is **left out completely** of the others' views (F-024's lens: someone's money and Family),
       everywhere: Transactions, Accounts, Reports, the filters, the calendar, "Where it went", "In total", the
       family's totals. The family views say that some money is private.
-- [ ] The person themselves sees all their own data as now, with a mark on what is private.
-- [ ] A change takes effect at once for everyone; nothing is deleted or moved by it.
-- [ ] The rules are enforced by the API (the data never reaches someone who may not see it), not only hidden in the
+- [x] The person themselves sees all their own data as now, with a mark on what is private.
+- [x] A change takes effect at once for everyone; nothing is deleted or moved by it.
+- [x] The rules are enforced by the API (the data never reaches someone who may not see it), not only hidden in the
       UI.
-- [ ] F-023's "you see each other's money" texts (the join page, Start a family) say that each person decides what
+- [x] F-023's "you see each other's money" texts (the join page, Start a family) say that each person decides what
       the others see.
 
 ## Tasks
 
 - [x] Answer the open points with the owner (2026-11-12)
 - [x] References, 3 prototype stories (design round), final prototype, the owner's approval (2026-11-12)
-- [ ] Domain: who may see what (visibility rules next to the `Family` aggregate), ADR
-- [ ] API: the visibility settings; F-024's scoped queries filtered by them
-- [ ] UI: the Family page's section, the private mark on your own accounts, categories and lines, the other members'
-      views without them
-- [ ] Storybook stories, i18n texts
+- [x] Domain: who may see what (`KeptFromFamily` next to the `Family` aggregate), [ADR 0032](../../../decisions/0032-family-privacy.md)
+- [x] API: the settings (`PUT /api/family/privacy/…`, migration `AddFamilyPrivacy`); F-024's scoped queries filtered by them
+- [x] UI: the Family page's section, the private mark on your own accounts and lines, the other members' views
+      without them
+- [x] Storybook stories, i18n texts
+- [x] Unit tests (backend, frontend), E2E, screens checked; the prototype stories removed
 
 ## Design
 
@@ -179,7 +180,7 @@ Andriy's accounts and Andriy's totals-only Transactions, looked at and kept in [
 Transactions privacy: one switch for all your transactions (owner, 2026-11-12; not a checkbox per transaction).
 A private category: the others see nothing of it (owner, 2026-11-12; not only its total).
 
-### Still to settle in the design round (proposals)
+### Settled in the design round (built as proposed, approved 2026-11-12)
 
 - **A *Balance only* account in the reports:** its transactions are left out of the others' Transactions page but
   counted in their reports' category totals, as with "only totals by category" (the balance shows how much went
@@ -188,6 +189,21 @@ A private category: the others see nothing of it (owner, 2026-11-12; not only it
   "To / From a private account".
 - **When the settings collide,** the stricter wins: a transaction on a hidden account or in a private category is
   left out even when your transactions are shared.
+
+### Built (2026-11-12)
+
+- **Where the settings live:** on the money itself: `accounts.family_sees`, `categories.is_private`,
+  `users.family_sees_transactions`; everything that existed is shared, as before. They stay when you leave a family.
+- **Your own marks** (the eye-off and coins on your cards, the lock on your lines) show only while you are in a family
+  with someone else in it: without one, nobody is kept from.
+- **The accounts row** lists your accounts in use, as the prototype; an archived account keeps the share it had.
+- **A hidden transfer side** comes from the API as an empty id with no name; the app says "A private account", and the
+  line shows what left (or came into) the shown account, in its currency.
+- **Stories:** the prototype stories were removed; *Family / Family privacy* (the app as Olena: the Family page, her
+  marked accounts and lines, Andriy's money, his totals only, the family's) and *Family / Family page → What the family
+  sees* replace them, with *Accounts / Account card → Kept from the family*.
+- A balance-only account of someone else shows without its count of transactions; the others' banks and own sources are
+  sent only as far as the accounts shown name them.
 
 ### Related
 

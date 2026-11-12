@@ -1,5 +1,6 @@
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Domain.Accounts;
+using PupBudgetPlanner.Domain.Families;
 
 namespace PupBudgetPlanner.Application.Accounts;
 
@@ -10,6 +11,8 @@ namespace PupBudgetPlanner.Application.Accounts;
 /// currency (I-011, F-018). <paramref name="LastUsedAt"/> is when its latest transaction was added (a transfer's
 /// for both its accounts), none without transactions: the quick-add form lists the account used last first (I-024).
 /// <paramref name="OwnerId"/> is whose it is: someone else's only opens to look at (F-024).
+/// <paramref name="FamilySees"/> is what the other members of the family see of it (F-030): your own as you set it,
+/// someone else's Everything or BalanceOnly (a hidden one isn't there).
 /// </summary>
 public sealed record AccountItem(
     Guid Id,
@@ -27,7 +30,8 @@ public sealed record AccountItem(
     CardStyle CardStyle,
     DateTimeOffset? ArchivedAt,
     int TransactionCount,
-    DateTimeOffset? LastUsedAt);
+    DateTimeOffset? LastUsedAt,
+    AccountShare FamilySees);
 
 public enum SaveAccountOutcome
 {

@@ -96,6 +96,7 @@ public static class DependencyInjection
         services.AddScoped<IInvitationService, InvitationService>();
         services.AddScoped<IPeopleService, PeopleService>();
         services.AddScoped<IFamilyService, FamilyService>();
+        services.AddScoped<IFamilyPrivacyService, FamilyPrivacyService>();
     }
 
     /// <summary>The NBU's rates, fetched on demand and kept in the database (F-017).</summary>

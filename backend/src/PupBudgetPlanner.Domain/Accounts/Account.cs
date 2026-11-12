@@ -1,3 +1,5 @@
+using PupBudgetPlanner.Domain.Families;
+
 namespace PupBudgetPlanner.Domain.Accounts;
 
 /// <summary>
@@ -56,6 +58,20 @@ public sealed class Account
     public DateTimeOffset? ArchivedAt { get; private set; }
 
     public bool IsArchived => ArchivedAt is not null;
+
+    /// <summary>What the other members of the family see of it (F-030); set on the Family page, not in the form.</summary>
+    public AccountShare FamilySees { get; private set; }
+
+    /// <summary>Sets what the family sees of it; nothing else changes, and nothing is deleted or moved.</summary>
+    public void ShareWithFamily(AccountShare share)
+    {
+        if (!Enum.IsDefined(share))
+        {
+            throw new ArgumentOutOfRangeException(nameof(share), share, "No such share.");
+        }
+
+        FamilySees = share;
+    }
 
     public static Account Create(Guid userId, AccountDetails details, DateTimeOffset now)
     {

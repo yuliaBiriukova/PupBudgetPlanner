@@ -10,6 +10,7 @@ using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Domain.Accounts;
+using PupBudgetPlanner.Domain.Families;
 
 namespace PupBudgetPlanner.Api.Tests.Controllers;
 
@@ -23,7 +24,7 @@ public sealed class AccountsControllerTests
 
     private static readonly AccountItem Item = new(
         AccountId, UserId, "Wallet", "UAH", SourceKind.Cash, null, null, null, null, 1_200m, new DateOnly(2026, 1, 1),
-        1_200m, CardStyle.Envelope, null, 0, null);
+        1_200m, CardStyle.Envelope, null, 0, null, AccountShare.Everything);
 
     private readonly IAccountService accounts = Substitute.For<IAccountService>();
     private readonly IFamilyService families = Substitute.For<IFamilyService>();

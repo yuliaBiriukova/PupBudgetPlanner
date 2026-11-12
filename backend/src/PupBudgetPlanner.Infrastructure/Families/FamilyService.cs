@@ -20,20 +20,43 @@ internal sealed class FamilyService(AppDbContext dbContext, TimeProvider clock) 
         }
 
         var memberIds = family.Members.Select(m => m.UserId).ToList();
-        var names = await dbContext.Users.AsNoTracking()
+        var people = await dbContext.Users.AsNoTracking()
             .Where(user => memberIds.Contains(user.Id))
-            .ToDictionaryAsync(user => user.Id, user => user.DisplayName, cancellationToken);
+            .Select(user => new { user.Id, user.DisplayName, user.FamilySeesTransactions })
+            .ToDictionaryAsync(user => user.Id, cancellationToken);
+        // Who keeps an account or a category from the others (F-030): the family views say so
+        var keepAccounts = await dbContext.Accounts.AsNoTracking()
+            .Where(account => memberIds.Contains(account.UserId) && account.FamilySees != AccountShare.Everything)
+            .Select(account => account.UserId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        var keepCategories = await (
+                from category in dbContext.Categories
+                join categoryGroup in dbContext.CategoryGroups on category.GroupId equals categoryGroup.Id
+                where category.IsPrivate && memberIds.Contains(categoryGroup.UserId)
+                select categoryGroup.UserId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
 
         var members = family.Members
             .OrderByDescending(m => family.IsOwner(m.UserId))
             .ThenBy(m => m.JoinedAt)
-            .Select(m => new FamilyMemberItem(
-                m.UserId,
-                names.GetValueOrDefault(m.UserId, string.Empty),
-                family.IsOwner(m.UserId),
-                m.UserId == userId,
-                family.StartedBy(m.UserId),
-                m.JoinedAt))
+            .Select(m =>
+            {
+                var person = people.GetValueOrDefault(m.UserId);
+                var transactions = person?.FamilySeesTransactions ?? TransactionShare.Every;
+                return new FamilyMemberItem(
+                    m.UserId,
+                    person?.DisplayName ?? string.Empty,
+                    family.IsOwner(m.UserId),
+                    m.UserId == userId,
+                    family.StartedBy(m.UserId),
+                    m.JoinedAt,
+                    transactions,
+                    transactions == TransactionShare.Totals ||
+                    keepAccounts.Contains(m.UserId) ||
+                    keepCategories.Contains(m.UserId));
+            })
             .ToList();
 
         // A link is shown once, when it is made (F-028); the owner sees the waiting ones to cancel them
@@ -160,7 +183,37 @@ internal sealed class FamilyService(AppDbContext dbContext, TimeProvider clock) 
         }
 
         var family = await FamilyOfAsync(userId, tracked: false, cancellationToken);
-        return family?.SeenBy(userId, who.PersonId) is { } people ? new MoneyScope(userId, people) : null;
+        return family?.SeenBy(userId, who.PersonId) is { } people
+            ? new MoneyScope(userId, people) { Kept = await KeptAsync(userId, people, cancellationToken) }
+            : null;
+    }
+
+    /// <summary>What the others among <paramref name="people"/> keep from the viewer, from their settings (F-030).</summary>
+    private async Task<KeptFromFamily> KeptAsync(
+        Guid viewerId, IReadOnlyList<Guid> people, CancellationToken cancellationToken)
+    {
+        var others = people.Where(person => person != viewerId).ToList();
+        if (others.Count == 0)
+        {
+            return KeptFromFamily.Nothing;
+        }
+
+        var accounts = await dbContext.Accounts.AsNoTracking()
+            .Where(account => others.Contains(account.UserId) && account.FamilySees != AccountShare.Everything)
+            .Select(account => new KeptAccount(account.Id, account.UserId, account.FamilySees))
+            .ToListAsync(cancellationToken);
+        var categories = await (
+                from category in dbContext.Categories
+                join categoryGroup in dbContext.CategoryGroups on category.GroupId equals categoryGroup.Id
+                where category.IsPrivate && others.Contains(categoryGroup.UserId)
+                select new KeptCategory(category.Id, categoryGroup.UserId))
+            .ToListAsync(cancellationToken);
+        var totalsOnly = await dbContext.Users.AsNoTracking()
+            .Where(user => others.Contains(user.Id) && user.FamilySeesTransactions == TransactionShare.Totals)
+            .Select(user => user.Id)
+            .ToListAsync(cancellationToken);
+
+        return KeptFromFamily.For(viewerId, accounts, categories, totalsOnly);
     }
 
     public async Task<FamilyActionOutcome> JoinAsync(

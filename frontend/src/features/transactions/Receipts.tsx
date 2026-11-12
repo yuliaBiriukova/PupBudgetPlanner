@@ -1,9 +1,10 @@
 import { Skeleton, UnstyledButton } from '@mantine/core';
-import { IconArrowRight } from '@tabler/icons-react';
+import { IconArrowRight, IconLock } from '@tabler/icons-react';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatMoney } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
+import { PRIVATE_ACCOUNT_ID, useKeptLine } from '../family/privacy';
 import { FAMILY, useWhose } from '../family/whose';
 import whoseClasses from '../family/Whose.module.css';
 import { LineWhose } from '../family/WhoseLens';
@@ -104,6 +105,10 @@ function Receipt({
   const { t } = useTranslation();
   const headingId = useId();
   const whose = useWhose();
+  const kept = useKeptLine();
+  // The hidden side of someone else's transfer (F-030)
+  const nameOf = (id: string | null | undefined, name: string | null | undefined) =>
+    id === PRIVATE_ACCOUNT_ID ? t('privacy.privateAccount') : (name ?? '');
 
   return (
     <section className={classes.paper} aria-labelledby={headingId}>
@@ -132,6 +137,14 @@ function Receipt({
                         : 'transactions.list.Transfer',
                     )
                   : item.categoryName}
+                {whose.isMine(item.ownerId) && kept(item) && (
+                  <IconLock
+                    size={16}
+                    stroke={1.7}
+                    className={classes.keptMark}
+                    aria-label={t('privacy.marks.line')}
+                  />
+                )}
               </span>
               <span className={classes.leader} aria-hidden="true" />
               <span className={classes.lineAmount}>
@@ -141,10 +154,12 @@ function Receipt({
                 {item.type === 'Transfer' ? (
                   // Where the money went, then the note (F-019)
                   <>
-                    <span>{item.accountName}</span>
+                    <span>{nameOf(item.accountId, item.accountName)}</span>
                     <IconArrowRight size={16} stroke={1.7} aria-label={t('transactions.list.to')} />
                     <span>
-                      {item.note ? `${item.toAccountName ?? ''}, ${item.note}` : item.toAccountName}
+                      {item.note
+                        ? `${nameOf(item.toAccountId, item.toAccountName)}, ${item.note}`
+                        : nameOf(item.toAccountId, item.toAccountName)}
                     </span>
                   </>
                 ) : (

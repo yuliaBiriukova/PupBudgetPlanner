@@ -239,6 +239,12 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasColumnName("currency")
                         .IsFixedLength();
 
+                    b.Property<string>("FamilySees")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("family_sees");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(40)
@@ -351,6 +357,10 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsArchived")
                         .HasColumnType("boolean")
                         .HasColumnName("is_archived");
+
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_private");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -684,6 +694,12 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
+
+                    b.Property<string>("FamilySeesTransactions")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("family_sees_transactions");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")

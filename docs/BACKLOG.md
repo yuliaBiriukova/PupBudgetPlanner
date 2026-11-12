@@ -66,7 +66,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 | [F-029](changes/features/F-029-manage-categories/F-029-manage-categories.md) | 🎨 Add, rename, reorder and remove categories and groups (priority High, added 2026-11-06) | Done |
 | [F-023](changes/features/F-023-family-and-invitations/F-023-family-and-invitations.md) | 🎨 Family and invitations | Done |
 | [F-024](changes/features/F-024-family-views/F-024-family-views.md) | 🎨 Family views | Done |
-| [F-030](changes/features/F-030-family-privacy/F-030-family-privacy.md) | 🎨 Privacy in the family: each person decides what the other members see of their money (priority Medium, added 2026-11-12) | In progress |
+| [F-030](changes/features/F-030-family-privacy/F-030-family-privacy.md) | 🎨 Privacy in the family: each person decides what the other members see of their money (priority Medium, added 2026-11-12) | Done |
 
 ### M6 — MVP release
 

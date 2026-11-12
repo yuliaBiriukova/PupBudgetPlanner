@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using PupBudgetPlanner.Domain.Families;
 
 namespace PupBudgetPlanner.Infrastructure.Identity;
 
@@ -16,4 +17,7 @@ public sealed class AppUser : IdentityUser<Guid>
 
     /// <summary>The currency totals and reports are shown in, picked in Settings (F-016); the hryvnia at first.</summary>
     public string ReportCurrency { get; set; } = Application.ExchangeRates.ReportCurrency.Default;
+
+    /// <summary>What the other members of the family see of the person's transactions (F-030); every one at first.</summary>
+    public TransactionShare FamilySeesTransactions { get; set; }
 }

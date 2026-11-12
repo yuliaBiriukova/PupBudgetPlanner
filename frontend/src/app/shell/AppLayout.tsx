@@ -2,6 +2,7 @@ import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation } from 'react-router';
+import { useKeptText } from '../../features/family/privacy';
 import { FAMILY, useWhose } from '../../features/family/whose';
 import { WhoseBand } from '../../features/family/WhoseLens';
 import { WhoseProvider } from '../../features/family/WhoseProvider';
@@ -41,15 +42,19 @@ export function AppLayout(props: AppLayoutProps) {
   );
 }
 
-/** Over Transactions, Accounts and Reports when the money isn't only yours: whose it is, and Back to mine. */
+/**
+ * Over Transactions, Accounts and Reports when the money isn't only yours: whose it is, what they keep from you
+ * (F-030), and Back to mine.
+ */
 function PageBand() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const { who } = useWhose();
+  // What they keep from you (F-030)
+  const kept = useKeptText(pathname);
   if (!WHOSE_PAGES.some((path) => pathname.startsWith(path))) return null;
-  return (
-    <WhoseBand>{who === FAMILY && pathname.startsWith('/reports') && t('whose.merged')}</WhoseBand>
-  );
+  const merged = who === FAMILY && pathname.startsWith('/reports') && t('whose.merged');
+  return <WhoseBand>{[kept, merged].filter(Boolean).join(' ') || undefined}</WhoseBand>;
 }
 
 function Shell({ user, onSignOut }: AppLayoutProps) {

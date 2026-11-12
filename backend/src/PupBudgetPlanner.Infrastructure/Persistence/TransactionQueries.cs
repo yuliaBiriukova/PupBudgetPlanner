@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PupBudgetPlanner.Domain.Accounts;
+using PupBudgetPlanner.Domain.Families;
 using PupBudgetPlanner.Domain.Transactions;
 
 namespace PupBudgetPlanner.Infrastructure.Persistence;
@@ -47,6 +48,21 @@ internal static class TransactionQueries
 
         return [.. outgoing, .. incoming];
     }
+
+    /// <summary>
+    /// The transactions that count in the totals the viewer sees (F-030): what the others keep is left out. Your own
+    /// money keeps the query as it was.
+    /// </summary>
+    public static IQueryable<Transaction> CountedFor(this IQueryable<Transaction> transactions, KeptFromFamily kept) =>
+        kept.IsNothing ? transactions : transactions.Where(kept.Counted);
+
+    /// <summary>The transactions the viewer sees as lines (F-030): counted, and not only in the totals.</summary>
+    public static IQueryable<Transaction> ListedFor(this IQueryable<Transaction> transactions, KeptFromFamily kept) =>
+        kept.IsNothing ? transactions : transactions.Where(kept.Counted).Where(kept.Listed);
+
+    /// <summary>The transactions the viewer sees only in the totals, not as lines (F-030).</summary>
+    public static IQueryable<Transaction> UnlistedFor(this IQueryable<Transaction> transactions, KeptFromFamily kept) =>
+        transactions.Where(kept.Counted).Where(kept.Unlisted);
 
     /// <summary>Whether a transaction uses the account: on it, or as a transfer's To (F-019).</summary>
     public static Task<bool> IsUsedAsync(

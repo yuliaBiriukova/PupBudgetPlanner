@@ -25,6 +25,22 @@ public sealed class RenameFamilyRequestValidator : AbstractValidator<RenameFamil
     public RenameFamilyRequestValidator() => this.ForName(r => r.Name);
 }
 
+public sealed class ShareTransactionsRequestValidator : AbstractValidator<ShareTransactionsRequest>
+{
+    public ShareTransactionsRequestValidator()
+    {
+        RuleFor(r => r.Share).IsInEnum();
+    }
+}
+
+public sealed class ShareAccountRequestValidator : AbstractValidator<ShareAccountRequest>
+{
+    public ShareAccountRequestValidator()
+    {
+        RuleFor(r => r.Share).IsInEnum();
+    }
+}
+
 public sealed class JoinFamilyRequestValidator : AbstractValidator<JoinFamilyRequest>
 {
     public JoinFamilyRequestValidator()

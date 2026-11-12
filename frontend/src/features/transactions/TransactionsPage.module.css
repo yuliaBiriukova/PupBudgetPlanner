@@ -1079,6 +1079,13 @@
   white-space: nowrap;
 }
 
+/* One of your lines the family doesn't see (F-030): a lock after its category */
+.keptMark {
+  margin-left: 6px;
+  color: var(--mantine-color-dimmed);
+  vertical-align: -2px;
+}
+
 .leader {
   align-self: end;
   height: 6px;

@@ -1,33 +1,9 @@
-/* F-030 prototype: "What the family sees of your money" on the Family page (final: variant 1, folding), and the
-   private marks on your own cards and lines */
-
-.block {
-  display: grid;
-  gap: 8px;
-}
-
-.block + .block {
-  margin-top: 8px;
-}
-
-.blockTitle {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-}
+/* F-030: "What the family sees" on the Family page (final prototype: variant 1 "Rows", folding) */
 
 .quiet {
   margin: 0;
   color: var(--mantine-color-dimmed);
   font-size: 14px;
-}
-
-.subhead {
-  margin: 0 0 8px;
-  color: var(--mantine-color-dimmed);
-  font-size: 14px;
-  font-weight: 500;
 }
 
 /* ---------- Every transaction / Only totals: two rows with a round mark ---------- */
@@ -93,7 +69,7 @@
   line-height: 20px;
 }
 
-/* ---------- Variant 1: an account a row, its level a pill on the right ---------- */
+/* ---------- An account a row, its share a pill on the right ---------- */
 .accountRows {
   display: grid;
   margin: 0;
@@ -207,7 +183,7 @@
   font-weight: 500;
 }
 
-/* ---------- Final: the three rows that fold ---------- */
+/* ---------- The three rows that fold ---------- */
 .folds {
   border: 1px solid var(--pup-color-rule);
   border-radius: var(--mantine-radius-md);
@@ -294,21 +270,4 @@
 
 .choiceRows[data-plain] .choiceRow:hover .choiceTitle {
   text-decoration: underline;
-}
-
-/* ---------- The marks on your own cards and lines ---------- */
-/* Before the account's name, in the card's own muted text */
-.cardMark {
-  margin-right: 6px;
-  color: var(--card-muted);
-}
-
-.cardMark > svg {
-  vertical-align: -2px;
-}
-
-.lineMark {
-  margin-left: 6px;
-  color: var(--mantine-color-dimmed);
-  vertical-align: -2px;
 }

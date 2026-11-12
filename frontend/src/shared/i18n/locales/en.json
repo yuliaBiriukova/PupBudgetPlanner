@@ -257,7 +257,7 @@
     "retry": "Try again",
     "failed": "That didn’t go through. Try again.",
     "means": {
-      "see": "Everyone in the family sees each other’s accounts, transactions and reports, and the family’s report.",
+      "see": "You see each other’s accounts, transactions and reports, and the family’s report; each of you decides what the others see of your money.",
       "own": "Each of you changes only your own.",
       "leave": "Anyone can leave at any time; nothing of theirs is deleted."
     },
@@ -296,7 +296,8 @@
       "started": "Started the family {{date}}",
       "joined": "Joined {{date}}",
       "actions": "Actions for {{name}}",
-      "remove": "Remove from family"
+      "remove": "Remove from family",
+      "textShared": "Each sees the others’ money as they set it below; each changes only their own."
     },
     "invite": {
       "title": "Invite someone",
@@ -1034,5 +1035,64 @@
     "theirs": "{{name}}’s",
     "theirsWith": "{{name}}’s, {{what}}",
     "theirsLine": "{{name}}’s:"
+  },
+  "privacy": {
+    "title": "What the family sees",
+    "text_one": "{{names}} sees your money as you set it here. A change counts at once; nothing is deleted or moved.",
+    "text_other": "{{names}} see your money as you set it here. A change counts at once; nothing is deleted or moved.",
+    "failed": "That didn’t go through. Try again.",
+    "transactions": {
+      "title": "Your transactions",
+      "label": "What the family sees of your transactions",
+      "Every": "Every transaction",
+      "EveryText": "Each line with its account, category and note, as you see it",
+      "Totals": "Only totals by category",
+      "TotalsText": "How much went on each category in a month or a year; no lines, no notes"
+    },
+    "accounts": {
+      "title": "Your accounts",
+      "none": "No accounts yet",
+      "all_one": "Shared",
+      "all_other": "All {{count}} shared",
+      "shared": "{{count}} shared",
+      "balance": "{{count}} balance only",
+      "hidden": "{{count}} hidden",
+      "level": "{{name}}: the family sees {{level}}"
+    },
+    "shares": {
+      "Everything": "Everything",
+      "EverythingText": "The account, its balance and its transactions",
+      "BalanceOnly": "Balance only",
+      "BalanceOnlyText": "The account and its balance, none of its transactions",
+      "Hidden": "Hidden",
+      "HiddenText": "Nothing of it"
+    },
+    "categories": {
+      "title": "Private categories",
+      "none": "None",
+      "many": "{{count}} categories",
+      "text_one": "{{names}} sees nothing of a private category: not it, its transactions or its total.",
+      "text_other": "{{names}} see nothing of a private category: not it, its transactions or its total.",
+      "choose": "Choose categories",
+      "lead": "{{names}} won’t see a private category, its transactions or its total.",
+      "done": "Done",
+      "shareAgain": "Share {{name}} ({{group}}) again"
+    },
+    "marks": {
+      "hidden": "Hidden from the family",
+      "balance": "The family sees the balance only",
+      "theirBalance": "{{name}} shares only its balance",
+      "line": "Kept from the family"
+    },
+    "band": {
+      "keeps": "{{name}} keeps some of it private.",
+      "totals": "{{name}} shares only totals by category, not the transactions.",
+      "family": "Some of {{names}} money is private."
+    },
+    "totalsOnly": {
+      "title": "Only totals by category",
+      "text": "{{name}} shares how much went on each category, not the transactions."
+    },
+    "privateAccount": "A private account"
   }
 }

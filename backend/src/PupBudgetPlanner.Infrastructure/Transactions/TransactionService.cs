@@ -22,11 +22,13 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
             categoryIds = (await CategoriesOfAsync(scope, cancellationToken)).SameAs(categoryId);
         }
 
-        // One more than asked: whether there is a next page
-        var items = await ItemsOf(Matching(scope.People, filter, categoryIds))
-            .Skip(offset)
-            .Take(limit + 1)
-            .ToListAsync(cancellationToken);
+        // One more than asked: whether there is a next page. Only the lines the viewer may see (F-030)
+        var items = (await ItemsOf(Matching(scope, filter, categoryIds).ListedFor(scope.Kept))
+                .Skip(offset)
+                .Take(limit + 1)
+                .ToListAsync(cancellationToken))
+            .Select(item => item.SeenWith(scope.Kept))
+            .ToList();
 
         return items.Count > limit
             ? new TransactionPage(items[..limit], offset + limit)
@@ -38,19 +40,13 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
     {
         var people = scope.People;
         // The categories leave the picked one out of their filters (TransactionSummary): it is picked in memory
-        var rows = await (
-                from transaction in Matching(people, filter with { CategoryId = null }, null)
-                join account in dbContext.Accounts on transaction.AccountId equals account.Id
-                group transaction by new { transaction.Date, transaction.Type, account.Currency, transaction.CategoryId }
-                into same
-                select new SummaryRow(
-                    same.Key.Date,
-                    same.Key.Type,
-                    same.Key.Currency,
-                    same.Key.CategoryId,
-                    same.Count(),
-                    same.Sum(transaction => transaction.Amount)))
-            .ToListAsync(cancellationToken);
+        var matching = Matching(scope, filter with { CategoryId = null }, null);
+        var rows = await RowsOf(matching.ListedFor(scope.Kept), listed: true, cancellationToken);
+        if (!scope.Kept.IsNothing)
+        {
+            // Lines the viewer sees only in the totals: not on the calendar's days or in the count (F-030)
+            rows.AddRange(await RowsOf(matching.UnlistedFor(scope.Kept), listed: false, cancellationToken));
+        }
 
         // One account: its own currency; else the viewer's report currency (F-016), whoever's money it is (F-024)
         var currency = filter.AccountId is { } accountId
@@ -93,24 +89,51 @@ internal sealed class TransactionService(AppDbContext dbContext, IExchangeRateSe
         return TransactionSummary.Of(rows, currency, ratesOf, filter.CategoryId, filter.Type, names);
     }
 
-    /// <summary>The scope's people's categories, every one of them, as one set (F-024).</summary>
+    /// <summary>The transactions counted and summed by the database per day, type, currency and category.</summary>
+    private Task<List<SummaryRow>> RowsOf(
+        IQueryable<Transaction> transactions, bool listed, CancellationToken cancellationToken) => (
+            from transaction in transactions
+            join account in dbContext.Accounts on transaction.AccountId equals account.Id
+            group transaction by new { transaction.Date, transaction.Type, account.Currency, transaction.CategoryId }
+            into same
+            select new SummaryRow(
+                same.Key.Date,
+                same.Key.Type,
+                same.Key.Currency,
+                same.Key.CategoryId,
+                same.Count(),
+                same.Sum(transaction => transaction.Amount),
+                listed))
+        .ToListAsync(cancellationToken);
+
+    /// <summary>
+    /// The scope's people's categories, every one of them, as one set (F-024); the others' private ones left out
+    /// (F-030).
+    /// </summary>
     private async Task<FamilyCategories> CategoriesOfAsync(MoneyScope scope, CancellationToken cancellationToken)
     {
         var groups = await dbContext.CategoryGroups.AsNoTracking()
             .Where(group => scope.People.Contains(group.UserId))
             .Include(group => group.Categories)
             .ToListAsync(cancellationToken);
-        return FamilyCategories.Of(scope.People, groups);
+        return FamilyCategories.Of(scope.People, scope.Kept.Shown(groups));
     }
 
     /// <summary>
     /// The people's transactions the filters find; one account's are on it and the transfers it is the To of
     /// (F-019). <paramref name="categoryIds"/>, when given, are the categories that count as the filter's (F-024).
+    /// An account the viewer may not see finds nothing (F-030).
     /// </summary>
     private IQueryable<Transaction> Matching(
-        IReadOnlyList<Guid> people, TransactionFilter filter, IReadOnlyList<Guid>? categoryIds)
+        MoneyScope scope, TransactionFilter filter, IReadOnlyList<Guid>? categoryIds)
     {
+        var people = scope.People;
         var transactions = dbContext.Transactions.Where(transaction => people.Contains(transaction.UserId));
+        if (filter.AccountId is { } hiddenId && !scope.Kept.Shows(hiddenId))
+        {
+            return transactions.Where(_ => false);
+        }
+
         if (filter.From is { } from)
         {
             transactions = transactions.Where(transaction => transaction.Date >= from);

@@ -1,4 +1,5 @@
 using PupBudgetPlanner.Application.Families;
+using PupBudgetPlanner.Domain.Families;
 
 namespace PupBudgetPlanner.Application.Tests.Families;
 
@@ -38,5 +39,23 @@ public sealed class FamilyValidatorTests
         join.Validate(new JoinFamilyRequest("k7x9f2qa")).IsValid.Should().BeTrue();
         join.Validate(new JoinFamilyRequest("")).IsValid.Should().BeFalse();
         join.Validate(new JoinFamilyRequest(new string('a', 101))).IsValid.Should().BeFalse();
+    }
+}
+
+/// <summary>What the family sees of your money (F-030): only the shares there are.</summary>
+public sealed class FamilyPrivacyValidatorTests
+{
+    [Fact]
+    public void Only_the_shares_there_are_are_taken()
+    {
+        new ShareTransactionsRequestValidator().Validate(new ShareTransactionsRequest(TransactionShare.Totals))
+            .IsValid.Should().BeTrue();
+        new ShareAccountRequestValidator().Validate(new ShareAccountRequest(AccountShare.Hidden))
+            .IsValid.Should().BeTrue();
+
+        new ShareTransactionsRequestValidator().Validate(new ShareTransactionsRequest((TransactionShare)5))
+            .IsValid.Should().BeFalse();
+        new ShareAccountRequestValidator().Validate(new ShareAccountRequest((AccountShare)5))
+            .IsValid.Should().BeFalse();
     }
 }

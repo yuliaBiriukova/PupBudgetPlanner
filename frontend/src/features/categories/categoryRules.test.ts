@@ -12,7 +12,13 @@ function group(name: string): CategoryGroup {
 
 describe('the rules for changing categories (F-029)', () => {
   it('delete a category nobody used and hide one with transactions', () => {
-    const spotify = { id: 'spotify', name: 'Spotify', isHidden: false, transactionCount: 12 };
+    const spotify = {
+      id: 'spotify',
+      name: 'Spotify',
+      isHidden: false,
+      transactionCount: 12,
+      isPrivate: false,
+    };
     expect(removeOutcome(spotify)).toBe('hide');
     expect(removeOutcome({ ...spotify, transactionCount: 0 })).toBe('delete');
   });
