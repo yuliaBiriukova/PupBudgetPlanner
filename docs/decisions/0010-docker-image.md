@@ -32,7 +32,8 @@ proxy and redirects HTTP to HTTPS itself. There is no Docker on the owner's mach
 
 ## Consequences
 
-- The production image is tested on every pull request, not only on Render.
+- The production image is tested in CI, not only on Render: on every pull request until I-031, since then on a
+  release's PR into `main` and on the push to `main` ([ADR 0030](0030-ci-runs-once-per-change.md)).
 - Builds on Render are independent of GitHub Actions; a Render build can still fail for Render-specific reasons
   (e.g. out of build minutes), which the deploy log shows.
 - Switching to Server GC or to a bigger instance is a configuration change only.

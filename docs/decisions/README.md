@@ -34,6 +34,7 @@ decision — write a new ADR that supersedes it.
 | [0027](0027-report-engine.md) | Reports: summed by the database, built in memory; real month-end balances with "Other changes" | Accepted |
 | [0028](0028-changing-categories.md) | Changing categories: one rule set in the Domain, hide instead of delete, our own small drag | Accepted |
 | [0029](0029-families.md) | Families: one per person, family links are invite links, the owner hands the family over | Accepted |
+| [0030](0030-ci-runs-once-per-change.md) | CI checks each change once: on its pull request, and a release on `main` | Accepted |
 
 Template for new ADRs:
 
