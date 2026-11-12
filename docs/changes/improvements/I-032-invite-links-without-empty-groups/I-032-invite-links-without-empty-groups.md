@@ -5,10 +5,10 @@
 | Type | Improvement |
 | Milestone | M6 — MVP release (polish before the launch) |
 | Priority | Medium (proposed: a side screen, nothing broken; owner's feedback on I-006 after the release) |
-| Status | In progress (final prototype) |
+| Status | In progress |
 | Branch | `bugfix/B-020-B-022-I-032-ui-fixes` (one PR with B-020 – B-022, as the owner asked) |
 | Design | 🎨 changes I-006's approved screens: a final prototype story to approve |
-| Approved | — |
+| Approved | 2026-11-12, the owner in chat ("Approved, build it"): the description and the final prototype |
 
 ## Goal
 
@@ -70,7 +70,9 @@ missing*, *None*).
 - When built, the cancel confirmation's "It moves to Expired and cancelled" is said differently on the People page
   (there is no such group there).
 
-Chosen: the owner's direction · Final prototype approved: — (screenshots go to `prototypes/` once approved)
+Chosen: the owner's direction · Final prototype approved: 2026-11-12. Screenshots in [prototypes/](prototypes/): the
+Invite links tab (`people-…`), two picked (`people-picked-…`), the Family page with a group missing (`family-some-…`)
+and with no links (`family-none-…`), each at 375 and 1440 px, light and dark.
 
 ## Tests
 

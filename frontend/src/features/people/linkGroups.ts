@@ -1,8 +1,8 @@
 import type { Invitation } from './peopleApi';
 
 /**
- * Invite links as the Invite links tab and the Family page show them (I-006): three groups that fold, and which of
- * them the person left open.
+ * Invite links as the Invite links tab and the Family page show them (I-006): the Family page's three groups that fold,
+ * and which of them the person left open. The Invite links tab lists them in one list, without groups (I-032).
  */
 
 /** Where the links are: the admin's Invite links tab, or the family owner's Family page. */
@@ -39,21 +39,23 @@ export function shortDate(value: string): string {
   return SHORT.format(new Date(value));
 }
 
+/** The Invite links tab's one list (I-032): waiting links first (they still work, Cancel is on them), then the rest;
+ * each part newest first. */
+export function inListOrder(links: readonly Invitation[]): Invitation[] {
+  const newestFirst = (a: Invitation, b: Invitation) => b.createdAt.localeCompare(a.createdAt);
+  return [
+    ...links.filter((link) => link.status === 'Waiting').sort(newestFirst),
+    ...links.filter((link) => link.status !== 'Waiting').sort(newestFirst),
+  ];
+}
+
 /** Which groups are open: Waiting at first, the others folded. */
 export type OpenGroups = Record<LinkGroup, boolean>;
 
 const FIRST: OpenGroups = { waiting: true, used: false, old: false };
 
-const OPEN_KEY: Record<Place, string> = {
-  admin: 'pup.people.links.open',
-  family: 'pup.family.links.open',
-};
-
-/**
- * Before I-006 the Invite links tab kept the folded groups the admin left *open* (Used, Expired and cancelled), and
- * Waiting didn't fold. A value saved then still leaves Waiting open.
- */
-export const LEGACY_SHOWN_KEY = 'pup.people.links.shown';
+/** Where the Family page keeps its open groups. The Invite links tab's keys from before I-032 are left unread. */
+const OPEN_KEY = 'pup.family.links.open';
 
 function parse(value: string | null): unknown {
   if (value === null) return null;
@@ -65,9 +67,9 @@ function parse(value: string | null): unknown {
 }
 
 /** The groups left open in this browser, or the first ones. Storage may be refused (private windows). */
-export function readOpen(place: Place): OpenGroups {
+export function readOpen(): OpenGroups {
   try {
-    const saved = parse(localStorage.getItem(OPEN_KEY[place]));
+    const saved = parse(localStorage.getItem(OPEN_KEY));
     if (saved && typeof saved === 'object') {
       const open = saved as Partial<Record<LinkGroup, unknown>>;
       return {
@@ -76,21 +78,15 @@ export function readOpen(place: Place): OpenGroups {
         old: open.old === true,
       };
     }
-    if (place === 'admin') {
-      const legacy = parse(localStorage.getItem(LEGACY_SHOWN_KEY));
-      if (Array.isArray(legacy)) {
-        return { waiting: true, used: legacy.includes('used'), old: legacy.includes('old') };
-      }
-    }
   } catch {
     // Storage refused: the first ones
   }
   return { ...FIRST };
 }
 
-export function writeOpen(place: Place, open: OpenGroups) {
+export function writeOpen(open: OpenGroups) {
   try {
-    localStorage.setItem(OPEN_KEY[place], JSON.stringify(open));
+    localStorage.setItem(OPEN_KEY, JSON.stringify(open));
   } catch {
     // Private windows may refuse storage; the groups just start as at first next time
   }

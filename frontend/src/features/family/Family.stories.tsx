@@ -33,6 +33,8 @@ interface ScreenProps {
   link?: 'signed-in' | 'someone-new';
   /** What Olena keeps from the family when the page opens (F-030); every change is kept while it is shown. */
   kept?: 'nothing' | 'some';
+  /** The owner's invite links: a waiting, a used and a cancelled one, or none (I-032). */
+  inviteLinks?: 'some' | 'none';
 }
 
 const FAMILIES: Record<NonNullable<ScreenProps['family']>, () => Family | null> = {
@@ -47,10 +49,17 @@ const FAMILIES: Record<NonNullable<ScreenProps['family']>, () => Family | null> 
 };
 
 /** The Family page (F-023) or a family's invite link, with a fake API that keeps every change. */
-function FamilyScreen({ family = 'owner', data = 'loaded', link, kept = 'nothing' }: ScreenProps) {
+function FamilyScreen({
+  family = 'owner',
+  data = 'loaded',
+  link,
+  kept = 'nothing',
+  inviteLinks = 'some',
+}: ScreenProps) {
   const [routes] = useState<MockRoutes>(() => {
     const fake = fakeFamilyRoutes(FAMILIES[family](), {
       links: { [KOVALENKO_TOKEN]: KOVALENKO_PREVIEW },
+      ...(inviteLinks === 'none' ? { invitations: [] } : {}),
     });
     // Olena's accounts and categories, and what the family sees of them (F-030)
     const privacy = fakePrivacyRoutes(kept === 'some' ? OLENA_KEEPS : NOTHING_KEPT);
@@ -145,7 +154,7 @@ export const OwnerLinksPicked: Story = {
   },
 };
 
-/** Expired and cancelled cleared with Select all and Delete, after one confirmation (I-006). */
+/** Expired and cancelled cleared with Select all and Delete, after one confirmation: the group is gone (I-006, I-032). */
 export const OwnerLinksGroupCleared: Story = {
   globals: desktop,
   beforeEach: freshFolds,
@@ -159,10 +168,18 @@ export const OwnerLinksGroupCleared: Story = {
     await userEvent.click(await body.findByRole('button', { name: 'Delete link' }));
     await waitFor(() =>
       expect(
-        canvas.queryByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+        canvas.queryByRole('region', { name: 'Expired and cancelled' }),
       ).not.toBeInTheDocument(),
     );
   },
+};
+
+/** No invite links at all: only Create invite link, no groups (I-032). */
+export const OwnerNoLinks: Story = { args: { inviteLinks: 'none' } };
+
+export const OwnerNoLinksDesktopDark: Story = {
+  args: { inviteLinks: 'none' },
+  globals: { ...desktop, colorScheme: 'dark' },
 };
 
 /** Olena joined Andriy's family: the name as text, no menus, no invite links; she can leave. */

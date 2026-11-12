@@ -71,6 +71,11 @@
   white-space: nowrap;
 }
 
+/* The admin's one list (I-032): no fold to hover, the head is a quiet line over the list */
+.listHead {
+  min-height: 44px;
+}
+
 .legend {
   margin: 16px 0 0;
   color: var(--mantine-color-dimmed);
@@ -147,6 +152,39 @@
   margin: 0;
   color: var(--mantine-color-dimmed);
   font-size: 14px;
+}
+
+/* On the admin's one list the status leads the details' line: the tag, then "6 days left, until 18 Nov" (I-032) */
+.whatWithStatus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--pup-color-active-bg);
+  color: var(--pup-color-accent);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+/* Used: it did its job */
+.status[data-status='Used'] {
+  background: var(--pup-color-income-bg);
+  color: var(--pup-color-income);
+}
+
+/* Expired and cancelled: done with, quiet */
+.status[data-status='Expired'],
+.status[data-status='Cancelled'] {
+  background: var(--pup-color-choice);
+  color: var(--mantine-color-text);
 }
 
 .left {

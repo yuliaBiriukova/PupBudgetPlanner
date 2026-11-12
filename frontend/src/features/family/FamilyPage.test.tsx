@@ -196,10 +196,27 @@ describe('the Family page', () => {
         body: { ids: ['inv-iryna', 'inv-grandpa'] },
       },
     ]);
-    // An empty group has no Select all
+    // An empty group isn't shown at all (I-032): no title, no count, no Select all
+    expect(screen.queryByRole('region', { name: 'Used' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Expired and cancelled' })).not.toBeInTheDocument();
     expect(
       screen.queryByRole('checkbox', { name: 'Select all used links' }),
     ).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Waiting' })).toBeInTheDocument();
+
+    // With no links at all only Create invite link is left
+    await user.click(screen.getByRole('checkbox', { name: 'Select all waiting links' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(
+      within(await screen.findByRole('dialog', { name: 'Delete “Mom”?' })).getByRole('button', {
+        name: 'Delete link',
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.queryByRole('region', { name: 'Waiting' })).not.toBeInTheDocument();
+    });
+    expect(screen.queryByText(/No links/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create invite link' })).toBeInTheDocument();
   });
 
   it('shows a member who isn’t the owner no links to delete', async () => {

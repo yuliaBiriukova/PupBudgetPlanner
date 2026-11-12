@@ -41,7 +41,7 @@ async function signUpWith(token: string, person: Person) {
   }
 }
 
-test('the admin deletes a used and a waiting link, and cancels another in the bulk bar', async ({
+test('the admin sees every link in one list with its status, deletes a used and a waiting one and cancels another', async ({
   page,
 }) => {
   const admin = await signedInAdmin();
@@ -69,13 +69,15 @@ test('the admin deletes a used and a waiting link, and cancels another in the bu
   await expect(page.getByRole('heading', { level: 1, name: en.nav.transactions })).toBeVisible();
   await page.goto('/people/links');
 
-  // Only this test's links are picked: the admin's list is the shared dev database's
-  const usedGroup = page.getByRole('region', { name: en.inviteLinks.groups.used });
-  const usedHead = page
-    .getByRole('button', { name: new RegExp(`^${en.inviteLinks.groups.used}`) })
-    .first();
-  if ((await usedHead.getAttribute('aria-expanded')) !== 'true') await usedHead.click();
-  await usedGroup.getByRole('checkbox', { name: `Pick ${used}` }).check();
+  // One list, no groups to open (I-032): each row says its status with a tag
+  const row = (note: string) => page.getByRole('listitem').filter({ hasText: note });
+  await expect(row(used)).toContainText(en.inviteLinks.status.Used);
+  await expect(row(used)).toContainText(`by ${person.displayName} on`);
+  await expect(row(waiting)).toContainText(en.inviteLinks.status.Waiting);
+  await expect(page.getByRole('region', { name: en.inviteLinks.groups.used })).toHaveCount(0);
+
+  // Only this test's links are picked: the admin's list is the shared dev database's (never Select all here)
+  await page.getByRole('checkbox', { name: `Pick ${used}` }).check();
   await page.getByRole('checkbox', { name: `Pick ${waiting}` }).check();
   const bar = page.getByRole('region', { name: en.inviteLinks.bulk.label });
   await expect(bar).toContainText('2 picked');
@@ -92,14 +94,14 @@ test('the admin deletes a used and a waiting link, and cancels another in the bu
   // The deleted waiting link no longer opens
   expect((await page.request.get(`/api/invitations/${waitingToken}`)).status()).toBe(404);
 
-  // Cancel links in the bulk bar: the link moves to Expired and cancelled
+  // Cancel links in the bulk bar: the link stays in the list, its tag now Cancelled
   await page.getByRole('checkbox', { name: `Pick ${toCancel}` }).check();
   await bar.getByRole('button', { name: /Cancel/ }).click();
-  await page
-    .getByRole('dialog', { name: `Cancel “${toCancel}”?` })
-    .getByRole('button', { name: 'Cancel link' })
-    .click();
+  const cancelDialog = page.getByRole('dialog', { name: `Cancel “${toCancel}”?` });
+  await expect(cancelDialog).toContainText('It shows as cancelled');
+  await cancelDialog.getByRole('button', { name: 'Cancel link' }).click();
   await expect(page.getByText(en.inviteLinks.confirmCancel.doneOne)).toBeVisible();
+  await expect(row(toCancel)).toContainText(en.inviteLinks.status.Cancelled);
   const links = (await (await page.request.get('/api/admin/invitations')).json()) as {
     note: string | null;
     status: string;
@@ -117,7 +119,7 @@ test('the admin deletes a used and a waiting link, and cancels another in the bu
   );
 });
 
-test('a family owner clears the Used and Expired and cancelled groups on the Family page', async ({
+test('a family owner clears the Used and Expired and cancelled groups on the Family page, and they go away', async ({
   page,
 }) => {
   const owner = newPerson('i006-owner');
@@ -152,9 +154,11 @@ test('a family owner clears the Used and Expired and cancelled groups on the Fam
   await dialog.getByRole('button', { name: 'Delete 2 links' }).click();
 
   await expect(page.getByText('2 links deleted')).toBeVisible();
-  // An emptied group has no Select all
+  // An emptied group isn't shown at all (I-032): no title, no count, no Select all
+  await expect(page.getByRole('region', { name: en.inviteLinks.groups.used })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: en.inviteLinks.groups.old })).toHaveCount(0);
   await expect(page.getByRole('checkbox', { name: en.inviteLinks.pickAll.used })).toHaveCount(0);
-  await expect(page.getByRole('checkbox', { name: en.inviteLinks.pickAll.old })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: en.inviteLinks.groups.waiting })).toBeVisible();
   // The waiting link stays, and Iryna stays in the family
   await expect(page.getByText(mom, { exact: true })).toBeVisible();
   const family = (await (await page.request.get('/api/family')).json()) as {

@@ -1085,12 +1085,13 @@
       "used": "Select all used links",
       "old": "Select all expired and cancelled links"
     },
+    "pickAllLinks": "Select all links",
+    "linkCount_one": "{{count}} link",
+    "linkCount_other": "{{count}} links",
     "pickedHere": "{{count}} picked",
     "show": "Show",
     "hide": "Hide",
-    "noneWaitingAdmin": "No links are waiting. Make one with New invite link.",
-    "noneWaitingFamily": "No links are waiting.",
-    "none": "None yet.",
+    "noneAdmin": "No invite links yet. Make one with New invite link.",
     "noNote": "No note",
     "family": "{{name}} family",
     "daysLeft_one": "{{count}} day left",
@@ -1100,6 +1101,16 @@
     "deletedAccount": "a deleted account",
     "expired": "Expired on {{date}}",
     "cancelledOn": "Cancelled on {{date}}",
+    "status": {
+      "Waiting": "Waiting",
+      "Used": "Used",
+      "Expired": "Expired",
+      "Cancelled": "Cancelled"
+    },
+    "afterTag": {
+      "usedBy": "by {{name}} on {{date}}",
+      "on": "on {{date}}"
+    },
     "pick": "Pick {{note}}",
     "cancel": "Cancel",
     "cancelLabel": "Cancel the link {{note}}",
@@ -1132,8 +1143,14 @@
       "buttonOne": "Cancel link",
       "buttonMany_one": "Cancel {{count}} link",
       "buttonMany_other": "Cancel {{count}} links",
-      "textOne": "Whoever has it can’t join with it any more. It moves to Expired and cancelled and is deleted automatically {{days}} days later.",
-      "textMany": "Whoever has them can’t join with them any more. They move to Expired and cancelled and are deleted automatically {{days}} days later.",
+      "textOne": {
+        "admin": "Whoever has it can’t join with it any more. It shows as cancelled and is deleted automatically {{days}} days later.",
+        "family": "Whoever has it can’t join with it any more. It moves to Expired and cancelled and is deleted automatically {{days}} days later."
+      },
+      "textMany": {
+        "admin": "Whoever has them can’t join with them any more. They show as cancelled and are deleted automatically {{days}} days later.",
+        "family": "Whoever has them can’t join with them any more. They move to Expired and cancelled and are deleted automatically {{days}} days later."
+      },
       "others_one": "The other picked link doesn’t work any more and stays as it is.",
       "others_other": "The other {{count}} picked links don’t work any more and stay as they are.",
       "doneOne": "Link cancelled",

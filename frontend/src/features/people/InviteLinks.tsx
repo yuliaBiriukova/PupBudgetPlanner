@@ -18,6 +18,7 @@ import { cx } from '../../shared/ui/cx';
 import {
   GROUPS,
   groupOf,
+  inListOrder,
   KEEP_DAYS,
   MAX_LINKS,
   readOpen,
@@ -43,17 +44,19 @@ function useNoteOf() {
 }
 
 /**
- * Invite links in three groups that fold (I-006, final prototype): Waiting, Used, Expired and cancelled. Every link has
- * a check box (with a mouse it shows on hover or once anything is picked), each group's head a Select all that works
- * on a folded group too, and the floating bar has Cancel links (when a waiting link is picked) and Delete, each asking
- * once. The admin's Invite links tab lists every link; the Family page its owner's family's.
+ * Invite links (I-006, I-032). Every link has a check box (with a mouse it shows on hover or once anything is picked),
+ * and the floating bar has Cancel links (when a waiting link is picked) and Delete, each asking once.
+ * - The admin's Invite links tab lists every link in one list, waiting ones first, with a status tag on each row and
+ *   one Select all over it (I-032).
+ * - The Family page lists its owner's family's links in groups that fold (Waiting, Used, Expired and cancelled), each
+ *   with its own Select all; only the groups with links show (I-032).
  */
 export function InviteLinks({ place }: { place: Place }) {
   const { t } = useTranslation();
   // Opening the list fetches the links again: one may have been used meanwhile
   const query = useQuery({ ...linksQueryOf(place), refetchOnMount: 'always' });
   const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
-  const [open, setOpen] = useState<OpenGroups>(() => readOpen(place));
+  const [open, setOpen] = useState<OpenGroups>(readOpen);
   const [pending, setPending] = useState<Pending>(null);
 
   const all = query.data ?? [];
@@ -78,7 +81,7 @@ export function InviteLinks({ place }: { place: Place }) {
   const toggle = (group: LinkGroup) => {
     const next = { ...open, [group]: !open[group] };
     setOpen(next);
-    writeOpen(place, next);
+    writeOpen(next);
   };
 
   const done = () => {
@@ -110,9 +113,42 @@ export function InviteLinks({ place }: { place: Place }) {
         </div>
       )}
 
-      {query.isSuccess && (
+      {/* The admin's tab: one list, waiting links first; no groups and nothing to fold (I-032) */}
+      {query.isSuccess &&
+        place === 'admin' &&
+        (all.length === 0 ? (
+          <p className={people.empty}>{t('inviteLinks.noneAdmin')}</p>
+        ) : (
+          <div data-picking={pickedLinks.length > 0 || undefined}>
+            <ListHead
+              count={all.length}
+              picked={pickedLinks.length}
+              onPickAll={(on) => {
+                const ids = inListOrder(all).map((link) => link.id);
+                setPicked(new Set(on ? ids.slice(0, MAX_LINKS) : []));
+              }}
+            />
+            <ul className={classes.cards}>
+              {inListOrder(all).map((link) => (
+                <LinkRow
+                  key={link.id}
+                  link={link}
+                  place={place}
+                  picked={picked.has(link.id)}
+                  blocked={atMax && !picked.has(link.id)}
+                  onPick={(on) => {
+                    setPick(link.id, on);
+                  }}
+                />
+              ))}
+            </ul>
+          </div>
+        ))}
+
+      {/* The Family page: the groups, only those with links; with none at all, only Create invite link (I-032) */}
+      {query.isSuccess && place === 'family' && (
         <div data-picking={pickedLinks.length > 0 || undefined}>
-          {GROUPS.map((group) => {
+          {GROUPS.filter((group) => inGroup(group).length > 0).map((group) => {
             const items = inGroup(group);
             return (
               <section
@@ -122,7 +158,6 @@ export function InviteLinks({ place }: { place: Place }) {
               >
                 <GroupHead
                   group={group}
-                  small={place === 'family'}
                   count={items.length}
                   pickedHere={items.filter((link) => picked.has(link.id)).length}
                   open={open[group]}
@@ -133,31 +168,22 @@ export function InviteLinks({ place }: { place: Place }) {
                     toggle(group);
                   }}
                 />
-                {open[group] &&
-                  (items.length === 0 ? (
-                    <p className={people.empty}>
-                      {group !== 'waiting'
-                        ? t('inviteLinks.none')
-                        : place === 'admin'
-                          ? t('inviteLinks.noneWaitingAdmin')
-                          : t('inviteLinks.noneWaitingFamily')}
-                    </p>
-                  ) : (
-                    <ul className={classes.cards}>
-                      {items.map((link) => (
-                        <LinkRow
-                          key={link.id}
-                          link={link}
-                          place={place}
-                          picked={picked.has(link.id)}
-                          blocked={atMax && !picked.has(link.id)}
-                          onPick={(on) => {
-                            setPick(link.id, on);
-                          }}
-                        />
-                      ))}
-                    </ul>
-                  ))}
+                {open[group] && (
+                  <ul className={classes.cards}>
+                    {items.map((link) => (
+                      <LinkRow
+                        key={link.id}
+                        link={link}
+                        place={place}
+                        picked={picked.has(link.id)}
+                        blocked={atMax && !picked.has(link.id)}
+                        onPick={(on) => {
+                          setPick(link.id, on);
+                        }}
+                      />
+                    ))}
+                  </ul>
+                )}
               </section>
             );
           })}
@@ -204,10 +230,43 @@ export function InviteLinks({ place }: { place: Place }) {
   );
 }
 
+interface ListHeadProps {
+  count: number;
+  picked: number;
+  onPickAll: (on: boolean) => void;
+}
+
+/** The admin's one list's head (I-032): Select all, how many links there are and how many are picked. Nothing folds. */
+function ListHead({ count, picked, onPickAll }: ListHeadProps) {
+  const { t } = useTranslation();
+  const all = picked > 0 && picked === Math.min(count, MAX_LINKS);
+
+  return (
+    <div className={cx(classes.head, classes.listHead)}>
+      <label className={cx(people.pick, classes.headPick)}>
+        <Checkbox
+          checked={all}
+          indeterminate={picked > 0 && !all}
+          aria-label={t('inviteLinks.pickAllLinks')}
+          onChange={(event) => {
+            onPickAll(event.currentTarget.checked);
+          }}
+        />
+      </label>
+      <span className={classes.titleLine}>
+        <span className={people.count}>{t('inviteLinks.linkCount', { count })}</span>
+        {picked > 0 && (
+          <span className={classes.pickedHere}>
+            {t('inviteLinks.pickedHere', { count: picked })}
+          </span>
+        )}
+      </span>
+    </div>
+  );
+}
+
 interface GroupHeadProps {
   group: LinkGroup;
-  /** The Family page's smaller heads, under its section's title. */
-  small: boolean;
   count: number;
   pickedHere: number;
   open: boolean;
@@ -216,32 +275,30 @@ interface GroupHeadProps {
 }
 
 /**
- * Select all, the group's title and count, how many of it are picked, and the fold. The fold's hover tints the whole
- * head, the box included, so the box doesn't sit beside a grey pill. An empty group has no Select all and no gap for
- * it: its title starts where the box would be (owner, 2026-11-12).
+ * The Family page's group head: Select all, the group's title and count, how many of it are picked, and the fold. The
+ * fold's hover tints the whole head, the box included, so the box doesn't sit beside a grey pill. An empty group isn't
+ * shown at all (I-032).
  */
-function GroupHead({ group, small, count, pickedHere, open, onPickAll, onToggle }: GroupHeadProps) {
+function GroupHead({ group, count, pickedHere, open, onPickAll, onToggle }: GroupHeadProps) {
   const { t } = useTranslation();
-  const all = count > 0 && pickedHere === count;
+  const all = pickedHere === count;
 
   return (
     <div className={classes.head}>
-      {count > 0 && (
-        <label className={cx(people.pick, classes.headPick)}>
-          <Checkbox
-            checked={all}
-            indeterminate={pickedHere > 0 && !all}
-            aria-label={t(`inviteLinks.pickAll.${group}`)}
-            onChange={(event) => {
-              onPickAll(event.currentTarget.checked);
-            }}
-          />
-        </label>
-      )}
+      <label className={cx(people.pick, classes.headPick)}>
+        <Checkbox
+          checked={all}
+          indeterminate={pickedHere > 0 && !all}
+          aria-label={t(`inviteLinks.pickAll.${group}`)}
+          onChange={(event) => {
+            onPickAll(event.currentTarget.checked);
+          }}
+        />
+      </label>
       <Disclosure open={open} onToggle={onToggle}>
         {/* One line of text: on a narrow screen a long title wraps and its count and picks follow its last word */}
         <span className={classes.titleLine}>
-          <h2 className={cx(people.groupTitle, classes.inlineTitle, small && classes.smallTitle)}>
+          <h2 className={cx(people.groupTitle, classes.inlineTitle, classes.smallTitle)}>
             {t(`inviteLinks.groups.${group}`)}
           </h2>
           <span className={people.count}>{count}</span>
@@ -308,6 +365,11 @@ function LinkRow({ link, place, picked, blocked, onPick }: LinkRowProps) {
       <IconLinkOff {...ICON} />
     );
 
+  // The admin's one list says the status with a tag, so the details after it don't repeat it: "Used · by Olena on
+  // 3 Nov" (I-032); the Family page's groups say it with their titles, so its rows keep the whole line
+  const withStatus = place === 'admin';
+  const usedBy = link.usedByName ?? t('inviteLinks.deletedAccount');
+
   const what =
     link.status === 'Waiting' ? (
       <>
@@ -318,11 +380,14 @@ function LinkRow({ link, place, picked, blocked, onPick }: LinkRowProps) {
           {t('inviteLinks.until', { date: shortDate(link.expiresAt) })}
         </span>
       </>
+    ) : withStatus ? (
+      link.status === 'Used' ? (
+        t('inviteLinks.afterTag.usedBy', { name: usedBy, date })
+      ) : (
+        t('inviteLinks.afterTag.on', { date })
+      )
     ) : link.status === 'Used' ? (
-      t('inviteLinks.usedBy', {
-        name: link.usedByName ?? t('inviteLinks.deletedAccount'),
-        date,
-      })
+      t('inviteLinks.usedBy', { name: usedBy, date })
     ) : link.status === 'Expired' ? (
       t('inviteLinks.expired', { date })
     ) : (
@@ -355,7 +420,17 @@ function LinkRow({ link, place, picked, blocked, onPick }: LinkRowProps) {
           <span className={people.tag}>{t('inviteLinks.family', { name: link.familyName })}</span>
         )}
       </p>
-      <p className={classes.what}>{what}</p>
+      {withStatus ? (
+        <p className={cx(classes.what, classes.whatWithStatus)}>
+          {/* The status leads its line as a tag; the details follow it (I-032) */}
+          <span className={classes.status} data-status={link.status}>
+            {t(`inviteLinks.status.${link.status}`)}
+          </span>
+          <span>{what}</span>
+        </p>
+      ) : (
+        <p className={classes.what}>{what}</p>
+      )}
       {/* Old links show no date of their own: the line under the groups says they go after 30 days (owner) */}
       {link.status === 'Waiting' && (
         <Button
@@ -519,9 +594,10 @@ function ConfirmCancel({ place, picked, onClose, onDone }: ConfirmCancelProps) {
     >
       {!one && <LinkNames items={waiting} />}
       <p className={people.dialogText}>
-        {one
-          ? t('inviteLinks.confirmCancel.textOne', { days: KEEP_DAYS })
-          : t('inviteLinks.confirmCancel.textMany', { days: KEEP_DAYS })}
+        {/* The admin's one list has no Expired and cancelled group to move to: the link just shows as cancelled */}
+        {t(`inviteLinks.confirmCancel.${one ? 'textOne' : 'textMany'}.${place}`, {
+          days: KEEP_DAYS,
+        })}
       </p>
       {others > 0 && (
         <p className={cx(people.dialogText, people.dim)}>
