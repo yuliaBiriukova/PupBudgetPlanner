@@ -83,3 +83,4 @@ Expected: about 900 minutes a month at this month's pace instead of about 1,760 
   any overage, but CI then stops until the reset.
 - **Other options considered:** making the repo public (free minutes) was looked at and not chosen (2026-11-12): the
   repo stays private. GitHub Pro (3,000 minutes, branch protection) costs money every month.
+
