@@ -1,3 +1,4 @@
+using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Domain.Transactions;
 
 namespace PupBudgetPlanner.Application.Transactions;
@@ -8,12 +9,18 @@ namespace PupBudgetPlanner.Application.Transactions;
 /// </summary>
 public interface ITransactionService
 {
-    /// <summary>The Transactions page (F-020): the ones the filters find, a page at a time, the latest first.</summary>
+    /// <summary>
+    /// The Transactions page (F-020): the ones of the people in <paramref name="scope"/> (F-024) the filters find, a
+    /// page at a time, the latest first. Together, a category stands for every one of the same group and name.
+    /// </summary>
     Task<TransactionPage> ListAsync(
-        Guid userId, TransactionFilter filter, int offset, int limit, CancellationToken cancellationToken);
+        MoneyScope scope, TransactionFilter filter, int offset, int limit, CancellationToken cancellationToken);
 
-    /// <summary>What the ones the filters find come to: the page's totals, calendar and categories (F-020).</summary>
-    Task<TransactionSummary> SummaryAsync(Guid userId, TransactionFilter filter, CancellationToken cancellationToken);
+    /// <summary>
+    /// What the ones the filters find come to: the page's totals, calendar and categories (F-020), in the viewer's report
+    /// currency; together, categories of the same group and name are one (F-024).
+    /// </summary>
+    Task<TransactionSummary> SummaryAsync(MoneyScope scope, TransactionFilter filter, CancellationToken cancellationToken);
 
     /// <summary>What the form picks and offers when it opens.</summary>
     Task<TransactionSuggestions> SuggestionsAsync(Guid userId, CancellationToken cancellationToken);

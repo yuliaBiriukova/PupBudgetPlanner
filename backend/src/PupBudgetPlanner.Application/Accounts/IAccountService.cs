@@ -1,15 +1,21 @@
+using PupBudgetPlanner.Application.Families;
+
 namespace PupBudgetPlanner.Application.Accounts;
 
 /// <summary>A person's accounts, own sources and banks (F-014). Implemented with EF Core in Infrastructure.</summary>
 public interface IAccountService
 {
-    Task<AccountsOverview> OverviewAsync(Guid userId, CancellationToken cancellationToken);
+    /// <summary>
+    /// The accounts of the people in <paramref name="scope"/> (F-024: someone else's or the family's to look at), the
+    /// viewer's first.
+    /// </summary>
+    Task<AccountsOverview> OverviewAsync(MoneyScope scope, CancellationToken cancellationToken);
 
     /// <summary>
-    /// The accounts in use together in the report currency at today's NBU rates (F-017), apart from the overview so
+    /// The accounts in use together in the viewer's report currency at today's NBU rates (F-017), apart from the overview so
     /// the page doesn't wait for the NBU.
     /// </summary>
-    Task<AccountsTotal> TotalAsync(Guid userId, CancellationToken cancellationToken);
+    Task<AccountsTotal> TotalAsync(MoneyScope scope, CancellationToken cancellationToken);
 
     /// <summary>
     /// Adds the account, and its own source or bank when the name is new; not when it would copy an account in use

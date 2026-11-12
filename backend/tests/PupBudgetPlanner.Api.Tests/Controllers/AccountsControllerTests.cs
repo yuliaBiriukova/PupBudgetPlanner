@@ -8,6 +8,7 @@ using NSubstitute;
 using PupBudgetPlanner.Api.Controllers;
 using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.ExchangeRates;
+using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Domain.Accounts;
 
 namespace PupBudgetPlanner.Api.Tests.Controllers;
@@ -21,10 +22,11 @@ public sealed class AccountsControllerTests
         "Wallet", "UAH", SourceKind.Cash, null, null, 1_200m, new DateOnly(2026, 1, 1), CardStyle.Envelope);
 
     private static readonly AccountItem Item = new(
-        AccountId, "Wallet", "UAH", SourceKind.Cash, null, null, null, null, 1_200m, new DateOnly(2026, 1, 1),
+        AccountId, UserId, "Wallet", "UAH", SourceKind.Cash, null, null, null, null, 1_200m, new DateOnly(2026, 1, 1),
         1_200m, CardStyle.Envelope, null, 0, null);
 
     private readonly IAccountService accounts = Substitute.For<IAccountService>();
+    private readonly IFamilyService families = Substitute.For<IFamilyService>();
     private readonly AccountsController controller;
 
     public AccountsControllerTests()
@@ -32,7 +34,7 @@ public sealed class AccountsControllerTests
         var services = new ServiceCollection().AddProblemDetails();
         services.AddMvcCore();
         var person = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, UserId.ToString())], "cookie"));
-        controller = new AccountsController(accounts)
+        controller = new AccountsController(accounts, families)
         {
             ControllerContext = new ControllerContext
             {
@@ -51,7 +53,7 @@ public sealed class AccountsControllerTests
     public async Task Overview_and_create_work_on_the_signed_in_persons_accounts()
     {
         var overview = new AccountsOverview([Item], [], [new CurrencyTotal("UAH", 1, 1_200m)], [], [], Currencies.All);
-        accounts.OverviewAsync(UserId, Arg.Any<CancellationToken>()).Returns(overview);
+        accounts.OverviewAsync(MoneyScope.Own(UserId), Arg.Any<CancellationToken>()).Returns(overview);
         accounts.CreateAsync(UserId, Request, Arg.Any<CancellationToken>())
             .Returns(new SaveAccountResult(SaveAccountOutcome.Saved, Item));
 
@@ -66,10 +68,45 @@ public sealed class AccountsControllerTests
     {
         var total = new AccountsTotal(
             "UAH", 52_174m, new DateOnly(2026, 11, 2), RatesStatus.Current, [new RateItem("USD", 41.35m)]);
-        accounts.TotalAsync(UserId, Arg.Any<CancellationToken>()).Returns(total);
+        accounts.TotalAsync(MoneyScope.Own(UserId), Arg.Any<CancellationToken>()).Returns(total);
 
         (await controller.Total(CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeSameAs(total);
+        await families.DidNotReceiveWithAnyArgs().ScopeAsync(default, default!, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task A_family_members_or_the_familys_accounts_are_the_ones_the_family_lets_you_see()
+    {
+        var andriy = Guid.CreateVersion7();
+        var theirs = new MoneyScope(UserId, [andriy]);
+        var together = new MoneyScope(UserId, [UserId, andriy]);
+        families.ScopeAsync(UserId, Who.Person(andriy), Arg.Any<CancellationToken>()).Returns(theirs);
+        families.ScopeAsync(UserId, Who.Family, Arg.Any<CancellationToken>()).Returns(together);
+        var overview = new AccountsOverview([Item], [], [], [], [], Currencies.All);
+        var total = new AccountsTotal("UAH", 1_200m, null, RatesStatus.Current, []);
+        accounts.OverviewAsync(theirs, Arg.Any<CancellationToken>()).Returns(overview);
+        accounts.TotalAsync(together, Arg.Any<CancellationToken>()).Returns(total);
+
+        (await controller.Overview(CancellationToken.None, andriy.ToString())).Result.Should()
+            .BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(overview);
+        (await controller.Total(CancellationToken.None, "family")).Result.Should()
+            .BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(total);
+    }
+
+    [Fact]
+    public async Task Someone_outside_your_family_is_not_found_and_a_made_up_who_is_a_bad_request()
+    {
+        var stranger = Guid.CreateVersion7();
+        families.ScopeAsync(UserId, Who.Person(stranger), Arg.Any<CancellationToken>()).Returns((MoneyScope?)null);
+
+        (await controller.Overview(CancellationToken.None, stranger.ToString())).Result.Should()
+            .BeAssignableTo<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        (await controller.Total(CancellationToken.None, "everyone")).Result.Should()
+            .BeAssignableTo<ObjectResult>().Which.Value.Should().BeOfType<ValidationProblemDetails>()
+            .Which.Errors.Should().ContainKey("who");
+        await accounts.DidNotReceiveWithAnyArgs().OverviewAsync(default!, TestContext.Current.CancellationToken);
+        await accounts.DidNotReceiveWithAnyArgs().TotalAsync(default!, TestContext.Current.CancellationToken);
     }
 
     [Fact]

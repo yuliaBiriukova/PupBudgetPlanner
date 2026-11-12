@@ -10,6 +10,7 @@ import { server } from '../../test/server';
 import type { AccountsOverview } from '../accounts/accountsApi';
 import { OVERVIEW, TOTAL } from '../accounts/accountsTestData';
 import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
+import { OLENA_ID } from '../family/familyTestData';
 import { addDays, today } from './days';
 import { FORM_HEIGHT_KEY } from './formHeight';
 import type {
@@ -33,6 +34,7 @@ const NONE: TransactionSuggestions = { lastAccounts: [], lastCategories: [], mos
 const LATEST: Transaction[] = [
   {
     id: 't1',
+    ownerId: OLENA_ID,
     type: 'Expense',
     date: today(),
     accountId: 'mono',
@@ -45,6 +47,7 @@ const LATEST: Transaction[] = [
   },
   {
     id: 't2',
+    ownerId: OLENA_ID,
     type: 'Income',
     date: addDays(today(), -1),
     accountId: 'privat',
@@ -57,6 +60,7 @@ const LATEST: Transaction[] = [
   },
   {
     id: 't3',
+    ownerId: OLENA_ID,
     type: 'Expense',
     date: '2026-10-12',
     accountId: 'mono-usd',
@@ -1430,6 +1434,7 @@ describe('transfers', () => {
   it('lists transfers and exchanges, and asks before deleting what both balances go back to', async () => {
     const exchange: Transaction = {
       id: 't9',
+      ownerId: OLENA_ID,
       type: 'Transfer',
       date: today(),
       accountId: 'mono-usd',

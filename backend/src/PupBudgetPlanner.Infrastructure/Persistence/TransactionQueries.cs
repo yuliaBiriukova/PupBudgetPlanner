@@ -10,15 +10,16 @@ internal static class TransactionQueries
     /// <summary>
     /// Each account's transactions per type, counted and summed by the database, with when the latest was added: what
     /// <see cref="BalanceSheet"/> needs. Transfers count on both sides (F-019): as the From account's, and as the To
-    /// account's incoming, summing what it got. All the person's accounts, or only <paramref name="accountIds"/>.
+    /// account's incoming, summing what it got. All the accounts of <paramref name="people"/> (F-024), or only
+    /// <paramref name="accountIds"/>.
     /// </summary>
     public static async Task<List<TransactionSum>> SumsOfAsync(
         this AppDbContext dbContext,
-        Guid userId,
+        IReadOnlyCollection<Guid> people,
         IReadOnlyCollection<Guid>? accountIds,
         CancellationToken cancellationToken)
     {
-        var transactions = dbContext.Transactions.AsNoTracking().Where(transaction => transaction.UserId == userId);
+        var transactions = dbContext.Transactions.AsNoTracking().Where(transaction => people.Contains(transaction.UserId));
 
         var outgoing = await transactions
             .Where(transaction => accountIds == null || accountIds.Contains(transaction.AccountId))

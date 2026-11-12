@@ -1,4 +1,4 @@
-import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../shared/api/client';
 import type { components } from '../../shared/api/schema';
 
@@ -49,25 +49,38 @@ const toAccount = (item: Schemas['AccountItem']): Account => ({
   transactionCount: Number(item.transactionCount),
 });
 
-/** The Accounts page: accounts, archived ones, totals per currency and what the form offers (F-014). */
-export const accountsQuery = queryOptions({
-  queryKey: ['accounts'],
-  queryFn: async ({ signal }): Promise<AccountsOverview> => {
-    const { data, response } = await apiClient.GET('/api/accounts', { signal });
-    if (!response.ok || !data)
-      throw new Error(`Couldn't load accounts: ${String(response.status)}`);
-    return {
-      ...data,
-      accounts: data.accounts.map(toAccount),
-      archived: data.archived.map(toAccount),
-      totals: data.totals.map((total) => ({
-        ...total,
-        accounts: Number(total.accounts),
-        total: Number(total.total),
-      })),
-    };
-  },
-});
+/**
+ * The Accounts page: accounts, archived ones, totals per currency and what the form offers (F-014); someone else's or
+ * the family's to look at with `who` (F-024: a member's id or `family`; none for your own). Every key starts with
+ * the accounts', so a change to an account or a transaction fetches them all again; while another person's load, the
+ * last ones stay on screen.
+ */
+export const accountsQueryOf = (who?: string) =>
+  queryOptions({
+    queryKey: who ? ['accounts', { who }] : ['accounts'],
+    queryFn: async ({ signal }): Promise<AccountsOverview> => {
+      const { data, response } = await apiClient.GET('/api/accounts', {
+        params: { query: { who } },
+        signal,
+      });
+      if (!response.ok || !data)
+        throw new Error(`Couldn't load accounts: ${String(response.status)}`);
+      return {
+        ...data,
+        accounts: data.accounts.map(toAccount),
+        archived: data.archived.map(toAccount),
+        totals: data.totals.map((total) => ({
+          ...total,
+          accounts: Number(total.accounts),
+          total: Number(total.total),
+        })),
+      };
+    },
+    placeholderData: who ? keepPreviousData : undefined,
+  });
+
+/** Your own accounts: the page, the quick-add form, Settings (F-014). */
+export const accountsQuery = accountsQueryOf();
 
 export type RatesStatus = Schemas['RatesStatus'];
 /** One NBU rate: hryvnias for one unit of the currency, as the NBU publishes it (F-016). */
@@ -83,19 +96,27 @@ export type AccountsTotal = Omit<Schemas['AccountsTotal'], 'total' | 'rates'> & 
  * The accounts together in the report currency at today's NBU rates (F-017). Its own request, so the page doesn't
  * wait for the NBU; its key starts with the accounts', so every change to an account fetches it again too.
  */
-export const accountsTotalQuery = queryOptions({
-  queryKey: [...accountsQuery.queryKey, 'total'],
-  queryFn: async ({ signal }): Promise<AccountsTotal> => {
-    const { data, response } = await apiClient.GET('/api/accounts/total', { signal });
-    if (!response.ok || !data)
-      throw new Error(`Couldn't load the total: ${String(response.status)}`);
-    return {
-      ...data,
-      total: data.total === null ? null : Number(data.total),
-      rates: data.rates.map((item) => ({ ...item, rate: Number(item.rate) })),
-    };
-  },
-});
+export const accountsTotalQueryOf = (who?: string) =>
+  queryOptions({
+    queryKey: who ? ['accounts', 'total', { who }] : ['accounts', 'total'],
+    queryFn: async ({ signal }): Promise<AccountsTotal> => {
+      const { data, response } = await apiClient.GET('/api/accounts/total', {
+        params: { query: { who } },
+        signal,
+      });
+      if (!response.ok || !data)
+        throw new Error(`Couldn't load the total: ${String(response.status)}`);
+      return {
+        ...data,
+        total: data.total === null ? null : Number(data.total),
+        rates: data.rates.map((item) => ({ ...item, rate: Number(item.rate) })),
+      };
+    },
+    placeholderData: who ? keepPreviousData : undefined,
+  });
+
+/** Your own accounts' total. */
+export const accountsTotalQuery = accountsTotalQueryOf();
 
 /**
  * The API found that the account would look just like another one in use (I-020): a mistake in its name when it is

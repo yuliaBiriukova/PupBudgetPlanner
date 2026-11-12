@@ -19,6 +19,8 @@ interface TransactionFiltersProps {
   filters: Filters;
   /** The accounts in use, then the archived ones. */
   accounts: Account[];
+  /** Whose an account is when it isn't yours, in the family's money: "Andriy’s" (F-024). */
+  whoseOf?: (ownerId: string) => string | undefined;
   /** The picked category's name, when it is picked. */
   categoryName?: string;
   categories: CategoryTotal[];
@@ -43,14 +45,14 @@ export function TransactionFilters(props: TransactionFiltersProps) {
   return props.layout === 'phone' ? <PhoneFilters {...props} /> : <WideFilters {...props} />;
 }
 
-function accountLine(account: Account, cash: string, archived: string) {
+function accountLine(account: Account, cash: string, archived: string, whose?: string) {
   const source =
     account.source === 'Cash'
       ? cash
       : account.source === 'Bank'
         ? (account.bankName ?? '')
         : (account.sourceName ?? '');
-  return [source, account.currency, account.archivedAt ? archived : null]
+  return [whose, source, account.currency, account.archivedAt ? archived : null]
     .filter(Boolean)
     .join(', ');
 }
@@ -107,6 +109,7 @@ function ListPicker({
 function WideFilters({
   filters,
   accounts,
+  whoseOf,
   categoryName,
   categories,
   currency,
@@ -165,7 +168,12 @@ function WideFilters({
                     close();
                   },
                   option.name,
-                  accountLine(option, t('accounts.cash'), t('transactions.filters.archived')),
+                  accountLine(
+                    option,
+                    t('accounts.cash'),
+                    t('transactions.filters.archived'),
+                    whoseOf?.(option.ownerId),
+                  ),
                 )}
               </li>
             ))}
@@ -250,6 +258,7 @@ function WideFilters({
 function PhoneFilters({
   filters,
   accounts,
+  whoseOf,
   categoryName,
   categories,
   currency,
@@ -353,13 +362,20 @@ function PhoneFilters({
               {pill(!filters.accountId, t('transactions.filters.allAccounts'), () => {
                 onAccount(undefined);
               })}
-              {accounts.map((option) => (
-                <span key={option.id}>
-                  {pill(option.id === filters.accountId, option.name, () => {
-                    onAccount(option.id);
-                  })}
-                </span>
-              ))}
+              {accounts.map((option) => {
+                const whose = whoseOf?.(option.ownerId);
+                return (
+                  <span key={option.id}>
+                    {pill(
+                      option.id === filters.accountId,
+                      whose ? `${whose} ${option.name}` : option.name,
+                      () => {
+                        onAccount(option.id);
+                      },
+                    )}
+                  </span>
+                );
+              })}
             </div>
           </section>
           <section className={classes.sheetSection} aria-label={t('transactions.filters.type')}>

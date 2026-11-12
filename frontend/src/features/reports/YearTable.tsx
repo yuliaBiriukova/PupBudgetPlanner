@@ -16,6 +16,7 @@ import {
 } from './report';
 import type { Report, ReportCategory, ReportGroup, ReportLine } from './reportsApi';
 import classes from './Reports.module.css';
+import { useWhose } from '../family/whose';
 
 interface CellOptions {
   /** The text colour of an amount that isn't nothing. */
@@ -43,6 +44,7 @@ export function YearTable({
   onMonth: (month: string) => void;
 }) {
   const { t } = useTranslation();
+  const whose = useWhose();
   const currency = report.currency;
   const months = report.months;
   const current = currentIndex(report);
@@ -280,7 +282,9 @@ export function YearTable({
                           {beforeRange}
                           <IconChevronRight size={14} stroke={1.7} aria-hidden />
                         </span>
-                        <span className={classes.avgNote}>{t('reports.table.before')}</span>
+                        <span className={classes.avgNote}>
+                          {t('reports.table.before', { context: whose.context })}
+                        </span>
                       </>
                     )}
                   </UnstyledButton>

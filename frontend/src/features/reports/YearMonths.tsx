@@ -9,6 +9,7 @@ import { cx } from '../../shared/ui/cx';
 import { currentIndex, monthsBefore, signed, transactionsLink } from './report';
 import type { Report } from './reportsApi';
 import classes from './YearMonths.module.css';
+import { useWhose } from '../family/whose';
 
 /**
  * The year on the phone (F-022, option C): the year so far on the slip, the months as rows — what came in and went out
@@ -23,6 +24,9 @@ export function YearMonths({
   onMonth: (month: string) => void;
 }) {
   const { t } = useTranslation();
+  // The words that say "your" say whose money it is (F-024)
+  const whose = useWhose();
+  const of = { context: whose.context, name: whose.person?.displayName };
   const s = report.summary;
   const currency = report.currency;
   const year = Number(report.months[0]?.month.slice(0, 4));
@@ -52,7 +56,7 @@ export function YearMonths({
         </dl>
         <p>
           <span>
-            {t(current >= 0 ? 'reports.phone.onAccountsNow' : 'reports.phone.onAccountsAtEnd')}
+            {t(current >= 0 ? 'reports.phone.onAccountsNow' : 'reports.phone.onAccountsAtEnd', of)}
           </span>
           <span>{formatMoney(s.balance.months[balanceAt] ?? 0, currency)}</span>
         </p>
@@ -62,7 +66,7 @@ export function YearMonths({
         {before > 0 && (
           <li className={classes.monthLater}>
             <span>{before > 1 ? `${monthName(0)} – ${monthName(before - 1)}` : monthName(0)}</span>
-            <span>{t('reports.phone.before')}</span>
+            <span>{t('reports.phone.before', of)}</span>
           </li>
         )}
         {report.months.map((month, m) => {

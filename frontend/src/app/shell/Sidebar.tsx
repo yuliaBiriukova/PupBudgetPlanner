@@ -15,6 +15,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router';
+import { WhoseLens } from '../../features/family/WhoseLens';
 import { ColorSchemeToggle } from '../../shared/ui/ColorSchemeToggle';
 import { cx } from '../../shared/ui/cx';
 import { FadingScrollArea } from '../../shared/ui/FadingScrollArea';
@@ -171,6 +172,9 @@ export function Sidebar({ state, user, onAdd, onSignOut }: SidebarProps) {
           <span className={classes.label}>{t('shell.addTransaction')}</span>
         </UnstyledButton>
       </RailTip>
+
+      {/* Whose money the pages show (F-024): only in a family with someone else in it */}
+      <WhoseLens place="sidebar" collapsed={collapsed} />
 
       {/* In a low window the sections scroll between the Add button and the account row (I-004) */}
       <FadingScrollArea className={classes.navScroll}>

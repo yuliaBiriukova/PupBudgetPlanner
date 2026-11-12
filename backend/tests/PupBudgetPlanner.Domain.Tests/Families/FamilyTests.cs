@@ -138,4 +138,37 @@ public sealed class FamilyTests
     {
         Kovalenko().Lose([Olena, Andriy, Iryna]).Should().BeFalse();
     }
+
+    [Fact]
+    public void A_member_sees_another_members_money_or_everyones_with_their_own_first()
+    {
+        var family = Kovalenko();
+
+        family.SeenBy(Andriy, Iryna).Should().Equal(Iryna);
+        family.SeenBy(Andriy, Andriy).Should().Equal(Andriy);
+        family.SeenBy(Andriy, null).Should().Equal(Andriy, Olena, Iryna);
+        family.SeenBy(Iryna, null).Should().Equal(Iryna, Olena, Andriy);
+    }
+
+    [Fact]
+    public void Nobody_outside_the_family_sees_its_money_nor_a_member_an_outsiders()
+    {
+        var family = Kovalenko();
+        var stranger = Guid.CreateVersion7();
+
+        family.SeenBy(stranger, Olena).Should().BeNull();
+        family.SeenBy(stranger, null).Should().BeNull();
+        family.SeenBy(Olena, stranger).Should().BeNull();
+    }
+
+    [Fact]
+    public void Someone_who_left_sees_nothing_of_the_family_any_more()
+    {
+        var family = Kovalenko();
+        family.Leave(Iryna, null);
+
+        family.SeenBy(Iryna, Olena).Should().BeNull();
+        family.SeenBy(Olena, Iryna).Should().BeNull();
+        family.SeenBy(Olena, null).Should().Equal(Olena, Andriy);
+    }
 }

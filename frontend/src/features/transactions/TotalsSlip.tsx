@@ -47,8 +47,8 @@ interface TotalsSlipProps {
   picked: boolean;
   /** The phone: a swipe moves the month (or year), and Add transaction is a round + (variant 9). */
   swipe: boolean;
-  /** Opens the quick-add form. */
-  onAdd: () => void;
+  /** Opens the quick-add form; none on someone else's money, which is only to look at (F-024). */
+  onAdd?: () => void;
 }
 
 /**
@@ -152,15 +152,17 @@ export const TotalsSlip = forwardRef<HTMLElement, TotalsSlipProps>(function Tota
         {steps && stepButton(-1, previous)}
         <PeriodPicker period={period} onPeriod={onPeriod} onSettle={onSettle} />
         {steps && stepButton(1, next)}
-        <UnstyledButton
-          className={classes.add}
-          data-round={swipe || undefined}
-          aria-label={swipe ? t('shell.addTransaction') : undefined}
-          onClick={onAdd}
-        >
-          <IconPlus size={20} stroke={1.7} aria-hidden />
-          <span className={classes.addLabel}>{t('shell.addTransaction')}</span>
-        </UnstyledButton>
+        {onAdd && (
+          <UnstyledButton
+            className={classes.add}
+            data-round={swipe || undefined}
+            aria-label={swipe ? t('shell.addTransaction') : undefined}
+            onClick={onAdd}
+          >
+            <IconPlus size={20} stroke={1.7} aria-hidden />
+            <span className={classes.addLabel}>{t('shell.addTransaction')}</span>
+          </UnstyledButton>
+        )}
       </div>
       {summary ? (
         <div ref={figures}>

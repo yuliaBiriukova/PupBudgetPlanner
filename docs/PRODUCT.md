@@ -44,6 +44,7 @@ people the owner invites can sign up (F-028); later it can open to everyone.
    summary rows `Total Income`, `Total Expenses`, `NET`, and balance at month end.
 6. **Family** — create a family, invite a member with an invite link, accept the invitation.
    Switch any report / list between **Me**, **a family member**, and **Family (combined)**.
+   Each person decides what the other members see of their money (F-030).
 7. **Settings** — display name, report currency (default UAH).
 8. **Installable on the phone** (PWA), responsive for mobile and desktop.
 9. **Awake during the day** — the free server is kept awake 07:00–23:00 Kyiv time; at night the first
@@ -53,7 +54,6 @@ people the owner invites can sign up (F-028); later it can open to everyone.
 
 - Integration tests (Testcontainers, in CI).
 - Email via Resend: email confirmation, password reset, invitations by email.
-- Private accounts / transactions hidden from the family.
 - Ukrainian localization.
 - Import history from the Google Sheets spreadsheet (2024–2026).
 - Import from Monefy CSV export.
