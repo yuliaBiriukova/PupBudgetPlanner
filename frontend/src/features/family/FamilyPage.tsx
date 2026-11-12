@@ -64,7 +64,7 @@ function Section({
 
 /**
  * Family (F-023, final prototype variant 1 "Sections"): the family as Settings is, a section each for its name, its
- * members, what the family sees of your money (F-030, once someone else is in it), invite links (the owner only) and
+ * members, what the family sees of your money (F-030), invite links (the owner only) and
  * leaving. With no family: start one, or how to join one.
  */
 export function FamilyPage() {
@@ -128,8 +128,8 @@ export function FamilyPage() {
             {/* A new name starts the section again, with the saved one in the field */}
             <NameSection key={family.data.name} family={family.data} />
             <MembersSection family={family.data} />
-            {/* What the others see of your money (F-030): once someone else is in the family */}
-            {family.data.members.length > 1 && <PrivacySection family={family.data} />}
+            {/* What the others see of your money (F-030), alone too: set it up before anyone joins (owner) */}
+            <PrivacySection family={family.data} />
             {family.data.isOwner && <InviteSection family={family.data} />}
             <LeaveSection family={family.data} />
           </>
@@ -211,10 +211,7 @@ function MembersSection({ family }: { family: Family }) {
   const [removing, setRemoving] = useState<FamilyMember | null>(null);
 
   return (
-    <Section
-      title={t('family.members.title')}
-      text={t(family.members.length > 1 ? 'family.members.textShared' : 'family.members.text')}
-    >
+    <Section title={t('family.members.title')} text={t('family.members.text')}>
       <ul className={classes.rows}>
         {family.members.map((m) => (
           <li key={m.id} className={classes.row}>

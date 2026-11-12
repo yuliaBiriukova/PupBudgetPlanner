@@ -33,6 +33,11 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   `GET /api/admin/people` and `/api/admin/invitations` as the tests' admin after the last run: the admin is the only
   `e2e-…` account left, and no test link is waiting. The owner's account untouched.
 
+- The owner asked on the PR to always show the settings: the section is now there alone in a family too ("Whoever
+  joins the family sees your money as you set it here"), the members' line always says each sees the others' money
+  as they set it. Checked: typecheck, lint, format, the family unit tests (34 / 34), the new story at 375 and 1440 px,
+  light and dark. Test data: none (stories and unit tests only).
+
 **Next**
 - Owner: review the PR. M6 (MVP release) is next.
 

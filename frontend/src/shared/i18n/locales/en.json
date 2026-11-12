@@ -290,14 +290,13 @@
     },
     "members": {
       "title": "Members",
-      "text": "They see each other’s accounts, transactions and reports; each changes only their own.",
+      "text": "Each sees the others’ money as they set it below; each changes only their own.",
       "you": "You",
       "owner": "Owner",
       "started": "Started the family {{date}}",
       "joined": "Joined {{date}}",
       "actions": "Actions for {{name}}",
-      "remove": "Remove from family",
-      "textShared": "Each sees the others’ money as they set it below; each changes only their own."
+      "remove": "Remove from family"
     },
     "invite": {
       "title": "Invite someone",
@@ -1093,6 +1092,7 @@
       "title": "Only totals by category",
       "text": "{{name}} shares how much went on each category, not the transactions."
     },
-    "privateAccount": "A private account"
+    "privateAccount": "A private account",
+    "whoeverJoins": "Whoever joins the family"
   }
 }

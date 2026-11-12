@@ -107,13 +107,19 @@ describe('who sees which of your lines (F-030)', () => {
 });
 
 describe('what the family sees, on the Family page (F-030)', () => {
-  it('shows no section to someone alone in the family', async () => {
+  it('shows the section to someone alone in the family, for whoever joins', async () => {
     const alone = ownersFamily();
     privacyServer({ ...alone, members: alone.members.slice(0, 1) });
     renderApp('/family');
 
-    expect(await screen.findByRole('heading', { name: 'Members' }, LOADED)).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'What the family sees' })).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'What the family sees' }, LOADED),
+    ).toBeInTheDocument();
+    expect(
+      within(section('What the family sees')).getByText(
+        /Whoever joins the family sees your money as you set it here/,
+      ),
+    ).toBeInTheDocument();
   });
 
   it('says what is set in three folded rows', async () => {

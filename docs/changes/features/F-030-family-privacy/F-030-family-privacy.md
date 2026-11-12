@@ -192,6 +192,10 @@ A private category: the others see nothing of it (owner, 2026-11-12; not only it
 
 ### Built (2026-11-12)
 
+- **Shown alone in a family too** (owner, 2026-11-12, on the PR: "always show the privacy settings"): the prototype
+  showed the section once someone else was in the family; now it is there as soon as you have a family, so you can set
+  it before anyone joins, saying "Whoever joins the family sees your money as you set it here". The marks on your own
+  cards and lines still come once someone else is in it.
 - **Where the settings live:** on the money itself: `accounts.family_sees`, `categories.is_private`,
   `users.family_sees_transactions`; everything that existed is shared, as before. They stay when you leave a family.
 - **Your own marks** (the eye-off and coins on your cards, the lock on your lines) show only while you are in a family

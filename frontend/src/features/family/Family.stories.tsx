@@ -26,7 +26,7 @@ const OLENA = {
 
 interface ScreenProps {
   /** Whose family the page opens with; every change is kept while the story is shown. */
-  family?: 'owner' | 'member' | 'none' | 'other';
+  family?: 'owner' | 'member' | 'none' | 'other' | 'alone';
   /** The page waits for the API, or the API fails. */
   data?: 'loaded' | 'loading' | 'error';
   /** Open Andriy's link to the Kovalenko family instead of the Family page. */
@@ -40,6 +40,10 @@ const FAMILIES: Record<NonNullable<ScreenProps['family']>, () => Family | null> 
   member: membersFamily,
   none: () => null,
   other: otherFamily,
+  alone: () => {
+    const family = ownersFamily();
+    return { ...family, members: family.members.slice(0, 1), invitations: [] };
+  },
 };
 
 /** The Family page (F-023) or a family's invite link, with a fake API that keeps every change. */
@@ -238,5 +242,23 @@ export const WhatTheFamilySeesDesktop: Story = {
 export const WhatTheFamilySeesDesktopDark: Story = {
   name: 'What the family sees, desktop dark',
   args: { kept: 'some' },
+  globals: { ...desktop, colorScheme: 'dark' },
+};
+
+/** Olena alone in her family (F-030): she sets what the family sees before anyone joins. */
+export const WhatTheFamilySeesAlone: Story = {
+  name: 'What the family sees, alone',
+  args: { family: 'alone', kept: 'some' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByText(/Whoever joins the family sees your money/),
+    ).toBeInTheDocument();
+  },
+};
+
+export const WhatTheFamilySeesAloneDesktopDark: Story = {
+  name: 'What the family sees, alone, desktop dark',
+  args: { family: 'alone', kept: 'some' },
   globals: { ...desktop, colorScheme: 'dark' },
 };

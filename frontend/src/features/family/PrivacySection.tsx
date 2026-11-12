@@ -47,15 +47,20 @@ function useFailed() {
 /**
  * "What the family sees" on the Family page (F-030, final prototype: variant 1 "Rows", folding): your transactions,
  * your accounts and your private categories as three rows, each with what is set now; a tap unfolds it to change it.
- * They start folded; several can be open. Shown while someone else is in the family.
+ * They start folded; several can be open. Shown alone in a family too, so it can be set before anyone joins.
  */
 export function PrivacySection({ family }: { family: Family }) {
   const { t, i18n } = useTranslation();
   const others = othersOf(family.members);
-  const seers = listOf(
-    others.map((member) => member.displayName),
-    i18n.language,
-  );
+  // Alone in the family: whoever joins it later (owner, 2026-11-12)
+  const seers =
+    others.length > 0
+      ? listOf(
+          others.map((member) => member.displayName),
+          i18n.language,
+        )
+      : t('privacy.whoeverJoins');
+  const seersCount = Math.max(others.length, 1);
   const me = family.members.find((member) => member.isYou);
   const accounts = useQuery(accountsQuery);
   const categories = useQuery(categoriesQuery);
@@ -94,7 +99,7 @@ export function PrivacySection({ family }: { family: Family }) {
       <div>
         <h2 className={settings.title}>{t('privacy.title')}</h2>
         <div className={settings.text}>
-          {t('privacy.text', { names: seers, count: others.length })}
+          {t('privacy.text', { names: seers, count: seersCount })}
         </div>
       </div>
       <div className={settings.control}>
@@ -116,7 +121,7 @@ export function PrivacySection({ family }: { family: Family }) {
           </Fold>
           <Fold title={t('privacy.categories.title')} summary={categoriesSummary}>
             <p className={classes.quiet}>
-              {t('privacy.categories.text', { names: seers, count: others.length })}
+              {t('privacy.categories.text', { names: seers, count: seersCount })}
             </p>
             <PrivateTags groups={groups} />
             <div>
