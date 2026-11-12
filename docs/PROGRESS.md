@@ -2,7 +2,6 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
-<<<<<<< HEAD
 ## 2026-11-12 (F-030: Privacy in the family, planned)
 
 **Done**
@@ -39,7 +38,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: approve the final prototype and the eight open points' proposals for implementation (or ask for changes);
   no code before that.
-=======
+
 ## 2026-11-12 (I-031: CI checks each change once)
 
 **Done**
@@ -59,7 +58,6 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: review the PR. After merging it, the squash merge into `develop` should start no run; the next release PR
   and the push to `main` run all four jobs.
->>>>>>> c6b7f553ee291f9290e47dbc55b739d1dc6e6b8b
 
 ## 2026-11-12 (B-018: The E2E clean-up finds test people whose tag has digits)
 
