@@ -14,7 +14,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   (which accounts, categories and people's lines a viewer may see, as `Counted` / `Listed` expressions applied in SQL),
   carried by F-024's `MoneyScope` and applied by the Accounts, Transactions (list, summary) and Reports reads; a hidden
   transfer side sent unnamed; the family's members say what each shares (`transactions`, `keepsPrivate`)
-  ([ADR 0032](decisions/0032-family-privacy.md); ARCHITECTURE.md). M5 is done.
+  ([ADR 0032](decisions/0032-family-privacy.md); ARCHITECTURE.md). Every M5 feature is done; I-006, moved to M5
+  meanwhile, is left.
 - Frontend: "What the family sees" on the Family page (three rows that fold), the eye-off / coins marks on your own
   cards and the lock on your kept lines (while you are in a family with others), someone else's balance-only card
   marked, the band's "… keeps some of it private" / "Some of …'s money is private" / "… shares only totals", the
@@ -50,7 +51,23 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   Checked: lint, format, typecheck, the family unit tests, the dialog at 375 and 1440 px, light and dark.
 
 **Next**
-- Owner: review the PR. M6 (MVP release) is next.
+- Owner: review the PR. I-006 is left in M5, then M6 (MVP release).
+
+## 2026-11-12 (I-006: Delete old invite links, plan updated)
+
+**Done**
+- The owner asked to plan batch deleting the used and expired / cancelled invite links. It was already planned as
+  [I-006](changes/improvements/I-006-delete-old-invite-links/I-006-delete-old-invite-links.md); the owner chose to
+  update it rather than split it, and raised it from Medium to **High**. Moved from M2 (done) to M5.
+- Updated on `plan/i006-batch-delete-invite-links`: clearing a whole group at once, F-023's family links on the same
+  tab, reuse of the People tab's check boxes and bulk bar, the 200 limit of the other bulk actions, Storybook
+  prototype stories (I-021), the E2E clean-up deleting the tests' old links. Five open points with proposals; the
+  main one: the People page's "Invited" tag and note come from the used link today, so deleting it would drop them
+  (proposal: copy them onto the account first).
+- Nothing built; no test data made.
+
+**Next**
+- Owner: review the plan PR and answer the open points; then references and 3 prototype stories for I-006.
 
 ## 2026-11-12 (F-030: Privacy in the family, design round 1)
 
