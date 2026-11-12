@@ -167,7 +167,7 @@ describe('what the family sees, on the Family page (F-030)', () => {
 
     const part = within(await waitFor(() => section('What the family sees'), LOADED));
     await user.click(part.getByRole('button', { name: /Your transactions/ }));
-    await user.click(part.getByRole('radio', { name: /Only totals by category/ }));
+    await user.click(await part.findByRole('radio', { name: /Only totals by category/ }, LOADED));
 
     expect(part.getByRole('radio', { name: /Only totals by category/ })).toHaveAttribute(
       'aria-checked',
@@ -189,7 +189,7 @@ describe('what the family sees, on the Family page (F-030)', () => {
 
     const part = within(await waitFor(() => section('What the family sees'), LOADED));
     await user.click(part.getByRole('button', { name: /Private categories.*None/ }));
-    await user.click(part.getByRole('button', { name: 'Choose categories' }));
+    await user.click(await part.findByRole('button', { name: 'Choose categories' }, LOADED));
     const dialog = await screen.findByRole('dialog', { name: 'Private categories' });
     await user.click(within(dialog).getByRole('button', { name: 'Groceries' }));
     expect(within(dialog).getByRole('button', { name: 'Groceries' })).toHaveAttribute(
@@ -213,7 +213,7 @@ describe('what the family sees, on the Family page (F-030)', () => {
 
     const part = within(await waitFor(() => section('What the family sees'), LOADED));
     await user.click(part.getByRole('button', { name: /Private categories.*None/ }));
-    await user.click(part.getByRole('button', { name: 'Choose categories' }));
+    await user.click(await part.findByRole('button', { name: 'Choose categories' }, LOADED));
     const dialog = await screen.findByRole('dialog', { name: 'Private categories' });
     await user.click(
       within(dialog).getByRole('checkbox', { name: 'Keep all of Home expenses private' }),
@@ -257,7 +257,7 @@ describe('what the family sees, on the Family page (F-030)', () => {
 
     const part = within(await waitFor(() => section('What the family sees'), LOADED));
     await user.click(part.getByRole('button', { name: /Your transactions/ }));
-    await user.click(part.getByRole('radio', { name: /Only totals by category/ }));
+    await user.click(await part.findByRole('radio', { name: /Only totals by category/ }, LOADED));
 
     expect(await screen.findByText('That didn’t go through. Try again.')).toBeInTheDocument();
     await waitFor(() => {

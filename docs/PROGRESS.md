@@ -2,6 +2,20 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-12 (B-019: Flaky Family privacy test, fixed in the release PR)
+
+**Done**
+- The release PR #96 (`develop` → `main`) had a red Frontend job: `FamilyPrivacy.test.tsx` › "keeps a category private
+  and shares it again" didn't find "Choose categories". The fold it opens (Mantine `Collapse`, 160 ms) hides its body
+  until the transition ends, and the test looked at once with `getByRole`.
+- At the owner's request the fix went straight onto `develop`, in the scope of the release PR:
+  [B-019](changes/bugfixes/B-019-flaky-family-privacy-test/B-019-flaky-family-privacy-test.md). The four places that
+  look inside a just-opened fold now wait with `findByRole(…, LOADED)`. Only the test file changed.
+- Checked: `npx vitest run src/features/family`, ESLint, Prettier and the typecheck. No test data was created.
+
+**Next**
+- The release PR's CI runs again; then the owner merges it and sets up the morning clean-up (I-006).
+
 ## 2026-11-12 (I-006: Delete invite links, built)
 
 **Done**

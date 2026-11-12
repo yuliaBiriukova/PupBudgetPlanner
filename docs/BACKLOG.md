@@ -143,3 +143,4 @@ owner asks for one.
 | [B-016](changes/bugfixes/B-016-e2e-browser-install-hangs/B-016-e2e-browser-install-hangs.md) | CI's E2E job hangs 10–20 minutes installing the browser when Ubuntu's package mirrors are down, then fails without a test | High | Done |
 | [B-017](changes/bugfixes/B-017-flaky-ci-unit-tests/B-017-flaky-ci-unit-tests.md) | Two frontend unit tests fail on CI's `develop` runs that passed on their PRs (the Filters sheet drops its picks for a moment as it closes) | Medium | Done |
 | [B-018](changes/bugfixes/B-018-e2e-cleanup-digit-tags/B-018-e2e-cleanup-digit-tags.md) | The E2E clean-up leaves test accounts whose tag has digits (`e2e-i024-shots-…`): 51 left in the `dev` database | Medium | Done |
+| [B-019](changes/bugfixes/B-019-flaky-family-privacy-test/B-019-flaky-family-privacy-test.md) | A Family privacy unit test fails on CI's release run: it looks inside a fold that is still opening (fixed in the release PR #96) | High | Done |
