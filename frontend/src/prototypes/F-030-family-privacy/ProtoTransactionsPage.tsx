@@ -1,0 +1,513 @@
+import { Button, Skeleton, UnstyledButton, VisuallyHidden } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
+import { IconAlertCircle, IconChevronUp, IconPlus, IconRefresh, IconX } from '@tabler/icons-react';
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { DESKTOP_QUERY } from '../../app/shell/sections';
+import { cx } from '../../shared/ui/cx';
+import { accountsQueryOf } from '../../features/accounts/accountsApi';
+import { categoriesQuery } from '../../features/categories/categoriesApi';
+import { ME, useWhose, whoParam } from '../../features/family/whose';
+import {
+  cleared,
+  filterCount,
+  listQueryOf,
+  periodName,
+  stepped,
+  summaryQueryOf,
+  withCategory,
+  withPeriod,
+  withKnown,
+  withType,
+  type Filters,
+} from '../../features/transactions/filters';
+import { useDayTitle } from '../../features/transactions/receiptDays';
+import { Receipts } from './ProtoReceipts';
+import { ANDRIY_ID } from '../../features/family/familyTestData';
+import { usePrivacy } from './privacy';
+import { scrollParentOf } from '../../features/transactions/scrollParent';
+import { SpendingCalendar } from '../../features/transactions/SpendingCalendar';
+import { MiniFigures, TotalsSlip } from '../../features/transactions/TotalsSlip';
+import { TransactionFilters } from '../../features/transactions/TransactionFilters';
+import { useFormDay, useTransactionForm } from '../../features/transactions/transactionForm';
+import classes from '../../features/transactions/TransactionsPage.module.css';
+import {
+  transactionPagesQuery,
+  transactionSummaryQuery,
+} from '../../features/transactions/transactionsApi';
+import { useTransactionFilters } from '../../features/transactions/useTransactionFilters';
+import { WhereItWent } from '../../features/transactions/WhereItWent';
+
+/** How long a saved line stays lit (TransactionsPage.module.css). */
+const FRESH_MS = 2400;
+
+/** The desktop's two columns: the calendar and the categories on the left, the receipts on the right. */
+const WIDE_QUERY = '(min-width: 64em)';
+
+/**
+ * Transactions (F-020, variant 8): the period's totals on a dark slip, a folding calendar and "Where it went", then
+ * every day as a till receipt, newest first, loading more on scroll. Filters (period, account, type, category, a
+ * day) are the page's address. A line opens the form to change or delete it.
+ */
+export function TransactionsPage() {
+  const { t } = useTranslation();
+  const address = useTransactionFilters();
+  const { setFilters, settle } = address;
+  const form = useTransactionForm();
+  const fresh = useFresh(form.lastChange?.key, form.lastChange?.transactionId);
+  const wide = useMediaQuery(WIDE_QUERY, false, { getInitialValueInEffect: false });
+  const tablet = useMediaQuery(DESKTOP_QUERY, false, { getInitialValueInEffect: false });
+  const dayTitle = useDayTitle();
+  // Whose money (F-024): someone else's lines open nothing and the slip has no Add
+  const whose = useWhose();
+  const { andriy } = usePrivacy();
+  const who = whoParam(whose.who);
+
+  const accounts = useQuery(accountsQueryOf(who));
+  const categories = useQuery(categoriesQuery);
+  const allAccounts = [...(accounts.data?.accounts ?? []), ...(accounts.data?.archived ?? [])];
+  const filters = withKnown(
+    address.filters,
+    accounts.data && allAccounts.map((account) => account.id),
+    // Your own categories: someone else's (or the family's merged ones) come only with the summary
+    whose.who === ME
+      ? categories.data?.groups.flatMap((group) => group.categories.map((category) => category.id))
+      : undefined,
+  );
+  // A picked day: every Add transaction, the shell's too, starts on it (I-025)
+  useFormDay(filters.day);
+
+  const summary = useQuery({
+    ...transactionSummaryQuery({ ...summaryQueryOf(filters), who }),
+    placeholderData: keepPreviousData,
+  });
+  const pages = useInfiniteQuery({
+    ...transactionPagesQuery({ ...listQueryOf(filters), who }),
+    placeholderData: keepPreviousData,
+  });
+  const slip = useRef<HTMLElement>(null);
+  const miniOn = useMiniBar(slip, !wide);
+
+  const picked = filterCount(filters) > 0;
+  const month = filters.period.kind === 'month' ? filters.period.month : undefined;
+  const noTransactions =
+    accounts.isSuccess && allAccounts.every((account) => account.transactionCount === 0);
+  const kindOf = (categoryId: string) =>
+    categories.data?.groups.find((group) =>
+      group.categories.some((category) => category.id === categoryId),
+    )?.kind;
+  const categoryName = filters.categoryId
+    ? (summary.data?.categories.find((category) => category.categoryId === filters.categoryId)
+        ?.name ??
+      categories.data?.groups
+        .flatMap((group) => group.categories)
+        .find((category) => category.id === filters.categoryId)?.name)
+    : undefined;
+
+  const set = (next: Filters) => {
+    setFilters(next);
+  };
+  const filterProps = {
+    filters,
+    accounts: allAccounts,
+    // In the family's money every account says whose it is (F-024, open point 6)
+    whoseOf: (ownerId: string) =>
+      whose.isMine(ownerId)
+        ? undefined
+        : whose.nameOf(ownerId) && t('whose.theirs', { name: whose.nameOf(ownerId) }),
+    categoryName,
+    categories: summary.data?.categories ?? [],
+    currency: summary.data?.currency ?? 'UAH',
+    count: summary.data?.count,
+    onAccount: (accountId: string | undefined) => {
+      set({ ...filters, accountId });
+    },
+    onType: (type: Filters['type']) => {
+      set(withType(filters, type, kindOf));
+    },
+    onCategory: (categoryId: string | undefined) => {
+      set(withCategory(filters, categoryId));
+    },
+    onChange: set,
+    onSettle: settle,
+  };
+
+  const periodLabel = periodName(filters.period, t('transactions.totals.allTime'));
+  const items = pages.data?.pages.flatMap((page) => page.items) ?? [];
+  const dayTotals = new Map((summary.data?.days ?? []).map((day) => [day.date, day]));
+
+  let list;
+  if (pages.isPending) {
+    list = (
+      <div role="status" aria-busy="true" aria-label={t('transactions.list.loading')}>
+        <Skeleton height={16} width={140} radius="sm" my={16} />
+        {[0, 1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} height={52} radius="md" mb={8} />
+        ))}
+      </div>
+    );
+  } else if (pages.isError) {
+    list = (
+      <div className={classes.errorBanner} role="alert">
+        <IconAlertCircle size={20} stroke={1.7} aria-hidden />
+        <div>
+          <p>{t('transactions.list.error')}</p>
+          <UnstyledButton
+            className={classes.textLink}
+            onClick={() => {
+              void pages.refetch();
+            }}
+          >
+            <IconRefresh size={20} stroke={1.7} aria-hidden />
+            {t('transactions.list.retry')}
+          </UnstyledButton>
+        </div>
+      </div>
+    );
+  } else if (whose.person?.id === ANDRIY_ID && andriy.lines === 'Totals') {
+    list = (
+      <Empty
+        title="Only totals by category"
+        text={`${whose.person.displayName} shares how much went on each category, not the transactions.`}
+      />
+    );
+  } else if (items.length === 0 && noTransactions && whose.theirs) {
+    const name = whose.person?.displayName;
+    list = (
+      <Empty
+        title={t('transactions.list.emptyTitle', { context: 'their', name })}
+        text={t('transactions.list.emptyText', { context: 'their', name })}
+      />
+    );
+  } else if (items.length === 0 && noTransactions) {
+    list = (
+      <Empty title={t('transactions.list.emptyTitle')} text={t('transactions.list.emptyText')}>
+        <Button
+          className={classes.emptyButton}
+          leftSection={<IconPlus size={20} stroke={1.7} />}
+          onClick={() => {
+            form.add();
+          }}
+        >
+          {t('shell.addTransaction')}
+        </Button>
+      </Empty>
+    );
+  } else if (items.length === 0 && filters.day) {
+    const day = dayTitle(filters.day);
+    list = (
+      <Empty
+        title={t('transactions.list.nothingOnDayTitle')}
+        text={t(
+          picked ? 'transactions.list.nothingOnDayFiltered' : 'transactions.list.nothingOnDay',
+          {
+            day,
+          },
+        )}
+      />
+    );
+  } else if (items.length === 0) {
+    list = picked ? (
+      <Empty
+        title={t('transactions.list.nothingTitle')}
+        text={
+          filters.period.kind === 'all'
+            ? t('transactions.list.nothingTextAll')
+            : t('transactions.list.nothingText', { period: periodLabel })
+        }
+      >
+        <Button
+          variant="quiet"
+          className={classes.emptyButton}
+          leftSection={<IconX size={20} stroke={1.7} />}
+          onClick={() => {
+            set(cleared(filters));
+          }}
+        >
+          {t('transactions.list.clearFilters')}
+        </Button>
+      </Empty>
+    ) : (
+      <Empty
+        title={t('transactions.list.nothingInPeriodTitle', { period: periodLabel })}
+        text={t('transactions.list.nothingInPeriodText', { period: periodLabel })}
+      />
+    );
+  } else {
+    const previous = stepped(filters.period, -1);
+    list = (
+      <div className={cx(pages.isPlaceholderData && classes.stale)}>
+        <Receipts
+          items={items}
+          days={dayTotals}
+          currency={summary.data?.currency}
+          account={filters.accountId}
+          fresh={fresh}
+          onOpen={form.edit}
+          hasMore={pages.hasNextPage}
+          loadingMore={pages.isFetchingNextPage}
+          onMore={() => {
+            if (!pages.isFetchingNextPage) void pages.fetchNextPage();
+          }}
+        />
+        {!pages.hasNextPage && !filters.day && (
+          <>
+            <p className={classes.listEnd}>
+              {month
+                ? t('transactions.list.endOfMonth', { period: periodLabel })
+                : t('transactions.list.endOfAll')}
+            </p>
+            {month && previous && (
+              <div className={classes.listEndButton}>
+                <Button
+                  variant="quiet"
+                  onClick={() => {
+                    set(withPeriod(filters, previous));
+                  }}
+                >
+                  {t('transactions.list.showMonth', {
+                    month: periodName(previous, ''),
+                  })}
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    );
+  }
+
+  const calendar = month && (
+    <SpendingCalendar
+      month={month}
+      days={summary.data?.days ?? []}
+      currency={summary.data?.currency ?? 'UAH'}
+      picked={filters.day}
+      onPick={(day) => {
+        set({ ...filters, day });
+      }}
+      openAtFirst={wide}
+    />
+  );
+  const bars = wide && filters.type !== 'Transfer' && (
+    <WhereItWent
+      categories={summary.data?.categories ?? []}
+      currency={summary.data?.currency ?? 'UAH'}
+      income={filters.type === 'Income'}
+      picked={filters.categoryId}
+      onPick={filterProps.onCategory}
+      place="column"
+    />
+  );
+  const layout = wide ? 'desktop' : tablet ? 'tablet' : 'phone';
+  const controls = <TransactionFilters {...filterProps} layout={layout} />;
+
+  return (
+    <>
+      <VisuallyHidden>
+        <h1>{t('nav.transactions')}</h1>
+      </VisuallyHidden>
+      {!wide && (
+        <div className={classes.miniWrap} data-on={miniOn || undefined}>
+          <UnstyledButton
+            className={classes.mini}
+            tabIndex={miniOn ? 0 : -1}
+            aria-hidden={!miniOn}
+            onClick={() => {
+              scrollParentOf(slip.current)?.scrollTo({
+                top: 0,
+                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                  ? 'auto'
+                  : 'smooth',
+              });
+            }}
+          >
+            <span className={classes.miniMonth}>
+              {month ? dayjs(`${month}-01`).format('MMMM') : periodLabel}
+            </span>
+            <MiniFigures summary={summary.data} />
+            <IconChevronUp size={20} stroke={1.7} aria-hidden />
+            <VisuallyHidden>{t('transactions.totals.backToTop')}</VisuallyHidden>
+          </UnstyledButton>
+        </div>
+      )}
+      <TotalsSlip
+        ref={slip}
+        period={filters.period}
+        onPeriod={(period) => {
+          set(withPeriod(filters, period));
+        }}
+        onSettle={settle}
+        summary={summary.data}
+        summaryError={summary.isError}
+        onRetry={() => {
+          void summary.refetch();
+        }}
+        picked={picked}
+        swipe={!tablet}
+        onAdd={
+          whose.theirs
+            ? undefined
+            : () => {
+                // With one account of yours in use picked, the form opens with it, as from its card (F-018)
+                const account = accounts.data?.accounts.find(
+                  (item) => item.id === filters.accountId && whose.isMine(item.ownerId),
+                );
+                form.add(account ? { accountId: account.id } : undefined);
+              }
+        }
+      />
+      {!wide && controls}
+      <div className={classes.columns} data-one={(!calendar && !bars) || undefined}>
+        <FitColumn fit={wide}>
+          {calendar}
+          {bars}
+        </FitColumn>
+        <div className={classes.right}>
+          {wide && controls}
+          {filters.day && month && (
+            <div className={classes.dayLine}>
+              <p>{t('transactions.list.onlyDay', { day: dayTitle(filters.day) })}</p>
+              <UnstyledButton
+                className={classes.textLink}
+                onClick={() => {
+                  set({ ...filters, day: undefined });
+                }}
+              >
+                {t('transactions.list.showAllOf', { month: dayjs(`${month}-01`).format('MMMM') })}
+              </UnstyledButton>
+            </div>
+          )}
+          {list}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Empty({ title, text, children }: { title: string; text: string; children?: ReactNode }) {
+  return (
+    <div className={classes.empty}>
+      <h2 className={classes.emptyTitle}>{title}</h2>
+      <p className={classes.emptyText}>{text}</p>
+      {children}
+    </div>
+  );
+}
+
+/** The transaction just saved, while its line is lit; changes made before the page opened light nothing. */
+function useFresh(key: number | undefined, transactionId: string | undefined) {
+  const seen = useRef(key);
+  const [fresh, setFresh] = useState<string>();
+
+  useEffect(() => {
+    if (key === seen.current) return;
+    seen.current = key;
+    setFresh(transactionId);
+    const timer = window.setTimeout(() => {
+      setFresh(undefined);
+    }, FRESH_MS);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [key, transactionId]);
+
+  return fresh;
+}
+
+/** Below the desktop: whether the big totals have scrolled away, so the slim bar shows. */
+function useMiniBar(slip: RefObject<HTMLElement | null>, on: boolean) {
+  const [away, setAway] = useState(false);
+  useEffect(() => {
+    const el = slip.current;
+    if (!on || !el || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setAway(!!entry && !entry.isIntersecting);
+      },
+      { root: scrollParentOf(el), rootMargin: '-48px 0px 0px 0px' },
+    );
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+    };
+  }, [slip, on]);
+  return on && away;
+}
+
+/** The room the fitted column keeps under it and over it once it sticks. */
+const COLUMN_GAP_PX = 16;
+
+/** The least the column's parts take: the calendar as it is, "Where it went" at its min-height. */
+function leastHeight(column: HTMLElement): number {
+  return Array.from(column.children).reduce((sum, part) => {
+    const style = getComputedStyle(part);
+    const min = parseFloat(style.minHeight);
+    return (
+      sum +
+      (Number.isNaN(min) || min === 0 ? part.getBoundingClientRect().height : min) +
+      parseFloat(style.marginTop) +
+      parseFloat(style.marginBottom)
+    );
+  }, 0);
+}
+
+/**
+ * The desktop's left column: sticky, and ending 16 px above the window's bottom at every scroll position, so the whole
+ * of "Where it went" is on screen and its list scrolls inside it (variant 8, owner's review). It ends no lower than
+ * the receipts beside it: a sticky column taller than the room left at the page's end is pushed up, its top under the
+ * window's (B-008).
+ */
+function FitColumn({ fit, children }: { fit: boolean; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!fit) {
+      el.style.maxHeight = '';
+      return;
+    }
+    const main = scrollParentOf(el);
+    if (!main) return;
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const box = main.getBoundingClientRect();
+        const top = Math.max(el.getBoundingClientRect().top, box.top + COLUMN_GAP_PX);
+        const receipts = el.nextElementSibling?.getBoundingClientRect().bottom ?? Infinity;
+        const bottom = Math.min(box.bottom - COLUMN_GAP_PX, receipts);
+        el.style.maxHeight = `${String(Math.round(Math.max(bottom - top, leastHeight(el))))}px`;
+      });
+    };
+    measure();
+    main.addEventListener('scroll', measure, { passive: true });
+    window.addEventListener('resize', measure);
+    // The totals above it (B-007) or the receipts beside it (B-008) change height without a scroll: it fits again
+    const observer = new ResizeObserver(measure);
+    if (main.firstElementChild) observer.observe(main.firstElementChild);
+    if (el.nextElementSibling) observer.observe(el.nextElementSibling);
+    return () => {
+      cancelAnimationFrame(frame);
+      main.removeEventListener('scroll', measure);
+      window.removeEventListener('resize', measure);
+      observer.disconnect();
+    };
+  }, [fit]);
+
+  return (
+    <div className={classes.left} ref={ref}>
+      {children}
+    </div>
+  );
+}

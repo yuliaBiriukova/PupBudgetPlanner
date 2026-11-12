@@ -2,6 +2,35 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-12 (F-030: Privacy in the family, design round 1)
+
+**Done**
+- [F-030](changes/features/F-030-family-privacy/F-030-family-privacy.md) started on `feature/F-030-family-privacy`.
+  The owner answered the open points: accounts, transactions and categories can be private; an account is
+  *Everything*, *Balance only* or *Hidden* (new ones *Everything*); one switch for all your transactions (every one, or
+  only totals by category); a private category shows nothing; private money is left out of the family's totals; the
+  same for every member; set on the Family page only. Three smaller points are left with proposals for the design round
+  (a balance-only account in the reports, transfers with a hidden account, the stricter setting wins).
+- References (Honeydue's help pages and a review, Google Photos' partner sharing, Monarch), the brief, the plan, and
+  three prototype stories in *Prototypes / F-030 Family privacy*: Rows, Mirror, Sentence. Each is the app as Olena on
+  the Family page with the new section; Andriy's own settings are fixed, so the lens on his money shows his hidden
+  account and its lines gone.
+- Checked: typecheck, ESLint, Prettier; the design check on the three stories (it caught a 36 px × on a private
+  category's tag and the sentence's links 38 px high, both made 44 px; the one left is the Mirror's pill switch
+  "overlapping" the phone's menu, page content scrolling under the fixed bar); every state clicked through in the
+  Browser pane at 375 and 1440 px, light and dark.
+- Test data: none (Storybook's fake API only).
+
+- The owner picked variant 1, "Rows", asking for it to fold. It is now the *Final prototype* story (variants 2 and 3
+  removed): the three parts as rows that fold, each with what is set now; the marks on your own cards and lines;
+  Andriy's money without what he keeps, the band saying so, and his Transactions page when he shares only totals.
+  The three small points are built as proposed. Checked again: the design check (0 issues), typecheck, ESLint,
+  Prettier; the states clicked through in the Browser pane; screenshots at 375 and 1440 px, light and dark, kept in
+  the change folder's `prototypes/`.
+
+**Next**
+- Owner: approve the final prototype (and the three small points as built) for implementation, or ask for changes.
+
 ## 2026-11-12 (F-024: Family views, built)
 
 **Done**
