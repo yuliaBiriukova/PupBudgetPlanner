@@ -2,6 +2,7 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+<<<<<<< HEAD
 ## 2026-11-12 (F-030: Privacy in the family, planned)
 
 **Done**
@@ -38,6 +39,27 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: approve the final prototype and the eight open points' proposals for implementation (or ask for changes);
   no code before that.
+=======
+## 2026-11-12 (I-031: CI checks each change once)
+
+**Done**
+- GitHub warned that 90% of the month's 2,000 free Actions minutes were used (1,801), with 20 days left. Counted
+  the 129 runs since 2026-11-01: E2E 754 minutes, Frontend 524, Docker image 333, Backend 149; pushes to `develop`
+  repeat their PR's run (563 minutes), docs-only `plan/…` PRs run everything (about 200).
+- Planned and built [I-031](changes/improvements/I-031-fewer-ci-minutes/I-031-fewer-ci-minutes.md) (High) on
+  `improvement/I-031-fewer-ci-minutes`; the owner approved it on 2026-11-12. `ci.yml` runs on pull requests (not
+  docs-only ones: `docs/**`, `**/*.md`) and on the push to `main`, no longer on the push to `develop`; the Docker
+  image job only on a PR into `main` and the push to `main`. About half the minutes.
+  [ADR 0030](decisions/0030-ci-runs-once-per-change.md); ARCHITECTURE.md "CI/CD" and ADR 0010 updated.
+- Making the repo public for free minutes was looked at and not chosen: it stays private.
+- Checked: the workflow parses (js-yaml); pushing the branch started no run; a scratch draft PR with only a docs
+  change (into this branch, closed and its branch deleted) started no run; this PR runs Backend, Frontend and E2E,
+  and skips the Docker image. No app code changed, so no local build or test run. No test accounts or data created.
+
+**Next**
+- Owner: review the PR. After merging it, the squash merge into `develop` should start no run; the next release PR
+  and the push to `main` run all four jobs.
+>>>>>>> c6b7f553ee291f9290e47dbc55b739d1dc6e6b8b
 
 ## 2026-11-12 (B-018: The E2E clean-up finds test people whose tag has digits)
 

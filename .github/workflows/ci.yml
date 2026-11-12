@@ -1,14 +1,20 @@
 name: CI
 
+# Each change is checked once, on its pull request (I-031, ADR 0030). A squash merge into develop would only repeat
+# its PR's run: develop is merged into the branch before every push. Docs-only PRs (plan/…) run nothing. The push to
+# main stays: Render deploys a release only after the checks on main's commit pass.
 on:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
   push:
-    branches: [develop, main]
+    branches: [main]
 
 permissions:
   contents: read
 
-# A new push to a pull request cancels its older run; pushes to develop and main always run to the end.
+# A new push to a pull request cancels its older run; a push to main always runs to the end.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -172,9 +178,11 @@ jobs:
           path: frontend/playwright-report/
           retention-days: 14
 
-  # Builds the production image (the one Render runs) and checks it serves the app and the API.
+  # Builds the production image (the one Render runs) and checks it serves the app and the API. Only for a release:
+  # its PR into main and the push to main (I-031); a PR into develop skips it.
   docker:
     name: Docker image
+    if: github.base_ref == 'main' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
