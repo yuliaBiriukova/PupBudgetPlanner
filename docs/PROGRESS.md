@@ -29,9 +29,10 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Test data: the E2E runs and the screenshot run made `e2e-…@example.com` people (owners, members, invited people)
   and `E2E…` links in `dev`; the `cleanup` teardown deleted them after each run. Nothing of the owner's was touched.
 
-- Review of PR #95 (owner): a group with no links shows no Select all at all (it was a disabled box); its place stays
-  empty so the titles line up. Checked: typecheck, ESLint, Prettier, the People and Family unit tests, the E2E
-  `invite-links.spec.ts` (phone and desktop), empty groups at 375 and 1440 px, light and dark, screenshots looked at.
+- Review of PR #95 (owner): a group with no links shows no Select all at all (it was a disabled box), and its title
+  moves left to where the box would be (the empty gap looked odd). Checked: typecheck, ESLint, Prettier, the People and
+  Family unit tests, the E2E `invite-links.spec.ts` (phone and desktop), empty groups at 375 and 1440 px, light and
+  dark, screenshots looked at.
   The test people made were deleted by the E2E clean-up.
 
 **Next**

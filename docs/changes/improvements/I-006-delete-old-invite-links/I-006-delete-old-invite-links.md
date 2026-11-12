@@ -234,5 +234,5 @@ After the release PR is merged and Render has deployed `main`:
   the past, so the final prototype said "Auto-deletes".
 - Owner, 2026-11-12 (final prototype): didn't like "Auto-deletes" either; chose no date on each link, only the line
   under the groups.
-- Owner, 2026-11-12 (review of PR #95): no Select all at all on a group with no links (it was a disabled box). Its
-  place stays empty, so the titles of the groups still line up.
+- Owner, 2026-11-12 (review of PR #95): no Select all at all on a group with no links (it was a disabled box). The
+  empty gap it left looked odd, so the owner chose that an empty group's title moves left, to where the box would be.

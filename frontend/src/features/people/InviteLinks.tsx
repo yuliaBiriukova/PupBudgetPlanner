@@ -217,8 +217,8 @@ interface GroupHeadProps {
 
 /**
  * Select all, the group's title and count, how many of it are picked, and the fold. The fold's hover tints the whole
- * head, the box included, so the box doesn't sit beside a grey pill. An empty group has no Select all (owner,
- * 2026-11-12): its place stays empty, so the titles of all groups line up.
+ * head, the box included, so the box doesn't sit beside a grey pill. An empty group has no Select all and no gap for
+ * it: its title starts where the box would be (owner, 2026-11-12).
  */
 function GroupHead({ group, small, count, pickedHere, open, onPickAll, onToggle }: GroupHeadProps) {
   const { t } = useTranslation();
@@ -226,7 +226,7 @@ function GroupHead({ group, small, count, pickedHere, open, onPickAll, onToggle 
 
   return (
     <div className={classes.head}>
-      {count > 0 ? (
+      {count > 0 && (
         <label className={cx(people.pick, classes.headPick)}>
           <Checkbox
             checked={all}
@@ -237,8 +237,6 @@ function GroupHead({ group, small, count, pickedHere, open, onPickAll, onToggle 
             }}
           />
         </label>
-      ) : (
-        <span className={cx(people.pick, classes.headPick)} aria-hidden="true" />
       )}
       <Disclosure open={open} onToggle={onToggle}>
         {/* One line of text: on a narrow screen a long title wraps and its count and picks follow its last word */}
