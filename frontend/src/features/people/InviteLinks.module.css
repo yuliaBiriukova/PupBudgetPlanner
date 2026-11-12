@@ -46,7 +46,9 @@
   text-align: left;
 }
 
-.inlineTitle {
+/* Inside the title line, so it wins over the People page's `.groupTitle { margin: 0 }`, which loads later: without
+   it the count stuck to the title ("Waiting0") */
+.titleLine > .inlineTitle {
   display: inline;
   margin-right: 8px;
 }

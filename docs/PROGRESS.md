@@ -32,7 +32,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Review of PR #95 (owner): a group with no links shows no Select all at all (it was a disabled box), and its title
   moves left to where the box would be (the empty gap looked odd). Checked: typecheck, ESLint, Prettier, the People and
   Family unit tests, the E2E `invite-links.spec.ts` (phone and desktop), empty groups at 375 and 1440 px, light and
-  dark, screenshots looked at.
+  dark, screenshots looked at. A group's count had no space before it ("Waiting0": the People page's `.groupTitle`
+  margin won over the list's own); fixed, checked the same way.
   The test people made were deleted by the E2E clean-up.
 
 **Next**
