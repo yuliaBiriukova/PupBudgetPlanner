@@ -121,6 +121,7 @@ owner asks for one.
 | [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) | 🎨 An Add button people find on the phone: one + that opens Transfer, Income and Expense; a menu with every place named (design approved 2026-11-09) | High | Done |
 | [I-031](changes/improvements/I-031-fewer-ci-minutes/I-031-fewer-ci-minutes.md) | CI checks each change once: no run on the push to `develop` or for docs-only PRs, the Docker image only for releases (90% of the month's Actions minutes used by 2026-11-12; approved 2026-11-12) | High | Done |
 | [I-032](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md) | 🎨 Invite links: no empty groups on the Family page; one list with each link's status on the People page (added 2026-11-12) | Medium | Done |
+| [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md) | Tests that can't pass by luck: rules for "nothing there" checks in the working agreement, and an audit of the existing ones (after B-019 and B-024 turned two releases red; added 2026-11-13) | High | Todo |
 
 ## Bugfixes
 

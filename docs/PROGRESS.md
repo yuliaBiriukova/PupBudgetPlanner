@@ -2,6 +2,19 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-13 (Plan: I-033, tests that can't pass by luck)
+
+**Done**
+- Two releases in a row (#96, #98) went red on CI with the app working: B-019 and B-024 were tests that passed by luck
+  on their change's PR. At the owner's request, planned
+  [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md) (High, proposed): three rules
+  in the working agreement (anchor "nothing there" checks, search the tests when a screen's behaviour changes, run the
+  changed test files 3 times before a push) and an audit of the existing checks (43 in E2E, about 104 in unit tests).
+- Planning only: no code or tests changed.
+
+**Next**
+- Owner: confirm the priority and approve I-033; it is built on `improvement/I-033-steady-test-checks`.
+
 ## 2026-11-13 (B-024: Family E2E test out of date after I-032, fixed in the release PR)
 
 **Done**
