@@ -2,6 +2,76 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-13 (B-024: Family E2E test out of date after I-032, fixed in the release PR)
+
+**Done**
+- The release PR #98 (`develop` → `main`) had a red E2E job: `family.spec.ts` › "the owner invites someone new, who
+  joins with the link, then removes them" expected the used invite link's note to be gone from the Family page. Since
+  I-032's review commit the Family page lists links of every status in one list, so the used link stays, tagged Used.
+  The check passed on #97 only while the links were still loading after the reload.
+- At the owner's request the fix went straight onto `develop`, in the scope of the release PR:
+  [B-024](changes/bugfixes/B-024-family-test-expects-used-link-gone/B-024-family-test-expects-used-link-gone.md).
+  The test now checks the link's row reads "Used · by Andriy", which waits for the list. Only the test file changed.
+- Checked: `npx playwright test e2e/family.spec.ts --repeat-each=3` (12 runs, phone and desktop, all passed), ESLint,
+  Prettier and the typecheck. The run's test people and invite links (`e2e-family-…@example.com`, `E2E…` notes) were
+  removed by the E2E clean-up teardown; nothing else was created.
+
+**Next**
+- The release PR's CI runs again; then the owner merges it.
+
+## 2026-11-13 (I-032: review of PR #97, the Family page in one list too)
+
+**Done**
+- The owner's review: "it still groups links in Family". The Family page now uses the People page's one list
+  (waiting first, then newest first, the status tag leading each row's details, one Select all); the groups, their
+  folds and what the browser kept of them are gone, and so are the texts only they used. Recorded in the
+  [I-032 description](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md#review-of-pr-97-owner-2026-11-13)
+  and DESIGN_RULES "Screen decisions".
+- Checked: ESLint, Prettier, typecheck and build; every frontend unit test (389); every E2E test, phone and desktop
+  (108 passed); the changed People and Family stories run with no error at 375 and 1440 px, light and dark,
+  screenshots looked at. The backend didn't change (its 584 tests passed on 2026-11-12).
+- Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` links in `dev`; the `cleanup` teardown deleted
+  them. Nothing of the owner's was touched.
+
+**Next**
+- Owner: review the PR again.
+
+## 2026-11-12 (B-020 – B-023 and I-032 built, one PR)
+
+**Done**
+- The owner reported four issues from production and asked to plan them and fix them one by one in one PR; a fifth
+  came after. Planned on `bugfix/B-020-B-022-I-032-ui-fixes`:
+  [B-020](changes/bugfixes/B-020-theme-switch-scroll-jump/B-020-theme-switch-scroll-jump.md) (picking a theme scrolled
+  the whole app on the phone), [B-021](changes/bugfixes/B-021-amount-digits-out-of-sight/B-021-amount-digits-out-of-sight.md)
+  (a long sum on the phone keys showed its start, not the newest digits),
+  [B-022](changes/bugfixes/B-022-sidebar-user-row-misaligned/B-022-sidebar-user-row-misaligned.md) (the sidebar's
+  theme and Sign out buttons 4 px below the name), [B-023](changes/bugfixes/B-023-fold-hover-corners/B-023-fold-hover-corners.md)
+  (a fold's hover rounded on every corner inside a card of square cells) and
+  [I-032](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md)
+  (no empty invite link groups; one list on People).
+- Each bug reproduced in the Browser pane or Storybook before its fix; the owner approved the root causes and fixes
+  ("Approved, build them"). Fixes: the theme switch's option is positioned, so its hidden radio scrolls with the page;
+  the amount scrolls to its end as the app's keys type; the sidebar's buttons are centred on the row; the privacy
+  folds' heads (and the Transactions calendar's head, found by a sweep of every card) have only the card's outer
+  corners.
+- Checked: the new E2E tests (`settings`, `transactions`, `shell`, `family-privacy`, B-020 – B-023, phone and desktop)
+  fail with the fixes taken out and pass with them; a B-021 unit test the same; typecheck, ESLint, Prettier and the
+  transactions, settings, family and shell unit tests (198); screenshots at 375 and 1440 px, light and dark, looked
+  at and kept in the change folders.
+- I-032: the owner took all five proposals; one final prototype story (*Prototypes / I-032 Invite links*, the
+  owner's direction, no variants), design check clean, approved ("Approved, build it"; DESIGN_RULES "Screen
+  decisions"). Built: the People page's Invite links tab is one list (waiting first, then newest first) with a status
+  tag leading each row's details and one Select all; the Family page shows only the groups with links. The cancel
+  confirmation on People says the link "shows as cancelled". The prototype stories are deleted.
+- Checked before the push: ESLint, Prettier, typecheck and build; every frontend unit test and the backend's build and
+  tests; every E2E test, phone and desktop; the 14 changed People and Family stories run with no error at 375 and
+  1440 px, light and dark, screenshots looked at.
+- Test data: the E2E runs and a screenshot run made `e2e-…@example.com` people and `E2E…` invite links in `dev`;
+  the `cleanup` teardown deleted them after each run. Nothing of the owner's was touched.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-12 (B-019: Flaky Family privacy test, fixed in the release PR)
 
 **Done**

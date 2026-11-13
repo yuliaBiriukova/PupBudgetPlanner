@@ -219,7 +219,18 @@
   width: 100%;
   min-height: 64px;
   padding: 12px 16px;
-  border-radius: var(--mantine-radius-md);
+}
+
+/* The hover fills the head's cell with the cell's corners: the card's only at its top and, folded, its bottom; less its
+   border, so the tint meets it (B-023) */
+.fold:first-child .foldHead {
+  border-top-left-radius: calc(var(--mantine-radius-md) - 1px);
+  border-top-right-radius: calc(var(--mantine-radius-md) - 1px);
+}
+
+.fold:last-child .foldHead[aria-expanded='false'] {
+  border-bottom-right-radius: calc(var(--mantine-radius-md) - 1px);
+  border-bottom-left-radius: calc(var(--mantine-radius-md) - 1px);
 }
 
 .foldHead:hover {

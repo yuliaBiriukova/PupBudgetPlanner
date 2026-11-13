@@ -817,6 +817,51 @@ test('the amount low on a short phone screen comes up whole above the keys when 
   await expect.poll(fitsAboveKeys).toBe(true);
 });
 
+test('a sum wider than the amount shows its newest digits as they are typed on the phone keys (B-021)', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(
+    !isMobile,
+    'The desktop has no keys: the browser follows the caret as a keyboard types',
+  );
+  const response = await signUpThroughApi(page.request, newPerson('amount-end'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 1000, 'Bank');
+
+  await page.goto('/transactions');
+  const dialog = await openAddForm(page, isMobile);
+  const keys = dialog.getByRole('group', { name: form.keys });
+  const amount = dialog.getByLabel(form.amount, { exact: true });
+  await amount.click();
+  await expect(keys).toBeInViewport({ ratio: 1 });
+
+  const names: Record<string, string> = { '+': form.key.plus };
+  for (const key of '99+666+66+777+888+12345')
+    await keys.getByRole('button', { name: names[key] ?? key, exact: true }).click();
+  await expect(amount).toHaveValue('99 + 666 + 66 + 777 + 888 + 12 345');
+
+  // Wider than the display, and scrolled to its end: the last digits in sight, the start out on the left
+  const scroll = () =>
+    amount.evaluate((input: HTMLInputElement) => ({
+      overflow: input.scrollWidth - input.clientWidth,
+      left: input.scrollLeft,
+    }));
+  const typed = await scroll();
+  expect(typed.overflow).toBeGreaterThan(0);
+  await expect.poll(async () => (await scroll()).left).toBeGreaterThanOrEqual(typed.overflow - 1);
+
+  // ⌫ keeps the end in sight too
+  await keys.getByRole('button', { name: form.key.back }).click();
+  await expect(amount).toHaveValue('99 + 666 + 66 + 777 + 888 + 1 234');
+  await expect
+    .poll(async () => {
+      const now = await scroll();
+      return now.left >= now.overflow - 1;
+    })
+    .toBe(true);
+});
+
 test('the saved toast is in sight: at the top under the header on the phone, clear of the bottom bar; bottom right on the desktop (B-013)', async ({
   page,
   isMobile,

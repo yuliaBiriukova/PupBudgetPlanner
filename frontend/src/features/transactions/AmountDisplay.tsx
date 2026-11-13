@@ -81,6 +81,16 @@ export function AmountDisplay({
     if (typedInto || target || error) root.current?.scrollIntoView({ block: 'nearest' });
   }, [typedInto, target, error, value]);
 
+  // A sum wider than the display shows its end, the newest digits, as a calculator does: the browser follows the caret
+  // only when a keyboard types, and the app's keys set the value by code, which never scrolls the input (B-021). With
+  // the caret elsewhere (moved there on a keyboard) it is left where the browser put it
+  useEffect(() => {
+    const field = input.current;
+    if (!field || field.scrollWidth <= field.clientWidth) return;
+    const caretAtEnd = field.selectionEnd === null || field.selectionEnd === field.value.length;
+    if (withKeys || caretAtEnd) field.scrollLeft = field.scrollWidth;
+  }, [shown, withKeys]);
+
   const sign = <span className={classes.sign}>{currencySign(currency)}</span>;
 
   return (

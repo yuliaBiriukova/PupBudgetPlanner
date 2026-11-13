@@ -64,7 +64,6 @@ function section(title: string): HTMLElement {
 beforeEach(() => {
   setScreenWidth(1440);
   document.cookie = 'XSRF-TOKEN=token-from-the-api; path=/';
-  localStorage.removeItem('pup.family.links.open');
 });
 
 afterEach(() => {
@@ -161,26 +160,43 @@ describe('the Family page', () => {
     await user.click(await screen.findByRole('button', { name: 'Cancel the link Mom' }, LOADED));
 
     expect(await screen.findByText('Link cancelled')).toBeInTheDocument();
-    // It moves to Expired and cancelled, folded at first
+    // It stays in the one list, its tag now Cancelled (I-032)
     await waitFor(() => {
-      expect(screen.queryByText('Mom')).not.toBeInTheDocument();
+      expect(screen.getByText('Mom').closest('li')).toHaveTextContent('Cancelled');
     });
     expect(sent).toEqual([
       { method: 'POST', path: '/api/family/invitations/inv-mom/cancel', body: undefined },
     ]);
   });
 
-  it('lets the owner delete the family’s old links in one go (I-006)', async () => {
+  it('lists the family’s links in one list with their status, no groups (I-032)', async () => {
+    familyServer(ownersFamily());
+    renderApp('/family');
+
+    expect(await screen.findByText('Mom', {}, LOADED)).toBeInTheDocument();
+    const rows = within(section('Invite someone')).getAllByRole('listitem');
+    // Waiting first, then the rest newest first
+    expect(rows.map((row) => row.querySelector('p')?.textContent)).toEqual([
+      'Mom',
+      'Iryna',
+      'Grandpa',
+    ]);
+    const [mom, iryna, grandpa] = rows;
+    expect(mom).toHaveTextContent('Waiting');
+    expect(iryna).toHaveTextContent(/Usedby Iryna on/);
+    expect(grandpa).toHaveTextContent(/Cancelledon/);
+    expect(screen.getByRole('checkbox', { name: 'Select all links' })).toBeInTheDocument();
+    expect(screen.getByText('3 links')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^(Waiting|Used)/ })).not.toBeInTheDocument();
+  });
+
+  it('lets the owner delete the family’s old links in one go, and all of them (I-006, I-032)', async () => {
     const sent = familyServer(ownersFamily());
     const user = userEvent.setup();
     renderApp('/family');
 
-    await user.click(
-      await screen.findByRole('checkbox', { name: 'Select all used links' }, LOADED),
-    );
-    await user.click(
-      screen.getByRole('checkbox', { name: 'Select all expired and cancelled links' }),
-    );
+    await user.click(await screen.findByRole('checkbox', { name: 'Pick Iryna' }, LOADED));
+    await user.click(screen.getByRole('checkbox', { name: 'Pick Grandpa' }));
     await user.click(screen.getByRole('button', { name: 'Delete' }));
     const dialog = await screen.findByRole('dialog', { name: 'Delete 2 links?' });
     expect(
@@ -196,10 +212,21 @@ describe('the Family page', () => {
         body: { ids: ['inv-iryna', 'inv-grandpa'] },
       },
     ]);
-    // An empty group has no Select all
-    expect(
-      screen.queryByRole('checkbox', { name: 'Select all used links' }),
-    ).not.toBeInTheDocument();
+    expect(await screen.findByText('1 link')).toBeInTheDocument();
+
+    // With no links at all only Create invite link is left: no list head, no line
+    await user.click(screen.getByRole('checkbox', { name: 'Select all links' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(
+      within(await screen.findByRole('dialog', { name: 'Delete “Mom”?' })).getByRole('button', {
+        name: 'Delete link',
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.queryByRole('checkbox', { name: 'Select all links' })).not.toBeInTheDocument();
+    });
+    expect(screen.queryByText(/No invite links/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create invite link' })).toBeInTheDocument();
   });
 
   it('shows a member who isn’t the owner no links to delete', async () => {

@@ -96,7 +96,10 @@
   background: var(--pup-color-choice);
 }
 
+/* Positioned, so the hidden radio sits inside it and scrolls with the page: placed against the app's column, outside
+   the scrolling area, it stayed below the screen and a tap scrolled the whole app to it (B-020) */
 .option {
+  position: relative;
   display: flex;
   gap: 8px;
   align-items: center;
