@@ -2,6 +2,23 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-13 (B-024: Family E2E test out of date after I-032, fixed in the release PR)
+
+**Done**
+- The release PR #98 (`develop` → `main`) had a red E2E job: `family.spec.ts` › "the owner invites someone new, who
+  joins with the link, then removes them" expected the used invite link's note to be gone from the Family page. Since
+  I-032's review commit the Family page lists links of every status in one list, so the used link stays, tagged Used.
+  The check passed on #97 only while the links were still loading after the reload.
+- At the owner's request the fix went straight onto `develop`, in the scope of the release PR:
+  [B-024](changes/bugfixes/B-024-family-test-expects-used-link-gone/B-024-family-test-expects-used-link-gone.md).
+  The test now checks the link's row reads "Used · by Andriy", which waits for the list. Only the test file changed.
+- Checked: `npx playwright test e2e/family.spec.ts --repeat-each=3` (12 runs, phone and desktop, all passed), ESLint,
+  Prettier and the typecheck. The run's test people and invite links (`e2e-family-…@example.com`, `E2E…` notes) were
+  removed by the E2E clean-up teardown; nothing else was created.
+
+**Next**
+- The release PR's CI runs again; then the owner merges it.
+
 ## 2026-11-13 (I-032: review of PR #97, the Family page in one list too)
 
 **Done**

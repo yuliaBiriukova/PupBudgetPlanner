@@ -77,7 +77,11 @@ test('the owner invites someone new, who joins with the link, then removes them'
     // Olena sees him, and the link is used up
     await page.reload();
     await expect(page.getByRole('button', { name: 'Actions for Andriy' })).toBeVisible();
-    await expect(page.getByText('E2E Andriy', { exact: true })).toHaveCount(0);
+    // The used link stays in the one list with its status (I-032). A check for something there waits for the
+    // links to load; one for nothing passed while they were still loading (B-024)
+    const usedLink = page.getByRole('listitem').filter({ hasText: 'E2E Andriy' });
+    await expect(usedLink).toContainText(en.inviteLinks.status.Used);
+    await expect(usedLink).toContainText('by Andriy on');
 
     // She removes him; his Family page has no family any more
     await page.getByRole('button', { name: 'Actions for Andriy' }).click();
