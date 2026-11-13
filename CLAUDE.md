@@ -130,6 +130,18 @@ This file tells Claude (and any human contributor) how we work on this project.
   test project). Every suite runs once before the commit and push (step 4 above), not after each edit. Run a
   suite that takes more than a minute in the background and say so, so the owner can see it isn't stuck.
   Why: repeated full runs, each about 2 silent minutes, made I-011 look stuck for almost an hour (I-014).
+- **Tests that can't pass by luck** (I-033). Why: two releases in a row went red on CI with the app working, on a
+  test that had passed on its own change's PR: B-019 looked inside a fold still opening, and B-024 checked a link was
+  gone while the list was still loading, so it kept passing after the review fix made the link stay.
+  - **A "nothing there" check** (`toHaveCount(0)`, `not.toBeVisible()`, `toBeHidden()`, `queryBy…` → `null`,
+    `not.toBeInTheDocument()`) comes only after a check that the same part of the page has loaded, or that the
+    action before it has finished (an awaited `findBy…`, `waitFor`, `toBeVisible()` or a shown toast). It passes the
+    moment it sees nothing, also before the page has drawn it. Where it can, check what *is* there instead (the row
+    reads "Used", not "the note is gone").
+  - **When a change or a review fix changes what a screen shows or hides**, search the unit and E2E tests for the
+    old behaviour (its texts and states) and update them in the same change.
+  - **Before a push, run the changed test files 3 times in a row**: `npx playwright test e2e/<name>.spec.ts
+    --repeat-each=3`, `npx vitest run <files> --repeats=2` (each test once plus two repeats).
 - **Before every commit that changes UI**, check it in Playwright (see "Screens and design") — not only the
   tests passing, but screenshots you have looked at.
 - Never commit secrets. Local secrets go to `dotnet user-secrets` / `.env.local`.

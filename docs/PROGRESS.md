@@ -2,6 +2,28 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-13 (I-033: tests that can't pass by luck)
+
+**Done**
+- [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md), approved by the owner in chat:
+  - `CLAUDE.md` has three rules under "Git workflow": a "nothing there" check comes only after the same part has
+    loaded; when a screen's behaviour changes, the tests of the old behaviour are searched and updated; the changed
+    test files run 3 times before a push. The PR template has a checklist line for the last two.
+  - E2E audit: 52 negative checks, 4 changed (`shell`, `transactions` ×2, `accounts`).
+  - Unit test audit: 101 negative checks, 5 changed (`TransactionsPage` ×3, `FamilyViews`), and a helper
+    `src/test/queries.ts` › `queryAnswered`.
+  - No app code changed.
+- Found on the way and added as `Todo`: [B-025](changes/bugfixes/B-025-cleanup-timeout-after-big-runs/B-025-cleanup-timeout-after-big-runs.md)
+  (the E2E clean-up times out after a big run) and [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md)
+  (one more fold race like B-019).
+- Checked: the changed E2E specs 3× on phone and desktop (125 passed); the whole E2E suite 3× (319 passed); the
+  changed unit files 3× and the whole unit suite 3×; ESLint, Prettier, typecheck.
+- Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` links in `dev`. After the 3× run the clean-up
+  timed out (B-025); run again on its own it passed and deleted them. Nothing of the owner's was touched.
+
+**Next**
+- Owner: review the PR; decide on B-025 and B-026.
+
 ## 2026-11-13 (Plan: I-033, tests that can't pass by luck)
 
 **Done**

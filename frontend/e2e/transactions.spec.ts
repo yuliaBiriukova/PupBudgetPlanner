@@ -303,6 +303,8 @@ test('a person finds the month’s eating out, changes one on its receipt and de
       .click();
   }
   await expect(page).toHaveURL(/category=/);
+  // The picked category's lines first, so "no Groceries" isn't seen while the list is drawn again (I-033)
+  await expect(receipt.getByRole('button', { name: /^Eating out/ }).first()).toBeVisible();
   await expect(receipt.getByRole('button', { name: /^Groceries/ })).toHaveCount(0);
   await expect(totals).toContainText(en.transactions.totals.spentPicked);
   await expect(totals).toContainText('530 ₴');
@@ -404,9 +406,15 @@ test('on the phone a new note leaves no empty gap above Save; an earlier one’s
     return top.y - (bottom.y + bottom.height);
   };
 
-  // A note never used before: no list, Save right under the Note
+  // A note never used before: no list, Save right under the Note. "No list" counts once the API has answered for
+  // the text, not after a fixed wait (I-033)
+  const answered = page.waitForResponse(
+    (response) =>
+      response.url().includes('/api/transactions/notes') &&
+      new URL(response.url()).searchParams.get('text') === 'кфс',
+  );
   await note.pressSequentially('кфс');
-  await page.waitForTimeout(600);
+  await answered;
   await expect(page.getByRole('listbox', { name: form.noteSuggestions })).toBeHidden();
   await expect(note).toBeInViewport({ ratio: 1 });
   expect(await gapAbove(note)).toBeLessThanOrEqual(32);
