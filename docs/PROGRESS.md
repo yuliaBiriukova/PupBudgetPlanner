@@ -2,6 +2,17 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (B-026: one more fold race in the Family privacy tests)
+
+**Done**
+- [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md),
+  approved by the owner in chat: "hides an account from the family" now waits for the account's row in the opening
+  "Your accounts" fold (`findByRole`), as B-019 does for the other folds. Only the test file changed.
+- Checked: `FamilyPrivacy.test.tsx` 3 runs in a row; ESLint, Prettier. No test data made (unit tests only).
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-14 (B-025: the E2E clean-up's time limit)
 
 **Done**
