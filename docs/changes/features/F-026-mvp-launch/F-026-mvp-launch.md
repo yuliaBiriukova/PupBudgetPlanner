@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M6 — MVP release |
-| Status | Done (2026-11-14); left: the owner's launch-checklist rows, the release PR once this PR is merged, and the smoke check after the release |
+| Status | Done (2026-11-14); released 2026-11-14 (#107); left: the owner's launch-checklist rows and the owner's part of the smoke check |
 | Branch | `feature/F-026-mvp-launch` |
 | Design | not needed for the review itself; a fix that changes how a screen looks becomes its own 🎨 change |
 | Approved | 2026-11-14 (the plan, "Approved, start"); 2026-11-14 the findings list: fix #1 – #6 here, leave #7 ("Fix 1–6, leave 7") |
@@ -48,8 +48,8 @@ writes code, so it waits for the owner's second approval, of the findings list.
       are left to the owner.)
 - [x] The README has the user guide and a current status line.
 - [x] The full E2E suite is green against the production build (phone and desktop), and CI is green.
-- [ ] The release PR `develop` → `main` is open (once this PR is in `develop`); after the owner merges it, the
-      production smoke check passes.
+- [ ] The release PR `develop` → `main` is open (#107, merged 2026-11-14); after the owner merges it, the
+      production smoke check passes (Claude's part passed; the owner's is left).
 
 ## Review list
 
@@ -126,8 +126,9 @@ A short section, written for the family, not for developers:
 - [x] User guide in README, status line updated (2026-11-14)
 - [x] Full checks: lint, typecheck, unit, E2E against the production build, `--repeat-each=3` on changed tests
 - [x] PR into `develop`
-- [ ] Release PR `develop` → `main`, once the owner has merged this PR
-- [ ] Production smoke check after the owner's merge
+- [x] Release PR `develop` → `main` (#107), merged by the owner 2026-11-14
+- [ ] Production smoke check after the owner's merge: Claude's part done 2026-11-14 (health, security headers,
+      manifest, service worker; the update notice waits for the next release); the owner's part is left
 
 ## Tests
 
