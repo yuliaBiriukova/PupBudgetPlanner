@@ -34,3 +34,13 @@ export const JustStarted: Story = {
 export const Awake: Story = {
   args: { waking: false, seconds: 0 },
 };
+
+/** No network (F-025): the pill says so, instead of the waking-up message. */
+export const Offline: Story = {
+  args: { waking: false, seconds: 0, offline: true },
+};
+
+export const OfflineDark: Story = {
+  args: { waking: false, seconds: 0, offline: true },
+  globals: { colorScheme: 'dark' },
+};

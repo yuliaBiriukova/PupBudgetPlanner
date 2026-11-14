@@ -8,6 +8,9 @@ import { WhoseBand } from '../../features/family/WhoseLens';
 import { WhoseProvider } from '../../features/family/WhoseProvider';
 import { TransactionFormProvider } from '../../features/transactions/TransactionFormProvider';
 import { useTransactionForm } from '../../features/transactions/transactionForm';
+import { InstallCard, InstallSheet } from '../pwa/InstallParts';
+import { useInstall, useInstallCard } from '../pwa/install';
+import { useOnline } from '../pwa/online';
 import { AddDial } from './AddDial';
 import classes from './AppLayout.module.css';
 import { MoreSheet, TabBar, TopBar } from './PhoneBars';
@@ -30,7 +33,8 @@ const WHOSE_PAGES = ['/transactions', '/accounts', '/reports'];
  * The frame around every page: sidebar on desktop; top bar, tab bar and More on the phone. The sidebar's Add and the
  * phone's floating + (its ⇄ + −, I-030) open the quick-add form (F-018), which every page inside can open too. In a
  * family the lens of whose money (F-024) sits in the sidebar and the phone's top bar; the Add buttons still add your
- * own.
+ * own. In a browser that can install the app (F-025) a card, More or the sidebar offer it; without a network the top
+ * pill says so.
  */
 export function AppLayout(props: AppLayoutProps) {
   return (
@@ -66,6 +70,15 @@ function Shell({ user, onSignOut }: AppLayoutProps) {
     form.add();
   };
   const [moreOpened, more] = useDisclosure(false);
+  const online = useOnline();
+  // The installable app (F-025): on the phone a card once, then a row in More; on the desktop a row in the sidebar
+  // where the browser has its own dialog (Chrome, Edge)
+  const install = useInstall();
+  const card = useInstallCard();
+  const [installOpened, installSheet] = useDisclosure(false);
+  const showCard = !isDesktop && install.way !== null && !card.dismissed;
+  const moreInstall = install.way !== null && card.dismissed ? installSheet.open : undefined;
+  const sidebarInstall = install.way === 'prompt' ? installSheet.open : undefined;
 
   return (
     <div
@@ -73,12 +86,21 @@ function Shell({ user, onSignOut }: AppLayoutProps) {
       data-resizing={sidebar.resizing || undefined}
       style={{ '--sidebar-width': `${String(sidebar.columnWidth)}px` } as CSSProperties}
     >
-      {isDesktop && <Sidebar state={sidebar} user={user} onAdd={add} onSignOut={onSignOut} />}
+      {isDesktop && (
+        <Sidebar
+          state={sidebar}
+          user={user}
+          onAdd={add}
+          onSignOut={onSignOut}
+          onInstall={sidebarInstall}
+        />
+      )}
       <div className={classes.column}>
         {!isDesktop && <TopBar user={user} />}
-        <WakePill waking={wake.waking} seconds={wake.seconds} />
+        <WakePill waking={wake.waking} seconds={wake.seconds} offline={!online} />
         <main className={classes.main}>
           <div className={classes.content}>
+            {showCard && <InstallCard onInstall={installSheet.open} onDismiss={card.dismiss} />}
             <PageBand />
             <Outlet />
           </div>
@@ -95,7 +117,24 @@ function Shell({ user, onSignOut }: AppLayoutProps) {
         )}
       </div>
       {!isDesktop && (
-        <MoreSheet opened={moreOpened} onClose={more.close} user={user} onSignOut={onSignOut} />
+        <MoreSheet
+          opened={moreOpened}
+          onClose={more.close}
+          user={user}
+          onSignOut={onSignOut}
+          onInstall={moreInstall}
+        />
+      )}
+      {install.way && (
+        <InstallSheet
+          opened={installOpened}
+          way={install.way}
+          onClose={installSheet.close}
+          onInstall={() => {
+            installSheet.close();
+            void install.prompt();
+          }}
+        />
       )}
     </div>
   );

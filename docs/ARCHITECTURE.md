@@ -25,7 +25,7 @@ Why this shape (details in [ADR 0002](decisions/0002-hosting-render-neon.md)):
   Google sign-in works with the standard ASP.NET Core configuration.
 - **Sleeping is handled:** the free service sleeps after 15 minutes without traffic. A free external ping keeps
   it awake during the day; at night the PWA opens instantly from its cache and shows "Waking up the server…"
-  while the API starts (up to about a minute).
+  while the API starts (up to about a minute). Without a network it says the phone is offline ([ADR 0034](decisions/0034-installable-app.md)).
 - Render's free PostgreSQL expires after 30 days, so the database is on **Neon** (free forever, 0.5 GB).
 - Storybook is a separate free Render static site (static sites don't sleep and don't use instance hours).
 
@@ -260,7 +260,8 @@ erDiagram
 - **React Router** — pages.
 - **openapi-typescript + openapi-fetch** — typed API client generated from the backend OpenAPI document.
 - **react-i18next** — every text through translation keys (English now; Ukrainian later).
-- **vite-plugin-pwa** — installable app (manifest + service worker).
+- **vite-plugin-pwa** — installable app (manifest + service worker): the service worker keeps only the app's own
+  files, never API answers, and a release waits for the person's Reload ([ADR 0034](decisions/0034-installable-app.md), F-025).
 - **Storybook** — component catalogue; published as a separate free Render static site.
 
 ## Testing

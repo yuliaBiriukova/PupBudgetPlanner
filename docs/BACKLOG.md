@@ -72,7 +72,7 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 | ID | Feature | Status |
 |----|---------|--------|
-| [F-025](changes/features/F-025-pwa/F-025-pwa.md) | Installable app (PWA) | Todo |
+| [F-025](changes/features/F-025-pwa/F-025-pwa.md) | 🎨 Installable app (PWA): opens at once from the home screen, an install hint, an offline message and an update notice (planned 2026-11-14) | Done |
 | [F-026](changes/features/F-026-mvp-launch/F-026-mvp-launch.md) | MVP launch | Todo |
 
 ## After MVP

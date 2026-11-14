@@ -33,7 +33,36 @@
   "wake": {
     "message": "Waking up the server…",
     "seconds": "{{seconds}} s",
-    "connected": "Connected"
+    "connected": "Connected",
+    "offline": "No connection: you can look, not save"
+  },
+  "pwa": {
+    "install": {
+      "title": "Install the app",
+      "lead": "Pup Budget gets its own icon and opens without the browser’s bars: at once, even while the server sleeps at night.",
+      "install": "Install",
+      "notNow": "Not now",
+      "gotIt": "Got it",
+      "steps": "In Safari",
+      "more": "More",
+      "stepMore": "Tap <more></more> in Safari’s bar",
+      "stepShare": "Tap <share>Share</share>",
+      "stepAdd": "Tap <add>Add to Home Screen</add>, then Add",
+      "rowLine": "Opens at once from your home screen"
+    },
+    "card": {
+      "title": "Pup Budget on your home screen",
+      "text": "Opens at once, even while the server sleeps at night.",
+      "inMore": "It’s in More whenever you want it."
+    },
+    "update": {
+      "ready": "A new version is ready.",
+      "reload": "Reload"
+    },
+    "offline": {
+      "title": "You’re offline.",
+      "text": "Pup Budget opens once the phone is online again."
+    }
   },
   "colorScheme": {
     "switchToDark": "Switch to dark mode",

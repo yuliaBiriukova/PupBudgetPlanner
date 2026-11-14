@@ -2,6 +2,39 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (F-025: installable app)
+
+**Done**
+- Planned [F-025](changes/features/F-025-pwa/F-025-pwa.md) on `feature/F-025-pwa` (M6). The owner chose a design
+  round, an update notice with Reload (no reload by itself) and the current logo as the icon. Round 1 had 3 places for
+  the install hint; the owner chose variant 3 "Once, then in More" and approved the final prototype ("Approved, build
+  it", 2026-11-14). On iOS 26 adding to the home screen takes three taps (••• → Share → Add to Home Screen), not two.
+- Built: `vite-plugin-pwa` 2.0 with a manifest and a service worker that precaches only the app's own files (never
+  `/api`), registered in `main.tsx` and left out of Storybook ([ADR 0034](decisions/0034-installable-app.md)); icons
+  drawn from the logo (`scripts/make-app-icons.mjs`); `theme-color` following the app's scheme; on the phone the card
+  once, then *Install the app* first in More; on the desktop the sidebar's row in Chrome or Edge; the install sheet
+  (Chrome's own dialog, or Safari's three taps); "A new version is ready." with Reload; "No connection: you can look,
+  not save" in the top pill and "You're offline." on the start screen. The API sends the manifest as
+  `application/manifest+json`. README says how to install; ARCHITECTURE and DESIGN_RULES updated.
+- Differences from the prototype: the update toast's × is a named 44 px button (the design check asked for it), so
+  on a 375 px phone its text takes two lines; after Chrome's install dialog the app shows no toast of its own (Chrome
+  says it); the Android splash is light in both schemes (a manifest has one background colour).
+- Checked: ESLint, Prettier, typecheck, the build and the Storybook build (no service worker in it); every frontend
+  unit test (406) and the new ones 3 times in a row; every backend test (591); the whole E2E suite against the
+  production build, phone and desktop (114 passed, 24 skipped by project as before), and `pwa.spec.ts` 3 times in a
+  row (26 passed: manifest, Chrome's install check, offline from the cache, `/api` never from the cache); the design
+  check on the new stories (0 issues; the AppLayout stories' 404s are the existing ones, they have no fake API),
+  screenshots at 375 and 1440 px, light and dark, looked at.
+- Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` invite links in `dev`; the clean-up teardown
+  deleted them after each run. Nothing of the owner's was touched.
+- At the owner's request (2026-11-14) the prototype's screenshots are not committed; I-034 stops committing
+  screenshots for every change.
+
+**Next**
+- Owner: review the PR; after the release, install the app on Android and the iPhone and open it at night while the
+  server sleeps.
+- Then F-026, the MVP launch.
+
 ## 2026-11-14 (I-034: screenshots are never committed)
 
 **Done**
