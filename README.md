@@ -181,6 +181,14 @@ the dev server. To run it locally: `npm run build`, then `npm run preview` (port
 `E2E_BASE_URL=http://localhost:4173 npx playwright test e2e/pwa.spec.ts`. App icons are drawn from the logo by
 `node scripts/make-app-icons.mjs` (only when the logo changes).
 
+After a release, check production with the smoke tests only. They start signed out and create nothing; `--no-deps`
+skips the `setup` project, which would make a test account there (B-028):
+
+```bash
+cd frontend
+E2E_BASE_URL=https://pup-budget-planner.onrender.com npx playwright test e2e/smoke.spec.ts --no-deps
+```
+
 ## CI
 
 GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs on every pull request and on pushes to

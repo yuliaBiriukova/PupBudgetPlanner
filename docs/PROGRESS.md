@@ -2,6 +2,25 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (MVP released; B-028: smoke tests that pass on production)
+
+**Done**
+- The owner merged the release PR #107 (`develop` → `main`, F-025, F-026, B-027, I-033, B-025, B-026, I-034): the
+  **MVP is live**. `main`'s CI green, Render deployed about 6 minutes after the merge.
+- F-026's production smoke check, Claude's part: `/api/health` 200; the page and the API send `X-Frame-Options: DENY`,
+  `Content-Security-Policy: frame-ancestors 'none'`, `nosniff`, `strict-origin-when-cross-origin` and HSTS; the
+  manifest as `application/manifest+json`; the service worker active in a real browser. "A new version is ready."
+  can't be checked on this release (the page before it had no service worker): it is checked on the next one.
+- [B-028](changes/bugfixes/B-028-smoke-test-signed-out/B-028-smoke-test-signed-out.md): the release check's
+  "the app opens on Transactions" failed on production, because it runs signed out there (`--no-deps`, no test
+  account). The smoke tests now start signed out and check that `/` opens Sign in; the README says how to run them
+  against production. Locally 3 runs each, and against production, all passed. No test data: nothing was created.
+
+**Next**
+- Owner: F-026's smoke check, the owner's part (sign in with email and Google, add and delete a transaction, Reports,
+  install on Android and the iPhone, open at night); the launch checklist's owner rows; the open points (production
+  data, backups).
+
 ## 2026-11-14 (F-026: MVP launch, fixes, user guide and checks)
 
 **Done**

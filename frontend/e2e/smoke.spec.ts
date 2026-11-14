@@ -1,12 +1,18 @@
 import { expect, test } from '@playwright/test';
 import en from '../src/shared/i18n/locales/en.json' with { type: 'json' };
 
-test('the app opens on Transactions', async ({ page }) => {
+// The smoke tests also run against production after a release, without the `setup` project (no test account there):
+// they start signed out and check what is true for anyone (B-028)
+test.use({ storageState: { cookies: [], origins: [] } });
+
+test('the app opens on Sign in for someone signed out', async ({ page }) => {
   await page.goto('/');
 
   await expect(page).toHaveTitle(en.app.name);
-  await expect(page).toHaveURL(/\/transactions$/);
-  await expect(page.getByRole('heading', { level: 1, name: en.nav.transactions })).toBeVisible();
+  await expect(page).toHaveURL(/\/sign-in$/);
+  await expect(page.getByLabel(en.auth.fields.email)).toBeVisible();
+  await expect(page.getByLabel(en.auth.fields.password, { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: en.auth.signIn, exact: true })).toBeVisible();
 });
 
 test('the browser icon is the app logo', async ({ page, request }) => {
