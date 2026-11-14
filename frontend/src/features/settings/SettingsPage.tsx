@@ -10,6 +10,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
+  IconChevronRight,
   IconDeviceDesktop,
   IconInfoCircle,
   IconMoon,
@@ -20,10 +21,12 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 import { formatMoney } from '../../shared/format/money';
 import { CurrencyPicker } from '../../shared/ui/CurrencyPicker';
 import { accountsQuery, accountsTotalQuery } from '../accounts/accountsApi';
 import { yourCurrencies } from '../accounts/accountGroups';
+import { formatLongDate, POLICY_UPDATED } from '../privacy-policy/policy';
 import { TotalRates } from '../accounts/TotalRates';
 import classes from './Settings.module.css';
 import {
@@ -41,7 +44,8 @@ const QUICK_CURRENCIES = ['UAH', 'USD', 'EUR'] as const;
 
 /**
  * Settings (F-016, final prototype variant 4): the name, the report currency and the theme, each changed where it is
- * shown. The currency and the theme are saved the moment they are picked; the name has its own Save.
+ * shown. The currency and the theme are saved the moment they are picked; the name has its own Save. Last, the privacy
+ * policy (F-031).
  */
 export function SettingsPage() {
   const { t } = useTranslation();
@@ -94,6 +98,7 @@ export function SettingsPage() {
         <NameSection key={settings.data.displayName} settings={settings.data} />
         <CurrencySection current={settings.data.reportCurrency} />
         <ThemeSection />
+        <PrivacySection />
       </div>
     </>
   );
@@ -124,6 +129,24 @@ function Section({
       </div>
       <div className={classes.control}>{children}</div>
     </section>
+  );
+}
+
+/** The privacy policy (F-031): a row with its date that opens it. */
+function PrivacySection() {
+  const { t } = useTranslation();
+  return (
+    <Section title={t('privacyPolicy.settingsTitle')} text={t('privacyPolicy.settingsText')}>
+      <Link to="/privacy" className={classes.row}>
+        <span className={classes.rowText}>
+          <span className={classes.rowTitle}>{t('privacyPolicy.settingsRow')}</span>
+          <span className={classes.rowHint}>
+            {t('privacyPolicy.updated', { date: formatLongDate(POLICY_UPDATED) })}
+          </span>
+        </span>
+        <IconChevronRight size={20} stroke={1.7} aria-hidden="true" className={classes.rowIcon} />
+      </Link>
+    </Section>
   );
 }
 

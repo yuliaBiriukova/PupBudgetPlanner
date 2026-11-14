@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Outlet } from 'react-router';
+import { Link, Outlet } from 'react-router';
 import { Logo } from '../../app/shell/Logo';
 import { AuthSwitch } from './AuthFormParts';
 import classes from './AuthLayout.module.css';
 
 /**
  * The frame of the sign-in and sign-up pages (F-011 variant 4): on the desktop the name on a charcoal half beside
- * the form; on the phone a charcoal band with the form card overlapping it.
+ * the form; on the phone a charcoal band with the form card overlapping it. Under the form, a quiet link to the privacy
+ * policy (F-031).
  */
 export function AuthLayout({
   children,
@@ -32,6 +33,11 @@ export function AuthLayout({
         <div className={classes.formWrap}>
           {withSwitch && <AuthSwitch />}
           {children ?? <Outlet />}
+          <p className={classes.privacy}>
+            <Link to="/privacy" className={classes.privacyLink}>
+              {t('privacyPolicy.link')}
+            </Link>
+          </p>
         </div>
       </main>
     </div>

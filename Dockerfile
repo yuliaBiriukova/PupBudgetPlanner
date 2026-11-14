@@ -8,6 +8,9 @@ WORKDIR /src/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY frontend/ ./
+# The privacy policy's contact address (F-031): Render passes the service's environment variables to the build as build
+# args, so it comes from the dashboard, not the repository. Empty, the page names "the person who runs Pup Budget".
+ARG VITE_CONTACT_EMAIL=""
 RUN npm run build
 
 # ---- 2. Backend: publish the API ----

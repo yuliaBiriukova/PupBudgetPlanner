@@ -2,6 +2,71 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (F-031: privacy policy page, built)
+
+**Done**
+- The owner approved the final prototype ("Approved, build it"). Built on `feature/F-031-privacy-policy`:
+  - `/privacy` (`features/privacy-policy`), open to anyone and with no request to the API: the app’s top line, the
+    title and date, the summary, the sections; the contents beside the text on the desktop marking the section being
+    read, folded under the intro on the phone. The text is in `en.json` (`privacyPolicy`), the same as
+    [`privacy-policy.md`](changes/features/F-031-privacy-policy/privacy-policy.md), with the restore window the owner
+    read in Neon: 6 hours.
+  - A quiet *Privacy policy* link under the sign-in frame’s form (Sign in, Create account, the invite page);
+    Settings ends with a *Privacy* section, a row with the policy’s date.
+  - The contact address is the build setting `VITE_CONTACT_EMAIL` (Render passes it to the Docker build;
+    `render.yaml`, Dockerfile), never in the repository; without it the page names "the person who runs Pup Budget"
+    ([ADR 0035](decisions/0035-privacy-policy-page.md)). README and ARCHITECTURE say how to set it.
+  - Clicking through the final prototype found two things, fixed before the build: a section picked from the
+    phone’s folded contents was scrolled past, and on the desktop a section near the end wasn’t marked.
+- Tests: unit (the page, the policy’s helpers, the links on Sign in, Create account, the invite page and Settings),
+  E2E `e2e/privacy.spec.ts` (phone and desktop, 3 runs each), stories *Privacy / Privacy policy*; Settings’ stories
+  got a router for the new link. Design check on the page and the pages with its link: clean but for the password
+  field’s eye button over its field, which the sign-in forms had before. Screenshots of every screen at 375 and
+  1440 px, light and dark, looked at. The prototype stories are deleted.
+- Test data: the E2E runs made their `e2e-…@example.com` people, which the clean-up removed; nothing else was created.
+
+**Next**
+- Owner: review the PR; set `VITE_CONTACT_EMAIL` on Render before the release; after it, point Google’s Branding
+  page at `https://pup-budget-planner.onrender.com/privacy`.
+
+## 2026-11-14 (F-031: privacy policy page, design round 1)
+
+**Done**
+- The owner approved F-031’s description ("Approved, design it"). References: Stripe’s, 37signals’ and Monzo’s
+  privacy pages (open, no sign-in).
+- Three prototype stories in *Prototypes / F-031 Privacy policy*, each with Sign in, Create account and Settings (in
+  the app shell) linking to its `/privacy` page: 1 "In the sign-in frame", 2 "A document with contents", 3 "Answers
+  first". Links in the description file.
+- Design check on the privacy page, Sign in and Settings of each variant (360 – 1440 px, light and dark): variant 3’s
+  contact link was too small to tap, fixed. The one finding left, the password field’s eye button over its field,
+  comes from the app’s own Sign in form (its own story has it too) and isn’t part of this change. Screenshots of
+  every state at 375 and 1440 px, light and dark, looked at.
+- No app code. No test data: nothing was created.
+
+- The owner chose variant 2 "A document with contents". The final prototype is variant 2 with two fixes found by
+  clicking through it: on the phone, picking a section from the folded contents now scrolls there after the fold
+  closes (it overshot); on the desktop, a section picked near the end is marked (the page can’t scroll it to the top).
+  Design check clean but for the existing password-field finding; screenshots of the reached states looked at.
+
+**Next**
+- Owner: approve the final prototype for implementation.
+
+## 2026-11-14 (F-031: privacy policy page, planned)
+
+**Done**
+- Google publishes the app (out of Testing, where only listed test users can sign in with Google) only with a home page
+  and a privacy policy link on its Branding page. Planned
+  [F-031](changes/features/F-031-privacy-policy/F-031-privacy-policy.md) on `feature/F-031-privacy-policy` (M9,
+  Medium): a public `/privacy` page, linked from Sign in, Create account, the invite page and Settings.
+- Wrote the policy text, [`privacy-policy.md`](changes/features/F-031-privacy-policy/privacy-policy.md), from what
+  the app does today (what it keeps, the sign-in cookie, Render in Frankfurt, Neon, Google, no analytics). The owner
+  publishes it as a Google Doc now, so the Google app can be published before the page exists.
+- No code. No test data: nothing was created.
+
+**Next**
+- Owner: fill in the contact email and the restore window, publish the Google Doc and the Google app; review the text
+  and approve F-031's description. Then the design round (3 prototype stories).
+
 ## 2026-11-14 (F-026: the owner's launch checks)
 
 **Done**

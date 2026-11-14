@@ -51,6 +51,30 @@
   margin: 0 auto;
 }
 
+/* The privacy policy under the form (F-031): quiet, 44 px to tap */
+.privacy {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0 0;
+}
+
+.privacyLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 8px;
+  border-radius: var(--mantine-radius-md);
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.privacyLink:hover {
+  color: var(--mantine-color-text);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 /* Desktop: two halves — the name and what the app does on charcoal, the form on the light surface */
 @media (min-width: $mantine-breakpoint-md) {
   .root {

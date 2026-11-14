@@ -140,6 +140,11 @@ dotnet user-secrets set "Access:AdminEmails:1" "e2e-admin@example.com" --project
 Locally (Development) an admin email can also create its account with a password and no link. To open sign-up to
 everyone, set `Access:SignUp` to `Open`.
 
+The privacy policy (`/privacy`, F-031) gives a contact address from the frontend build setting `VITE_CONTACT_EMAIL`:
+on Render an environment variable of the service (a change needs a new deploy), locally a line
+`VITE_CONTACT_EMAIL=<address>` in `frontend/.env.local`. Without it the page names "the person who runs Pup Budget"
+([ADR 0035](docs/decisions/0035-privacy-policy-page.md)).
+
 Migrations are applied when the API starts. `GET /api/health` returns 200 without touching the database.
 In Development the OpenAPI document is at `http://localhost:5297/openapi/v1.json`.
 
