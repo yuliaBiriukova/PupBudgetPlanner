@@ -2,6 +2,20 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (B-025: the E2E clean-up's time limit)
+
+**Done**
+- [B-025](changes/bugfixes/B-025-cleanup-timeout-after-big-runs/B-025-cleanup-timeout-after-big-runs.md), approved
+  by the owner in chat: the `cleanup` teardown may take 5 minutes instead of Playwright's default 30 s, so it
+  finishes after a big run. Only the test file changed.
+- Checked: the whole E2E suite with `--repeat-each=3`: 319 tests passed, and the clean-up passed in 32.6 s (over the
+  old limit). ESLint, Prettier.
+- Test data: the run's `e2e-…@example.com` people and `E2E…` links in `dev` were deleted by that clean-up. Nothing
+  of the owner's was touched.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-13 (I-033: tests that can't pass by luck)
 
 **Done**
