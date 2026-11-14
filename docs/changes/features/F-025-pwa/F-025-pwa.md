@@ -71,7 +71,7 @@ the app opens straight away and the existing "Waking up the server…" pill (F-0
 - [x] References and 3 prototype stories for the install hint, the update notice and the offline start (round 1,
       2026-11-14)
 - [x] The owner's choice: variant 3 (2026-11-14); the final prototype
-- [x] The owner's approval of the final prototype (2026-11-14); its screenshots in [prototypes/](prototypes/)
+- [x] The owner's approval of the final prototype (2026-11-14)
 - [x] [ADR 0034](../../../decisions/0034-installable-app.md): the service worker (Workbox via `vite-plugin-pwa`,
       `generateSW`): what is cached, `/api` excluded, updates on Reload
 - [x] `vite-plugin-pwa` 2.0: manifest, precache of the build, `navigateFallback` to `index.html` with `/api/` in

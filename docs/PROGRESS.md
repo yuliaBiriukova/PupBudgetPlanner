@@ -27,6 +27,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   screenshots at 375 and 1440 px, light and dark, looked at.
 - Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` invite links in `dev`; the clean-up teardown
   deleted them after each run. Nothing of the owner's was touched.
+- At the owner's request (2026-11-14) the prototype's screenshots are not committed; I-034 stops committing
+  screenshots for every change.
 
 **Next**
 - Owner: review the PR; after the release, install the app on Android and the iPhone and open it at night while the
