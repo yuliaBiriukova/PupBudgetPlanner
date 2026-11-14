@@ -2,6 +2,28 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (B-027: invite link groups back on the People page)
+
+**Done**
+- The owner, 2026-11-13: "bring back invite link groups to People, I asked to remove groups only in Family". Planned
+  as [B-027](changes/bugfixes/B-027-invite-link-groups-on-people/B-027-invite-link-groups-on-people.md) (Medium;
+  first numbered B-025, renamed after merging `develop`, where B-025 and B-026 were taken). Root cause: I-032 read the
+  request the wrong way round for People, and its review fix then took the groups off both pages, which share
+  `InviteLinks`. The owner approved the root cause and the fix ("Approved, build it", 2026-11-14).
+- People › Invite links has its groups again (Waiting open, Used and Expired and cancelled folded, each with Select
+  all, the folds kept in the browser), only those with links; the rows say their status in words; cancelling says the
+  link moves to Expired and cancelled. The Family page keeps the one list. DESIGN_RULES "Screen decisions" and the
+  I-032 description point to B-027.
+- Checked: ESLint, Prettier, typecheck and build; every frontend unit test, the People and Family files 3 times in a
+  row; every E2E test, phone and desktop, and `invite-links` with `family` 3 times in a row; the design check on the
+  changed People stories and the Family owner (360 – 1440 px, light and dark), screenshots looked at and kept in the
+  change folder. The backend didn't change.
+- Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` invite links in `dev`; the clean-up teardown
+  deleted them. Nothing of the owner's was touched.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-14 (B-026: one more fold race in the Family privacy tests)
 
 **Done**

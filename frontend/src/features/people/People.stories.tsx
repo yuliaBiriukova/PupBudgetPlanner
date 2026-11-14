@@ -305,22 +305,41 @@ export const LinksDesktopDark: Story = {
   globals: { ...desktop, colorScheme: 'dark' },
 };
 
-/** No links at all: one line says how to make one, no list head (I-032). */
+/** No links at all: one line says how to make one, no groups (I-032). */
 export const LinksNone: Story = { args: { tab: 'links', links: 'none' } };
 
 export const LinksLoading: Story = { args: { tab: 'links', links: 'loading' } };
 
 export const LinksError: Story = { args: { tab: 'links', links: 'error' } };
 
-/** A waiting link and a used one picked: the head says how many, the bar has Cancel links and Delete (I-006, I-032). */
+/** Every group starts as at first: Waiting open, the others folded (I-006, B-027). */
+const freshFolds = () => {
+  localStorage.removeItem('pup.people.links.open');
+};
+
+/** Used and Expired and cancelled opened. */
+export const LinksAllOpen: Story = {
+  args: { tab: 'links' },
+  globals: desktop,
+  beforeEach: freshFolds,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('button', { name: /Used/ }));
+    await userEvent.click(canvas.getByRole('button', { name: /Expired and cancelled/ }));
+    await expect(canvas.getByText('For Taras')).toBeInTheDocument();
+  },
+};
+
+/** A waiting link and the whole folded Used group picked: the bar has Cancel links and Delete (I-006). */
 export const LinksPicked: Story = {
   args: { tab: 'links' },
+  beforeEach: freshFolds,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByRole('checkbox', { name: 'Pick For Mom' }));
-    await userEvent.click(canvas.getByRole('checkbox', { name: 'Pick For Ira' }));
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Select all used links' }));
     await expect(canvas.getByRole('region', { name: 'Picked links' })).toHaveTextContent(
-      '2 picked',
+      '3 picked',
     );
   },
 };
@@ -329,22 +348,27 @@ export const LinksPicked: Story = {
 export const LinksDeleteConfirm: Story = {
   args: { tab: 'links' },
   globals: desktop,
+  beforeEach: freshFolds,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByRole('checkbox', { name: 'Pick For Mom' }));
-    await userEvent.click(canvas.getByRole('checkbox', { name: 'Pick For Ira' }));
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Select all used links' }));
     await userEvent.click(canvas.getByRole('button', { name: 'Delete' }));
     const body = within(canvasElement.ownerDocument.body);
-    await expect(await body.findByRole('dialog', { name: 'Delete 2 links?' })).toBeInTheDocument();
+    await expect(await body.findByRole('dialog', { name: 'Delete 3 links?' })).toBeInTheDocument();
   },
 };
 
-/** Select all, then Cancel links: it asks once for the waiting ones only. */
+/** Cancel links asks once for the waiting ones only. */
 export const LinksCancelConfirm: Story = {
   args: { tab: 'links' },
+  beforeEach: freshFolds,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByRole('checkbox', { name: 'Select all links' }));
+    await userEvent.click(
+      await canvas.findByRole('checkbox', { name: 'Select all waiting links' }),
+    );
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Select all used links' }));
     const bar = canvas.getByRole('region', { name: 'Picked links' });
     await userEvent.click(within(bar).getByRole('button', { name: /Cancel/ }));
     const body = within(canvasElement.ownerDocument.body);
@@ -352,19 +376,26 @@ export const LinksCancelConfirm: Story = {
   },
 };
 
-/** Every link picked with Select all and deleted: the list says there are none (I-032). */
-export const LinksAllDeleted: Story = {
+/** Expired and cancelled cleared with its Select all and Delete: the empty group goes away (I-032, B-027). */
+export const LinksGroupCleared: Story = {
   args: { tab: 'links' },
   globals: desktop,
+  beforeEach: freshFolds,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByRole('checkbox', { name: 'Select all links' }));
+    await userEvent.click(
+      await canvas.findByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+    );
     await userEvent.click(canvas.getByRole('button', { name: 'Delete' }));
     const body = within(canvasElement.ownerDocument.body);
-    await userEvent.click(await body.findByRole('button', { name: 'Delete 6 links' }));
-    await expect(
-      await canvas.findByText('No invite links yet. Make one with New invite link.'),
-    ).toBeInTheDocument();
+    await userEvent.click(await body.findByRole('button', { name: 'Delete 2 links' }));
+    await expect(await body.findByText('2 links deleted')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(
+        canvas.queryByRole('heading', { name: 'Expired and cancelled' }),
+      ).not.toBeInTheDocument(),
+    );
+    await expect(canvas.getByRole('heading', { name: 'Used' })).toBeInTheDocument();
   },
 };
 

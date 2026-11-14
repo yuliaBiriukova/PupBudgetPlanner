@@ -4,11 +4,11 @@
 |---|---|
 | Type | Bugfix |
 | Priority | Medium (proposed: in production since the release PR #98; the admin's own screen, every link still there and usable) |
-| Status | Todo |
+| Status | Done |
 | Branch | `bugfix/B-027-invite-link-groups-on-people` |
 | Found in | Production, People › Invite links, reported by the owner on 2026-11-13 |
 | Design | Back to the groups the owner has approved before (I-006, and I-032's final prototype for the Family page): no new prototype |
-| Approved | — |
+| Approved | 2026-11-14, the owner in chat ("Approved, build it"): the root cause and the planned fix |
 
 ## Steps to reproduce
 1. Sign in as the admin and open People › Invite links.
@@ -42,10 +42,29 @@ list: "3 links".
 - `InviteLinks` takes the groups or the one list by its `place`; the group code and its texts come back from before
   I-032 (`7db9f02`).
 
+## Built (2026-11-14)
+- `InviteLinks.tsx`: the code of I-032's approved prototype state (the groups, only those with links; PR #97's commit
+  `a607b91`, then on the Family page) now draws the admin's tab, and the one list draws the Family page. The group
+  heads are the People page's full-size titles, as in I-006 (the Family page's smaller ones went with the groups).
+- `linkGroups.ts`: the folds are kept under `pup.people.links.open` again, so a browser that kept them before I-032
+  opens as it was left. `pup.family.links.open` and the older `pup.people.links.shown` stay unread.
+- `en.json`: the groups' titles, their Select all names, Show / Hide and the rows' words (*Used by …*, *Expired on …*,
+  *Cancelled on …*) are back; the cancel confirmation says "moves to Expired and cancelled" on People and "shows as
+  cancelled" on Family.
+
 ## Tests
-- [ ] Unit (`PeoplePage.test.tsx`): the groups and their counts, an empty group not shown, Waiting open and the others
-      folded, a group's Select all (on a folded group too), the folds kept in the browser, rows without a tag, the
-      cancel confirmation's words. `FamilyPage.test.tsx` still passes untouched.
-- [ ] E2E (`invite-links.spec.ts`, phone and desktop): the admin's tab shows its links in groups; cancelling a link
-      moves it to *Expired and cancelled*; the Family page's one list as now.
-- [ ] Stories: the People stories show the groups again; screenshots at 375 and 1440 px, light and dark, looked at.
+- [x] Unit (`PeoplePage.test.tsx`): the three groups, Waiting open and the others folded, the rows' words without a
+      tag, the folds kept in the browser; a group with no links not shown; no links at all says so, with no groups; a
+      folded group's Select all, then Delete; the cancel confirmation's "moves to Expired and cancelled".
+      `FamilyPage.test.tsx` passes untouched. Both files 3 times in a row (`--repeats=2`): 56 tests, all passed.
+- [x] E2E (`invite-links.spec.ts`, phone and desktop): the admin's links in their groups (Used folded until opened, its
+      row "Used by … on"); a cancelled link moves to *Expired and cancelled*, "Cancelled on". The Family test as it was.
+      With `family.spec.ts`, `--repeat-each=3`: 26 passed.
+- [x] Stories: *Links all open*, *Links picked*, *Links delete confirm*, *Links cancel confirm* and *Links group
+      cleared* (an emptied group goes away) are back on the groups. The design check (Playwright + axe, 360 – 1440 px,
+      light and dark) on the People stories and the Family owner: no issue from this change; it flags the toast's
+      close button (28 px, no name) in *Links group cleared*, the app's notification, the same on every page.
+- [x] Screenshots at 375 and 1440 px, light and dark, looked at: in [screenshots/](screenshots/) the groups opened
+      (`people-groups-…`), two groups picked (`people-picked-…`) and a group cleared (`people-group-cleared-…`).
+- [x] Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` invite links in the `dev` database; the
+      clean-up teardown deleted them. Nothing else was created; nothing of the owner's was touched.
