@@ -2,6 +2,21 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (F-026: the owner's launch checks)
+
+**Done**
+- The owner checked production and closed their points: the launch checklist's owner rows (Render settings, Neon,
+  Render's free hours, cron-job.org, Google test users, GitHub minutes, no test data left on production) and the
+  owner's part of the smoke check (sign in with email and Google, add and delete a transaction, Reports, install on
+  Android and the iPhone, open at night). F-025's real-phone check is ticked with it.
+- F-026's open points closed with their proposals: backups are Neon's restore window until M11's export, the address
+  stays `pup-budget-planner.onrender.com`, the Google app stays in Testing.
+- No test data: nothing was created.
+
+**Next**
+- The MVP is fully launched. Post-MVP: the owner picks the next change (planning M10, the spreadsheet import, or I-005,
+  pages on the People list, the highest-priority backlog item).
+
 ## 2026-11-14 (MVP released; B-028: smoke tests that pass on production)
 
 **Done**
