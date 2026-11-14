@@ -77,8 +77,9 @@ _Add project-specific rules here (one rule per bullet, with the date it was adde
    their own), and no story sets the viewport or the colour scheme. The owner gets links that open the page
    filling the window: `http://localhost:6006/?path=/story/<story-id>&nav=false&panel=false&globals=viewport.value:!undefined`;
    the toolbar switches Phone 375 × 812, Tablet 768 × 1024, Desktop 1440 × 900 and Light / Dark (I-026).
-   The change folder keeps the story links and the approved final prototype's screenshots; the
-   prototype stories are deleted when the change is built. (Changes before I-021 have HTML prototypes.)
+   The change folder keeps the story links and describes the approved final prototype in words; screenshots are
+   looked at and sent to the owner in chat, never committed (I-034). The prototype stories are deleted when the
+   change is built. (Changes before I-021 have HTML prototypes.)
    Design work follows the **`design-screen`** skill (`.claude/skills/design-screen/`), and every variant passes
    the Playwright + axe design check before it is shown, on the story's address with Storybook running:
    `npm run design:check -- "http://localhost:6006/iframe.html?id=<story-id>"` in `frontend/` (HTML files too).

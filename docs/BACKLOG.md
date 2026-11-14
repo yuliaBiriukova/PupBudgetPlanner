@@ -122,6 +122,7 @@ owner asks for one.
 | [I-031](changes/improvements/I-031-fewer-ci-minutes/I-031-fewer-ci-minutes.md) | CI checks each change once: no run on the push to `develop` or for docs-only PRs, the Docker image only for releases (90% of the month's Actions minutes used by 2026-11-12; approved 2026-11-12) | High | Done |
 | [I-032](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md) | 🎨 Invite links: no empty groups on the Family page; one list with each link's status on the People page (added 2026-11-12) | Medium | Done |
 | [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md) | Tests that can't pass by luck: rules for "nothing there" checks in the working agreement, and an audit of the existing ones (after B-019 and B-024 turned two releases red; added 2026-11-13) | High | Done |
+| [I-034](changes/improvements/I-034-no-committed-screenshots/I-034-no-committed-screenshots.md) | Screenshots are looked at and sent in chat, never committed (owner, 2026-11-14) | Medium | Done |
 
 ## Bugfixes
 
