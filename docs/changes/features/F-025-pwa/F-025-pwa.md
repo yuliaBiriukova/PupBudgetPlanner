@@ -4,10 +4,10 @@
 |---|---|
 | Type | Feature |
 | Milestone | M6 — MVP release |
-| Status | In progress (variant 3 chosen 2026-11-14; final prototype waiting for the owner's approval) |
+| Status | In progress (final prototype approved 2026-11-14; being built) |
 | Branch | `feature/F-025-pwa` |
 | Design | 3 prototype stories required: the install hint, the update notice and the offline start (owner, 2026-11-14) |
-| Approved | — |
+| Approved | 2026-11-14 by the owner ("Approved, build it": the final prototype, variant 3 "Once, then in More") |
 
 ## Goal
 
@@ -72,7 +72,7 @@ Proposed; the owner settles the open points before approval.
 - [x] References and 3 prototype stories for the install hint, the update notice and the offline start (round 1,
       2026-11-14)
 - [x] The owner's choice: variant 3 (2026-11-14); the final prototype
-- [ ] The owner's approval of the final prototype
+- [x] The owner's approval of the final prototype (2026-11-14); its screenshots in [prototypes/](prototypes/)
 - [ ] ADR 0034: the service worker (Workbox via `vite-plugin-pwa`, `generateSW`): what is cached, `/api` excluded,
       updates on prompt
 - [ ] `vite-plugin-pwa`: manifest, precache of the build, `navigateFallback` to `index.html` with `/api/` in
