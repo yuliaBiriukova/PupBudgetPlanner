@@ -1,9 +1,11 @@
+import type { QueryClient } from '@tanstack/react-query';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 import { http, HttpResponse } from 'msw/http';
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { formatMoney } from '../../shared/format/money';
+import { queryAnswered } from '../../test/queries';
 import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
@@ -13,10 +15,12 @@ import { DEFAULT_CATEGORIES } from '../categories/categoriesTestData';
 import { OLENA_ID } from '../family/familyTestData';
 import { addDays, today } from './days';
 import { FORM_HEIGHT_KEY } from './formHeight';
-import type {
-  SaveTransactionRequest,
-  Transaction,
-  TransactionSuggestions,
+import {
+  noteSuggestionsQuery,
+  type SaveTransactionRequest,
+  type Transaction,
+  type TransactionSuggestions,
+  type TransactionType,
 } from './transactionsApi';
 import { EXPENSE_NOTES, fakeNotes, fakePage, fakeSummary, twoMonths } from './transactionsFakeApi';
 import { categoryId } from './transactionsTestData';
@@ -253,10 +257,11 @@ describe('the Transactions page', () => {
     expect(
       await screen.findByRole('button', { name: 'Showing Eating out only. Show all categories' }),
     ).toBeInTheDocument();
+    // The list is there with Eating out's lines and no others: not still loading, nor the month's before it
     await waitFor(() => {
+      expect(screen.getAllByRole('button', { name: /^Eating out−/ }).length).toBeGreaterThan(0);
       expect(screen.queryByRole('button', { name: /^Groceries−/ })).not.toBeInTheDocument();
-    });
-    expect(screen.getAllByRole('button', { name: /^Eating out−/ }).length).toBeGreaterThan(0);
+    }, LOADED);
     expect(screen.getByText('Spent, on what’s picked')).toBeInTheDocument();
   });
 
@@ -816,6 +821,14 @@ describe('the Note field’s suggestions (I-017)', () => {
       .map((option) => option.textContent);
   }
 
+  /**
+   * Waits until the API has answered for the notes of `type` that have `text` (after the field's pause): only then
+   * does "no list" mean there is none, and not that it hasn't come yet.
+   */
+  async function notesAnswered(queryClient: QueryClient, type: TransactionType, text: string) {
+    await queryAnswered(queryClient, noteSuggestionsQuery(type, text).queryKey);
+  }
+
   it('lists the earlier notes that start with what is typed first; a click picks one and it is saved', async () => {
     const sent = transactionsServer({ suggestions: PICKED });
     renderApp('/transactions');
@@ -896,14 +909,14 @@ describe('the Note field’s suggestions (I-017)', () => {
 
   it('asks for the notes of the form’s type only', async () => {
     transactionsServer();
-    renderApp('/transactions');
+    const { queryClient } = renderApp('/transactions');
 
     const form = await openForm();
     await userEvent.click(within(form).getByText('Income'));
     const income = await screen.findByRole('dialog', { name: 'Add income' });
     await userEvent.type(within(income).getByLabelText('Note'), 'si');
     // The fake API has expense notes only
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await notesAnswered(queryClient, 'Income', 'si');
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
@@ -929,14 +942,14 @@ describe('the Note field’s suggestions (I-017)', () => {
   it('on the phone makes room under the form only while earlier notes are listed, no empty gap (B-009)', async () => {
     setScreenWidth(375);
     transactionsServer();
-    renderApp('/transactions');
+    const { queryClient } = renderApp('/transactions');
 
     const form = await openForm();
     const room = () => form.querySelector('[data-note-room]');
     const note = within(form).getByLabelText('Note');
     // A note never used before: no list, so no room
     await userEvent.type(note, 'кфс');
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await notesAnswered(queryClient, 'Expense', 'кфс');
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     expect(room()).not.toBeInTheDocument();
 

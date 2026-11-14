@@ -86,12 +86,15 @@ test('on the phone the + opens ⇄ + − over the dimmed page and folds them; th
   expect(order).toEqual([...order].sort((a, b) => a - b));
 
   // ×, Escape and a tap on the dimmed page fold them
+  // Each time open first, so a closed menu means it folded, not that it hadn't opened yet (I-033)
   await add.click();
   await expect(expense).toBeHidden();
   await phoneAdd(page).click();
+  await expect(expense).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(expense).toBeHidden();
   await phoneAdd(page).click();
+  await expect(expense).toBeVisible();
   await page.mouse.click(40, 200);
   await expect(expense).toBeHidden();
   await expect(page).toHaveURL(/\/reports$/);

@@ -3,10 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { http } from 'msw/http';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { answer } from '../../test/mockRoutes';
+import { queryAnswered } from '../../test/queries';
 import { LOADED, renderApp } from '../../test/render';
 import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
-import type { Family } from './familyApi';
+import { familyQuery, type Family } from './familyApi';
 import { ANDRIY_ID, IRYNA_ID } from './familyTestData';
 import { familyOf, familyViewsRoutes } from './familyViewsFakeApi';
 import { WHO_KEY } from './WhoseProvider';
@@ -42,9 +43,11 @@ describe('family views (F-024)', () => {
 
   it('has no lens without a family, and the pages ask for your own money', async () => {
     const asked = viewsServer(null);
-    renderApp('/transactions');
+    const { queryClient } = renderApp('/transactions');
 
     expect(await screen.findAllByText('Groceries', {}, LOADED)).not.toHaveLength(0);
+    // The lens waits for the family, which may come after the page's own data: no lens means something only then
+    await queryAnswered(queryClient, familyQuery.queryKey);
     expect(screen.queryByRole('button', { name: /whose money/i })).not.toBeInTheDocument();
     expect(new Set(whoOf(asked, '/api/transactions'))).toEqual(new Set(['me']));
   });

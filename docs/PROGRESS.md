@@ -2,6 +2,66 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (B-026: one more fold race in the Family privacy tests)
+
+**Done**
+- [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md),
+  approved by the owner in chat: "hides an account from the family" now waits for the account's row in the opening
+  "Your accounts" fold (`findByRole`), as B-019 does for the other folds. Only the test file changed.
+- Checked: `FamilyPrivacy.test.tsx` 3 runs in a row; ESLint, Prettier. No test data made (unit tests only).
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-14 (B-025: the E2E clean-up's time limit)
+
+**Done**
+- [B-025](changes/bugfixes/B-025-cleanup-timeout-after-big-runs/B-025-cleanup-timeout-after-big-runs.md), approved
+  by the owner in chat: the `cleanup` teardown may take 5 minutes instead of Playwright's default 30 s, so it
+  finishes after a big run. Only the test file changed.
+- Checked: the whole E2E suite with `--repeat-each=3`: 319 tests passed, and the clean-up passed in 32.6 s (over the
+  old limit). ESLint, Prettier.
+- Test data: the run's `e2e-…@example.com` people and `E2E…` links in `dev` were deleted by that clean-up. Nothing
+  of the owner's was touched.
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-13 (I-033: tests that can't pass by luck)
+
+**Done**
+- [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md), approved by the owner in chat:
+  - `CLAUDE.md` has three rules under "Git workflow": a "nothing there" check comes only after the same part has
+    loaded; when a screen's behaviour changes, the tests of the old behaviour are searched and updated; the changed
+    test files run 3 times before a push. The PR template has a checklist line for the last two.
+  - E2E audit: 52 negative checks, 4 changed (`shell`, `transactions` ×2, `accounts`).
+  - Unit test audit: 101 negative checks, 5 changed (`TransactionsPage` ×3, `FamilyViews`), and a helper
+    `src/test/queries.ts` › `queryAnswered`.
+  - No app code changed.
+- Found on the way and added as `Todo`: [B-025](changes/bugfixes/B-025-cleanup-timeout-after-big-runs/B-025-cleanup-timeout-after-big-runs.md)
+  (the E2E clean-up times out after a big run) and [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md)
+  (one more fold race like B-019).
+- Checked: the changed E2E specs 3× on phone and desktop (125 passed); the whole E2E suite 3× (319 passed); the
+  changed unit files 3× and the whole unit suite 3×; ESLint, Prettier, typecheck.
+- Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` links in `dev`. After the 3× run the clean-up
+  timed out (B-025); run again on its own it passed and deleted them. Nothing of the owner's was touched.
+
+**Next**
+- Owner: review the PR; decide on B-025 and B-026.
+
+## 2026-11-13 (Plan: I-033, tests that can't pass by luck)
+
+**Done**
+- Two releases in a row (#96, #98) went red on CI with the app working: B-019 and B-024 were tests that passed by luck
+  on their change's PR. At the owner's request, planned
+  [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md) (High, proposed): three rules
+  in the working agreement (anchor "nothing there" checks, search the tests when a screen's behaviour changes, run the
+  changed test files 3 times before a push) and an audit of the existing checks (43 in E2E, about 104 in unit tests).
+- Planning only: no code or tests changed.
+
+**Next**
+- Owner: confirm the priority and approve I-033; it is built on `improvement/I-033-steady-test-checks`.
+
 ## 2026-11-13 (B-024: Family E2E test out of date after I-032, fixed in the release PR)
 
 **Done**
