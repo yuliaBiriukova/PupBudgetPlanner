@@ -150,3 +150,4 @@ owner asks for one.
 | [B-022](changes/bugfixes/B-022-sidebar-user-row-misaligned/B-022-sidebar-user-row-misaligned.md) | The name and the icon buttons are not aligned at the bottom of the sidebar (desktop) | Medium | Done |
 | [B-023](changes/bugfixes/B-023-fold-hover-corners/B-023-fold-hover-corners.md) | A fold's hover is rounded on every corner inside a card whose cells are square (Family privacy) | Low | Done |
 | [B-024](changes/bugfixes/B-024-family-test-expects-used-link-gone/B-024-family-test-expects-used-link-gone.md) | A Family E2E test expects a used invite link to be gone, but I-032 lists it (fixed in the release PR #98) | High | Done |
+| [B-027](changes/bugfixes/B-027-invite-link-groups-on-people/B-027-invite-link-groups-on-people.md) | The People page's invite links lost their groups: only the Family page was meant to drop them (I-032) | Medium | Todo |
