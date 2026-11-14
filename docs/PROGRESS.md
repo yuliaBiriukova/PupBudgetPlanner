@@ -2,6 +2,22 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (F-031: privacy policy page, planned)
+
+**Done**
+- Google publishes the app (out of Testing, where only listed test users can sign in with Google) only with a home page
+  and a privacy policy link on its Branding page. Planned
+  [F-031](changes/features/F-031-privacy-policy/F-031-privacy-policy.md) on `feature/F-031-privacy-policy` (M9,
+  Medium): a public `/privacy` page, linked from Sign in, Create account, the invite page and Settings.
+- Wrote the policy text, [`privacy-policy.md`](changes/features/F-031-privacy-policy/privacy-policy.md), from what
+  the app does today (what it keeps, the sign-in cookie, Render in Frankfurt, Neon, Google, no analytics). The owner
+  publishes it as a Google Doc now, so the Google app can be published before the page exists.
+- No code. No test data: nothing was created.
+
+**Next**
+- Owner: fill in the contact email and the restore window, publish the Google Doc and the Google app; review the text
+  and approve F-031's description. Then the design round (3 prototype stories).
+
 ## 2026-11-14 (MVP released; B-028: smoke tests that pass on production)
 
 **Done**
