@@ -16,9 +16,15 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - The owner answered the open points the same day: a design round with 3 prototype stories, an update notice with
   Reload (no reload by itself), and the current logo as the home-screen icon.
 
+- Design round 1: references (Discourse's iPhone pop-up, install banners, reload snackbars, iOS 26's Safari), then
+  3 prototype stories in *Prototypes / F-025 Installable app* (`frontend/src/prototypes/F-025-pwa/`): *In the menu*,
+  *Once on the page*, *Once, then in More*, plus the offline start every variant shares. On iOS 26 adding to the
+  home screen takes three taps (••• → Share → Add to Home Screen), not two; the description says so now.
+- Checked: typecheck, ESLint, Prettier; the design check on the four stories (0 issues, 0 console errors); the
+  states inside the page as Playwright screenshots at 375 and 1440 px, light and dark, looked at. No test data made.
+
 **Next**
-- The design round: references, then 3 prototype stories for the install hint, the update notice and the offline
-  start.
+- Owner: pick a variant (or a mix); then the final prototype and its approval.
 
 ## 2026-11-14 (B-027: invite link groups back on the People page)
 

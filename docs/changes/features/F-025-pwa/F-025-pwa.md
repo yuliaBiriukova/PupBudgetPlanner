@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M6 — MVP release |
-| Status | In progress (planned 2026-11-14; open points answered, design round next) |
+| Status | In progress (design round 1 shown 2026-11-14, waiting for the owner's choice) |
 | Branch | `feature/F-025-pwa` |
 | Design | 3 prototype stories required: the install hint, the update notice and the offline start (owner, 2026-11-14) |
 | Approved | — |
@@ -33,9 +33,9 @@ the app opens straight away and the existing "Waking up the server…" pill (F-0
 - **Platforms (checked 2026-11-14):**
   - Android Chrome and desktop Chrome / Edge fire `beforeinstallprompt`, so the app can offer its own Install
     button.
-  - iPhone and iPad (iOS 26 and later) have no install event. A person adds the site through Share → *Add to Home
-    Screen*, and it opens as a web app by default ("Open as Web App" switch). Instructions are the only help the
-    app can give there.
+  - iPhone and iPad (iOS 26 and later) have no install event. A person adds the site through Safari's ••• → Share →
+    *Add to Home Screen*, and it opens as a web app by default ("Open as Web App" switch). Instructions are the only
+    help the app can give there.
 
 ## Acceptance criteria
 
@@ -60,16 +60,18 @@ Proposed; the owner settles the open points before approval.
       uses the new version (owner, 2026-11-14).
 - [ ] **Install hint:** the app offers to install itself in a browser on the phone (and in Chrome / Edge on the
       computer), never inside the installed app. On Android and desktop its button opens the browser's own install
-      dialog; on iPhone it shows the two steps (Share → *Add to Home Screen*). Where it lives and how often it
-      appears is chosen in the design round (open point 1).
+      dialog; on iPhone it shows Safari's three taps (••• → Share → *Add to Home Screen*, then Add). Where it lives
+      and how often it appears is chosen in the design round (open point 1).
 - [ ] **Icons** from the current logo (owner, 2026-11-14).
 - [ ] **Dark mode:** the browser's bars (`theme-color`) and the splash background follow the light / dark theme.
 - [ ] Works at 375 px and 1440 px, light and dark; every new text through i18n.
 
 ## Tasks
 
-- [ ] Owner: answer the open points; then references and 3 prototype stories for the install hint, the update notice
-      and the offline start; the final prototype and the owner's approval
+- [x] Owner: answer the open points (2026-11-14)
+- [x] References and 3 prototype stories for the install hint, the update notice and the offline start (round 1,
+      2026-11-14)
+- [ ] The owner's choice; the final prototype and the owner's approval
 - [ ] ADR 0034: the service worker (Workbox via `vite-plugin-pwa`, `generateSW`): what is cached, `/api` excluded,
       updates on prompt
 - [ ] `vite-plugin-pwa`: manifest, precache of the build, `navigateFallback` to `index.html` with `/api/` in
@@ -118,11 +120,47 @@ Asked and answered on 2026-11-14 (owner, in chat):
 
 ## Design
 
-### References
+### Brief (2026-11-14)
 
-To collect in the design round: Mobbin "install app" / "banner" / "update available" patterns, and open examples
-of installable apps (Twitter/X Lite, Starbucks, Spotify web, Excalidraw).
+- **Who and when:** the couple, once per phone (and per computer): the day they put the app on the home screen.
+  After that, every release (a toast) and every blackout or metro ride without a network (the pill).
+- **The one job:** get Pup Budget onto the home screen once, without nagging, then stay quiet. What they must see
+  first: what installing gives (it opens at once, even at night) and the one button or the taps to do it.
+- **The subject's world:** the phone's home screen with the app's icon among the others; Safari's own buttons,
+  drawn the way the person will find them; Kyiv's blackouts, when the network goes and the app should say so plainly.
+- **One feeling:** "it's a real app now", calm, asked once.
 
+### Plan from the design system
+
+- **Reused:** the app shell (top bar, tab bar, More sheet, the sidebar and its rows), `ResponsiveDialog` (sheet on
+  the phone, dialog on the desktop), the app's buttons (primary pill, quiet word), the toast (Mantine's notification
+  in the app's places, B-013), the waking-up pill's look and place, the start screen with the brand.
+- **New:** the install sheet; the More row with a second line; the sidebar row; the card (variants 2 and 3); the
+  update toast with Reload; the offline pill and start. No new token: the tile uses the logo's colours, the home
+  screen picture the slip's charcoal (`--pup-color-hero`).
+- **The bold element:** the sheet's picture of a home screen at night with the app's icon on it (the logo's sky as a
+  rounded square, as Android and the iPhone will show it).
+- **Motion:** none beyond the sheet's own.
+- **Slop check:** the iPhone steps are numbered because they are a sequence; Safari's buttons are drawn as small
+  keys with their icons, not as text in quotes; no icon in a tinted circle on the rows; no "Submit"-like copy
+  ("Install", "Not now", "Got it", "Reload").
+
+### References (2026-11-14)
+
+Mobbin needs a sign-in for its search, so open examples and guides were used instead:
+
+- Discourse's iOS *Add to Home Screen* pop-up ([meta.discourse.org](https://meta.discourse.org/t/ios-add-to-homescreen-popup/266897)):
+  a short pop-up with the steps and Safari's Share icon drawn in the text. Taken: the steps with the icons inline.
+- OneSignal's and Notificare's install banners for iPhone
+  ([OneSignal](https://documentation.onesignal.com/docs/en/getting-your-audience-to-add-to-home-screen.md),
+  [Notificare](https://notificare.com/blog/2024/09/16/web-push-in-ios-add-to-home-screen/)): a small banner once,
+  with the reason to install. Taken: variant 2's card, with the reason in one line.
+- The reload snackbar of installable apps ([mwc-pwa-reload](https://npmjs.com/package/mwc-pwa-reload),
+  [Dean Hume](https://deanhume.com/displaying-a-new-version-available-progressive-web-app/)): a toast that stays,
+  with one action; dismissing it keeps the old version until the next start. Taken: the update toast as it is.
+- iOS 26's Safari moved Share into the ••• menu
+  ([MacRumors how-to](https://www.macrumors.com/how-to/save-safari-bookmark-web-app-iphone-home-screen/)): ••• →
+  Share → *Add to Home Screen* → Add. Taken: the three taps in the iPhone sheet (not two, as first planned).
 - web.dev, [Patterns for promoting PWA installation](https://web.dev/articles/promote-install): show install UI only
   after `beforeinstallprompt`; good places are a menu row, a dismissible snackbar after a few uses, or below the
   sign-in form; keep it out of the main flows.
@@ -134,6 +172,36 @@ of installable apps (Twitter/X Lite, Starbucks, Spotify web, Excalidraw).
 - iOS 26 *Add to Home Screen* opens sites as web apps by default (MacRumors,
   [Safari in iOS 26](https://www.macrumors.com/guide/ios-26-safari-features/);
   [firt.dev iOS PWA notes](https://firt.dev/notes/pwa-ios/)).
+
+### Prototype stories (round 1)
+
+*Prototypes / F-025 Installable app*, each opening on Transactions as Yulia. The toolbar's Controls (or `&args=` in
+the link) set **platform** (*Chrome or Edge*: the app's Install opens the browser's own dialog; *iPhone Safari*:
+the three taps; *Installed app*: no hint anywhere) and **moment** (*Update ready*: the toast; *Offline*: the pill).
+
+- [Variant 1: In the menu](http://localhost:6006/?path=/story/prototypes-f-025-installable-app--in-the-menu&nav=false&panel=false&globals=viewport.value:!undefined):
+  quiet. *Install the app* is the first row in More, with "Opens at once from your home screen" under it; on the
+  desktop a row over the account row at the sidebar's foot (there is no user menu), only in Chrome or Edge. Found
+  only by someone who opens More.
+- [Variant 2: Once on the page](http://localhost:6006/?path=/story/prototypes-f-025-installable-app--once-on-the-page&nav=false&panel=false&globals=viewport.value:!undefined):
+  on the phone a card at the top of the page with the app's icon, "Pup Budget on your home screen", one line on why,
+  Install and Not now. After Not now it is gone for good (only the browser's own menu is left). Nothing on the
+  desktop: Chrome's address bar has its own install button.
+- [Variant 3: Once, then in More](http://localhost:6006/?path=/story/prototypes-f-025-installable-app--once-then-in-more&nav=false&panel=false&globals=viewport.value:!undefined):
+  variant 2's card first; Not now says "It's in More whenever you want it" and the row from variant 1 is there from
+  then on. The desktop has variant 1's sidebar row.
+- [Every variant: offline at start](http://localhost:6006/?path=/story/prototypes-f-025-installable-app--offline-at-start&nav=false&panel=false&globals=viewport.value:!undefined):
+  the app opened from the home screen without a network: the brand, "You're offline.", "Pup Budget opens once the
+  phone is online again." and Try again.
+
+The same in every variant: the install sheet (a dialog on the desktop) with the home screen picture, one sentence on
+what it gives and Install / Not now, or on the iPhone the three taps and Got it; the update toast "A new version is
+ready." with Reload (it stays until Reload or ×); the pill "No connection: you can look, not save" in the waking-up
+pill's place.
+
+Checked 2026-11-14: the design check on the four stories (360 – 1440 px, light and dark): 0 issues, 0 console errors;
+the states inside the page (More open, both sheets, the card's Not now, the update toast, the offline pill, the
+installed app) as Playwright screenshots at 375 and 1440 px, light and dark, looked at.
 
 ## Notes
 

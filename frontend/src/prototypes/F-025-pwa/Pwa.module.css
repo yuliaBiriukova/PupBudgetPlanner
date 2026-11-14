@@ -1,0 +1,181 @@
+/* F-025 prototype: the install hint, the offline pill and start. Only the theme's tokens; every size even. */
+
+/* The app's icon as the home screen will show it: the logo's sky filling a rounded square */
+.tile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--pup-color-logo);
+  color: var(--pup-color-logo-mark);
+}
+
+.tileSmall {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+/* The sheet's picture: a piece of a home screen at night, on the slip's charcoal, with the app on it */
+.homeScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 136px;
+  border-radius: var(--mantine-radius-lg);
+  background: var(--pup-color-hero);
+  color: var(--pup-color-on-hero);
+}
+
+.tileName {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.lead {
+  margin: 16px 0 0;
+  line-height: 24px;
+}
+
+/* iPhone's steps: they are a sequence, so they are numbered */
+.steps {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: center;
+  gap: 12px;
+  line-height: 24px;
+  counter-increment: step;
+}
+
+.step::before {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--pup-color-choice);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  content: counter(step);
+}
+
+/* Safari's own button, drawn the way the person will find it */
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: 8px;
+  font-weight: 500;
+  white-space: nowrap;
+  vertical-align: -6px;
+  line-height: 26px;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Variants 2 and 3: the card at the top of the page, once */
+.card {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 12px 12px;
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-lg);
+  background: var(--pup-color-surface);
+}
+
+.cardTitle {
+  margin: 0;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.cardText {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.cardButtons {
+  display: flex;
+  grid-column: 2;
+  gap: 8px;
+}
+
+/* Variants 1 and 3: the row in More, with a line on what it gives */
+.rowText {
+  display: grid;
+  min-width: 0;
+  padding: 6px 0;
+}
+
+.rowLine {
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* The pill at the top, as WakePill, when the network is gone */
+.offlinePill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--pup-color-tooltip);
+  box-shadow: var(--pup-shadow-float);
+  color: var(--pup-color-on-tooltip);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* The update toast: its words, then Reload */
+.update {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.updateText {
+  flex: 1;
+}
+
+/* The start screen without a network */
+.start {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: 16px;
+}
+
+.startText {
+  max-width: 320px;
+  margin: 0;
+  text-align: center;
+  line-height: 24px;
+}
+
+.startLine {
+  color: var(--mantine-color-dimmed);
+}
