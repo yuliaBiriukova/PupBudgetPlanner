@@ -2,7 +2,7 @@
 // docs/changes/features/F-031-privacy-policy/privacy-policy.md; the two change together.
 
 /** When the policy last changed: shown at its top; a change to the text moves it. */
-export const POLICY_UPDATED = '2026-11-14';
+export const POLICY_UPDATED = '2026-11-15';
 
 /** The sections in the order the page shows them. */
 export const SECTION_IDS = [

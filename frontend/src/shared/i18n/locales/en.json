@@ -645,6 +645,55 @@
       "save": "That didn’t go through. Try again in a moment.",
       "currency": "Couldn’t save the currency. Check the connection and try again.",
       "retry": "Try again"
+    },
+    "delete": {
+      "title": "Delete account",
+      "text": "Deletes your accounts, transactions and categories for good.",
+      "button": "Delete account",
+      "admin": "You look after Pup Budget, so your account can’t be deleted here: without you nobody could be invited.",
+      "dialogTitle": "Delete your account?",
+      "lead": "This deletes everything you keep in Pup:",
+      "loading": "Counting what would be deleted",
+      "whatGoes": "{{accounts}}, {{transactions}} and {{categories}}, your settings and the ways you sign in.",
+      "whatGoesFallback": "Your accounts, transactions and categories, your settings and the ways you sign in. The money itself stays in your banks: only Pup’s record of it goes.",
+      "accounts_one": "{{n}} account",
+      "accounts_other": "{{n}} accounts",
+      "transactions_one": "{{n}} transaction",
+      "transactions_other": "{{n}} transactions",
+      "categories_one": "{{n}} category",
+      "categories_other": "{{n}} categories",
+      "moneyStays": "The money itself stays in your banks: only Pup’s record of it goes.",
+      "leaveTitle": "You leave the {{name}} family",
+      "leaveText": "{{names}} won’t see your money any more.",
+      "leaveAlone": "No one else is in it, so the family is deleted too.",
+      "heirTitle": "Who looks after the family next?",
+      "heirText": "You leave the {{name}} family. They can rename it and invite people.",
+      "proofTitle": "Confirm it’s you",
+      "password": "Your password",
+      "googleText": "You sign in with Google, so sign in with it once more.",
+      "google": "Confirm with Google",
+      "openingGoogle": "Opening Google",
+      "googleConfirmed": "Confirmed with Google as {{email}}",
+      "wordTitle": "Type {{word}} to confirm",
+      "cantUndo": "It can’t be undone. To use Pup Budget again later, you’d need a new invite link.",
+      "keep": "Keep my account",
+      "confirm": "Delete for good",
+      "errors": {
+        "heir": "Pick who looks after the family.",
+        "password": "Enter your password.",
+        "wrongPassword": "That password isn’t right.",
+        "word": "Type {{word}} to confirm.",
+        "google": "Confirm with Google first.",
+        "googleFailed": "Couldn’t confirm with Google. Try again with the Google account you sign in with.",
+        "lockedOut": "Too many attempts. Wait a few minutes and try again.",
+        "failed": "That didn’t go through. Try again in a moment."
+      }
+    },
+    "deleted": {
+      "title": "Your account is deleted",
+      "text": "Everything in it is gone, and you’re signed out on every device.",
+      "invite": "To use Pup Budget again, you’d need a new invite link from the person who looks after it.",
+      "signIn": "Go to sign in"
     }
   },
   "currencies": {
@@ -1388,7 +1437,7 @@
               },
               {
                 "lead": "Delete your account and all its data:",
-                "text": "write to {{contact}} from your account’s email address, and it is done within 30 days. Deleting your account yourself in Settings is coming."
+                "text": "in Settings, Delete account, at any time; it is done at once. Or write to {{contact}} from your account’s email address, and it is done within 30 days."
               },
               {
                 "lead": "Ask what is kept about you,",

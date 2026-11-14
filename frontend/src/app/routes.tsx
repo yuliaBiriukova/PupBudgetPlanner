@@ -7,6 +7,7 @@ import { FamilyPage } from '../features/family/FamilyPage';
 import { PeoplePage } from '../features/people/PeoplePage';
 import { PrivacyPolicyPage } from '../features/privacy-policy/PrivacyPolicyPage';
 import { ReportsPage } from '../features/reports/ReportsPage';
+import { AccountDeletedPage } from '../features/settings/AccountDeletedPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { TransactionsPage } from '../features/transactions/TransactionsPage';
 import { NotFoundPage } from './NotFoundPage';
@@ -40,6 +41,8 @@ export const routes: RouteObject[] = [
   { path: 'invite/:token', element: <InviteRoute /> },
   // The privacy policy (F-031): for anyone, signed in or not, with no request to the API
   { path: 'privacy', element: <PrivacyPolicyPage /> },
+  // After deleting one's account (F-027): already signed out
+  { path: 'account-deleted', element: <AccountDeletedPage /> },
   // Everything else needs a signed-in person
   { element: <SignedInLayout />, children: sectionRoutes },
 ];

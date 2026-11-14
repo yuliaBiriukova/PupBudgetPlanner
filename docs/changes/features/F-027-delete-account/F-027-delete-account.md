@@ -5,7 +5,7 @@
 | Type | Feature |
 | Milestone | M9 — Privacy & categories (after the MVP) |
 | Priority | Low |
-| Status | In progress (building) |
+| Status | Done (2026-11-15) |
 | Branch | `feature/F-027-delete-account` |
 | Design | 3 prototype stories required: the setting on Settings and the confirmation (I-021) |
 | Approved | 2026-11-14 by the owner ("Approved, build it": the final prototype, variant 1 with what goes as grey text, and this description) |
@@ -17,15 +17,15 @@ A person can delete their account and everything in it themselves, without askin
 
 ## Acceptance criteria
 
-- [ ] Settings (F-016) has "Delete account", apart from the other settings, with what will be deleted.
-- [ ] Deleting asks for a confirmation that can't be done by accident: the password again (or Google once more for
+- [x] Settings (F-016) has "Delete account", apart from the other settings, with what will be deleted.
+- [x] Deleting asks for a confirmation that can't be done by accident: the password again (or Google once more for
       someone with only Google) and a typed word (see "Agreed").
-- [ ] The account is deleted right away after the confirmation; there is no grace period or undo.
-- [ ] Afterwards the person's accounts, transactions, categories, settings and sign-in methods (password,
+- [x] The account is deleted right away after the confirmation; there is no grace period or undo.
+- [x] Afterwards the person's accounts, transactions, categories, settings and sign-in methods (password,
       Google) are gone, and they are signed out on every device.
-- [ ] They can't sign in to the deleted account any more. The email or Google account is free again, but like
+- [x] They can't sign in to the deleted account any more. The email or Google account is free again, but like
       anyone new it needs an invite link to create a new, empty account (F-028); the confirmation says so.
-- [ ] In a family: they leave it, and their data no longer shows in the family views. The family's owner with
+- [x] In a family: they leave it, and their data no longer shows in the family views. The family's owner with
       other members picks who looks after the family next, as "Leave family" does (F-023).
 
 ## Tasks
@@ -33,10 +33,13 @@ A person can delete their account and everything in it themselves, without askin
 - [x] Answer the open points with the owner (2026-11-14)
 - [x] References and 3 prototype stories (the setting and the confirmation); the owner picks; final prototype
 - [x] The owner approves the final prototype and this description (2026-11-14)
-- [ ] API endpoint: confirm (password, or a fresh Google sign-in), then delete the account and its data in one
-      transaction, reusing F-028's deletion and F-023's hand-over
-- [ ] UI in settings, with i18n texts
-- [ ] Storybook stories (confirmation, in progress, error)
+- [x] API: `GET /api/me/deletion` (the counts, password or Google, whether it can be deleted), "Confirm with Google"
+      (`GET /api/me/delete/google` and back) and `POST /api/me/delete`: the checks, then the family hand-over and the
+      account with its data in one transaction ([ADR 0036](../../../decisions/0036-delete-my-account.md))
+- [x] UI in Settings (`DeleteAccountSection`) and the page after it (`/account-deleted`), with i18n texts
+- [x] Storybook stories (*Settings / Delete account*: the section, the dialog as owner and member, errors, Google before
+      and after, the admin, deleting, a wrong password, a failure, the page after); prototype stories deleted
+- [x] The privacy policy says the account can be deleted in Settings (F-031's text and page, dated 2026-11-15)
 
 ## Design
 
@@ -83,7 +86,7 @@ period (point 1), guilt copy or a survey on why they leave.
 
 ### Prototypes (round 1, 2026-11-14)
 
-Storybook `Prototypes/F-027 Delete my account`, one story per variant, built on the real Settings page in the app's
+Storybook `Prototypes/F-027 Delete my account` (deleted with the build; the links no longer open), one story per variant, built on the real Settings page in the app's
 shell. Controls: **who** (password / Google / admin) and **family** (owner with others / member / none). In the
 prototype the password is `pup-budget`; Google "comes back" confirmed after a moment; after deleting, the signed-out
 screen has "Back to the prototype".
@@ -104,12 +107,12 @@ In every variant: the admin sees a line instead of the button (point 6); after d
 "Your account is deleted", that they are signed out on every device, and that coming back needs a new invite link.
 
 Chosen variant: **variant 1 "One dialog"**, with what goes as grey text instead of the table (owner, 2026-11-14).
-Variants 2 and 3 are deleted; variant 1 stays next to the final prototype for comparison.
+Variants 2 and 3 were deleted then; the rest with the build.
 
 ### Final prototype (2026-11-14)
 
-[Open](http://localhost:6006/?path=/story/prototypes-f-027-delete-my-account--final&nav=false&panel=false&globals=viewport.value:!undefined)
-(`Prototypes/F-027 Delete my account` → *Final prototype*; the same controls as round 1).
+The prototype stories were deleted when it was built; their links no longer open. The real stories:
+*Settings / Delete account*.
 
 - **On Settings:** a last section "Delete account", a wider gap above its rule: "Deletes your accounts, transactions
   and categories for good." and a red word button "Delete account" with a bin. The admin sees, instead of the button,
@@ -128,16 +131,27 @@ Variants 2 and 3 are deleted; variant 1 stays next to the final prototype for co
   - Buttons "Keep my account" (grey word) and "Delete for good" (red pill, with a loader while deleting). A missing
     or wrong answer shows its message under its part with the error icon (sign-in forms' style).
 - **After:** the sign-in frame, "Your account is deleted", "Everything in it is gone, and you're signed out on every
-  device.", and in grey that coming back needs a new invite link. In the app a link to Sign in replaces the
-  prototype's "Back to the prototype".
+  device.", and in grey that coming back needs a new invite link; "Go to sign in" (`/account-deleted`).
+- **As built:** a family's owner alone in it reads "You leave the … family" and that the family is deleted too (the
+  prototype had no such state); while the counts load, the grey line is a placeholder.
 
 ## Tests
 
-- Unit: deletion removes every piece of the person's data and nobody else's; the confirmation rules (wrong
-  password, wrong word, no fresh Google sign-in); the family owner's hand-over.
-- E2E (Playwright): create an account with data, delete it, can't sign in, the email needs an invite to sign up
-  again; a family owner hands the family over while deleting.
-- Screens checked in Playwright screenshots (phone / desktop, light / dark):
+- Unit, backend: the confirmation rules and the validator (`AccountDeletionRulesTests`); every check the service
+  makes before the database, the lockout, and "Confirm with Google" only for the person's own Google account
+  (`AccountDeletionServiceTests`); the controller's answers, the confirmation cookie and the rate limits
+  (`MeControllerTests`); a Google challenge's own landing pages only inside the app.
+- Unit, frontend (`DeleteAccount.test.tsx`): the counts, the checks before sending, deleting and the page after, a wrong
+  password from the API, the owner's pick, a member's line, the admin's line, Google back confirmed and failed, Keep my
+  account.
+- E2E (`delete-account.spec.ts`, phone and desktop): a person with data deletes their account (a wrong password first),
+  is signed out, can't sign in, and the email needs an invite to come back to a new, empty account; a family's owner
+  hands the family over while deleting; the admin can't delete their account. The deletion removing the data in the
+  database is checked here (no database tests before M7).
+- Not tested end to end: the real Google round trip (Google can't be driven in tests); its two halves are unit-tested.
+- Screens checked in Playwright screenshots (phone 375 px and desktop, light and dark): Settings' section, the dialog,
+  its errors, the page after; the design check (axe and layout, 360 – 1440 px) clean on every *Settings / Delete
+  account* story.
 
 ## Agreed
 

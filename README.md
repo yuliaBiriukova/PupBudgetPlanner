@@ -71,6 +71,9 @@ What the others see of yours is up to you, under **What the family sees** on the
 - After a release the app says "A new version is ready." Tap *Reload* to use it.
 - Without a connection you can look at what is already open, but not save.
 - Your name, report currency and the light or dark look are in **Settings**.
+- To leave Pup for good, **Settings → Delete account** deletes your account with everything in it, at once. You confirm
+  with your password (or Google), and a family's owner first picks who looks after the family. Coming back needs a
+  new invite link.
 
 ## Tech stack
 

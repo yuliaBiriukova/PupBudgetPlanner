@@ -1,11 +1,12 @@
-/* F-027 prototypes: Delete account on Settings and its confirmation */
+/* Delete account (F-027, final prototype): the last section of Settings and its pop-up */
 
-/* Apart from the other settings: a wider gap above the rule */
+/* Apart from the other settings: a wider gap above its rule */
 .apart {
   margin-top: 24px;
 }
 
-.startButton {
+/* The red word button lines up its bin with the text above it (Mantine trims the padding before an icon to 12 px) */
+.start {
   margin-inline-start: -12px;
 }
 
@@ -15,41 +16,20 @@
   font-size: 14px;
 }
 
-/* What goes: a short ledger, labels left and figures right, thin rules between */
-.ledger {
+/* The pop-up's content: one gap between its parts, no bigger than the pop-up's padding (I-012) */
+.body {
   display: grid;
-  gap: 8px;
-}
-
-.rows {
-  margin: 0;
-  border-top: 1px solid var(--pup-color-rule);
-}
-
-.row {
-  display: flex;
   gap: 16px;
-  align-items: baseline;
-  justify-content: space-between;
-  min-height: 40px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--pup-color-rule);
-  font-size: 14px;
 }
 
-.row dt {
-  min-width: 0;
+/* The lead and the grey line under it, close together */
+.summary {
+  display: grid;
+  gap: 4px;
 }
 
-.row dd {
+.lead {
   margin: 0;
-}
-
-.figure {
-  font-size: 16px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 .note {
@@ -58,31 +38,12 @@
   font-size: 14px;
 }
 
-/* The pop-up's content: one gap between its parts, no bigger than the pop-up's padding */
-.dialogBody {
-  display: grid;
-  gap: 16px;
-}
-
-.lead {
-  margin: 0;
-}
-
-/* The final prototype: the lead and the grey line under it, close together */
-.summary {
-  display: grid;
-  gap: 4px;
-}
-
 .part {
   display: grid;
   gap: 8px;
 }
 
 .partTitle {
-  display: flex;
-  gap: 8px;
-  align-items: center;
   margin: 0;
   font-size: 14px;
   font-weight: 500;
@@ -95,6 +56,7 @@
   font-size: 14px;
 }
 
+/* "Confirm with Google": the sign-in page's Google button as a 44 px pill */
 .google {
   justify-self: start;
   min-height: 44px;
@@ -112,8 +74,8 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  margin: 0;
   min-height: 44px;
+  margin: 0;
   color: var(--pup-color-income);
   font-size: 14px;
   font-weight: 500;
@@ -128,7 +90,7 @@
   font-size: 14px;
 }
 
-/* After the deletion */
+/* After the deletion, on the sign-in frame */
 .deleted {
   display: grid;
   gap: 12px;
@@ -150,8 +112,9 @@
   color: var(--mantine-color-dimmed);
 }
 
-.again {
+/* A word button's text lines up with the text above it: Mantine's 18 px padding without an icon */
+.signIn {
   justify-self: start;
   margin-top: 8px;
-  margin-inline-start: -12px;
+  margin-inline-start: -18px;
 }

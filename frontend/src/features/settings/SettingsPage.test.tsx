@@ -205,7 +205,7 @@ describe('the Settings page', () => {
     renderApp('/settings');
 
     const privacy = await screen.findByRole('region', { name: 'Privacy' }, LOADED);
-    expect(within(privacy).getByText('Last updated 14 November 2026')).toBeInTheDocument();
+    expect(within(privacy).getByText('Last updated 15 November 2026')).toBeInTheDocument();
     await user.click(within(privacy).getByRole('link', { name: /Privacy policy/ }));
 
     expect(

@@ -57,7 +57,7 @@ describe('the privacy policy page', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Privacy policy' }, LOADED),
     ).toBeInTheDocument();
-    expect(screen.getByText('Last updated 14 November 2026')).toBeInTheDocument();
+    expect(screen.getByText('Last updated 15 November 2026')).toBeInTheDocument();
     expect(screen.getByText(/never sells or shares your data/)).toBeInTheDocument();
     expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual(
       SECTION_TITLES,
