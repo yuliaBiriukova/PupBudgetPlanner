@@ -41,6 +41,7 @@ var app = builder.Build();
 await app.Services.MigrateDatabaseAsync(app.Lifetime.ApplicationStopping);
 
 app.UseForwardedHeaders();
+app.UseSecurityHeaders();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 

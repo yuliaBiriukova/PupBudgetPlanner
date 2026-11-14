@@ -7,3 +7,13 @@ test('the API answers through the app', async ({ request }) => {
   expect(response.ok()).toBe(true);
   expect(await response.json()).toEqual({ status: 'Healthy' });
 });
+
+// F-026: no other site may show the app in a frame; the browser keeps to the content types it's given
+test('the API sends the security headers', async ({ request }) => {
+  const headers = (await request.get('/api/health')).headers();
+
+  expect(headers['x-frame-options']).toBe('DENY');
+  expect(headers['content-security-policy']).toBe("frame-ancestors 'none'");
+  expect(headers['x-content-type-options']).toBe('nosniff');
+  expect(headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
+});

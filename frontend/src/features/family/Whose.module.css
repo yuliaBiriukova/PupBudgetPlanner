@@ -161,6 +161,19 @@
   flex: 0 1 auto;
 }
 
+/* Below 360 px the name has no room next to the app's name: only the initial shows, as in the rail, and the name is
+   still read out (F-026) */
+@media (max-width: 22.49em) {
+  .lensPill .lensText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 /* Whose money it is, over the page */
 .whoseLine {
   display: flex;
