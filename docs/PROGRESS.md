@@ -2,6 +2,23 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (F-031: privacy policy page, design round 1)
+
+**Done**
+- The owner approved F-031’s description ("Approved, design it"). References: Stripe’s, 37signals’ and Monzo’s
+  privacy pages (open, no sign-in).
+- Three prototype stories in *Prototypes / F-031 Privacy policy*, each with Sign in, Create account and Settings (in
+  the app shell) linking to its `/privacy` page: 1 "In the sign-in frame", 2 "A document with contents", 3 "Answers
+  first". Links in the description file.
+- Design check on the privacy page, Sign in and Settings of each variant (360 – 1440 px, light and dark): variant 3’s
+  contact link was too small to tap, fixed. The one finding left, the password field’s eye button over its field,
+  comes from the app’s own Sign in form (its own story has it too) and isn’t part of this change. Screenshots of
+  every state at 375 and 1440 px, light and dark, looked at.
+- No app code. No test data: nothing was created.
+
+**Next**
+- Owner: pick a variant (or a mix); then the final prototype and its approval.
+
 ## 2026-11-14 (F-031: privacy policy page, planned)
 
 **Done**

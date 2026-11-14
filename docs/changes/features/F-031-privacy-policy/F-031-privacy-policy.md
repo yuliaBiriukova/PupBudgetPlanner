@@ -8,7 +8,7 @@
 | Status | Todo |
 | Branch | `feature/F-031-privacy-policy` |
 | Design | 3 prototype stories required (the `/privacy` page and where it is linked from) |
-| Approved | — |
+| Approved | 2026-11-14 the description ("Approved, design it"); final prototype: — |
 
 ## Goal
 
@@ -41,8 +41,8 @@ for its turn; it is the first step towards opening the app beyond the family.
 ## Tasks
 
 - [ ] Owner: the Google Doc and publishing the Google app (above), now
-- [ ] Owner reviews the policy text and approves this description
-- [ ] References and 3 prototype stories: the page and its links
+- [x] Owner reviews the policy text and approves this description (2026-11-14)
+- [x] References and 3 prototype stories: the page and its links (2026-11-14)
 - [ ] Owner picks a variant; final prototype approved
 - [ ] The page, its route and the links; the contact email from configuration, not the repository
 - [ ] Unit and E2E tests; screenshots looked at (phone and desktop, light and dark)
@@ -50,8 +50,37 @@ for its turn; it is the first step towards opening the app beyond the family.
 
 ## Design
 
-References: — (product sites' privacy pages, picked in the design round).
-Prototype stories: *Prototypes / F-031 Privacy policy* in Storybook (`frontend/src/prototypes/F-031-privacy-policy/`).
+**Brief.** Someone who got an invite link, or came from Google's consent screen, decides whether to trust a small app
+with their money; a family member checks later from Settings. The page's one job: answer "what happens to my money
+data" in seconds: the promises (no ads, no trackers, never sold) and the date first, the full text right after. It
+should read as a note from a person, not a legal wall, and feel calm and trustworthy. The bold element: the promise in
+the display face (Unbounded 300).
+
+**Plan.** Reused: the sign-in frame and forms (F-011), Settings and its sections (F-016) in the app shell, the
+logo and name, F-030's folding rows, the theme's tokens (hero, rule, hover, accent), Unbounded 300 for headings,
+Manrope 400/500 for text at 16 / 26 px in a 640 px column. New: only the page and its links. No new token. Motion: none
+but a fold opening (160 ms, as F-030). Slop check: dropped a middle-dot "Privacy policy · last updated" line, an odd
+15 px size, and icons in tinted circles for the promises.
+
+**References** (open pages, no sign-in):
+
+- [Stripe privacy policy](https://stripe.com/privacy) — the contents beside the text on the desktop, "Last updated"
+  under the title (variant 2).
+- [37signals privacy policy](https://37signals.com/policies/privacy/) — a plain summary with "We never sell your data"
+  before anything else, and links to the sections at the top (variants 2 and 3).
+- [Monzo customer privacy notice](https://monzo.com/legal/privacy-notice) — plain, friendly language for a money app,
+  the date at the top (the text's tone).
+
+**Prototype stories** — *Prototypes / F-031 Privacy policy* (`frontend/src/prototypes/F-031-privacy-policy/`). Each
+opens on the privacy page; the *start* control opens it on Sign in, Create account or Settings, where the link is, and
+the links lead between them as in the app.
+
+| Story | Thesis | Link |
+|-------|--------|------|
+| Variant 1: In the sign-in frame | The sign-in screens' charcoal half with the promises stays put beside the text; under the form "How Pup Budget keeps your data"; Settings "Your data" with a button | [open](http://localhost:6006/?path=/story/prototypes-f-031-privacy-policy--variant-1&nav=false&panel=false&globals=viewport.value:!undefined) |
+| Variant 2: A document with contents | The app's top line, the contents beside the text marking the section being read (folded under the title on the phone); a quiet "Privacy policy" under the form; Settings "Privacy" as a row with the date | [open](http://localhost:6006/?path=/story/prototypes-f-031-privacy-policy--variant-2&nav=false&panel=false&globals=viewport.value:!undefined) |
+| Variant 3: Answers first | One sentence says it all in big type, then the questions people ask as folding rows with a one-line answer, Open all; under the form a two-line card "Your money stays yours"; Settings shows the promises | [open](http://localhost:6006/?path=/story/prototypes-f-031-privacy-policy--variant-3&nav=false&panel=false&globals=viewport.value:!undefined) |
+
 Chosen variant: — · Final prototype approved: —
 
 ## Tests
