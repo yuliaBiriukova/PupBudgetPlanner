@@ -2603,6 +2603,207 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/deletion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The counts the confirmation shows, how it is confirmed, and whether the account can be deleted. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DeletionSummary"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/delete/google": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * "Confirm with Google" (a page navigation): Google, then back to Settings with the dialog open. It signs nobody
+         *     in; it only proves the person at the screen is the account's owner.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Found */
+                302: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/delete/google/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Back from Google: confirmed when it is this person's own Google account. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Found */
+                302: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deletes the account and everything in it, then signs out (other devices within a minute). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["DeleteMyAccountRequest"];
+                    "text/json": components["schemas"]["DeleteMyAccountRequest"];
+                    "application/*+json": components["schemas"]["DeleteMyAccountRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/rates": {
         parameters: {
             query?: never;
@@ -3516,6 +3717,32 @@ export interface components {
         /** @description The balances a deleted transaction gave back: one account, two for a transfer. */
         DeletedTransaction: {
             balances: components["schemas"]["BalanceChange"][];
+        };
+        /**
+         * @description Delete my account: the typed word, the password (someone with one) and, for a family's owner with others, who looks
+         *     after the family next.
+         */
+        DeleteMyAccountRequest: {
+            word: string;
+            password: null | string;
+            /** Format: uuid */
+            newOwnerId: null | string;
+        };
+        /**
+         * @description What deleting one's own account would take away, and how it is confirmed (F-027): the counts said in the
+         *     confirmation, whether the person confirms with a password (or else with Google), and whether they may delete it at
+         *     all (the admin can't).
+         */
+        DeletionSummary: {
+            /** Format: int32 */
+            accounts: number | string;
+            /** Format: int32 */
+            transactions: number | string;
+            /** Format: int32 */
+            categories: number | string;
+            hasPassword: boolean;
+            canDelete: boolean;
+            googleConfirmed: boolean;
         };
         /**
          * @description One person in the family. StartedFamily is true for the one who started it ("Started the family

@@ -84,7 +84,8 @@ owner asks for one.
 
 | ID | Feature | Priority | Status |
 |----|---------|----------|--------|
-| [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) | 🎨 Delete my account | Low | Todo |
+| [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) | 🎨 Delete my account | Low | Done |
+| [F-031](changes/features/F-031-privacy-policy/F-031-privacy-policy.md) | 🎨 Privacy policy page (`/privacy`), so the Google app can be published for people outside the family (added 2026-11-14) | Medium | Done |
 
 ## Improvements
 
@@ -155,3 +156,4 @@ owner asks for one.
 | [B-025](changes/bugfixes/B-025-cleanup-timeout-after-big-runs/B-025-cleanup-timeout-after-big-runs.md) | The E2E clean-up times out after a big run and leaves test accounts in `dev` (found by I-033) | Medium | Done |
 | [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md) | One more Family privacy unit test looks inside a fold that is still opening, missed by B-019 (found by I-033) | High | Done |
 | [B-027](changes/bugfixes/B-027-invite-link-groups-on-people/B-027-invite-link-groups-on-people.md) | The People page's invite links lost their groups: only the Family page was meant to drop them (I-032) | Medium | Done |
+| [B-028](changes/bugfixes/B-028-smoke-test-signed-out/B-028-smoke-test-signed-out.md) | The smoke test "the app opens on Transactions" can't pass on production: it runs signed out there (found by F-026) | Low | Done |

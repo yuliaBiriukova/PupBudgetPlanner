@@ -71,6 +71,9 @@ What the others see of yours is up to you, under **What the family sees** on the
 - After a release the app says "A new version is ready." Tap *Reload* to use it.
 - Without a connection you can look at what is already open, but not save.
 - Your name, report currency and the light or dark look are in **Settings**.
+- To leave Pup for good, **Settings → Delete account** deletes your account with everything in it, at once. You confirm
+  with your password (or Google), and a family's owner first picks who looks after the family. Coming back needs a
+  new invite link.
 
 ## Tech stack
 
@@ -140,6 +143,11 @@ dotnet user-secrets set "Access:AdminEmails:1" "e2e-admin@example.com" --project
 Locally (Development) an admin email can also create its account with a password and no link. To open sign-up to
 everyone, set `Access:SignUp` to `Open`.
 
+The privacy policy (`/privacy`, F-031) gives a contact address from the frontend build setting `VITE_CONTACT_EMAIL`:
+on Render an environment variable of the service (a change needs a new deploy), locally a line
+`VITE_CONTACT_EMAIL=<address>` in `frontend/.env.local`. Without it the page names "the person who runs Pup Budget"
+([ADR 0035](docs/decisions/0035-privacy-policy-page.md)).
+
 Migrations are applied when the API starts. `GET /api/health` returns 200 without touching the database.
 In Development the OpenAPI document is at `http://localhost:5297/openapi/v1.json`.
 
@@ -180,6 +188,14 @@ The installable app's service worker exists only in the production build, so `e2
 the dev server. To run it locally: `npm run build`, then `npm run preview` (port 4173) with the API running, and
 `E2E_BASE_URL=http://localhost:4173 npx playwright test e2e/pwa.spec.ts`. App icons are drawn from the logo by
 `node scripts/make-app-icons.mjs` (only when the logo changes).
+
+After a release, check production with the smoke tests only. They start signed out and create nothing; `--no-deps`
+skips the `setup` project, which would make a test account there (B-028):
+
+```bash
+cd frontend
+E2E_BASE_URL=https://pup-budget-planner.onrender.com npx playwright test e2e/smoke.spec.ts --no-deps
+```
 
 ## CI
 

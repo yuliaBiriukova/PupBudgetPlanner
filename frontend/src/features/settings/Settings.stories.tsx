@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import { expect, screen, userEvent, within } from 'storybook/test';
 import { MockFetch, type MockRoutes } from '../../test/mockFetch';
 import { OVERVIEW } from '../accounts/accountsTestData';
@@ -37,6 +38,17 @@ function SettingsScreen({ data = 'settings', currency = 'UAH', saveFails = false
     '/api/settings': () =>
       data === 'loading' ? 'pending' : data === 'error' ? { status: 500 } : settings(),
     '/api/accounts': { json: OVERVIEW },
+    // Delete account at the page's end (F-027)
+    '/api/me/deletion': {
+      json: {
+        accounts: 9,
+        transactions: 1284,
+        categories: 46,
+        hasPassword: true,
+        canDelete: true,
+        googleConfirmed: false,
+      },
+    },
     '/api/accounts/total': () => ({ json: totalIn(saved.current.reportCurrency) }),
     'PUT /api/settings/report-currency': (body) => {
       if (saveFails) return { status: 503 };
@@ -50,12 +62,26 @@ function SettingsScreen({ data = 'settings', currency = 'UAH', saveFails = false
     },
   };
 
-  // In <main>, as in the app shell: the page's header isn't the document's banner
+  // In <main>, as in the app shell: the page's header isn't the document's banner. A router for the privacy policy's
+  // link (F-031)
+  const [router] = useState(() =>
+    createMemoryRouter(
+      [
+        {
+          path: '*',
+          element: (
+            <main>
+              <SettingsPage />
+            </main>
+          ),
+        },
+      ],
+      { initialEntries: ['/settings'] },
+    ),
+  );
   return (
     <MockFetch routes={routes}>
-      <main>
-        <SettingsPage />
-      </main>
+      <RouterProvider router={router} />
     </MockFetch>
   );
 }

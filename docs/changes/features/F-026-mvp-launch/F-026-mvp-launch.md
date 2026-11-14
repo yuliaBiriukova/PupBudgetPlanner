@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M6 — MVP release |
-| Status | Done (2026-11-14); left: the owner's launch-checklist rows, the release PR once this PR is merged, and the smoke check after the release |
+| Status | Done (2026-11-14); released 2026-11-14 (#107); the owner's checklist rows and smoke check done 2026-11-14 |
 | Branch | `feature/F-026-mvp-launch` |
 | Design | not needed for the review itself; a fix that changes how a screen looks becomes its own 🎨 change |
 | Approved | 2026-11-14 (the plan, "Approved, start"); 2026-11-14 the findings list: fix #1 – #6 here, leave #7 ("Fix 1–6, leave 7") |
@@ -44,12 +44,11 @@ writes code, so it waits for the owner's second approval, of the findings list.
 - [x] `findings.md` lists every finding with a priority and what happened to it (fixed here, its own change, or
       left with the owner's word).
 - [x] Every finding the owner put before the launch is fixed and covered by a test.
-- [ ] Every row of the launch checklist is ticked, with the date and who checked it. (Claude's rows done; the owner's
-      are left to the owner.)
+- [x] Every row of the launch checklist is ticked, with the date and who checked it.
 - [x] The README has the user guide and a current status line.
 - [x] The full E2E suite is green against the production build (phone and desktop), and CI is green.
-- [ ] The release PR `develop` → `main` is open (once this PR is in `develop`); after the owner merges it, the
-      production smoke check passes.
+- [x] The release PR `develop` → `main` is open (#107, merged 2026-11-14); after the owner merges it, the
+      production smoke check passes (Claude's and the owner's parts, 2026-11-14).
 
 ## Review list
 
@@ -86,16 +85,16 @@ the PROGRESS entry says so.
 
 | # | Check | Who | Done |
 |---|-------|-----|------|
-| 1 | Render env vars set on `pup-budget-planner`: `ConnectionStrings__Database` (Neon `main`, direct), `Authentication__Google__ClientId` / `ClientSecret`, `Access__AdminEmails__0`, `Access__SignUp = InviteOnly`, `Cleanup__Secret` | Owner (dashboard) | — |
+| 1 | Render env vars set on `pup-budget-planner`: `ConnectionStrings__Database` (Neon `main`, direct), `Authentication__Google__ClientId` / `ClientSecret`, `Access__AdminEmails__0`, `Access__SignUp = InviteOnly`, `Cleanup__Secret` | Owner (dashboard) | Owner, 2026-11-14 |
 | 2 | No secrets in the repository or its history (search for connection strings, client secrets, keys) | Claude | Claude, 2026-11-14: none in the files or the history; the only password is CI's throwaway PostgreSQL container's (`postgres`), and no `.env` or secrets file is tracked |
-| 3 | Production uses the Neon `main` branch, the local app and E2E only `dev` | Owner (Neon), Claude (config) | Claude, 2026-11-14: no connection string in the repo's settings; production's comes only from Render's setting, the local one from user-secrets. Owner: — |
-| 4 | Neon free plan: the current restore window (history retention) noted here, and how to restore a branch to a moment written down; storage and compute hours this month far from the limits (0.5 GB, 100 CU-hours) | Owner (Neon console) | — |
-| 5 | Render free plan: instance hours used this month vs 750, the service not suspended, auto-deploy only from `main` after checks pass (`render.yaml`) | Owner (dashboard), Claude (`render.yaml`) | Claude, 2026-11-14: `render.yaml` deploys the app and Storybook only from `main`, `autoDeployTrigger: checksPass`, free plan. Owner: — |
-| 6 | cron-job.org: the keep-awake ping (every 14 min, 07:00–23:00 Kyiv) and the morning clean-up (07:05) both green in their recent history | Owner (cron-job.org) | — |
-| 7 | Google sign-in: the consent screen is in Testing, and every family member who signs in with Google is a test user | Owner (Google Cloud) | — |
-| 8 | GitHub Actions minutes this month leave room for the release run (I-031) | Owner (GitHub billing) | — |
-| 9 | Production answers: `GET /api/health` 200, the manifest as `application/manifest+json`, HTTPS only, the service worker registered, the security headers sent | Claude (public addresses) | Claude, 2026-11-14, before the release: `/api/health` 200 in 0.4 s, `http://` redirects to `https://` (301), HSTS sent; no security headers yet (findings #4, fixed on this branch). The manifest, service worker and headers come with the release: checked again after it |
-| 10 | Production data: no test accounts or test data left on production that shouldn't be there (People page) | Owner | — |
+| 3 | Production uses the Neon `main` branch, the local app and E2E only `dev` | Owner (Neon), Claude (config) | Claude, 2026-11-14: no connection string in the repo's settings; production's comes only from Render's setting, the local one from user-secrets. Owner, 2026-11-14 |
+| 4 | Neon free plan: the current restore window (history retention) noted here, and how to restore a branch to a moment written down; storage and compute hours this month far from the limits (0.5 GB, 100 CU-hours) | Owner (Neon console) | Owner, 2026-11-14 |
+| 5 | Render free plan: instance hours used this month vs 750, the service not suspended, auto-deploy only from `main` after checks pass (`render.yaml`) | Owner (dashboard), Claude (`render.yaml`) | Claude, 2026-11-14: `render.yaml` deploys the app and Storybook only from `main`, `autoDeployTrigger: checksPass`, free plan. Owner, 2026-11-14 |
+| 6 | cron-job.org: the keep-awake ping (every 14 min, 07:00–23:00 Kyiv) and the morning clean-up (07:05) both green in their recent history | Owner (cron-job.org) | Owner, 2026-11-14 |
+| 7 | Google sign-in: the consent screen is in Testing, and every family member who signs in with Google is a test user | Owner (Google Cloud) | Owner, 2026-11-14 |
+| 8 | GitHub Actions minutes this month leave room for the release run (I-031) | Owner (GitHub billing) | Owner, 2026-11-14 |
+| 9 | Production answers: `GET /api/health` 200, the manifest as `application/manifest+json`, HTTPS only, the service worker registered, the security headers sent | Claude (public addresses) | Claude, 2026-11-14, before the release: `/api/health` 200 in 0.4 s, `http://` redirects to `https://` (301), HSTS sent; no security headers yet (findings #4, fixed on this branch). The manifest, service worker and headers come with the release: checked again after it. Claude, 2026-11-14, after the release: the manifest as `application/manifest+json`, the service worker active, the security headers on the page and the API |
+| 10 | Production data: no test accounts or test data left on production that shouldn't be there (People page) | Owner | Owner, 2026-11-14: none left |
 
 ## User guide (README outline)
 
@@ -122,12 +121,13 @@ A short section, written for the family, not for developers:
 - [x] Review pass, [`findings.md`](findings.md) written, screenshots sent in chat (2026-11-14)
 - [x] Owner approves the findings list (2026-11-14: fix #1 – #6, leave #7)
 - [x] Fixes made: #1 – #6 on this branch, each with a test; none needed a change of its own (2026-11-14)
-- [ ] Launch checklist done (Claude's rows 2026-11-14; the owner's rows are left to the owner)
+- [x] Launch checklist done (Claude's and the owner's rows, 2026-11-14)
 - [x] User guide in README, status line updated (2026-11-14)
 - [x] Full checks: lint, typecheck, unit, E2E against the production build, `--repeat-each=3` on changed tests
 - [x] PR into `develop`
-- [ ] Release PR `develop` → `main`, once the owner has merged this PR
-- [ ] Production smoke check after the owner's merge
+- [x] Release PR `develop` → `main` (#107), merged by the owner 2026-11-14
+- [x] Production smoke check after the owner's merge, 2026-11-14: Claude's part (health, security headers,
+      manifest, service worker; the update notice waits for the next release) and the owner's part
 
 ## Tests
 
@@ -137,6 +137,8 @@ A short section, written for the family, not for developers:
 - Screens checked in Playwright screenshots (phone / tablet / desktop, light / dark): every page in the review list.
 
 ## Open points
+
+All closed by the owner on 2026-11-14, with the proposals below.
 
 - **Owner's own data on production:** is there anything from earlier trying-out on production you want gone before
   you start for real? (Claude doesn't touch your account; you delete it yourself, or tell Claude what.)

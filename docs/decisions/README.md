@@ -39,6 +39,8 @@ decision — write a new ADR that supersedes it.
 | [0032](0032-family-privacy.md) | What a member keeps from the family is left out by the database, from settings on the money itself | Accepted |
 | [0033](0033-morning-clean-up.md) | A morning clean-up job, started by cron-job.org with a secret, deletes links 30 days after they stopped working | Accepted |
 | [0034](0034-installable-app.md) | The installable app: a service worker keeps only the app's own files (never the API), and a release waits for the person's Reload | Accepted |
+| [0035](0035-privacy-policy-page.md) | The privacy policy is part of the app (no API request); its contact address is the `VITE_CONTACT_EMAIL` build setting | Accepted |
+| [0036](0036-delete-my-account.md) | Deleting one's own account: confirmed at once (password with the sign-in's lockout, or Google again through a 10-minute protected cookie), family handed over, all in one transaction | Accepted |
 
 Template for new ADRs:
 

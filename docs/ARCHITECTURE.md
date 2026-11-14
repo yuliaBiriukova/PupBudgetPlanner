@@ -310,6 +310,10 @@ flowchart LR
 Secrets (connection string, Google client ID/secret) are stored in **Render environment variables**
 and locally in **`dotnet user-secrets`** — never in the repository.
 
+The privacy policy's contact address is not a secret but stays out of the repository too: the frontend build reads
+it from `VITE_CONTACT_EMAIL` (a Render environment variable passed to the Docker build; locally `frontend/.env.local`),
+so a change needs a new deploy ([ADR 0035](decisions/0035-privacy-policy-page.md)).
+
 ## Known risks
 
 | Risk | Mitigation |

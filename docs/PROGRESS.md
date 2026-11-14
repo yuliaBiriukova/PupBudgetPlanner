@@ -2,6 +2,158 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-15 (F-027: delete my account, built)
+
+**Done**
+- The owner approved the final prototype and the description ("Approved, build it", 2026-11-14). Built on
+  `feature/F-027-delete-account`; F-027 Done in the backlog and the roadmap (M9 keeps Q-011).
+  - API (`MeController`, `AccountDeletionService`): `GET /api/me/deletion` gives the counts, whether the person
+    confirms with a password or Google, and whether they may delete (not the admin). `POST /api/me/delete` checks the
+    word `DELETE` and the password (with the sign-in's lockout and rate limit) or a Google confirmation, then in one
+    transaction hands the family over (`Family.Leave` with the picked owner) and deletes the account, whose cascade
+    removes its data; it signs out, other devices within a minute. "Confirm with Google" goes to Google and back and
+    sets a 10-minute protected cookie, only for the person's own Google account
+    ([ADR 0036](decisions/0036-delete-my-account.md)). A Google challenge can name its own landing pages.
+  - Settings: the section "Delete account" at the end, the pop-up of the final prototype (the counts in a grey line, the
+    family part, the password or Google, the word, "Keep my account" / "Delete for good"), back from Google with the
+    dialog open; `/account-deleted` on the sign-in frame. The admin sees a line instead of the button.
+  - The privacy policy (page and `privacy-policy.md`) says the account can be deleted in Settings; dated 2026-11-15.
+  - README guide: a line on deleting the account. Prototype stories deleted; *Settings / Delete account* stories.
+  - The design check counted an open dialog on a page taller than the screen as overlapping: a modal is now measured
+    against the screen (`scripts/design-check.mjs`).
+- Checks: backend build and all 636 tests; frontend lint, formatting, typecheck, all 429 unit tests, the production
+  build; the new E2E spec (phone and desktop) and the full E2E suite; the changed test files 3 times in a row; the
+  design check clean on every new story; screenshots of the section, the dialog, its errors and the page after at
+  375 px and desktop, light and dark, looked at.
+- Not tested end to end: the real Google round trip (its two halves are unit-tested).
+- Test data: `e2e-delete-…` and `e2e-f027-shots-…@example.com` people and their invite links, made in `dev` by the E2E
+  runs and a screenshot spec; the people deleted themselves through the new dialog or by the clean-up teardown, the
+  links by the teardown. None left.
+
+**Next**
+- Owner: review and merge the F-027 PR.
+
+## 2026-11-14 (F-027: delete my account, open points and design round 1)
+
+**Done**
+- Started [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) on `feature/F-027-delete-account`
+  (status In progress). The owner answered the open points (Q-010 moved to Answered): deleted right away; confirmed
+  with the password (or Google once more) plus a typed word; a family's owner with others picks the next owner, as
+  "Leave family" does; signing up again needs a new invite like anyone new. Claude's proposals, taken unless the owner
+  says otherwise: no export until M11; the admin can't delete their own account from Settings.
+- Design round 1: references, brief and plan in the description file; 3 prototype stories in Storybook
+  (`Prototypes/F-027 Delete my account`) on the real Settings page: 1 "One dialog", 2 "In place", 3 "The last page",
+  each with controls for how the person signs in (password, Google, admin) and their family role. Design check
+  (axe and layout, 360 – 1440 px, light and dark) clean; every state clicked through in Playwright and its screenshots
+  looked at (phone and desktop, light and dark).
+- No test data: nothing was created (prototypes use a fake API).
+
+- The owner picked variant 1 with what goes as grey text instead of the table: built as the final prototype
+  (`Prototypes/F-027 Delete my account` → *Final prototype*); variants 2 and 3 deleted. Design check clean; every
+  state clicked through and its screenshots looked at.
+
+**Next**
+- Owner: approve the final prototype and the description for implementation; then the API and the UI.
+
+## 2026-11-14 (F-031: privacy policy page, built)
+
+**Done**
+- The owner approved the final prototype ("Approved, build it"). Built on `feature/F-031-privacy-policy`:
+  - `/privacy` (`features/privacy-policy`), open to anyone and with no request to the API: the app’s top line, the
+    title and date, the summary, the sections; the contents beside the text on the desktop marking the section being
+    read, folded under the intro on the phone. The text is in `en.json` (`privacyPolicy`), the same as
+    [`privacy-policy.md`](changes/features/F-031-privacy-policy/privacy-policy.md), with the restore window the owner
+    read in Neon: 6 hours.
+  - A quiet *Privacy policy* link under the sign-in frame’s form (Sign in, Create account, the invite page);
+    Settings ends with a *Privacy* section, a row with the policy’s date.
+  - The contact address is the build setting `VITE_CONTACT_EMAIL` (Render passes it to the Docker build;
+    `render.yaml`, Dockerfile), never in the repository; without it the page names "the person who runs Pup Budget"
+    ([ADR 0035](decisions/0035-privacy-policy-page.md)). README and ARCHITECTURE say how to set it.
+  - Clicking through the final prototype found two things, fixed before the build: a section picked from the
+    phone’s folded contents was scrolled past, and on the desktop a section near the end wasn’t marked.
+- Tests: unit (the page, the policy’s helpers, the links on Sign in, Create account, the invite page and Settings),
+  E2E `e2e/privacy.spec.ts` (phone and desktop, 3 runs each), stories *Privacy / Privacy policy*; Settings’ stories
+  got a router for the new link. Design check on the page and the pages with its link: clean but for the password
+  field’s eye button over its field, which the sign-in forms had before. Screenshots of every screen at 375 and
+  1440 px, light and dark, looked at. The prototype stories are deleted.
+- Test data: the E2E runs made their `e2e-…@example.com` people, which the clean-up removed; nothing else was created.
+
+**Next**
+- Owner: review the PR; set `VITE_CONTACT_EMAIL` on Render before the release; after it, point Google’s Branding
+  page at `https://pup-budget-planner.onrender.com/privacy`.
+
+## 2026-11-14 (F-031: privacy policy page, design round 1)
+
+**Done**
+- The owner approved F-031’s description ("Approved, design it"). References: Stripe’s, 37signals’ and Monzo’s
+  privacy pages (open, no sign-in).
+- Three prototype stories in *Prototypes / F-031 Privacy policy*, each with Sign in, Create account and Settings (in
+  the app shell) linking to its `/privacy` page: 1 "In the sign-in frame", 2 "A document with contents", 3 "Answers
+  first". Links in the description file.
+- Design check on the privacy page, Sign in and Settings of each variant (360 – 1440 px, light and dark): variant 3’s
+  contact link was too small to tap, fixed. The one finding left, the password field’s eye button over its field,
+  comes from the app’s own Sign in form (its own story has it too) and isn’t part of this change. Screenshots of
+  every state at 375 and 1440 px, light and dark, looked at.
+- No app code. No test data: nothing was created.
+
+- The owner chose variant 2 "A document with contents". The final prototype is variant 2 with two fixes found by
+  clicking through it: on the phone, picking a section from the folded contents now scrolls there after the fold
+  closes (it overshot); on the desktop, a section picked near the end is marked (the page can’t scroll it to the top).
+  Design check clean but for the existing password-field finding; screenshots of the reached states looked at.
+
+**Next**
+- Owner: approve the final prototype for implementation.
+
+## 2026-11-14 (F-031: privacy policy page, planned)
+
+**Done**
+- Google publishes the app (out of Testing, where only listed test users can sign in with Google) only with a home page
+  and a privacy policy link on its Branding page. Planned
+  [F-031](changes/features/F-031-privacy-policy/F-031-privacy-policy.md) on `feature/F-031-privacy-policy` (M9,
+  Medium): a public `/privacy` page, linked from Sign in, Create account, the invite page and Settings.
+- Wrote the policy text, [`privacy-policy.md`](changes/features/F-031-privacy-policy/privacy-policy.md), from what
+  the app does today (what it keeps, the sign-in cookie, Render in Frankfurt, Neon, Google, no analytics). The owner
+  publishes it as a Google Doc now, so the Google app can be published before the page exists.
+- No code. No test data: nothing was created.
+
+**Next**
+- Owner: fill in the contact email and the restore window, publish the Google Doc and the Google app; review the text
+  and approve F-031's description. Then the design round (3 prototype stories).
+
+## 2026-11-14 (F-026: the owner's launch checks)
+
+**Done**
+- The owner checked production and closed their points: the launch checklist's owner rows (Render settings, Neon,
+  Render's free hours, cron-job.org, Google test users, GitHub minutes, no test data left on production) and the
+  owner's part of the smoke check (sign in with email and Google, add and delete a transaction, Reports, install on
+  Android and the iPhone, open at night). F-025's real-phone check is ticked with it.
+- F-026's open points closed with their proposals: backups are Neon's restore window until M11's export, the address
+  stays `pup-budget-planner.onrender.com`, the Google app stays in Testing.
+- No test data: nothing was created.
+
+**Next**
+- The MVP is fully launched. Post-MVP: the owner picks the next change (planning M10, the spreadsheet import, or I-005,
+  pages on the People list, the highest-priority backlog item).
+
+## 2026-11-14 (MVP released; B-028: smoke tests that pass on production)
+
+**Done**
+- The owner merged the release PR #107 (`develop` → `main`, F-025, F-026, B-027, I-033, B-025, B-026, I-034): the
+  **MVP is live**. `main`'s CI green, Render deployed about 6 minutes after the merge.
+- F-026's production smoke check, Claude's part: `/api/health` 200; the page and the API send `X-Frame-Options: DENY`,
+  `Content-Security-Policy: frame-ancestors 'none'`, `nosniff`, `strict-origin-when-cross-origin` and HSTS; the
+  manifest as `application/manifest+json`; the service worker active in a real browser. "A new version is ready."
+  can't be checked on this release (the page before it had no service worker): it is checked on the next one.
+- [B-028](changes/bugfixes/B-028-smoke-test-signed-out/B-028-smoke-test-signed-out.md): the release check's
+  "the app opens on Transactions" failed on production, because it runs signed out there (`--no-deps`, no test
+  account). The smoke tests now start signed out and check that `/` opens Sign in; the README says how to run them
+  against production. Locally 3 runs each, and against production, all passed. No test data: nothing was created.
+
+**Next**
+- Owner: F-026's smoke check, the owner's part (sign in with email and Google, add and delete a transaction, Reports,
+  install on Android and the iPhone, open at night); the launch checklist's owner rows; the open points (production
+  data, backups).
+
 ## 2026-11-14 (F-026: MVP launch, fixes, user guide and checks)
 
 **Done**

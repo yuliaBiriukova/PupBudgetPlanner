@@ -152,10 +152,14 @@ function inspect({ mobile }) {
   }
 
   // Floating elements (absolute / fixed, and navigation bars) covering each other.
-  // Modal layers (overlays, drawers) cover the whole screen on purpose, so they and their content are skipped.
+  // Modal layers (overlays, drawers) cover the whole screen on purpose, so they and their content are skipped. The
+  // screen, not the page: on a page taller than the screen an open dialog's overlay covers only the screen (F-027).
   const modal = (el) => {
     const r = el.getBoundingClientRect();
-    return r.width >= rootRect.width * 0.9 && r.height >= rootRect.height * 0.9;
+    return (
+      r.width >= rootRect.width * 0.9 &&
+      r.height >= Math.min(rootRect.height, window.innerHeight) * 0.9
+    );
   };
   const floats = [...root.querySelectorAll('*')].filter((el) => {
     if (!visible(el) || visuallyHidden(el) || el.closest('.overlay')) return false;

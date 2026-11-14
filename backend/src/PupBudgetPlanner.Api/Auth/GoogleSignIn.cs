@@ -34,6 +34,14 @@ public static partial class GoogleSignIn
     public const string CancelledPath = "/sign-in";
 
     /// <summary>
+    /// A challenge that isn't a sign-in ("Confirm with Google" before deleting, F-027) names its own landing pages in
+    /// these items of its properties.
+    /// </summary>
+    public const string CancelledPathItem = "pup.cancelled";
+
+    public const string FailedPathItem = "pup.failed";
+
+    /// <summary>
     /// Adds the Google handler when the client ID and secret are set. Without them the app still starts (tests,
     /// the container check in CI) and "Continue with Google" comes back with the error.
     /// </summary>
@@ -59,7 +67,7 @@ public static partial class GoogleSignIn
 
             options.Events.OnAccessDenied = context =>
             {
-                context.Response.Redirect(CancelledPath);
+                context.Response.Redirect(PathFrom(context.Properties, CancelledPathItem, CancelledPath));
                 context.HandleResponse();
                 return Task.CompletedTask;
             };
@@ -68,12 +76,18 @@ public static partial class GoogleSignIn
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>()
                     .CreateLogger(typeof(GoogleSignIn));
                 LogCallbackFailed(logger, context.Failure);
-                context.Response.Redirect(FailedPath);
+                context.Response.Redirect(PathFrom(context.Properties, FailedPathItem, FailedPath));
                 context.HandleResponse();
                 return Task.CompletedTask;
             };
         });
     }
+
+    /// <summary>The challenge's own landing page when it named one (a path in this app only), else the sign-in's.</summary>
+    public static string PathFrom(AuthenticationProperties? properties, string item, string fallback) =>
+        properties?.Items.TryGetValue(item, out var path) == true && path is ['/', not ('/' or '\\'), ..]
+            ? path
+            : fallback;
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Google sign-in failed at the callback")]
     private static partial void LogCallbackFailed(ILogger logger, Exception? exception);
