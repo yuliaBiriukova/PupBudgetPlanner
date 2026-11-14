@@ -162,8 +162,7 @@ with the same controls:
 Checked: the design check on the story as it opens, with three people on Accounts and on Reports (0 issues);
 typecheck, ESLint, Prettier on the prototype folder; in Playwright, the lens picked on Transactions holds on Accounts
 (no Add account, no + edges) and Back to mine brings them back; every page as yours, Andriy's and the family's money,
-the open list (two and three people) and no family at 375 and 1440 px, light and dark, looked at and kept in
-[`prototypes/`](prototypes/).
+the open list (two and three people) and no family at 375 and 1440 px, light and dark, looked at.
 
 ### Open points (proposals)
 

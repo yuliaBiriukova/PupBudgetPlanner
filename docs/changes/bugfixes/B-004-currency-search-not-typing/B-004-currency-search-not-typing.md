@@ -7,7 +7,7 @@
 | Status | Done |
 | Branch | `bugfix/B-004-currency-search-not-typing` (planned on `plan/prod-testing-fixes`) |
 | Found in | 2026-11-04, production, owner's testing (desktop, New account form) |
-| Design | 🎨 3 prototype stories, then the final prototype (variant 1, see "Design"); screenshots in [prototypes/](prototypes/) |
+| Design | 🎨 3 prototype stories, then the final prototype (variant 1, see "Design") |
 | Approved | 2026-11-06 (owner: "Approved, build it", the root cause and the final prototype) |
 
 ## Steps to reproduce
@@ -106,7 +106,7 @@ drawn (desktop) or the sheet opens (phone); the first match marked as you type, 
 Escape closes the list and leaves the dialog open. The same picker serves Settings and the Reports page's pill, so they
 get it too.
 Approved by the owner on 2026-11-06 ("Approved, build it"). Its screenshots (375 and 1440 px, light and dark; the form,
-and the list with `dol` typed and ↓ pressed) are in [prototypes/](prototypes/); the prototype story is deleted.
+and the list with `dol` typed and ↓ pressed) were looked at; the prototype story is deleted.
 
 ## Fix
 

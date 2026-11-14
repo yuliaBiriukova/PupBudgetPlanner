@@ -8,7 +8,7 @@
 | Status | Done |
 | Branch | `improvement/I-027-calculator-key-order` (planned on `plan/quick-add-keys`) |
 | Design | No 3 variants: the owner gave the order ([reference-key-order.png](reference-key-order.png)). One final prototype story (the real form, the keys copied into it), deleted with the build; its screenshots are in [prototypes/](prototypes/) |
-| Approved | 2026-11-05, with the final prototype ("Approved, build it"); screenshots in [prototypes/](prototypes/) |
+| Approved | 2026-11-05, with the final prototype ("Approved, build it") |
 
 ## Goal
 

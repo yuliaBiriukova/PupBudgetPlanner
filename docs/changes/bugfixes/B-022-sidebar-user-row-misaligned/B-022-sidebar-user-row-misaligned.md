@@ -42,5 +42,5 @@ Approved by the owner on 2026-11-12:
 
 - [x] E2E on the desktop (`shell.spec.ts`): the middles of the initial, the name, the theme button and Sign out are
   within 1 px of each other. Fails before the fix (4 px), passes after it.
-- [x] Screenshots of the sidebar's foot at 1440 px: [light](fixed-1440-light.png), [dark](fixed-1440-dark.png); in
+- [x] Screenshots of the sidebar's foot at 1440 px, light and dark, looked at; in
   Storybook all four middles at the same y (736 px). The collapsed rail hides the buttons as before.

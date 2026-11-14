@@ -21,14 +21,14 @@ The suggestions show under the Note and Save comes right after them, with no emp
 ## Actual
 
 The Note goes to the top of the sheet with its one suggestion under it, then a large empty space, then Save expense
-right above the phone's keyboard ([gap-under-suggestions.png](gap-under-suggestions.png)).
+right above the phone's keyboard.
 
 ## Root cause
 
 Confirmed on 2026-11-11: reproduced in Storybook (*Transactions / Add phone*) at 375 × 520 px, the room the keyboard
 leaves. Typing `phy` lists one note (*Physio session*): the Note goes to the top of the sheet, the list's foot is at
-y 252 and Save's top at y 452, an empty 200 px gap; the room under the form (`noteRoom`) is 254 px
-([reproduced-375x520.jpg](reproduced-375x520.jpg)). With `s` the list has its most rows (5, 232 px) and ends 24 px above
+y 252 and Save's top at y 452, an empty 200 px gap; the room under the form (`noteRoom`) is 254 px.
+With `s` the list has its most rows (5, 232 px) and ends 24 px above
 Save: no gap, the room is right for it.
 
 Why: it is the case B-009 left on purpose. While the Note is typed on the phone and its list shows (`roomForList` in
@@ -67,10 +67,8 @@ desktop). It never moves the form, but the list covers the amount and the catego
 - [x] E2E on the phone (`transactions.spec.ts`, 375 × 520 px): one note, five, then three as the note is typed on;
   each time the whole list is above Save and at most 32 px from it, the Note in sight. Fails before the fix (201 px),
   passes after it. B-009's test now expects Save right after the list instead of the Note going up over 100 px.
-- [x] Screenshots at 375 × 520 px, light and dark: one note ([light](fixed-375-light-one.png),
-  [dark](fixed-375-dark-one.png)) and five ([light](fixed-375-light-five.png), [dark](fixed-375-dark-five.png)); also
-  checked three notes and the list gone. The desktop at 1440 px, unchanged ([light](fixed-1440-light.png),
-  [dark](fixed-1440-dark.png)).
+- [x] Screenshots at 375 × 520 px, light and dark: one note and five, looked at; also
+  checked three notes and the list gone. The desktop at 1440 px, unchanged.
 
 ## Notes
 

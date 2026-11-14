@@ -7,7 +7,7 @@
 | Priority | High (proposed: people testing the app couldn't find how to add an expense or income on the phone, the app's main action) |
 | Status | Done (built 2026-11-09) |
 | Branch | `improvement/I-030-findable-add-button` (planned on `plan/phone-feedback`) |
-| Design | 🎨 3 rounds of prototype stories, then the final prototype; screenshots in [prototypes/](prototypes/) |
+| Design | 🎨 3 rounds of prototype stories, then the final prototype |
 | Approved | 2026-11-09, the owner in chat ("I approve the prototype"): the final prototype, variant 8 with the menu's pill gone |
 
 ## Goal
@@ -139,18 +139,13 @@ on the phone one + floats over the page and opens the three:
 Not in the prototype: a line on the empty day ("Nothing on this day") telling how to add (acceptance criterion); it
 comes with the build, as the empty state belongs to the page.
 
-Screenshots of the final prototype (the three folded):
-
-| | Light | Dark |
-|---|---|---|
-| Phone, 375 px | [final-375-light.png](prototypes/final-375-light.png) | [final-375-dark.png](prototypes/final-375-dark.png) |
-| Desktop, 1440 px (unchanged) | [final-1440-light.png](prototypes/final-1440-light.png) | [final-1440-dark.png](prototypes/final-1440-dark.png) |
+Screenshots of the final prototype (the three folded) were looked at: the phone at 375 px and the desktop at 1440 px
+(unchanged), light and dark.
 
 Prototype stories: *Prototypes / I-030 Findable add button* (`frontend/src/prototypes/I-030-findable-add-button/`),
 deleted with the build; the shell's own stories (*Shell / AppLayout*, the Phone ones) replace them. Each round's
 stories replaced the last one's; the rounds are in the history of `improvement/I-030-findable-add-button`. ·
-Chosen variant: 8, with the menu's pill gone · Final prototype approved: 2026-11-09 (screenshots in
-[prototypes/](prototypes/))
+Chosen variant: 8, with the menu's pill gone · Final prototype approved: 2026-11-09
 
 ## Built (2026-11-09)
 

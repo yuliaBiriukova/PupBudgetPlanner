@@ -90,8 +90,7 @@ The owner chose to try it first (2026-11-10): one prototype story with the app's
 rules laid over them, plus a stand-in for the phone's keyboard when a field is typed on a computer.
 
 - Story: *Prototypes / I-029 Popup height and keyboard / Prototype*
-  (`frontend/src/prototypes/I-029-popup-height-and-keyboard/`), deleted when the change was built; its screenshots are
-  in [prototypes/](prototypes/).
+  (`frontend/src/prototypes/I-029-popup-height-and-keyboard/`), deleted when the change was built.
 - What to try: Add account (opens from its top without the keyboard; tap Name for the keyboard, then Done), its
   Currency (the search with the keyboard, then the whole list), More (a small sheet), a card's + on Accounts or the +
   on Transactions (the quick-add form as tall as its content, Transfer shorter than Expense; its Note with the
@@ -150,12 +149,12 @@ the top for the pop-up that are bigger than the screen". So a sheet never touche
 the screen less 16 px, the dimmed page showing above it, and its top corners are round at any height, as before I-029.
 With the keyboard up the same 16 px stay above a sheet that fills what the keyboard leaves. This replaces the
 prototype's "no gap" and "square corners at the top"; the rest of the approved design stands. Screenshots of the
-build are in [built/](built/) (375 px): the account form as it opens and with the keyboard up (light and dark), the
+build looked at (375 px): the account form as it opens and with the keyboard up (light and dark), the
 currency list, the quick-add form with its keys.
 
 ## Approved 2026-11-11
 
-The owner approved round 2 of the prototype for implementation ("Approve, build it"). Its screenshots are in
-[prototypes/](prototypes/): the account form as it opens and with Name tapped (375 px, light and dark), the quick-add
+The owner approved round 2 of the prototype for implementation ("Approve, build it"). Its screenshots looked at:
+the account form as it opens and with Name tapped (375 px, light and dark), the quick-add
 form as tall as its content and with its keys up, the currency search and More (375 px), and the desktop dialog,
 unchanged (1440 px, light and dark).
