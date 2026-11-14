@@ -37,6 +37,10 @@ services:
       # it the clean-up is off.
       - key: Cleanup__Secret
         sync: false
+      # The address the privacy policy gives for questions about people's data (F-031). Read by the frontend build (a
+      # Docker build arg, see the Dockerfile), so a change needs a new deploy. Set in the dashboard.
+      - key: VITE_CONTACT_EMAIL
+        sync: false
 
   # Storybook: a static site (no sleeping, no instance hours).
   - type: web

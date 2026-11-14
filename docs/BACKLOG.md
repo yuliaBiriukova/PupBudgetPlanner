@@ -85,7 +85,7 @@ owner asks for one.
 | ID | Feature | Priority | Status |
 |----|---------|----------|--------|
 | [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) | 🎨 Delete my account | Low | Todo |
-| [F-031](changes/features/F-031-privacy-policy/F-031-privacy-policy.md) | 🎨 Privacy policy page (`/privacy`), so the Google app can be published for people outside the family (added 2026-11-14) | Medium | Todo |
+| [F-031](changes/features/F-031-privacy-policy/F-031-privacy-policy.md) | 🎨 Privacy policy page (`/privacy`), so the Google app can be published for people outside the family (added 2026-11-14) | Medium | Done |
 
 ## Improvements
 

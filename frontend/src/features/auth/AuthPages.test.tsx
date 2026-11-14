@@ -230,6 +230,24 @@ describe('creating an account', () => {
       await screen.findByRole('heading', { name: 'Create your Pup Budget account' }),
     ).toBeInTheDocument();
   });
+
+  it('links to the privacy policy under the form, on sign in and on create account', async () => {
+    signedOutServer();
+    const user = userEvent.setup();
+    renderApp('/sign-in');
+
+    expect(await screen.findByRole('link', { name: 'Privacy policy' })).toHaveAttribute(
+      'href',
+      '/privacy',
+    );
+    await user.click(screen.getByRole('link', { name: 'Create account' }));
+    await screen.findByRole('heading', { name: 'Create your Pup Budget account' });
+    await user.click(screen.getByRole('link', { name: 'Privacy policy' }));
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Privacy policy' }),
+    ).toBeInTheDocument();
+  });
 });
 
 describe('signing out', () => {

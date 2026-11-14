@@ -4,12 +4,13 @@ The text of Pup Budget's privacy policy. For now the owner publishes it as a Goo
 that link on Google's Branding page, so the Google app can be published; F-031 then shows the same text on the app's
 own `/privacy` page, and the Branding page's link moves there.
 
-Before publishing, the owner fills in the two places in **[brackets]** (they stay out of the repository):
+Before publishing, the owner fills in the **[contact email]**: the address people write to (the Branding page's
+support email is a good choice). It stays out of the repository; the app's page takes it from the `VITE_CONTACT_EMAIL`
+build setting on Render. The restore window is Neon's 6-hour history window on the `production` branch (owner,
+2026-11-14); no snapshots are kept.
 
-- **[contact email]** — the address people write to (the Branding page's support email is a good choice);
-- **[restore window]** — the database's restore window from the Neon console (launch checklist row 4 of F-026).
-
-It is written from what the app does on 2026-11-14 (data model, cookie, hosting in `render.yaml`, no analytics). When
+The app's page shows this text from `frontend/src/shared/i18n/locales/en.json` (`privacyPolicy`); the two are changed
+together. It is written from what the app does on 2026-11-14 (data model, cookie, hosting in `render.yaml`, no analytics). When
 a change alters what the app keeps or who sees it, this text is updated in the same change.
 
 ---
@@ -91,7 +92,7 @@ All connections to Pup Budget are encrypted (HTTPS).
 
 Your data is kept while your account exists. When your account is deleted, everything in it (accounts, transactions,
 categories, settings and sign-in details) is deleted with it, and it leaves the database's short-term restore history
-within [restore window]. Invite links that can no longer be used are deleted after 30 days.
+within 6 hours. Invite links that can no longer be used are deleted after 30 days.
 
 ## Your choices
 
