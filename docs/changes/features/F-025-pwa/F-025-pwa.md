@@ -93,8 +93,8 @@ the app opens straight away and the existing "Waking up the server…" pill (F-0
       screen, the update toast and Reload)
 - [x] E2E: `pwa.spec.ts` against the production build; the other specs block service workers
       (`serviceWorkers: 'block'`)
-- [ ] Check on a real phone after the release: install on Android and iPhone, open at night while the server sleeps
-      (owner)
+- [x] Check on a real phone after the release: install on Android and iPhone, open at night while the server sleeps
+      (owner, 2026-11-14, in F-026's smoke check)
 - [x] Docs: ADR 0034, ARCHITECTURE (the service worker), DESIGN_RULES "Screen decisions", README (how to install)
 
 ## Tests
