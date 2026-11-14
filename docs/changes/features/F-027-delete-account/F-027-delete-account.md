@@ -5,10 +5,10 @@
 | Type | Feature |
 | Milestone | M9 — Privacy & categories (after the MVP) |
 | Priority | Low |
-| Status | In progress (planning and design round) |
+| Status | In progress (building) |
 | Branch | `feature/F-027-delete-account` |
 | Design | 3 prototype stories required: the setting on Settings and the confirmation (I-021) |
-| Approved | — (not yet: the final prototype first) |
+| Approved | 2026-11-14 by the owner ("Approved, build it": the final prototype, variant 1 with what goes as grey text, and this description) |
 
 ## Goal
 
@@ -31,8 +31,8 @@ A person can delete their account and everything in it themselves, without askin
 ## Tasks
 
 - [x] Answer the open points with the owner (2026-11-14)
-- [ ] References and 3 prototype stories (the setting and the confirmation); the owner picks; final prototype
-- [ ] The owner approves the final prototype and this description
+- [x] References and 3 prototype stories (the setting and the confirmation); the owner picks; final prototype
+- [x] The owner approves the final prototype and this description (2026-11-14)
 - [ ] API endpoint: confirm (password, or a fresh Google sign-in), then delete the account and its data in one
       transaction, reusing F-028's deletion and F-023's hand-over
 - [ ] UI in settings, with i18n texts
