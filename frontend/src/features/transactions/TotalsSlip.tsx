@@ -269,10 +269,14 @@ function PeriodPicker({
     onSettle();
   };
 
+  // A slip too narrow for "September 2026" shows "Sep 2026"; screen readers always hear the whole month (F-026)
   const name =
     period.kind === 'month' ? (
       <>
-        {dayjs(`${period.month}-01`).format('MMMM')}{' '}
+        <span className={classes.monthLong}>{dayjs(`${period.month}-01`).format('MMMM')}</span>
+        <span className={classes.monthShort} aria-hidden="true">
+          {dayjs(`${period.month}-01`).format('MMM')}
+        </span>{' '}
         <span className={classes.year}>{period.month.slice(0, 4)}</span>
       </>
     ) : (

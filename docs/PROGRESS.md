@@ -2,6 +2,59 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (F-026: MVP launch, fixes, user guide and checks)
+
+**Done**
+- The owner approved the findings ("Fix 1–6, leave 7"). Fixed on `feature/F-026-mvp-launch`, each with a test:
+  - #1, #6: a Transactions slip too narrow for "September 2026" (phones below about 420 px) shows "Nov 2026" (the
+    whole month is still read out); at 320 px the figures are smaller, and below 360 px the "Whose money" pill shows
+    only the initial. New E2E test at 320 – 412 px.
+  - #2: Settings says "Your name is shown in the menu and to your family."
+  - #3: the password fields keep room for the show / hide button. New E2E test.
+  - #4: every response carries `X-Frame-Options: DENY`, `Content-Security-Policy: frame-ancestors 'none'`,
+    `X-Content-Type-Options: nosniff` and `Referrer-Policy: strict-origin-when-cross-origin`, error pages too
+    (`SecurityHeaders` in the API). Unit tests and an E2E check.
+  - #5: the current month's green in the Reports table is a shade darker; axe is clean on Reports at 768 – 1440 px.
+- Both new E2E tests were run against the old CSS on a fresh dev server and failed there, so they can't pass by luck.
+  (Swapping CSS under a running Vite server isn't a fair check: its class names carry line numbers.)
+- DESIGN_RULES "Screen decisions": the slip's short month name and the narrow lens pill noted on F-020's and F-024's rows.
+- Test data: two `e2e-f026-fix-…@example.com` people (a family with this month's money) and the invite links for them
+  and a Create account screenshot, made in `dev` for the screenshots; deleted at the end, none left.
+
+- README: the user guide "Using Pup Budget" for the family (getting in, installing, first steps, every day, looking
+  back, family and privacy, good to know), with the install steps moved into it; the status line says MVP.
+- F-026 and M6 marked Done in the backlog and the roadmap.
+- Checks: backend build and all 593 tests; frontend lint, formatting, typecheck, all unit tests, the production
+  build, and the full E2E suite (phone and desktop) against it; the new E2E tests 3 times in a row.
+
+**Next**
+- Owner: review and merge the F-026 PR; check the launch checklist's owner rows; answer the open points (production
+  data, backups).
+- Then Claude opens the release PR `develop` → `main`; after the owner merges it, the production smoke check.
+
+## 2026-11-14 (F-026: MVP launch, plan and review pass)
+
+**Done**
+- Planned [F-026](changes/features/F-026-mvp-launch/F-026-mvp-launch.md) on `feature/F-026-mvp-launch`: five steps
+  (review, fixes, launch checklist, user guide, release), the review list, a 10-row launch checklist, the README
+  guide's outline and the production smoke check. The owner approved the plan ("Approved, start", 2026-11-14).
+- Review pass done: the design check (axe and layout) on every page at 360 – 1440 px, light and dark, as a person
+  with data, a new person, a family member, the admin and signed out; screenshots of every page and of the add form,
+  dialogs and error states looked at; keyboard and 320 px reflow. 7 findings in
+  [`findings.md`](changes/features/F-026-mvp-launch/findings.md), 4 of them Medium: the month title cut on phones up to
+  390 px, Settings' outdated "once families come", a long password under the eye button, no security headers on
+  production. Nothing fixed yet.
+- Launch checklist: Claude's rows checked (no secrets in the repo or history, `render.yaml`, production's health and
+  HTTPS); the owner's rows (Render, Neon, cron-job.org, Google, GitHub minutes, production data) are open.
+- Test data: three `e2e-f026-…@example.com` people (a family of two and an empty one) with accounts and transactions,
+  and their 5 invite links, made in `dev` for the review; all deleted at the end, none left. The tests' admin was used
+  for the People page and stays. Nothing of the owner's was touched.
+
+**Next**
+- Owner: go through `findings.md` and approve which findings are fixed here; check the launch checklist's owner rows;
+  answer the plan's open points (production data, backups).
+- Then: the fixes, the README guide, all checks, the PR and the release PR.
+
 ## 2026-11-14 (F-025: installable app)
 
 **Done**

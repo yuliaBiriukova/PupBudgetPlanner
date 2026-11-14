@@ -615,7 +615,7 @@
   "settings": {
     "loading": "Loading your settings",
     "nameTitle": "Name and email",
-    "nameText": "Your name is shown in the menu, and to your family once families come.",
+    "nameText": "Your name is shown in the menu and to your family.",
     "name": "Name",
     "saveName": "Save name",
     "cancel": "Cancel",

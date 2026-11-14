@@ -4,19 +4,73 @@ A personal and family budget tracker. Enter daily expenses, income and transfers
 your accounts (Monobank, PrivatBank, cash — in UAH, USD and EUR), and get monthly and yearly
 reports automatically — for yourself and for your whole family.
 
-> Status: **planning / Milestone 0 (Foundation)**. See [docs/PROGRESS.md](docs/PROGRESS.md).
+> Status: **MVP** (Milestone 6): in use by the family at https://pup-budget-planner.onrender.com. What comes next is in
+> [docs/ROADMAP.md](docs/ROADMAP.md), what was done in [docs/PROGRESS.md](docs/PROGRESS.md).
 
-## Install it on your phone
+## Using Pup Budget
 
-Pup Budget is an installable web app: once on the home screen it opens like an app, at once, even while the free
-server is asleep at night.
+A short guide for the family. Pup Budget works on a phone and on a computer; everything you add is the same on both.
+
+### Getting in
+
+Pup Budget is invite-only. You need an invite link from someone already in it: they make one on the **Family** page
+(*Invite someone*), and it works once, for 7 days. Open it, and create your account with your name, email and a
+password, or with **Continue with Google**. Next time, sign in on the same page.
+
+### Install it
+
+Once on the home screen it opens like an app, at once, even while the free server is asleep at night.
 
 - **Android (Chrome)** and **a computer (Chrome or Edge):** open the app and tap *Install* on the card at the top
   of the page (later: More › *Install the app*; on the computer: *Install the app* at the bottom of the sidebar).
 - **iPhone or iPad (Safari):** tap ••• in Safari's bar, then *Share*, then *Add to Home Screen*, then *Add*. The
   app shows these steps too.
 
-After a release the app says "A new version is ready." — tap *Reload* to use it.
+### First steps
+
+Open **Accounts** and add each bank card, savings account and pocket of cash, in its own currency (*Add account*).
+Its **opening balance** is what is on it today (below zero for a credit card debt). That is your starting point
+instead of the spreadsheet: from here on, the balances follow what you add.
+
+### Every day
+
+The **+** is always at hand (*Add transaction* in the sidebar on a computer):
+
+- **Expense** and **Income**: the amount, the account and the category; a note if you like. A note used before is
+  suggested as you type.
+- **Transfer**: from one account to another. Between two currencies it is an **exchange**: the app offers the NBU
+  rate, and you can type what the bank really gave you.
+- On the phone the amount has its own keys, and they work as a calculator: type `120+45.50` for a receipt.
+
+A tap on a transaction opens it to change or delete it.
+
+### Looking back
+
+- **Transactions**: the month's spent and received at the top (‹ › or a swipe for another month, a tap on the
+  month for other periods), a calendar with each day as red as it cost, where the money went by category, and every
+  day as a receipt. A day or a category tapped shows only its transactions.
+- **Reports**: the year by category and month, or one month in detail, in your **report currency** (set in
+  **Settings**; other currencies are converted at the NBU rate).
+
+### Family
+
+On the **Family** page you start a family and invite the others. Everyone keeps their own accounts and transactions;
+**Whose money** (in the sidebar, or the pill at the top on the phone) shows yours, one person's or the whole
+family's together. Someone else's money is only to look at.
+
+What the others see of yours is up to you, under **What the family sees** on the Family page:
+
+- **Your transactions**: every transaction, or only the totals by category;
+- **Your accounts**: each one *Everything*, *Balance only* or *Hidden*;
+- **Private categories**: categories (or whole groups) whose transactions only you see.
+
+### Good to know
+
+- At night the free server sleeps: the first page can take up to a minute ("Waking up the server…"). After that it is
+  quick.
+- After a release the app says "A new version is ready." Tap *Reload* to use it.
+- Without a connection you can look at what is already open, but not save.
+- Your name, report currency and the light or dark look are in **Settings**.
 
 ## Tech stack
 

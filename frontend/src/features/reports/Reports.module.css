@@ -255,6 +255,11 @@
   color: var(--pup-color-income);
 }
 
+/* On the highlighted month the green is a shade nearer the text, for AA contrast on its background (F-026) */
+.income[data-current] {
+  color: color-mix(in srgb, var(--pup-color-income) 85%, var(--mantine-color-text));
+}
+
 /* A group's row: its total, unfolding into its categories */
 .groupRow th,
 .groupRow td {
@@ -498,6 +503,10 @@
 
 .summary .up {
   color: var(--pup-slip-received);
+}
+
+.summary .up[data-current] {
+  color: color-mix(in srgb, var(--pup-slip-received) 85%, var(--pup-card-on-solid));
 }
 
 .summary .down {

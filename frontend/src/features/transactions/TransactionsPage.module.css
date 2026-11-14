@@ -82,6 +82,33 @@
   color: var(--pup-card-solid-muted);
 }
 
+/* The month's short name ("Sep") only shows on a slip too narrow for the longest whole one, "September 2026" */
+.monthShort {
+  display: none;
+}
+
+/* The narrowest phones (320 px): smaller figures keep spent and received apart (`.slip` wins over 25em below) */
+@container slip (max-width: 280px) {
+  .slip .figures dd {
+    font-size: 20px;
+  }
+}
+
+@container slip (max-width: 355px) {
+  .monthShort {
+    display: inline;
+  }
+
+  .monthLong {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 .figures {
   display: flex;
   gap: 0 20px;

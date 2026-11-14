@@ -52,8 +52,9 @@
   color: var(--mantine-color-text);
 }
 
+/* Only the password field has one: room on the right for the show / hide button (rightSectionWidth 52 px). */
 .innerInput {
-  padding-inline: 16px;
+  padding-inline: 16px 52px;
   font-size: 16px;
 }
 

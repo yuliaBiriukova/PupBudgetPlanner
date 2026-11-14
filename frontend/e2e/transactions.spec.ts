@@ -920,3 +920,75 @@ test('the saved toast is in sight: at the top under the header on the phone, cle
       .toEqual([16, 16]);
   }
 });
+
+test('on phones from 320 to 412 px the month’s title fits its slip and spent and received keep apart (F-026)', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'The desktop’s slip has room for the whole month');
+  const response = await signUpThroughApi(page.request, newPerson('slip-fit'));
+  expect(response.ok()).toBe(true);
+  await addAccount(page, 'Mono black', 100_000, 'Bank');
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Kyiv' }).format(new Date());
+  const accounts = (await (await page.request.get('/api/accounts')).json()) as {
+    accounts: { id: string }[];
+  };
+  const groups = (await (await page.request.get('/api/categories')).json()) as {
+    groups: { kind: string; categories: { id: string }[] }[];
+  };
+  const firstOf = (kind: string) => groups.groups.find((g) => g.kind === kind)?.categories[0]?.id;
+  // Wide figures, as a real month's: 25 707 ₴ spent, +42 000 ₴ received
+  for (const [type, amount] of [
+    ['Expense', 25_707],
+    ['Income', 42_000],
+  ] as const) {
+    const added = await page.request.post('/api/transactions', {
+      headers: await antiforgery(page.request),
+      data: {
+        type,
+        date: today,
+        note: null,
+        accountId: accounts.accounts[0]?.id,
+        categoryId: firstOf(type),
+        amount,
+      },
+    });
+    expect(added.ok()).toBe(true);
+  }
+
+  await page.goto('/transactions');
+  const slip = page.getByRole('region', { name: en.transactions.totals.label });
+  // Screen readers hear the whole month, also when the slip shows its short name
+  const month =
+    /^Period:\s*(January|February|March|April|May|June|July|August|September|October|November|December) \d{4}$/;
+  const period = slip.getByRole('button', { name: month });
+  const figures = slip.locator('dd');
+
+  for (const width of [320, 360, 375, 390, 412]) {
+    await page.setViewportSize({ width, height: 800 });
+    await expect(figures).toHaveCount(2);
+    await expect(figures.last()).toHaveText(/42\s000/);
+    // The title's text isn't cut with "…"
+    await expect
+      .poll(() =>
+        period.evaluate((button) => {
+          const text = Array.from(button.querySelectorAll('span')).find(
+            (span) => getComputedStyle(span).textOverflow === 'ellipsis',
+          );
+          return text ? text.scrollWidth - text.clientWidth : Number.NaN;
+        }),
+      )
+      .toBeLessThanOrEqual(0);
+    // Each figure fits its place, and received starts after spent ends
+    const [spent, received] = await figures.evaluateAll((dds) =>
+      dds.map((dd) => ({
+        overflow: dd.scrollWidth - dd.clientWidth,
+        left: dd.getBoundingClientRect().left,
+        right: dd.getBoundingClientRect().right,
+      })),
+    );
+    expect(spent.overflow, `spent at ${String(width)} px`).toBeLessThanOrEqual(0);
+    expect(received.overflow, `received at ${String(width)} px`).toBeLessThanOrEqual(0);
+    expect(spent.right).toBeLessThan(received.left);
+  }
+});
