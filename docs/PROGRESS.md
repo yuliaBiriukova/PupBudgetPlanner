@@ -2,6 +2,33 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (F-031: privacy policy page, built)
+
+**Done**
+- The owner approved the final prototype ("Approved, build it"). Built on `feature/F-031-privacy-policy`:
+  - `/privacy` (`features/privacy-policy`), open to anyone and with no request to the API: the app’s top line, the
+    title and date, the summary, the sections; the contents beside the text on the desktop marking the section being
+    read, folded under the intro on the phone. The text is in `en.json` (`privacyPolicy`), the same as
+    [`privacy-policy.md`](changes/features/F-031-privacy-policy/privacy-policy.md), with the restore window the owner
+    read in Neon: 6 hours.
+  - A quiet *Privacy policy* link under the sign-in frame’s form (Sign in, Create account, the invite page);
+    Settings ends with a *Privacy* section, a row with the policy’s date.
+  - The contact address is the build setting `VITE_CONTACT_EMAIL` (Render passes it to the Docker build;
+    `render.yaml`, Dockerfile), never in the repository; without it the page names "the person who runs Pup Budget"
+    ([ADR 0035](decisions/0035-privacy-policy-page.md)). README and ARCHITECTURE say how to set it.
+  - Clicking through the final prototype found two things, fixed before the build: a section picked from the
+    phone’s folded contents was scrolled past, and on the desktop a section near the end wasn’t marked.
+- Tests: unit (the page, the policy’s helpers, the links on Sign in, Create account, the invite page and Settings),
+  E2E `e2e/privacy.spec.ts` (phone and desktop, 3 runs each), stories *Privacy / Privacy policy*; Settings’ stories
+  got a router for the new link. Design check on the page and the pages with its link: clean but for the password
+  field’s eye button over its field, which the sign-in forms had before. Screenshots of every screen at 375 and
+  1440 px, light and dark, looked at. The prototype stories are deleted.
+- Test data: the E2E runs made their `e2e-…@example.com` people, which the clean-up removed; nothing else was created.
+
+**Next**
+- Owner: review the PR; set `VITE_CONTACT_EMAIL` on Render before the release; after it, point Google’s Branding
+  page at `https://pup-budget-planner.onrender.com/privacy`.
+
 ## 2026-11-14 (F-031: privacy policy page, design round 1)
 
 **Done**
@@ -39,6 +66,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 **Next**
 - Owner: fill in the contact email and the restore window, publish the Google Doc and the Google app; review the text
   and approve F-031's description. Then the design round (3 prototype stories).
+
 ## 2026-11-14 (F-026: the owner's launch checks)
 
 **Done**
