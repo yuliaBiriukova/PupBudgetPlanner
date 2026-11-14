@@ -199,6 +199,20 @@ describe('the Settings page', () => {
     expect(document.documentElement).toHaveAttribute('data-mantine-color-scheme', 'dark');
   });
 
+  it('opens the privacy policy from its last section', async () => {
+    settingsServer();
+    const user = userEvent.setup();
+    renderApp('/settings');
+
+    const privacy = await screen.findByRole('region', { name: 'Privacy' }, LOADED);
+    expect(within(privacy).getByText('Last updated 14 November 2026')).toBeInTheDocument();
+    await user.click(within(privacy).getByRole('link', { name: /Privacy policy/ }));
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Privacy policy' }),
+    ).toBeInTheDocument();
+  });
+
   it('says when the settings couldn’t be loaded, and tries again', async () => {
     let fail = true;
     settingsServer();

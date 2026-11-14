@@ -51,6 +51,10 @@ describe('the invite page', () => {
 
     expect(await screen.findByText('Yulia invited you to Pup Budget')).toBeInTheDocument();
     expect(screen.getByText(/works once, until 19 Nov 2026/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Privacy policy' })).toHaveAttribute(
+      'href',
+      '/privacy',
+    );
     expect(
       screen.queryByRole('navigation', { name: 'Sign in or create an account' }),
     ).not.toBeInTheDocument();
