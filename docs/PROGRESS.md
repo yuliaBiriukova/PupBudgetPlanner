@@ -2,6 +2,24 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (F-027: delete my account, open points and design round 1)
+
+**Done**
+- Started [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) on `feature/F-027-delete-account`
+  (status In progress). The owner answered the open points (Q-010 moved to Answered): deleted right away; confirmed
+  with the password (or Google once more) plus a typed word; a family's owner with others picks the next owner, as
+  "Leave family" does; signing up again needs a new invite like anyone new. Claude's proposals, taken unless the owner
+  says otherwise: no export until M11; the admin can't delete their own account from Settings.
+- Design round 1: references, brief and plan in the description file; 3 prototype stories in Storybook
+  (`Prototypes/F-027 Delete my account`) on the real Settings page: 1 "One dialog", 2 "In place", 3 "The last page",
+  each with controls for how the person signs in (password, Google, admin) and their family role. Design check
+  (axe and layout, 360 – 1440 px, light and dark) clean; every state clicked through in Playwright and its screenshots
+  looked at (phone and desktop, light and dark).
+- No test data: nothing was created (prototypes use a fake API).
+
+**Next**
+- Owner: pick a variant (or a mix); then the final prototype and the approval before any code.
+
 ## 2026-11-14 (F-026: the owner's launch checks)
 
 **Done**

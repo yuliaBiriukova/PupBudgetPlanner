@@ -1,0 +1,264 @@
+/* F-027 prototypes: Delete account on Settings and its confirmation */
+
+/* Apart from the other settings: a wider gap above the rule */
+.apart {
+  margin-top: 24px;
+}
+
+.startButton {
+  margin-inline-start: -12px;
+}
+
+.adminLine {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+/* What goes: a short ledger, labels left and figures right, thin rules between */
+.ledger {
+  display: grid;
+  gap: 8px;
+}
+
+.rows {
+  margin: 0;
+  border-top: 1px solid var(--pup-color-rule);
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  justify-content: space-between;
+  min-height: 40px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--pup-color-rule);
+  font-size: 14px;
+}
+
+.row dt {
+  min-width: 0;
+}
+
+.row dd {
+  margin: 0;
+}
+
+.figure {
+  font-size: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.since {
+  color: var(--mantine-color-dimmed);
+}
+
+.note {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+/* The pop-up's content: one gap between its parts, no bigger than the pop-up's padding */
+.dialogBody {
+  display: grid;
+  gap: 16px;
+}
+
+.lead {
+  margin: 0;
+}
+
+.part {
+  display: grid;
+  gap: 8px;
+}
+
+.partTitle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.partText {
+  margin: -4px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+/* Variant 2's step number: a small figure in a ring of the rule's colour */
+.number {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--pup-color-field-border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.google {
+  justify-self: start;
+  min-height: 44px;
+  border-color: var(--pup-color-field-border);
+  border-radius: 999px;
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+}
+
+.google:hover {
+  background: var(--pup-color-hover);
+}
+
+.confirmed {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  min-height: 44px;
+  color: var(--pup-color-income);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+.fieldError {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 0;
+  color: var(--mantine-color-error);
+  font-size: 14px;
+}
+
+/* Variant 2: the steps open in the section, after a rule */
+.steps {
+  display: grid;
+  gap: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--pup-color-rule);
+  outline: none;
+}
+
+.stepButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Variant 3: the row on Settings and the page of its own */
+.openRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--pup-color-field-border);
+  border-radius: 999px;
+  color: var(--pup-color-danger);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.openRow:hover {
+  background: var(--pup-color-hover);
+}
+
+.openRow:focus-visible {
+  outline: 2px solid var(--mantine-color-text);
+  outline-offset: 2px;
+}
+
+.page {
+  max-width: 640px;
+}
+
+.back {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  min-height: 44px;
+  margin-inline-start: -4px;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--mantine-color-text);
+}
+
+.pageLead {
+  margin: 8px 0 0;
+  color: var(--mantine-color-dimmed);
+}
+
+.pageBlock {
+  display: grid;
+  gap: 12px;
+  padding: 20px 0 24px;
+}
+
+.blockTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.confirmParts {
+  display: grid;
+  gap: 20px;
+}
+
+.pageButtons {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 47.99em) {
+  .pageButtons > * {
+    flex: 1 1 100%;
+  }
+}
+
+/* After the deletion */
+.deleted {
+  display: grid;
+  gap: 12px;
+}
+
+.deleted p {
+  margin: 0;
+}
+
+.deletedTitle {
+  margin: 0 0 4px;
+  font-family: var(--mantine-font-family-headings);
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 32px;
+}
+
+.dim {
+  color: var(--mantine-color-dimmed);
+}
+
+.again {
+  justify-self: start;
+  margin-top: 8px;
+  margin-inline-start: -12px;
+}

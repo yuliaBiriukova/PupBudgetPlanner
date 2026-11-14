@@ -84,7 +84,7 @@ owner asks for one.
 
 | ID | Feature | Priority | Status |
 |----|---------|----------|--------|
-| [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) | 🎨 Delete my account | Low | Todo |
+| [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) | 🎨 Delete my account | Low | In progress |
 
 ## Improvements
 
