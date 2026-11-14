@@ -98,6 +98,13 @@ and with no links (`family-none-…`), each at 375 and 1440 px, light and dark.
 
 ## Notes
 
+### Corrected by B-027 (2026-11-14)
+
+The owner wanted the groups gone only on the Family page; the People page's one list was a misreading.
+[B-027](../../bugfixes/B-027-invite-link-groups-on-people/B-027-invite-link-groups-on-people.md) brings the groups
+back to People › Invite links (only those with links, as this change's prototype showed them on the Family page); the
+Family page keeps the one list.
+
 ### Review of PR #97 (owner, 2026-11-13)
 
 The Family page still had groups (only the ones with links, as the approved prototype showed); the owner wants no

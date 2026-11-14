@@ -41,7 +41,7 @@ async function signUpWith(token: string, person: Person) {
   }
 }
 
-test('the admin sees every link in one list with its status, deletes a used and a waiting one and cancels another', async ({
+test('the admin sees the links in groups, deletes a used and a waiting one and cancels another', async ({
   page,
 }) => {
   const admin = await signedInAdmin();
@@ -69,12 +69,18 @@ test('the admin sees every link in one list with its status, deletes a used and 
   await expect(page.getByRole('heading', { level: 1, name: en.nav.transactions })).toBeVisible();
   await page.goto('/people/links');
 
-  // One list, no groups to open (I-032): each row says its status with a tag
-  const row = (note: string) => page.getByRole('listitem').filter({ hasText: note });
-  await expect(row(used)).toContainText(en.inviteLinks.status.Used);
-  await expect(row(used)).toContainText(`by ${person.displayName} on`);
-  await expect(row(waiting)).toContainText(en.inviteLinks.status.Waiting);
-  await expect(page.getByRole('button', { name: /^Used/ })).toHaveCount(0);
+  // The links in groups (B-027): Waiting open, Used folded until opened; the rows say their status in words
+  const group = (name: string) => page.getByRole('region', { name, exact: true });
+  const waitingGroup = group(en.inviteLinks.groups.waiting);
+  const usedGroup = group(en.inviteLinks.groups.used);
+  const oldGroup = group(en.inviteLinks.groups.old);
+  await expect(waitingGroup.getByRole('listitem').filter({ hasText: waiting })).toBeVisible();
+  const usedFold = usedGroup.getByRole('button', { name: /^Used/ });
+  await expect(usedFold).toHaveAttribute('aria-expanded', 'false');
+  await usedFold.click();
+  await expect(usedGroup.getByRole('listitem').filter({ hasText: used })).toContainText(
+    `Used by ${person.displayName} on`,
+  );
 
   // Only this test's links are picked: the admin's list is the shared dev database's (never Select all here)
   await page.getByRole('checkbox', { name: `Pick ${used}` }).check();
@@ -94,14 +100,19 @@ test('the admin sees every link in one list with its status, deletes a used and 
   // The deleted waiting link no longer opens
   expect((await page.request.get(`/api/invitations/${waitingToken}`)).status()).toBe(404);
 
-  // Cancel links in the bulk bar: the link stays in the list, its tag now Cancelled
+  // Cancel links in the bulk bar: the link moves to Expired and cancelled
   await page.getByRole('checkbox', { name: `Pick ${toCancel}` }).check();
   await bar.getByRole('button', { name: /Cancel/ }).click();
   const cancelDialog = page.getByRole('dialog', { name: `Cancel “${toCancel}”?` });
-  await expect(cancelDialog).toContainText('It shows as cancelled');
+  await expect(cancelDialog).toContainText('It moves to Expired and cancelled');
   await cancelDialog.getByRole('button', { name: 'Cancel link' }).click();
   await expect(page.getByText(en.inviteLinks.confirmCancel.doneOne)).toBeVisible();
-  await expect(row(toCancel)).toContainText(en.inviteLinks.status.Cancelled);
+  const oldFold = oldGroup.getByRole('button', { name: /^Expired and cancelled/ });
+  if ((await oldFold.getAttribute('aria-expanded')) === 'false') await oldFold.click();
+  await expect(oldGroup.getByRole('listitem').filter({ hasText: toCancel })).toContainText(
+    'Cancelled on',
+  );
+  await expect(waitingGroup.getByRole('listitem').filter({ hasText: toCancel })).toHaveCount(0);
   const links = (await (await page.request.get('/api/admin/invitations')).json()) as {
     note: string | null;
     status: string;

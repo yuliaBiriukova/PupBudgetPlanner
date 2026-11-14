@@ -355,40 +355,64 @@ describe('the People page', () => {
 });
 
 describe('invite links', () => {
-  it('lists every link in one list, waiting ones first, then the rest newest first, each with its status (I-032)', async () => {
+  it('groups the links: Waiting open, Used and Expired and cancelled folded until opened, remembering it (B-027)', async () => {
     adminServer();
-    renderApp('/people/links');
+    const user = userEvent.setup();
+    const { unmount } = renderApp('/people/links');
 
     expect(await screen.findByText('For Mom')).toBeInTheDocument();
-    const rows = screen.getAllByRole('listitem');
-    expect(rows.map((row) => within(row).getByText(/^For /).textContent)).toEqual([
-      'For Mom',
-      'For Taras',
-      'For Ira',
-    ]);
-    const [mom, taras, ira] = rows;
-    if (!mom || !taras || !ira) throw new Error('three rows');
-    expect(within(mom).getByText('Waiting')).toBeInTheDocument();
-    expect(
-      within(mom).getByRole('button', { name: 'Cancel the link For Mom' }),
-    ).toBeInTheDocument();
-    // The tag says the status; the details after it don't repeat it
-    expect(within(taras).getByText('Expired')).toBeInTheDocument();
-    expect(within(taras).getByText('on 10 Nov')).toBeInTheDocument();
-    expect(within(ira).getByText('Used')).toBeInTheDocument();
-    expect(within(ira).getByText('by Iryna Melnyk on 6 Nov')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Waiting' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Used' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Expired and cancelled' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel the link For Mom' })).toBeInTheDocument();
+    // The folded groups' links aren't on the page, and there is no one list's head
+    const used = screen.getByRole('button', { name: /Used/ });
+    expect(used).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('For Ira')).not.toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: 'Select all links' })).not.toBeInTheDocument();
 
-    // No groups and nothing folds: one Select all and the count
-    expect(screen.queryByRole('heading', { name: 'Waiting' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { expanded: false })).not.toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'Select all links' })).toBeInTheDocument();
-    expect(screen.getByText('3 links')).toBeInTheDocument();
+    await user.click(used);
+    // The group's title says the status, so the row says it in words, without a tag
+    expect(screen.getByText('Used by Iryna Melnyk on 6 Nov')).toBeInTheDocument();
+    expect(screen.queryByText('For Taras')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Expired and cancelled/ }));
+    expect(screen.getByText('Expired on 10 Nov')).toBeInTheDocument();
+    // Waiting folds too (I-006)
+    await user.click(screen.getByRole('button', { name: /Waiting/ }));
+    expect(screen.getByRole('button', { name: /Waiting/ })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+    expect(screen.queryByText('For Mom')).not.toBeInTheDocument();
     expect(
       screen.getByText(/deleted automatically 30 days after they stop working/),
     ).toBeInTheDocument();
+    unmount();
+
+    renderApp('/people/links');
+    expect(await screen.findByText('For Ira')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Used/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('button', { name: /Waiting/ })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
   });
 
-  it('says there are no links yet, with no list head (I-032)', async () => {
+  it('shows only the groups that have links (I-032)', async () => {
+    adminServer();
+    server.use(
+      http.get('/api/admin/invitations', () =>
+        HttpResponse.json(LINKS.filter((item) => item.status !== 'Used')),
+      ),
+    );
+    renderApp('/people/links');
+
+    expect(await screen.findByRole('heading', { name: 'Waiting' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Expired and cancelled' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Used' })).not.toBeInTheDocument();
+  });
+
+  it('says there are no links yet, with no groups (I-032)', async () => {
     adminServer();
     server.use(http.get('/api/admin/invitations', () => HttpResponse.json([])));
     renderApp('/people/links');
@@ -396,27 +420,30 @@ describe('invite links', () => {
     expect(
       await screen.findByText('No invite links yet. Make one with New invite link.'),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('checkbox', { name: 'Select all links' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Waiting' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: /Select all/ })).not.toBeInTheDocument();
   });
 
-  it('selects every link with Select all, and deletes the picked ones after one confirmation', async () => {
+  it('selects a whole folded group and deletes it after one confirmation', async () => {
     const actions = adminServer();
     const user = userEvent.setup();
     renderApp('/people/links');
 
-    const all = await screen.findByRole('checkbox', { name: 'Select all links' });
-    await user.click(all);
-    expect(screen.getByText('3 picked', { selector: 'span span' })).toBeInTheDocument();
-    await user.click(all);
-    expect(screen.queryByRole('region', { name: 'Picked links' })).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('checkbox', { name: 'Pick For Ira' }));
-    expect(screen.getByRole('checkbox', { name: 'Select all links' })).toBePartiallyChecked();
+    const usedAll = await screen.findByRole('checkbox', { name: 'Select all used links' });
+    await user.click(usedAll);
+    expect(screen.getByText('1 picked', { selector: 'span span' })).toBeInTheDocument();
+    expect(usedAll).toBeChecked();
+    // The group stays folded
+    expect(screen.getByRole('button', { name: /Used/ })).toHaveAttribute('aria-expanded', 'false');
     const bar = screen.getByRole('region', { name: 'Picked links' });
     // Nothing waiting is picked: no Cancel links
+    expect(within(bar).getByText('1 picked')).toBeInTheDocument();
     expect(within(bar).queryByRole('button', { name: /Cancel/ })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('checkbox', { name: 'Pick For Taras' }));
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+    );
+    expect(within(bar).getByText('2 picked')).toBeInTheDocument();
     await user.click(within(bar).getByRole('button', { name: 'Delete' }));
     const dialog = await screen.findByRole('dialog', { name: 'Delete 2 links?' });
     expect(within(dialog).getByText(/used by Iryna Melnyk/)).toBeInTheDocument();
@@ -454,14 +481,16 @@ describe('invite links', () => {
     renderApp('/people/links');
 
     await user.click(await screen.findByRole('checkbox', { name: 'Pick For Mom' }));
-    await user.click(screen.getByRole('checkbox', { name: 'Pick For Taras' }));
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Select all expired and cancelled links' }),
+    );
     const bar = screen.getByRole('region', { name: 'Picked links' });
     expect(within(bar).getByText('2 picked')).toBeInTheDocument();
     await user.click(within(bar).getByRole('button', { name: /Cancel/ }));
 
     const dialog = await screen.findByRole('dialog', { name: 'Cancel “For Mom”?' });
-    // No Expired and cancelled group here to move to (I-032)
-    expect(within(dialog).getByText(/It shows as cancelled/)).toBeInTheDocument();
+    // The link moves to its group (B-027)
+    expect(within(dialog).getByText(/It moves to Expired and cancelled/)).toBeInTheDocument();
     expect(
       within(dialog).getByText('The other picked link doesn’t work any more and stays as it is.'),
     ).toBeInTheDocument();

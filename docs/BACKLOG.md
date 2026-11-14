@@ -153,3 +153,4 @@ owner asks for one.
 | [B-024](changes/bugfixes/B-024-family-test-expects-used-link-gone/B-024-family-test-expects-used-link-gone.md) | A Family E2E test expects a used invite link to be gone, but I-032 lists it (fixed in the release PR #98) | High | Done |
 | [B-025](changes/bugfixes/B-025-cleanup-timeout-after-big-runs/B-025-cleanup-timeout-after-big-runs.md) | The E2E clean-up times out after a big run and leaves test accounts in `dev` (found by I-033) | Medium | Done |
 | [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md) | One more Family privacy unit test looks inside a fold that is still opening, missed by B-019 (found by I-033) | High | Done |
+| [B-027](changes/bugfixes/B-027-invite-link-groups-on-people/B-027-invite-link-groups-on-people.md) | The People page's invite links lost their groups: only the Family page was meant to drop them (I-032) | Medium | Done |
