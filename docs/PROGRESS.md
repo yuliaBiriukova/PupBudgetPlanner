@@ -16,8 +16,13 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   every state at 375 and 1440 px, light and dark, looked at.
 - No app code. No test data: nothing was created.
 
+- The owner chose variant 2 "A document with contents". The final prototype is variant 2 with two fixes found by
+  clicking through it: on the phone, picking a section from the folded contents now scrolls there after the fold
+  closes (it overshot); on the desktop, a section picked near the end is marked (the page can’t scroll it to the top).
+  Design check clean but for the existing password-field finding; screenshots of the reached states looked at.
+
 **Next**
-- Owner: pick a variant (or a mix); then the final prototype and its approval.
+- Owner: approve the final prototype for implementation.
 
 ## 2026-11-14 (F-031: privacy policy page, planned)
 

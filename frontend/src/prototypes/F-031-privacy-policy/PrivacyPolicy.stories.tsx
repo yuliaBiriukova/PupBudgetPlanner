@@ -48,3 +48,13 @@ export const Variant3: Story = {
   name: 'Variant 3: Answers first',
   args: { variant: 'variant3' },
 };
+
+/**
+ * The final prototype (2026-11-14): variant 2 as it is, chosen by the owner. The page under the app's top line, the
+ * contents beside the text on the desktop and folded on the phone; "Privacy policy" under the sign-in and
+ * create-account forms; a Privacy row in Settings.
+ */
+export const Final: Story = {
+  name: 'Final prototype',
+  args: { variant: 'variant2' },
+};

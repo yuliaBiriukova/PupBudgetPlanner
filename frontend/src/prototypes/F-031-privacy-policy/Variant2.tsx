@@ -1,6 +1,6 @@
 import { Collapse, UnstyledButton } from '@mantine/core';
 import { IconArrowLeft, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { BrandName, Logo } from '../../app/shell/Logo';
 import { Blocks, Section } from './Frame';
@@ -8,29 +8,76 @@ import { useBack } from './useBack';
 import { INTRO, IN_SHORT, SECTIONS, UPDATED } from './policy';
 import classes from './Variant2.module.css';
 
-/** The section in view, for the contents' marker. */
+/** How far down the window a section's heading has to come to count as the one being read. */
+const READ_LINE = 120;
+
+/**
+ * The section being read, for the contents' marker: the last one whose heading has passed the reading line. A
+ * section picked in the contents is marked even when the page can't scroll it that far up (the last ones), until the
+ * person scrolls by hand.
+ */
 function useSectionInView() {
   const [inView, setInView] = useState(SECTIONS[0]?.id ?? '');
+  const picked = useRef<string | null>(null);
+
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const top = entries.filter((e) => e.isIntersecting).map((e) => e.target.id)[0];
-        if (top) setInView(top.replace('v2-', ''));
-      },
-      { rootMargin: '0px 0px -70% 0px' },
-    );
-    SECTIONS.forEach((s) => {
-      const el = document.getElementById(`v2-${s.id}`);
-      if (el) observer.observe(el);
-    });
+    const update = () => {
+      const atEnd =
+        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+      if (picked.current && atEnd) {
+        setInView(picked.current);
+        return;
+      }
+      let current = SECTIONS[0]?.id ?? '';
+      for (const s of SECTIONS) {
+        const top = document.getElementById(`v2-${s.id}`)?.getBoundingClientRect().top;
+        if (top !== undefined && top <= READ_LINE) current = s.id;
+      }
+      setInView(current);
+    };
+    const byHand = () => {
+      picked.current = null;
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('wheel', byHand, { passive: true });
+    window.addEventListener('touchmove', byHand, { passive: true });
+    window.addEventListener('keydown', byHand);
+    update();
     return () => {
-      observer.disconnect();
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('wheel', byHand);
+      window.removeEventListener('touchmove', byHand);
+      window.removeEventListener('keydown', byHand);
     };
   }, []);
-  return inView;
+
+  const pick = (id: string) => {
+    picked.current = id;
+    setInView(id);
+  };
+  return { inView, pick };
 }
 
-function Contents({ inView, onPick }: { inView?: string; onPick?: () => void }) {
+/** Scrolls to a section; after a fold closes (the phone's contents), once it has closed, so the page doesn't jump. */
+function goTo(id: string, afterFold: boolean) {
+  const scroll = () => {
+    document.getElementById(`v2-${id}`)?.scrollIntoView({ behavior: 'smooth' });
+  };
+  if (afterFold) window.setTimeout(scroll, FOLD_MS + 40);
+  else scroll();
+}
+
+const FOLD_MS = 160;
+
+function Contents({
+  inView,
+  onPick,
+  inFold = false,
+}: {
+  inView?: string;
+  onPick: (id: string) => void;
+  inFold?: boolean;
+}) {
   return (
     <ol className={classes.contents}>
       {SECTIONS.map((s) => (
@@ -41,8 +88,8 @@ function Contents({ inView, onPick }: { inView?: string; onPick?: () => void }) 
             aria-current={inView === s.id ? 'location' : undefined}
             onClick={(event) => {
               event.preventDefault();
-              document.getElementById(`v2-${s.id}`)?.scrollIntoView({ behavior: 'smooth' });
-              onPick?.();
+              onPick(s.id);
+              goTo(s.id, inFold);
             }}
           >
             {s.title}
@@ -59,7 +106,7 @@ function Contents({ inView, onPick }: { inView?: string; onPick?: () => void }) 
  */
 export function Page() {
   const back = useBack();
-  const inView = useSectionInView();
+  const { inView, pick } = useSectionInView();
   const [open, setOpen] = useState(false);
   const foldId = useId();
 
@@ -78,7 +125,7 @@ export function Page() {
       <div className={classes.body}>
         <nav className={classes.side} aria-label="On this page">
           <p className={classes.sideTitle}>On this page</p>
-          <Contents inView={inView} />
+          <Contents inView={inView} onPick={pick} />
         </nav>
         <main className={classes.text}>
           <h1 className={classes.title}>Privacy policy</h1>
@@ -98,10 +145,12 @@ export function Page() {
               <span>On this page</span>
               <IconChevronDown size={20} stroke={1.7} aria-hidden className={classes.chevron} />
             </UnstyledButton>
-            <Collapse expanded={open} transitionDuration={160}>
+            <Collapse expanded={open} transitionDuration={FOLD_MS}>
               <div id={foldId} className={classes.foldBody}>
                 <Contents
-                  onPick={() => {
+                  inFold
+                  onPick={(id) => {
+                    pick(id);
                     setOpen(false);
                   }}
                 />

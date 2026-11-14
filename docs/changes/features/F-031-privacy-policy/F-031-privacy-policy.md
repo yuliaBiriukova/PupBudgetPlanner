@@ -43,7 +43,7 @@ for its turn; it is the first step towards opening the app beyond the family.
 - [ ] Owner: the Google Doc and publishing the Google app (above), now
 - [x] Owner reviews the policy text and approves this description (2026-11-14)
 - [x] References and 3 prototype stories: the page and its links (2026-11-14)
-- [ ] Owner picks a variant; final prototype approved
+- [ ] Owner picks a variant (variant 2, 2026-11-14); final prototype approved
 - [ ] The page, its route and the links; the contact email from configuration, not the repository
 - [ ] Unit and E2E tests; screenshots looked at (phone and desktop, light and dark)
 - [ ] After the release: the Branding page's link moved to `/privacy`
@@ -81,7 +81,19 @@ the links lead between them as in the app.
 | Variant 2: A document with contents | The app's top line, the contents beside the text marking the section being read (folded under the title on the phone); a quiet "Privacy policy" under the form; Settings "Privacy" as a row with the date | [open](http://localhost:6006/?path=/story/prototypes-f-031-privacy-policy--variant-2&nav=false&panel=false&globals=viewport.value:!undefined) |
 | Variant 3: Answers first | One sentence says it all in big type, then the questions people ask as folding rows with a one-line answer, Open all; under the form a two-line card "Your money stays yours"; Settings shows the promises | [open](http://localhost:6006/?path=/story/prototypes-f-031-privacy-policy--variant-3&nav=false&panel=false&globals=viewport.value:!undefined) |
 
-Chosen variant: — · Final prototype approved: —
+Chosen variant: **variant 2 "A document with contents"**, as it is (owner, 2026-11-14).
+
+**Final prototype** (2026-11-14): [Final prototype](http://localhost:6006/?path=/story/prototypes-f-031-privacy-policy--final&nav=false&panel=false&globals=viewport.value:!undefined).
+`/privacy` opens under the app’s top line (the logo and *Pup Budget*, which lead to the app, and *Back*, which goes
+back to the page it was opened from, or to the app when opened straight from a link). The title *Privacy policy* in
+Unbounded 300, *Last updated* under it, the summary a size up, the intro, then the sections in a 640 px column. On the
+desktop the contents (*On this page*) stay beside the text and mark the section being read with the sidebar’s edge
+bar; a section picked there is marked even when the page can’t scroll it to the top. On the phone the contents fold
+under the intro; picking a section closes the fold and then scrolls to it. Under the Sign in and Create account forms
+(and the invite page) a quiet *Privacy policy* link; in Settings a last section *Privacy* with a row *Privacy policy*
+and its date, opening the page.
+
+Approved for implementation: —
 
 ## Tests
 
