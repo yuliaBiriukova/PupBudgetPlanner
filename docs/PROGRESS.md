@@ -17,8 +17,12 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   looked at (phone and desktop, light and dark).
 - No test data: nothing was created (prototypes use a fake API).
 
+- The owner picked variant 1 with what goes as grey text instead of the table: built as the final prototype
+  (`Prototypes/F-027 Delete my account` → *Final prototype*); variants 2 and 3 deleted. Design check clean; every
+  state clicked through and its screenshots looked at.
+
 **Next**
-- Owner: pick a variant (or a mix); then the final prototype and the approval before any code.
+- Owner: approve the final prototype and the description for implementation; then the API and the UI.
 
 ## 2026-11-14 (F-026: the owner's launch checks)
 

@@ -13,8 +13,6 @@ import { DeletedScreen } from './DeleteParts';
 import { DeleteContext, type DeleteSetup } from './deleteFlow';
 import { ProtoSettings } from './ProtoSettings';
 import { Variant1Section } from './Variant1';
-import { Variant2Section } from './Variant2';
-import { DELETE_PAGE, DeletePage, Variant3Section } from './Variant3';
 
 interface StoryProps {
   /** How the person signs in (the proof asked), or the admin (no button). */
@@ -155,20 +153,8 @@ export const Variant1Dialog: Story = {
   render: (args) => <DeleteStory {...args} section={<Variant1Section />} />,
 };
 
-/** Nothing pops up: what goes is on the page, the steps unfold in the section. */
-export const Variant2InPlace: Story = {
-  name: 'Variant 2: In place',
-  render: (args) => <DeleteStory {...args} section={<Variant2Section />} />,
-};
-
-/** A row on Settings opens a page of its own: your money and counts on top, the confirmation under them. */
-export const Variant3LastPage: Story = {
-  name: 'Variant 3: The last page',
-  render: (args) => (
-    <DeleteStory
-      {...args}
-      section={<Variant3Section />}
-      extraRoutes={[{ path: DELETE_PAGE.slice(1), element: <DeletePage /> }]}
-    />
-  ),
+/** The final prototype: variant 1 with what goes in a grey line instead of the table (owner, 2026-11-14). */
+export const Final: Story = {
+  name: 'Final prototype',
+  render: (args) => <DeleteStory {...args} section={<Variant1Section asText />} />,
 };

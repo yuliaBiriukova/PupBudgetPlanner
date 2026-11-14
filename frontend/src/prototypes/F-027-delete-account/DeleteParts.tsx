@@ -1,7 +1,6 @@
 import { Button, Loader, UnstyledButton } from '@mantine/core';
 import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
 import { useId, type ReactNode } from 'react';
-import { formatMoney } from '../../shared/format/money';
 import { PasswordField, TextField } from '../../features/auth/AuthFormParts';
 import { AuthLayout } from '../../features/auth/AuthLayout';
 import { GoogleLogo } from '../../features/auth/GoogleLogo';
@@ -12,37 +11,21 @@ import type { DeleteFlow } from './deleteFlow';
 import classes from './DeleteAccount.module.css';
 
 const numbers = new Intl.NumberFormat('en-GB');
-const count = (n: number, one: string, many: string) =>
-  `${numbers.format(n).replace(/,/g, ' ')} ${n === 1 ? one : many}`;
+const grouped = (n: number) => numbers.format(n).replace(/,/g, ' ');
+const count = (n: number, one: string, many: string) => `${grouped(n)} ${n === 1 ? one : many}`;
 
-/** What goes: a short ledger, figures right-aligned. */
-export function WhatGoes({ withMoney = false }: { withMoney?: boolean }) {
+/** Variant 1: what goes as a short ledger, figures right-aligned. */
+export function WhatGoes() {
   return (
     <div className={classes.ledger}>
       <dl className={classes.rows}>
-        {withMoney ? (
-          SUMMARY.totals.map((total) => (
-            <div key={total.currency} className={classes.row}>
-              <dt>
-                {count(total.accounts, 'account', 'accounts')} in {total.currency}
-              </dt>
-              <dd className={classes.figure}>{formatMoney(total.total, total.currency)}</dd>
-            </div>
-          ))
-        ) : (
-          <div className={classes.row}>
-            <dt>Accounts</dt>
-            <dd className={classes.figure}>{numbers.format(SUMMARY.accounts)}</dd>
-          </div>
-        )}
         <div className={classes.row}>
-          <dt>
-            Transactions
-            {withMoney && <span className={classes.since}> since {SUMMARY.since}</span>}
-          </dt>
-          <dd className={classes.figure}>
-            {numbers.format(SUMMARY.transactions).replace(/,/g, ' ')}
-          </dd>
+          <dt>Accounts</dt>
+          <dd className={classes.figure}>{numbers.format(SUMMARY.accounts)}</dd>
+        </div>
+        <div className={classes.row}>
+          <dt>Transactions</dt>
+          <dd className={classes.figure}>{grouped(SUMMARY.transactions)}</dd>
         </div>
         <div className={classes.row}>
           <dt>Categories</dt>
@@ -53,32 +36,38 @@ export function WhatGoes({ withMoney = false }: { withMoney?: boolean }) {
           <dd />
         </div>
       </dl>
-      <p className={classes.note}>
-        The money itself stays in your banks: only Pup’s record of it goes.
-      </p>
+      <p className={classes.note}>{MONEY_STAYS}</p>
     </div>
   );
 }
+
+/** The final prototype (owner, 2026-11-14): what goes in a grey line under the lead, no table. */
+export function WhatGoesText() {
+  return (
+    <p className={classes.note}>
+      {count(SUMMARY.accounts, 'account', 'accounts')},{' '}
+      {count(SUMMARY.transactions, 'transaction', 'transactions')} and{' '}
+      {count(SUMMARY.categories, 'category', 'categories')}, your settings and the ways you sign in.{' '}
+      {MONEY_STAYS}
+    </p>
+  );
+}
+
+const MONEY_STAYS = 'The money itself stays in your banks: only Pup’s record of it goes.';
 
 /** A part of the confirmation: a short title, a line, its control. */
 export function Part({
   title,
   text,
-  number,
   children,
 }: {
   title: string;
   text?: string;
-  /** Shown before the title in a sequence (variant 2). */
-  number?: number;
   children?: ReactNode;
 }) {
   return (
     <div className={classes.part}>
-      <h3 className={classes.partTitle}>
-        {number !== undefined && <span className={classes.number}>{number}</span>}
-        {title}
-      </h3>
+      <h3 className={classes.partTitle}>{title}</h3>
       {text && <p className={classes.partText}>{text}</p>}
       {children}
     </div>
@@ -86,13 +75,12 @@ export function Part({
 }
 
 /** The family: a member just leaves; an owner with others picks who looks after it next (as "Leave family"). */
-export function FamilyPart({ flow, number }: { flow: DeleteFlow; number?: number }) {
+export function FamilyPart({ flow }: { flow: DeleteFlow }) {
   const labelId = useId();
   if (flow.family === 'none') return null;
   if (flow.family === 'member') {
     return (
       <Part
-        number={number}
         title={`You leave the ${FAMILY.name} family`}
         text={`${FAMILY.others.map((o) => o.name).join(' and ')} won’t see your money any more.`}
       />
@@ -100,7 +88,6 @@ export function FamilyPart({ flow, number }: { flow: DeleteFlow; number?: number
   }
   return (
     <Part
-      number={number}
       title="Who looks after the family next?"
       text={`You leave the ${FAMILY.name} family. They can rename it and invite people.`}
     >
@@ -128,14 +115,10 @@ export function FamilyPart({ flow, number }: { flow: DeleteFlow; number?: number
 }
 
 /** It's you: the password again, or Google once more. */
-export function ProofPart({ flow, number }: { flow: DeleteFlow; number?: number }) {
+export function ProofPart({ flow }: { flow: DeleteFlow }) {
   if (flow.who === 'google') {
     return (
-      <Part
-        number={number}
-        title="Confirm it’s you"
-        text="You sign in with Google, so sign in with it once more."
-      >
+      <Part title="Confirm it’s you" text="You sign in with Google, so sign in with it once more.">
         {flow.google === 'yes' ? (
           <p className={classes.confirmed}>
             <IconCircleCheck size={20} stroke={1.7} aria-hidden />
@@ -163,7 +146,7 @@ export function ProofPart({ flow, number }: { flow: DeleteFlow; number?: number 
     );
   }
   return (
-    <Part number={number} title="Confirm it’s you">
+    <Part title="Confirm it’s you">
       <PasswordField
         label="Your password"
         value={flow.password}
@@ -179,9 +162,9 @@ export function ProofPart({ flow, number }: { flow: DeleteFlow; number?: number 
 }
 
 /** The typed word. */
-export function WordPart({ flow, number }: { flow: DeleteFlow; number?: number }) {
+export function WordPart({ flow }: { flow: DeleteFlow }) {
   return (
-    <Part number={number} title={`Type ${WORD} to confirm`}>
+    <Part title={`Type ${WORD} to confirm`}>
       <TextField
         aria-label={`Type ${WORD} to confirm`}
         value={flow.word}

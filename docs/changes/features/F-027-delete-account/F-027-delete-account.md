@@ -103,7 +103,33 @@ screen has "Back to the prototype".
 In every variant: the admin sees a line instead of the button (point 6); after deleting, the sign-in frame says
 "Your account is deleted", that they are signed out on every device, and that coming back needs a new invite link.
 
-Chosen variant: — (the owner's pick)
+Chosen variant: **variant 1 "One dialog"**, with what goes as grey text instead of the table (owner, 2026-11-14).
+Variants 2 and 3 are deleted; variant 1 stays next to the final prototype for comparison.
+
+### Final prototype (2026-11-14)
+
+[Open](http://localhost:6006/?path=/story/prototypes-f-027-delete-my-account--final&nav=false&panel=false&globals=viewport.value:!undefined)
+(`Prototypes/F-027 Delete my account` → *Final prototype*; the same controls as round 1).
+
+- **On Settings:** a last section "Delete account", a wider gap above its rule: "Deletes your accounts, transactions
+  and categories for good." and a red word button "Delete account" with a bin. The admin sees, instead of the button,
+  "You look after Pup Budget, so your account can't be deleted here: without you nobody could be invited."
+- **The pop-up** (a dialog on the desktop, a sheet on the phone), "Delete your account?":
+  - "This deletes everything you keep in Pup:" and under it, in grey text, what goes: "9 accounts, 1 284
+    transactions and 46 categories, your settings and the ways you sign in. The money itself stays in your banks:
+    only Pup's record of it goes." The counts are the person's own.
+  - The family: a member reads "You leave the … family" and that the others won't see their money any more; the
+    owner with others picks who looks after the family next from pills (the "Leave family" pills); in no family,
+    nothing.
+  - "Confirm it's you": the password field, or for someone with only Google "Confirm with Google", which goes to
+    Google and back and then reads "Confirmed with Google as …".
+  - "Type DELETE to confirm": any letter case counts.
+  - "It can't be undone. To use Pup Budget again later, you'd need a new invite link."
+  - Buttons "Keep my account" (grey word) and "Delete for good" (red pill, with a loader while deleting). A missing
+    or wrong answer shows its message under its part with the error icon (sign-in forms' style).
+- **After:** the sign-in frame, "Your account is deleted", "Everything in it is gone, and you're signed out on every
+  device.", and in grey that coming back needs a new invite link. In the app a link to Sign in replaces the
+  prototype's "Back to the prototype".
 
 ## Tests
 
