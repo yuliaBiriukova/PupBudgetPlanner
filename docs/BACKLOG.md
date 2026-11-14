@@ -152,4 +152,4 @@ owner asks for one.
 | [B-023](changes/bugfixes/B-023-fold-hover-corners/B-023-fold-hover-corners.md) | A fold's hover is rounded on every corner inside a card whose cells are square (Family privacy) | Low | Done |
 | [B-024](changes/bugfixes/B-024-family-test-expects-used-link-gone/B-024-family-test-expects-used-link-gone.md) | A Family E2E test expects a used invite link to be gone, but I-032 lists it (fixed in the release PR #98) | High | Done |
 | [B-025](changes/bugfixes/B-025-cleanup-timeout-after-big-runs/B-025-cleanup-timeout-after-big-runs.md) | The E2E clean-up times out after a big run and leaves test accounts in `dev` (found by I-033) | Medium | Todo |
-| [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md) | One more Family privacy unit test looks inside a fold that is still opening, missed by B-019 (found by I-033) | High | Todo |
+| [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md) | One more Family privacy unit test looks inside a fold that is still opening, missed by B-019 (found by I-033) | High | Done |
