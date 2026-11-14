@@ -26,7 +26,7 @@ balance).
 ## Root cause
 
 Reproduced on 2026-11-11 in the local app at 412 × 800 px (phone emulation, light theme): an expense of 125 saved
-from the quick-add form ([screenshot](screenshots/before-phone-412-light.jpg), a test person's data).
+from the quick-add form (a test person's data).
 
 `<Notifications />` in `AppProviders.tsx` used Mantine's default place, **bottom right, 16 px from the bottom**, on
 every screen size. On the phone it is as wide as the screen less the 16 px gutters, so it lay **exactly over the
@@ -66,4 +66,4 @@ totals under it stay in sight.
   phone 8 px under the header, 16 px from both edges, above the bottom bar (without the fix it rested at 775 px, over
   the bar); on the desktop 16 px from the bottom right.
 - [x] Screens checked in Playwright screenshots (375 and 1440 px, light and dark): the toast after saving an expense,
-  an income and a transfer, in [`screenshots/`](screenshots/).
+  an income and a transfer, looked at.

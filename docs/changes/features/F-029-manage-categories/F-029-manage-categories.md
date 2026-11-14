@@ -60,7 +60,7 @@ categories that can already be renamed, moved and hidden.
 
 Prototype stories: *Prototypes / F-029 Manage categories* in Storybook (`frontend/src/prototypes/F-029-manage-categories/`),
 removed when the page was built: the real stories are *Categories / Categories page*.
-Chosen variant: variant 2, "Tap a tag" (2026-11-11) · Final prototype approved: 2026-11-11 (screenshots of the built page in `screenshots/`)
+Chosen variant: variant 2, "Tap a tag" (2026-11-11) · Final prototype approved: 2026-11-11
 
 ### References (2026-11-11)
 
@@ -203,7 +203,7 @@ build it").
   kind. `PlaceList` with the `useDragToSlot` hook and ↑ ↓; `categoryRules.ts` checks names and removals before
   anything is sent. Every change fetches the categories, transactions and reports again. The quick-add form leaves
   hidden ones out (`categoriesFor`).
-- **Screenshots** of the built page at 375 and 1440 px, light and dark, in `screenshots/`.
+- **Screenshots** of the built page at 375 and 1440 px, light and dark, looked at.
 
 ## Tests
 

@@ -151,7 +151,7 @@ Andriy shares of his transactions (every transaction / only totals) and the fami
 
 Checked: the design check on the story (0 issues), typecheck, ESLint, Prettier; every state clicked through in the
 Browser pane; screenshots at 375 and 1440 px, light and dark, of the section unfolded, your Accounts with the marks,
-Andriy's accounts and Andriy's totals-only Transactions, looked at and kept in [prototypes/](prototypes/).
+Andriy's accounts and Andriy's totals-only Transactions, looked at.
 
 ## Tests
 

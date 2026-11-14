@@ -49,6 +49,6 @@ Approved by the owner on 2026-11-12:
   is scrolled to its end, and stays there after ⌫. Fails before the fix (scrolled 0 px), passes after it.
 - [x] Unit (`TransactionsPage.test.tsx`, *the phone keys*): with the input made 300 px wide and its text 600 px (jsdom
   has no layout), a digit and + each set `scrollLeft` to the end. Fails before the fix, passes after it.
-- [x] Screenshots at 375 px with `99+666+66+777+888+12345` typed: [light](fixed-375-light.png),
-  [dark](fixed-375-dark.png) show `7 + 888 + 12 345`, the end. The desktop is typed on the keyboard, so the browser
+- [x] Screenshots at 375 px with `99+666+66+777+888+12345` typed, light and
+  dark, show `7 + 888 + 12 345`, the end. The desktop is typed on the keyboard, so the browser
   already followed the caret there; nothing changed for it.

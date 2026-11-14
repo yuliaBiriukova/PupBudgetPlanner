@@ -129,8 +129,7 @@ the card instead of wrapping. Phone: one card per row. Tablet (834 px): two per 
 
 Checked: the design check (0 issues, 0 console errors), screenshots at 375, 834 (tablet) and 1440 px, light and
 dark, of every state: by currency, by source, the form with the currency list, another bank, a new source,
-mistakes, adding from a group, the moment after adding, edit, archive, and archived. Overview images are in
-`screenshots/round-2-*.png`.
+mistakes, adding from a group, the moment after adding, edit, archive, and archived.
 
 **Owner's feedback (2026-10-30):**
 
@@ -171,7 +170,7 @@ The variants differ only in how the style is picked:
 
 Checked: the design check (0 issues, 0 console errors), screenshots at 375, 834 and 1440 px, light and dark, of
 the list (by currency and by source), the form with the style picker, edit, the currency list, archive, and the
-moment after adding. Overview images are in `screenshots/round-3-*.png`.
+moment after adding.
 
 **Owner's feedback (2026-10-30):** variant 9 with the preview is liked, but its style pills were far from the
 preview, so you had to scroll up to see the change. Also wanted: the total of all accounts in the main currency at
@@ -198,7 +197,7 @@ the NBU rate.
   - archived balances shown only when not zero.
 
 Checked: the design check (0 issues, 0 console errors), screenshots at 375, 834 and 1440 px, light and dark, of
-every screen. Images are in `screenshots/final-*.png`.
+every screen.
 
 **Owner's feedback (2026-10-30):** the style names must fit both themes (the black card is white in dark mode).
 Renamed: Black → **Solid**, Sky → **Tinted** (also a color name, and dark blue-grey in dark mode); Envelope and

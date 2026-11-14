@@ -41,7 +41,7 @@ docs/changes/
   used, the story links (in the form that opens the page filling the window, see
   [DESIGN_RULES §2](../DESIGN_RULES.md#2-process)) and the chosen variant are recorded in the description
   file, with the final prototype described in words. Screenshots are looked at and sent to the owner in chat, never
-  committed (I-034); older changes keep the ones they committed. The prototype stories are deleted when the change is
+  committed (I-034). The prototype stories are deleted when the change is
   built.
 - **Approval before implementation.** No backend or frontend code until the owner has explicitly approved the
   description file and, for screens, the final prototype (for a bugfix: the root cause and the planned fix).

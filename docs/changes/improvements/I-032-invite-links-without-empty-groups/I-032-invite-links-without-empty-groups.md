@@ -78,9 +78,9 @@ missing*, *None*).
 - When built, the cancel confirmation's "It moves to Expired and cancelled" is said differently on the People page
   (there is no such group there).
 
-Chosen: the owner's direction · Final prototype approved: 2026-11-12. Screenshots in [prototypes/](prototypes/): the
-Invite links tab (`people-…`), two picked (`people-picked-…`), the Family page with a group missing (`family-some-…`)
-and with no links (`family-none-…`), each at 375 and 1440 px, light and dark.
+Chosen: the owner's direction · Final prototype approved: 2026-11-12. Screenshots looked at: the
+Invite links tab, two picked, the Family page with a group missing and with no links, each at 375 and 1440 px, light
+and dark.
 
 ## Tests
 

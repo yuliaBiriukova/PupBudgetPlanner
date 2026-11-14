@@ -6,7 +6,7 @@
 | Milestone | M4 — Reports |
 | Status | Done |
 | Branch | `feature/F-022-reports-ui` |
-| Design | 3 prototype stories in Storybook (I-021); the final prototype's screenshots in [prototypes/](prototypes/) |
+| Design | 3 prototype stories in Storybook (I-021) |
 | Approved | 2026-11-04: the final prototype with the month as M2, and the open points as proposed (owner: "I like M2 variant … approved") |
 
 ## Goal

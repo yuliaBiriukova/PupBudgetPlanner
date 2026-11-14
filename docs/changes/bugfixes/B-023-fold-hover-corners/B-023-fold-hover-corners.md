@@ -52,5 +52,5 @@ Approved by the owner on 2026-11-12:
   the first rounded only at the top, the last only at the bottom, and square once it is open. Fails before the fix,
   passes after it.
 - [x] Screenshots of each fold hovered at 1440 and 375 px, light and dark: the middle one
-  ([light](fixed-1440-light-middle.png), [dark](fixed-1440-dark-middle.png)) fills its square cell. The calendar's
-  head hovered: [light](fixed-calendar-1440-light.png), [dark](fixed-calendar-1440-dark.png).
+  (light and dark) fills its square cell. The calendar's
+  head hovered, light and dark, looked at too.

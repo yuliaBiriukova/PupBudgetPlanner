@@ -52,5 +52,5 @@ Approved by the owner on 2026-11-12:
 - [x] E2E on the phone (`settings.spec.ts`, 412 × 560 px, short enough that Theme is below the screen): scroll to
   Theme, pick Dark; the bottom menu is still at the screen's foot and nothing but the page's own scroll area has
   scrolled. Fails before the fix (the menu moved up), passes after it. (A unit test can't see it: jsdom has no layout.)
-- [x] Screenshots of the More page at 375 px after picking a theme: [dark](fixed-375-dark.png),
-  [light](fixed-375-light.png); the menu stays at the foot.
+- [x] Screenshots of the More page at 375 px after picking a theme, dark and
+  light, looked at; the menu stays at the foot.

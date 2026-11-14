@@ -21,8 +21,7 @@ The form stays as it is, the Note in sight above the phone's keyboard, Save righ
 ## Actual
 
 The form scrolls so the Note is at the top of the sheet; the day, the account, the amount and the category go out of
-sight above it, and an empty space is left between the Note and Save
-([gap-under-note.png](gap-under-note.png)).
+sight above it, and an empty space is left between the Note and Save.
 
 ## Root cause
 

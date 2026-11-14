@@ -35,8 +35,13 @@ whether they are needed. They aren't:
 - [x] `.gitignore` keeps new images in `docs/changes/` out of the repository, so one can't be committed by
       accident. An image the owner gives as a reference (as I-027's key order) can still be added with
       `git add -f`.
-- [x] The screenshots already committed stay: removing them wouldn't make the history smaller, and the docs link
-      34 of them.
+- [x] The screenshots already committed are deleted too (the owner, 2026-11-14: "do it"): 283 files, about 25 MB of
+      every checkout, from 38 changes. Only I-027's `reference-key-order.png` stays, the image the owner gave as the key
+      order. The history keeps the deleted ones; rewriting it to drop them would mean force-pushing `develop` and `main`,
+      so it isn't done.
+- [x] Every link and mention of a deleted screenshot in the change docs is reworded (34 links in 21 files, and 8
+      plain mentions of their folders, 3 files more): each passage still says what was checked or approved. The HTML
+      prototypes of the changes before I-021 (`prototypes/*.html`) stay; none of them uses an image.
 - [x] F-025's PR (#104) commits none (its 16 were taken out the same day).
 
 ## Tasks
@@ -47,6 +52,7 @@ whether they are needed. They aren't:
 - [x] `docs/changes/README.md`: the folder's contents, the tree, the "Screens" line and the description template
 - [x] `.claude/skills/design-screen/SKILL.md` step 6
 - [x] `.gitignore`: images under `docs/changes/`
+- [x] Delete the committed screenshots (all but I-027's reference) and reword the change docs that linked them
 - [x] BACKLOG, PROGRESS
 
 ## Notes
