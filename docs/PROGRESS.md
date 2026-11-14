@@ -2,6 +2,21 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (F-025 planned: installable app)
+
+**Done**
+- Started M6 with [F-025](changes/features/F-025-pwa/F-025-pwa.md) on `feature/F-025-pwa`. Wrote its description:
+  what is there already (logo icons, the waking-up pill, the server's cache headers), acceptance criteria (manifest
+  and icons, the app's own files cached so it opens at once while the server sleeps, no API answers cached, sign-in
+  untouched, an offline message, an update notice, an install hint), tasks, tests and references.
+- Marked 🎨: the install hint, the update notice and the offline message are new UI, so 3 prototype stories come
+  first.
+- Planning only: no code, no test data.
+
+**Next**
+- Owner: answer F-025's open points (where the install hint lives, update notice or reload by itself, icons); then
+  the design round.
+
 ## 2026-11-14 (B-027: invite link groups back on the People page)
 
 **Done**
