@@ -34,8 +34,7 @@ Form a family to see each other's finances.
 Prototype stories: *Prototypes / F-023 Family and invitations* in Storybook
 (`frontend/src/prototypes/F-023-family-and-invitations/`), removed when the page was built: the real stories are
 *Family / Family page*. The story links below no longer open.
-Chosen variant: variant 1, "Sections" (2026-11-11) · Final prototype approved: 2026-11-11 (screenshots in `prototypes/`;
-the built page's in `screenshots/`)
+Chosen variant: variant 1, "Sections" (2026-11-11) · Final prototype approved: 2026-11-11
 
 ### References (2026-11-11)
 
@@ -173,7 +172,7 @@ with the same starts:
 
 Checked: the design check on the story's six starts (only the password field's eye button "overlap" the app's own
 invite page has too); typecheck, ESLint, Prettier; every state above at 375 and 1440 px, light and dark, looked at
-and kept in [`prototypes/`](prototypes/) (owner, owner-invite, owner-remove, owner-leave, no-family, member, join,
+(owner, owner-invite, owner-remove, owner-leave, no-family, member, join,
 join-in-a-family, join-new).
 
 ### Open points (proposals, built into the final prototype)

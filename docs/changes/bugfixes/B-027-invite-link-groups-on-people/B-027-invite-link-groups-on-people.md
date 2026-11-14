@@ -64,7 +64,7 @@ list: "3 links".
       cleared* (an emptied group goes away) are back on the groups. The design check (Playwright + axe, 360 – 1440 px,
       light and dark) on the People stories and the Family owner: no issue from this change; it flags the toast's
       close button (28 px, no name) in *Links group cleared*, the app's notification, the same on every page.
-- [x] Screenshots at 375 and 1440 px, light and dark, looked at: in [screenshots/](screenshots/) the groups opened
-      (`people-groups-…`), two groups picked (`people-picked-…`) and a group cleared (`people-group-cleared-…`).
+- [x] Screenshots at 375 and 1440 px, light and dark, looked at: the groups opened, two groups picked
+      and a group cleared.
 - [x] Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` invite links in the `dev` database; the
       clean-up teardown deleted them. Nothing else was created; nothing of the owner's was touched.

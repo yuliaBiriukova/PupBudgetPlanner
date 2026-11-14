@@ -86,7 +86,7 @@ account too, and the name has to be typed. After deleting: "… deleted" and the
 | [3 · At the end of the form](prototypes/variant-3.html) | The end of the edit form: "Archive or delete", two rows, each with a line on what it does. The buttons at the bottom are only Cancel and Save. Archived rows get Delete too. | The name is always typed; the red button stays off until it matches. |
 
 Checked: the design check (0 issues, 0 console errors; it found a planted contrast fault on the new screens first),
-screenshots of every screen at 375 and 1440 px, light and dark. Phone overviews in `screenshots/round-1-*.png`.
+screenshots of every screen at 375 and 1440 px, light and dark.
 
 Claude's recommendation: variant 1. It needs the fewest new parts, keeps one way out of the edit form, and a
 mistaken delete takes two deliberate steps; its cost is an extra step for an account added by mistake.
@@ -105,7 +105,7 @@ one with transactions can only be archived (the YNAB way, not Claude's proposal)
 - An account without transactions is deleted as before: the name typed, "Keep it" / "Delete for good".
 
 Checked: the design check (0 issues, 0 console errors), screenshots of every screen at 375 and 1440 px, light and
-dark. Phone overview in `screenshots/final-variant-3.png`.
+dark.
 
 Prototypes: `prototypes/`. Chosen variant: 3 (final prototype), approved 2026-10-30.
 

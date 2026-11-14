@@ -118,8 +118,9 @@ When the user picks a variant with changes, or a mix, build it as one **final pr
 step 5, show it and ask: "Approve this for implementation?" Repeat until they approve it in so many words.
 Picking options or commenting on a round is **not** approval: never start the implementation, backend or
 frontend, on it. Then record the approved prototype and the date in the change file (`Approved` row) and in
-DESIGN_RULES "Screen decisions"; add any new lasting rule to "Custom rules". Copy the final story's design-check
-screenshots (375 and 1440 px, light and dark) into the change folder's `prototypes/`.
+DESIGN_RULES "Screen decisions"; add any new lasting rule to "Custom rules". Describe the final prototype in words in
+the change file. Never commit screenshots (I-034): they go to the user in chat; the design check's own stay in the
+git-ignored `frontend/test-results/`.
 
 When the change is built, delete its `frontend/src/prototypes/<ID-name>/` folder in the same PR; the real
 screen's stories replace it.

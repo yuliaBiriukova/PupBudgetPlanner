@@ -35,6 +35,23 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   server sleeps.
 - Then F-026, the MVP launch.
 
+## 2026-11-14 (I-034: screenshots are never committed)
+
+**Done**
+- The owner asked why PRs commit screenshots and whether they are needed (2026-11-14): no. About 300 PNGs had piled up
+  in `docs/changes/`, while the rule asked only for 4 per approved prototype. Done at the owner's request ("Yes, stop
+  committing") as [I-034](changes/improvements/I-034-no-committed-screenshots/I-034-no-committed-screenshots.md):
+  `CLAUDE.md`, DESIGN_RULES §2, the change templates and the `design-screen` skill now say screenshots are taken,
+  looked at and sent in chat, never committed; the description file says in words what was approved. `.gitignore`
+  keeps new images in `docs/changes/` out (an owner's reference image can still go in with `git add -f`). Then,
+  at the owner's word ("do it"), the 283 screenshots already committed are deleted too (about 25 MB of every
+  checkout; only I-027's reference image, the owner's, stays), and the 34 links and 8 mentions of them in 24 change
+  docs are reworded. The history keeps them. F-025's PR (#104) had its 16 taken out the same day.
+- Docs only: no code, tests or test data.
+
+**Next**
+- Owner: review the PR.
+
 ## 2026-11-14 (B-027: invite link groups back on the People page)
 
 **Done**

@@ -56,6 +56,5 @@ Approved by the owner on 2026-11-11 and built:
   low enough that they would cover it; tapped, the whole amount is right above the keys, and stays there while `125`
   is typed. Fails before the fix, passes after it. (A screen this short can't scroll the amount half out of sight: the
   whole form fits until the keys come up, which is the case reproduced above.)
-- [x] Screenshots at 375 px with the keys up, light ([fixed-375-light.png](fixed-375-light.png)) and dark
-  ([fixed-375-dark.png](fixed-375-dark.png)); an exchange on the phone keeps its ring and its rate line above the keys;
+- [x] Screenshots at 375 px with the keys up, light and dark, looked at; an exchange on the phone keeps its ring and its rate line above the keys;
   the desktop at 1440 px, light and dark, unchanged.

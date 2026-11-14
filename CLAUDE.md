@@ -77,8 +77,8 @@ This file tells Claude (and any human contributor) how we work on this project.
 - IDs are numbered separately per type and never reused.
 - **Every change gets its own folder** in `docs/changes/<type>/` holding all related files: the
   description file **named like the folder** (`F-018-quick-add-income-expense/F-018-quick-add-income-expense.md`,
-  from the templates in [docs/changes/README.md](docs/changes/README.md)), links to its prototype stories,
-  screenshots, notes (the stories themselves live in `frontend/src/prototypes/`).
+  from the templates in [docs/changes/README.md](docs/changes/README.md)), links to its prototype stories and
+  notes (the stories themselves live in `frontend/src/prototypes/`). No screenshots (see "Screens and design").
 - **When a new feature, improvement or bugfix is added to the plan**, create its folder and description
   file right away, together with its row in `docs/BACKLOG.md` (and `docs/ROADMAP.md` if it changes a milestone).
 - **Priority** `High` · `Medium` · `Low` (scale in [docs/changes/README.md](docs/changes/README.md#priority))
@@ -181,8 +181,10 @@ This file tells Claude (and any human contributor) how we work on this project.
     open the page filling the window, without the sidebar and panel:
     `http://localhost:6006/?path=/story/<story-id>&nav=false&panel=false&globals=viewport.value:!undefined`.
     Phone, tablet and desktop and light / dark are switched in the toolbar.
-  - The change folder keeps the story links and, once it's approved, the final prototype's screenshots (375 and
-    1440 px, light and dark) in `prototypes/`.
+  - The change folder keeps the story links, and the description file says in words what the owner approved.
+    **Screenshots are never committed** (I-034): they are taken and looked at (below) and sent to the owner in
+    chat. Why: about 300 had piled up in `docs/changes/`, repeating what the docs say, unreviewable in a diff and
+    kept by the history for good.
   - When the change is built, delete its prototype stories; the real stories replace them.
   - Earlier changes keep their HTML prototypes.
 - **Test everything with Playwright before showing it** — design variants before they are proposed, real
