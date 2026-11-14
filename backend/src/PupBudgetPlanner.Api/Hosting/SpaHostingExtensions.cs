@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Net.Http.Headers;
 
 namespace PupBudgetPlanner.Api.Hosting;
@@ -13,13 +14,30 @@ public static class SpaHostingExtensions
 
     public const string ImmutableCacheControl = "public, max-age=31536000, immutable";
 
-    /// <summary><c>index.html</c> and other unhashed files: the browser revalidates them, so a release shows up at once.</summary>
+    /// <summary>
+    /// <c>index.html</c> and other unhashed files: the browser revalidates them, so a release shows up at once. The service
+    /// worker (<c>sw.js</c>) and the manifest are among them, so an installed app finds a release (F-025).
+    /// </summary>
     public const string RevalidateCacheControl = "no-cache";
 
     private const string IndexFile = "index.html";
 
+    /// <summary>
+    /// The content types of the build's files. The installable app's manifest (F-025) is set here rather than left to
+    /// the framework's list, so a browser always reads it as a web app manifest.
+    /// </summary>
+    public static readonly FileExtensionContentTypeProvider ContentTypes = CreateContentTypes();
+
+    private static FileExtensionContentTypeProvider CreateContentTypes()
+    {
+        var provider = new FileExtensionContentTypeProvider();
+        provider.Mappings[".webmanifest"] = "application/manifest+json";
+        return provider;
+    }
+
     private static readonly StaticFileOptions StaticFileOptions = new()
     {
+        ContentTypeProvider = ContentTypes,
         OnPrepareResponse = context =>
             context.Context.Response.Headers[HeaderNames.CacheControl] = CacheControlFor(context.Context.Request.Path),
     };

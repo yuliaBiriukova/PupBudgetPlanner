@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useQueryClient } from '@tanstack/react-query';
+import { asOffline } from './pwa/storyBrowsers';
 import { healthQuery } from './shell/useServerWake';
 import { StartupScreen } from './StartupScreen';
 
@@ -30,4 +31,14 @@ export const Failed: Story = {
 export const FailedDark: Story = {
   globals: { colorScheme: 'dark' },
   args: { failed: true, onRetry: () => undefined },
+};
+
+/** Opened from the home screen without a network (F-025): it says so, with Try again. */
+export const Offline: Story = {
+  beforeEach: asOffline,
+};
+
+export const OfflineDark: Story = {
+  beforeEach: asOffline,
+  globals: { colorScheme: 'dark' },
 };

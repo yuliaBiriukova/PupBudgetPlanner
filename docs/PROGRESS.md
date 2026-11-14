@@ -2,33 +2,36 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
-## 2026-11-14 (F-025 planned: installable app)
+## 2026-11-14 (F-025: installable app)
 
 **Done**
-- Started M6 with [F-025](changes/features/F-025-pwa/F-025-pwa.md) on `feature/F-025-pwa`. Wrote its description:
-  what is there already (logo icons, the waking-up pill, the server's cache headers), acceptance criteria (manifest
-  and icons, the app's own files cached so it opens at once while the server sleeps, no API answers cached, sign-in
-  untouched, an offline message, an update notice, an install hint), tasks, tests and references.
-- Marked 🎨: the install hint, the update notice and the offline message are new UI, so 3 prototype stories come
-  first.
-- Planning only: no code, no test data.
-
-- The owner answered the open points the same day: a design round with 3 prototype stories, an update notice with
-  Reload (no reload by itself), and the current logo as the home-screen icon.
-
-- Design round 1: references (Discourse's iPhone pop-up, install banners, reload snackbars, iOS 26's Safari), then
-  3 prototype stories in *Prototypes / F-025 Installable app* (`frontend/src/prototypes/F-025-pwa/`): *In the menu*,
-  *Once on the page*, *Once, then in More*, plus the offline start every variant shares. On iOS 26 adding to the
-  home screen takes three taps (••• → Share → Add to Home Screen), not two; the description says so now.
-- Checked: typecheck, ESLint, Prettier; the design check on the four stories (0 issues, 0 console errors); the
-  states inside the page as Playwright screenshots at 375 and 1440 px, light and dark, looked at. No test data made.
-
-- The owner chose variant 3 "Once, then in More". It became the final prototype as it was; variants 1 and 2 were
-  removed. Checked again: the design check on the final stories (0 issues, 0 console errors) and the screenshots of
-  its states.
+- Planned [F-025](changes/features/F-025-pwa/F-025-pwa.md) on `feature/F-025-pwa` (M6). The owner chose a design
+  round, an update notice with Reload (no reload by itself) and the current logo as the icon. Round 1 had 3 places for
+  the install hint; the owner chose variant 3 "Once, then in More" and approved the final prototype ("Approved, build
+  it", 2026-11-14). On iOS 26 adding to the home screen takes three taps (••• → Share → Add to Home Screen), not two.
+- Built: `vite-plugin-pwa` 2.0 with a manifest and a service worker that precaches only the app's own files (never
+  `/api`), registered in `main.tsx` and left out of Storybook ([ADR 0034](decisions/0034-installable-app.md)); icons
+  drawn from the logo (`scripts/make-app-icons.mjs`); `theme-color` following the app's scheme; on the phone the card
+  once, then *Install the app* first in More; on the desktop the sidebar's row in Chrome or Edge; the install sheet
+  (Chrome's own dialog, or Safari's three taps); "A new version is ready." with Reload; "No connection: you can look,
+  not save" in the top pill and "You're offline." on the start screen. The API sends the manifest as
+  `application/manifest+json`. README says how to install; ARCHITECTURE and DESIGN_RULES updated.
+- Differences from the prototype: the update toast's × is a named 44 px button (the design check asked for it), so
+  on a 375 px phone its text takes two lines; after Chrome's install dialog the app shows no toast of its own (Chrome
+  says it); the Android splash is light in both schemes (a manifest has one background colour).
+- Checked: ESLint, Prettier, typecheck, the build and the Storybook build (no service worker in it); every frontend
+  unit test (406) and the new ones 3 times in a row; every backend test (591); the whole E2E suite against the
+  production build, phone and desktop (114 passed, 24 skipped by project as before), and `pwa.spec.ts` 3 times in a
+  row (26 passed: manifest, Chrome's install check, offline from the cache, `/api` never from the cache); the design
+  check on the new stories (0 issues; the AppLayout stories' 404s are the existing ones, they have no fake API),
+  screenshots at 375 and 1440 px, light and dark, looked at.
+- Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` invite links in `dev`; the clean-up teardown
+  deleted them after each run. Nothing of the owner's was touched.
 
 **Next**
-- Owner: approve the final prototype for implementation.
+- Owner: review the PR; after the release, install the app on Android and the iPhone and open it at night while the
+  server sleeps.
+- Then F-026, the MVP launch.
 
 ## 2026-11-14 (B-027: invite link groups back on the People page)
 

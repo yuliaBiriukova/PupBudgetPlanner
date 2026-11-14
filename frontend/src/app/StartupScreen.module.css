@@ -5,3 +5,9 @@
   min-height: 100dvh;
   padding: 16px;
 }
+
+/* Offline (F-025): two short lines, never wider than a phone's comfortable reading width */
+.text {
+  max-width: 320px;
+  line-height: 24px;
+}

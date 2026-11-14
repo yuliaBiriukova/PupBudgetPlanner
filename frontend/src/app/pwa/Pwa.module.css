@@ -1,6 +1,6 @@
-/* F-025 prototype: the install hint, the offline pill and start. Only the theme's tokens; every size even. */
+/* The installable app's parts (F-025): the install card, sheet and row, the update toast. Only the theme's tokens. */
 
-/* The app's icon as the home screen will show it: the logo's sky filling a rounded square */
+/* The app's icon as the home screen shows it: the logo's sky filling a rounded square */
 .tile {
   display: grid;
   flex: none;
@@ -41,7 +41,7 @@
   line-height: 24px;
 }
 
-/* iPhone's steps: they are a sequence, so they are numbered */
+/* Safari's taps: a sequence, so numbered */
 .steps {
   display: grid;
   gap: 12px;
@@ -72,7 +72,7 @@
   content: counter(step);
 }
 
-/* Safari's own button, drawn the way the person will find it */
+/* Safari's own button, drawn the way the person finds it */
 .key {
   display: inline-flex;
   align-items: center;
@@ -92,11 +92,11 @@
   gap: 8px;
 }
 
-/* Variants 2 and 3: the card at the top of the page, once */
+/* The card at the top of the page, once (phone) */
 .card {
   display: grid;
   grid-template-columns: 44px 1fr;
-  gap: 12px 12px;
+  gap: 12px;
   margin: 0 0 16px;
   padding: 16px;
   border: 1px solid var(--pup-color-rule);
@@ -123,7 +123,7 @@
   gap: 8px;
 }
 
-/* Variants 1 and 3: the row in More, with a line on what it gives */
+/* The row in More: its name and a line on what it gives */
 .rowText {
   display: grid;
   min-width: 0;
@@ -136,20 +136,6 @@
   line-height: 20px;
 }
 
-/* The pill at the top, as WakePill, when the network is gone */
-.offlinePill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: var(--pup-color-tooltip);
-  box-shadow: var(--pup-shadow-float);
-  color: var(--pup-color-on-tooltip);
-  font-size: 14px;
-  white-space: nowrap;
-}
-
 /* The update toast: its words, then Reload */
 .update {
   display: flex;
@@ -159,23 +145,4 @@
 
 .updateText {
   flex: 1;
-}
-
-/* The start screen without a network */
-.start {
-  display: grid;
-  place-items: center;
-  min-height: 100dvh;
-  padding: 16px;
-}
-
-.startText {
-  max-width: 320px;
-  margin: 0;
-  text-align: center;
-  line-height: 24px;
-}
-
-.startLine {
-  color: var(--mantine-color-dimmed);
 }

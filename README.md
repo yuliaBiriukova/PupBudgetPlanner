@@ -6,6 +6,18 @@ reports automatically — for yourself and for your whole family.
 
 > Status: **planning / Milestone 0 (Foundation)**. See [docs/PROGRESS.md](docs/PROGRESS.md).
 
+## Install it on your phone
+
+Pup Budget is an installable web app: once on the home screen it opens like an app, at once, even while the free
+server is asleep at night.
+
+- **Android (Chrome)** and **a computer (Chrome or Edge):** open the app and tap *Install* on the card at the top
+  of the page (later: More › *Install the app*; on the computer: *Install the app* at the bottom of the sidebar).
+- **iPhone or iPad (Safari):** tap ••• in Safari's bar, then *Share*, then *Add to Home Screen*, then *Add*. The
+  app shows these steps too.
+
+After a release the app says "A new version is ready." — tap *Reload* to use it.
+
 ## Tech stack
 
 | Layer    | Technology |
@@ -109,6 +121,11 @@ npm run clean:playwright # remove playwright-report/ and test-results/
 ```
 
 E2E tests run against the real API, so its connection string must be set first (see Backend above).
+
+The installable app's service worker exists only in the production build, so `e2e/pwa.spec.ts` is skipped against
+the dev server. To run it locally: `npm run build`, then `npm run preview` (port 4173) with the API running, and
+`E2E_BASE_URL=http://localhost:4173 npx playwright test e2e/pwa.spec.ts`. App icons are drawn from the logo by
+`node scripts/make-app-icons.mjs` (only when the logo changes).
 
 ## CI
 

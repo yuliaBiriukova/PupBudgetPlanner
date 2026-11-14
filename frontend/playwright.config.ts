@@ -35,6 +35,8 @@ export default defineConfig({
     timezoneId: TIME_ZONE,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // The production build's service worker (F-025) would answer pages from its cache; only pwa.spec.ts allows it
+    serviceWorkers: 'block',
   },
   projects: [
     // Creates a person and keeps their cookies, so the app's tests start signed in (auth.spec.ts starts signed out).

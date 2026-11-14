@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M6 — MVP release |
-| Status | In progress (final prototype approved 2026-11-14; being built) |
+| Status | Done (2026-11-14; the check on a real phone follows the release) |
 | Branch | `feature/F-025-pwa` |
 | Design | 3 prototype stories required: the install hint, the update notice and the offline start (owner, 2026-11-14) |
 | Approved | 2026-11-14 by the owner ("Approved, build it": the final prototype, variant 3 "Once, then in More") |
@@ -39,32 +39,31 @@ the app opens straight away and the existing "Waking up the server…" pill (F-0
 
 ## Acceptance criteria
 
-Proposed; the owner settles the open points before approval.
-
-- [ ] **Installable:** a web app manifest with the name *Pup Budget Planner*, the short name *Pup Budget*, the
+- [x] **Installable:** a web app manifest with the name *Pup Budget Planner*, the short name *Pup Budget*, the
       logo's icons (192 px, 512 px and a 512 px *maskable* one for Android's shaped icons; the 180 px iPhone icon
-      stays), `display: standalone`, start at `/`, and colours from the theme. Chrome's install check passes on
-      Android and desktop; on iPhone, *Add to Home Screen* gives the logo and opens without Safari's bars.
-- [ ] **Opens at once:** the app's own files (HTML, JS, CSS, fonts, icons) are cached by a service worker. Opened
+      stays), `display: standalone`, start at `/`, and colours from the theme. Chrome's install check passes (no
+      installability errors, E2E); on iPhone, *Add to Home Screen* gives the logo and opens without Safari's bars.
+- [x] **Opens at once:** the app's own files (HTML, JS, CSS, fonts, icons) are cached by a service worker. Opened
       from the home screen while the server sleeps, the app appears at once (the start screen with the waking-up
       pill) instead of a blank page.
-- [ ] **No money data on the device:** API answers (`/api/…`) are never cached, so nothing of anyone's money stays
+- [x] **No money data on the device:** API answers (`/api/…`) are never cached, so nothing of anyone's money stays
       on the phone after Sign out. Viewing money offline is not in the MVP.
-- [ ] **Sign-in keeps working:** the service worker never answers `/api/…` itself, so Google sign-in's
+- [x] **Sign-in keeps working:** the service worker never answers `/api/…` itself, so Google sign-in's
       `/api/auth/google/callback`, invite links and cookies behave as today.
-- [ ] **Offline message:** without a network the start screen says the phone is offline (not "Couldn't reach
+- [x] **Offline message:** without a network the start screen says the phone is offline (not "Couldn't reach
       the server") with Try again, and it continues by itself when the network is back. If the network drops while
       the app is open, the pill at the top says so instead of "Waking up the server…".
-- [ ] **Updates:** after a release, an open app shows a notice *"A new version is ready"* with a *Reload* button
-      (open point 2). A half-filled form is never reloaded away without the person's click. The next cold start
-      uses the new version (owner, 2026-11-14).
-- [ ] **Install hint:** the app offers to install itself in a browser on the phone (and in Chrome / Edge on the
-      computer), never inside the installed app. On Android and desktop its button opens the browser's own install
-      dialog; on iPhone it shows Safari's three taps (••• → Share → *Add to Home Screen*, then Add). Where it lives
-      and how often it appears is chosen in the design round (open point 1).
-- [ ] **Icons** from the current logo (owner, 2026-11-14).
-- [ ] **Dark mode:** the browser's bars (`theme-color`) and the splash background follow the light / dark theme.
-- [ ] Works at 375 px and 1440 px, light and dark; every new text through i18n.
+- [x] **Updates:** after a release, an open app shows a notice *"A new version is ready"* with a *Reload* button.
+      A half-filled form is never reloaded away without the person's click. The next start uses the new version
+      (owner, 2026-11-14).
+- [x] **Install hint:** as the final prototype: on the phone the card once, then the row in More; on the desktop
+      the sidebar's row in Chrome or Edge; Chrome and Edge open their own dialog, Safari on the iPhone gets its three
+      taps (••• → Share → *Add to Home Screen*, then Add); nothing inside the installed app.
+- [x] **Icons** from the current logo (owner, 2026-11-14).
+- [x] **Dark mode:** the browser's bars (`theme-color`) follow the light / dark theme, also the one picked in the
+      app. The splash an installed Android app shows while it starts uses the light page colour: a manifest has one
+      background colour, not one per scheme.
+- [x] Works at 375 px and 1440 px, light and dark; every new text through i18n.
 
 ## Tasks
 
@@ -73,34 +72,38 @@ Proposed; the owner settles the open points before approval.
       2026-11-14)
 - [x] The owner's choice: variant 3 (2026-11-14); the final prototype
 - [x] The owner's approval of the final prototype (2026-11-14); its screenshots in [prototypes/](prototypes/)
-- [ ] ADR 0034: the service worker (Workbox via `vite-plugin-pwa`, `generateSW`): what is cached, `/api` excluded,
-      updates on prompt
-- [ ] `vite-plugin-pwa`: manifest, precache of the build, `navigateFallback` to `index.html` with `/api/` in
-      `navigateFallbackDenylist`; no service worker in `vite` dev or Storybook
-- [ ] Icons: 192, 512 and maskable 512 PNGs made from `favicon.svg` (`@vite-pwa/assets-generator` or a script),
-      `theme-color` meta tags for light and dark
-- [ ] API: check `sw.js` and `manifest.webmanifest` are served with `no-cache` and the right content type
-      (`application/manifest+json`); a unit test in `SpaHostingExtensionsTests`
-- [ ] Offline: online / offline state in `useServerWake` → the start screen and the pill
-- [ ] Update notice (`virtual:pwa-register`, `onNeedRefresh`), checked at every start and while the app is open
-- [ ] Install hint as chosen in the design round
-- [ ] Storybook stories: the install hint (Android / desktop, iPhone), the update notice, the offline start screen
-      and pill
-- [ ] Unit tests: offline / online in `useServerWake`, the install hint's platform choice and its hiding inside the
-      installed app, the update notice
-- [ ] E2E: the PWA spec (below); the other specs run with service workers blocked (`serviceWorkers: 'block'`) so a
-      cached shell can't change what they test
+- [x] [ADR 0034](../../../decisions/0034-installable-app.md): the service worker (Workbox via `vite-plugin-pwa`,
+      `generateSW`): what is cached, `/api` excluded, updates on Reload
+- [x] `vite-plugin-pwa` 2.0: manifest, precache of the build, `navigateFallback` to `index.html` with `/api/` in
+      `navigateFallbackDenylist`; registered only in `main.tsx`; left out of Storybook's config; none in `vite` dev
+- [x] Icons: `pwa-192.png`, `pwa-512.png` (the sky circle) and `pwa-maskable-512.png` (the sky filling the square)
+      drawn from `favicon.svg` by `scripts/make-app-icons.mjs`; `theme-color` meta tags for light and dark, kept in
+      step with the app's scheme (`ThemeColorMeta`)
+- [x] API: `sw.js`, `workbox-*.js` and `manifest.webmanifest` get `no-cache`; the manifest is sent as
+      `application/manifest+json` (`SpaHostingExtensions.ContentTypes`); unit tests in `SpaHostingExtensionsTests`
+- [x] Offline: `useOnline` → the start screen and the pill (`WakePill`'s `offline`)
+- [x] Update notice (`virtual:pwa-register`, `onNeedRefresh`), checked at every start, every hour and whenever the
+      app comes back to the screen
+- [x] Install hint as approved (`src/app/pwa/`: `install.ts`, `InstallParts.tsx`; `AppLayout`, `PhoneBars`, `Sidebar`)
+- [x] Storybook stories: *App / Install the app* (card, Chrome's and the iPhone's sheet), *App / UpdateNotice*,
+      *App / StartupScreen* offline, *Shell / WakePill* offline, *Shell / AppLayout* (the card, the row in More,
+      offline, the sidebar's row)
+- [x] Unit tests: `Install.test.tsx` (which browser gets which way, the card, Not now and More, the sheet, nothing
+      in the installed app or a browser that can't, the desktop row), `Offline.test.tsx` (the pill, the start
+      screen, the update toast and Reload)
+- [x] E2E: `pwa.spec.ts` against the production build; the other specs block service workers
+      (`serviceWorkers: 'block'`)
 - [ ] Check on a real phone after the release: install on Android and iPhone, open at night while the server sleeps
       (owner)
-- [ ] Docs: ARCHITECTURE (the service worker), DESIGN_RULES "Screen decisions", README (how to install)
+- [x] Docs: ADR 0034, ARCHITECTURE (the service worker), DESIGN_RULES "Screen decisions", README (how to install)
 
 ## Tests
 
 - Unit (Vitest): offline / online states of the start screen and the pill; the install hint shown only in a
   browser, with the right steps per platform; the update notice and its Reload.
 - Unit (xUnit): `sw.js` and the manifest get `no-cache`; the manifest's content type.
-- E2E (Playwright, the production build): the manifest is served with its name, icons and `standalone`; the
-  service worker takes control of the page; with the network cut (`context.setOffline(true)`) the reloaded app
+- E2E (Playwright, the production build): the manifest is served with its name, icons and `standalone`; Chrome's
+  install check finds no errors; the service worker takes control of the page; with the network cut (`context.setOffline(true)`) the reloaded app
   appears from the cache and says it's offline; back online, it continues; `/api/…` is never answered from the cache.
 
 ## Open points

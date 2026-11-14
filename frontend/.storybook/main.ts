@@ -16,7 +16,25 @@ const config: StorybookConfig = {
     outline: false,
   },
   // Storybook's own bundles (docs, axe) are large by design; only the app's chunks are worth warning about.
-  viteFinal: (viteConfig) => mergeConfig(viteConfig, { build: { chunkSizeWarningLimit: 2000 } }),
+  // No service worker or manifest for Storybook's static site (F-025): the app's PWA plugins are left out.
+  viteFinal: (viteConfig) =>
+    mergeConfig(
+      {
+        ...viteConfig,
+        plugins: (viteConfig.plugins ?? [])
+          .flat()
+          .filter(
+            (plugin) =>
+              !(
+                plugin &&
+                typeof plugin === 'object' &&
+                'name' in plugin &&
+                plugin.name.startsWith('vite-plugin-pwa')
+              ),
+          ),
+      },
+      { build: { chunkSizeWarningLimit: 2000 } },
+    ),
 };
 
 export default config;
