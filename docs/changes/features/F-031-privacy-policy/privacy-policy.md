@@ -17,7 +17,7 @@ a change alters what the app keeps or who sees it, this text is updated in the s
 
 # Pup Budget privacy policy
 
-*Last updated: 14 November 2026*
+*Last updated: 15 November 2026*
 
 Pup Budget is a small budgeting app for a family and the people they invite. It is run by one person, not a company.
 This page says what the app keeps about you, why, who can see it and how to have it deleted.
@@ -98,8 +98,8 @@ within 6 hours. Invite links that can no longer be used are deleted after 30 day
 
 - **See and change** your name, settings, accounts and transactions in the app at any time.
 - **Choose what your family sees** in Family.
-- **Delete your account and all its data:** write to [contact email] from your account's email address, and it is
-  done within 30 days. Deleting your account yourself in Settings is coming.
+- **Delete your account and all its data:** in Settings, Delete account, at any time; it is done at once. Or write to
+  [contact email] from your account's email address, and it is done within 30 days.
 - **Ask what is kept about you**, or anything else about your data: [contact email].
 
 ## Changes to this page

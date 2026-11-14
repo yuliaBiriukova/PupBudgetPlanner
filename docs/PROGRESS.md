@@ -2,6 +2,59 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-15 (F-027: delete my account, built)
+
+**Done**
+- The owner approved the final prototype and the description ("Approved, build it", 2026-11-14). Built on
+  `feature/F-027-delete-account`; F-027 Done in the backlog and the roadmap (M9 keeps Q-011).
+  - API (`MeController`, `AccountDeletionService`): `GET /api/me/deletion` gives the counts, whether the person
+    confirms with a password or Google, and whether they may delete (not the admin). `POST /api/me/delete` checks the
+    word `DELETE` and the password (with the sign-in's lockout and rate limit) or a Google confirmation, then in one
+    transaction hands the family over (`Family.Leave` with the picked owner) and deletes the account, whose cascade
+    removes its data; it signs out, other devices within a minute. "Confirm with Google" goes to Google and back and
+    sets a 10-minute protected cookie, only for the person's own Google account
+    ([ADR 0036](decisions/0036-delete-my-account.md)). A Google challenge can name its own landing pages.
+  - Settings: the section "Delete account" at the end, the pop-up of the final prototype (the counts in a grey line, the
+    family part, the password or Google, the word, "Keep my account" / "Delete for good"), back from Google with the
+    dialog open; `/account-deleted` on the sign-in frame. The admin sees a line instead of the button.
+  - The privacy policy (page and `privacy-policy.md`) says the account can be deleted in Settings; dated 2026-11-15.
+  - README guide: a line on deleting the account. Prototype stories deleted; *Settings / Delete account* stories.
+  - The design check counted an open dialog on a page taller than the screen as overlapping: a modal is now measured
+    against the screen (`scripts/design-check.mjs`).
+- Checks: backend build and all 636 tests; frontend lint, formatting, typecheck, all 429 unit tests, the production
+  build; the new E2E spec (phone and desktop) and the full E2E suite; the changed test files 3 times in a row; the
+  design check clean on every new story; screenshots of the section, the dialog, its errors and the page after at
+  375 px and desktop, light and dark, looked at.
+- Not tested end to end: the real Google round trip (its two halves are unit-tested).
+- Test data: `e2e-delete-…` and `e2e-f027-shots-…@example.com` people and their invite links, made in `dev` by the E2E
+  runs and a screenshot spec; the people deleted themselves through the new dialog or by the clean-up teardown, the
+  links by the teardown. None left.
+
+**Next**
+- Owner: review and merge the F-027 PR.
+
+## 2026-11-14 (F-027: delete my account, open points and design round 1)
+
+**Done**
+- Started [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) on `feature/F-027-delete-account`
+  (status In progress). The owner answered the open points (Q-010 moved to Answered): deleted right away; confirmed
+  with the password (or Google once more) plus a typed word; a family's owner with others picks the next owner, as
+  "Leave family" does; signing up again needs a new invite like anyone new. Claude's proposals, taken unless the owner
+  says otherwise: no export until M11; the admin can't delete their own account from Settings.
+- Design round 1: references, brief and plan in the description file; 3 prototype stories in Storybook
+  (`Prototypes/F-027 Delete my account`) on the real Settings page: 1 "One dialog", 2 "In place", 3 "The last page",
+  each with controls for how the person signs in (password, Google, admin) and their family role. Design check
+  (axe and layout, 360 – 1440 px, light and dark) clean; every state clicked through in Playwright and its screenshots
+  looked at (phone and desktop, light and dark).
+- No test data: nothing was created (prototypes use a fake API).
+
+- The owner picked variant 1 with what goes as grey text instead of the table: built as the final prototype
+  (`Prototypes/F-027 Delete my account` → *Final prototype*); variants 2 and 3 deleted. Design check clean; every
+  state clicked through and its screenshots looked at.
+
+**Next**
+- Owner: approve the final prototype and the description for implementation; then the API and the UI.
+
 ## 2026-11-14 (F-031: privacy policy page, built)
 
 **Done**

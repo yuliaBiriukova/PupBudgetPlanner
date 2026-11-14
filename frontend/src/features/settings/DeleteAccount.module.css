@@ -1,0 +1,120 @@
+/* Delete account (F-027, final prototype): the last section of Settings and its pop-up */
+
+/* Apart from the other settings: a wider gap above its rule */
+.apart {
+  margin-top: 24px;
+}
+
+/* The red word button lines up its bin with the text above it (Mantine trims the padding before an icon to 12 px) */
+.start {
+  margin-inline-start: -12px;
+}
+
+.adminLine {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+/* The pop-up's content: one gap between its parts, no bigger than the pop-up's padding (I-012) */
+.body {
+  display: grid;
+  gap: 16px;
+}
+
+/* The lead and the grey line under it, close together */
+.summary {
+  display: grid;
+  gap: 4px;
+}
+
+.lead {
+  margin: 0;
+}
+
+.note {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.part {
+  display: grid;
+  gap: 8px;
+}
+
+.partTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.partText {
+  margin: -4px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+/* "Confirm with Google": the sign-in page's Google button as a 44 px pill */
+.google {
+  justify-self: start;
+  min-height: 44px;
+  border-color: var(--pup-color-field-border);
+  border-radius: 999px;
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+}
+
+.google:hover {
+  background: var(--pup-color-hover);
+}
+
+.confirmed {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  margin: 0;
+  color: var(--pup-color-income);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.fieldError {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 0;
+  color: var(--mantine-color-error);
+  font-size: 14px;
+}
+
+/* After the deletion, on the sign-in frame */
+.deleted {
+  display: grid;
+  gap: 12px;
+}
+
+.deleted p {
+  margin: 0;
+}
+
+.deletedTitle {
+  margin: 0 0 4px;
+  font-family: var(--mantine-font-family-headings);
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 32px;
+}
+
+.dim {
+  color: var(--mantine-color-dimmed);
+}
+
+/* A word button's text lines up with the text above it: Mantine's 18 px padding without an icon */
+.signIn {
+  justify-self: start;
+  margin-top: 8px;
+  margin-inline-start: -18px;
+}

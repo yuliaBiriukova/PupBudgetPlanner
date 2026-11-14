@@ -28,6 +28,7 @@ import { accountsQuery, accountsTotalQuery } from '../accounts/accountsApi';
 import { yourCurrencies } from '../accounts/accountGroups';
 import { formatLongDate, POLICY_UPDATED } from '../privacy-policy/policy';
 import { TotalRates } from '../accounts/TotalRates';
+import { DeleteAccountSection } from './DeleteAccountSection';
 import classes from './Settings.module.css';
 import {
   settingsQuery,
@@ -44,8 +45,8 @@ const QUICK_CURRENCIES = ['UAH', 'USD', 'EUR'] as const;
 
 /**
  * Settings (F-016, final prototype variant 4): the name, the report currency and the theme, each changed where it is
- * shown. The currency and the theme are saved the moment they are picked; the name has its own Save. Last, the privacy
- * policy (F-031).
+ * shown. The currency and the theme are saved the moment they are picked; the name has its own Save., then the privacy
+ * policy (F-031) and, apart, Delete account (F-027).
  */
 export function SettingsPage() {
   const { t } = useTranslation();
@@ -99,6 +100,7 @@ export function SettingsPage() {
         <CurrencySection current={settings.data.reportCurrency} />
         <ThemeSection />
         <PrivacySection />
+        <DeleteAccountSection />
       </div>
     </>
   );

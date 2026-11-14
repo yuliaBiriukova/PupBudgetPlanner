@@ -38,6 +38,17 @@ function SettingsScreen({ data = 'settings', currency = 'UAH', saveFails = false
     '/api/settings': () =>
       data === 'loading' ? 'pending' : data === 'error' ? { status: 500 } : settings(),
     '/api/accounts': { json: OVERVIEW },
+    // Delete account at the page's end (F-027)
+    '/api/me/deletion': {
+      json: {
+        accounts: 9,
+        transactions: 1284,
+        categories: 46,
+        hasPassword: true,
+        canDelete: true,
+        googleConfirmed: false,
+      },
+    },
     '/api/accounts/total': () => ({ json: totalIn(saved.current.reportCurrency) }),
     'PUT /api/settings/report-currency': (body) => {
       if (saveFails) return { status: 503 };

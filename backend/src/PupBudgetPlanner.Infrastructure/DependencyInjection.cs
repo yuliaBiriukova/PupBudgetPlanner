@@ -88,6 +88,7 @@ public static class DependencyInjection
         services.AddScoped<IAccountCreator, AccountCreator>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ISettingsService, SettingsService>();
+        services.AddScoped<IAccountDeletionService, AccountDeletionService>();
     }
 
     /// <summary>Invite-only sign-up, invite links and the admin's People page (F-028).</summary>
