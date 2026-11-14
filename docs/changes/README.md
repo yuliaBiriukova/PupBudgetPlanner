@@ -1,7 +1,7 @@
 # Changes
 
 Every feature, improvement and bugfix has **its own folder** here with all related files:
-the description file (named like the folder), links to its prototype stories, screenshots and notes. The
+the description file (named like the folder), links to its prototype stories and notes. The
 prototype stories themselves live in `frontend/src/prototypes/<ID-name>/` (I-021); changes before I-021 have HTML
 prototypes here.
 
@@ -9,9 +9,7 @@ prototypes here.
 docs/changes/
 ├─ features/
 │  └─ F-030-short-name/
-│     ├─ F-030-short-name.md
-│     └─ prototypes/
-│        └─ final-375-light.png …   (the approved final prototype's screenshots)
+│     └─ F-030-short-name.md
 ├─ improvements/
 │  └─ I-001-short-name/
 │     └─ I-001-short-name.md
@@ -42,7 +40,8 @@ docs/changes/
   (`frontend/src/prototypes/<ID-name>/`, built from the app's own parts, one story per variant); the references
   used, the story links (in the form that opens the page filling the window, see
   [DESIGN_RULES §2](../DESIGN_RULES.md#2-process)) and the chosen variant are recorded in the description
-  file, the final prototype's screenshots in `prototypes/`. The prototype stories are deleted when the change is
+  file, with the final prototype described in words. Screenshots are looked at and sent to the owner in chat, never
+  committed (I-034). The prototype stories are deleted when the change is
   built.
 - **Approval before implementation.** No backend or frontend code until the owner has explicitly approved the
   description file and, for screens, the final prototype (for a bugfix: the root cause and the planned fix).
@@ -86,7 +85,7 @@ Why we do this, in one or two sentences.
 ## Design
 References (Mobbin, other apps, the internet): link — what we take from it.
 Prototype stories: *Prototypes / <ID> <name>* in Storybook (`frontend/src/prototypes/<ID-name>/`).
-Chosen variant: — · Final prototype approved: — (screenshots in `prototypes/`)
+Chosen variant: — · Final prototype approved: — (what it shows, in words)
 
 ## Tests
 - Unit:

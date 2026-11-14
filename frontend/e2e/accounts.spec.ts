@@ -40,6 +40,8 @@ test('a person adds accounts and sees their balances and totals, then archives o
   await expect(search).toBeFocused();
   await page.keyboard.type('dollar');
   await expect(search).toHaveValue('dollar');
+  // A match first, so "no EUR" is seen in the filtered list, not before the list is drawn (I-033)
+  await expect(page.getByRole('button', { name: /^USD/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /^EUR/ })).toHaveCount(0);
   await search.clear();
   await page.keyboard.type('usd');

@@ -11,6 +11,7 @@ import { Link, NavLink, useLocation } from 'react-router';
 import { useWhose } from '../../features/family/whose';
 import { WhoseLens } from '../../features/family/WhoseLens';
 import { BottomSheet } from '../../shared/ui/BottomSheet';
+import { InstallMoreRow } from '../pwa/InstallParts';
 import { ColorSchemeToggle } from '../../shared/ui/ColorSchemeToggle';
 import { Brand } from './Logo';
 import classes from './PhoneBars.module.css';
@@ -88,16 +89,26 @@ interface MoreSheetProps {
   onClose: () => void;
   user?: ShellUser;
   onSignOut?: () => void;
+  /** The app can be installed and its card is gone (F-025): "Install the app" first. */
+  onInstall?: () => void;
 }
 
 /** Phone bottom sheet with the sections that don't fit the tab bar, the theme switch and sign-out. */
-export function MoreSheet({ opened, onClose, user, onSignOut }: MoreSheetProps) {
+export function MoreSheet({ opened, onClose, user, onSignOut, onInstall }: MoreSheetProps) {
   const { t } = useTranslation();
   const { setColorScheme } = useMantineColorScheme();
   const isDark = useComputedColorScheme('light', { getInitialValueInEffect: true }) === 'dark';
 
   return (
     <BottomSheet opened={opened} onClose={onClose} title={t('nav.more')} hideTitle>
+      {onInstall && (
+        <InstallMoreRow
+          onClick={() => {
+            onClose();
+            onInstall();
+          }}
+        />
+      )}
       {moreSectionsFor(user).map(({ id, path, icon: Icon }) => (
         // replace: the section takes the sheet's history step, so Back from it goes to the page under the sheet (I-015)
         <NavLink key={id} to={path} replace className={classes.menuItem} onClick={onClose}>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { expect, userEvent, within } from 'storybook/test';
 import { sectionRoutes } from '../routes';
+import { asIphoneSafari, asOffline, withInstallOffer } from '../pwa/storyBrowsers';
 import { AppLayout } from './AppLayout';
 import type { ShellUser } from './sections';
 import { healthQuery } from './useServerWake';
@@ -152,6 +153,43 @@ export const DesktopCollapsesAndExpands: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Expand sidebar' }));
     await expect(handle).toHaveAttribute('aria-valuetext', '248 pixels');
   },
+};
+
+/** In a browser that can install the app (F-025): the card once at the top of the page. */
+export const PhoneInstallCard: Story = {
+  args: { user: yulia },
+  beforeEach: asIphoneSafari,
+};
+
+/** After Not now on the card: "Install the app" first in More (F-025). */
+export const PhoneInstallInMore: Story = {
+  args: { user: yulia },
+  beforeEach: () => {
+    localStorage.setItem('pup.installCard', 'true');
+    const restore = asIphoneSafari();
+    return () => {
+      localStorage.removeItem('pup.installCard');
+      restore();
+    };
+  },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(await within(canvasElement).findByRole('button', { name: 'More' }));
+    const sheet = await within(document.body).findByRole('dialog', { name: 'More' });
+    await expect(within(sheet).getByText('Install the app')).toBeVisible();
+  },
+};
+
+/** No network (F-025): the top pill says so. */
+export const PhoneOffline: Story = {
+  args: { user: yulia },
+  beforeEach: asOffline,
+};
+
+/** Chrome or Edge can install the app (F-025): a row over the account row. */
+export const DesktopInstallRow: Story = {
+  globals: desktop,
+  args: { user: yulia },
+  beforeEach: withInstallOffer,
 };
 
 export const NotFound: Story = {

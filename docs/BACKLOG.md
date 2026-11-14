@@ -72,8 +72,8 @@ Index of all changes. The details of each change live in its folder in [changes/
 
 | ID | Feature | Status |
 |----|---------|--------|
-| [F-025](changes/features/F-025-pwa/F-025-pwa.md) | Installable app (PWA) | Todo |
-| [F-026](changes/features/F-026-mvp-launch/F-026-mvp-launch.md) | MVP launch | Todo |
+| [F-025](changes/features/F-025-pwa/F-025-pwa.md) | 🎨 Installable app (PWA): opens at once from the home screen, an install hint, an offline message and an update notice (planned 2026-11-14) | Done |
+| [F-026](changes/features/F-026-mvp-launch/F-026-mvp-launch.md) | MVP launch | Done |
 
 ## After MVP
 
@@ -121,6 +121,8 @@ owner asks for one.
 | [I-030](changes/improvements/I-030-findable-add-button/I-030-findable-add-button.md) | 🎨 An Add button people find on the phone: one + that opens Transfer, Income and Expense; a menu with every place named (design approved 2026-11-09) | High | Done |
 | [I-031](changes/improvements/I-031-fewer-ci-minutes/I-031-fewer-ci-minutes.md) | CI checks each change once: no run on the push to `develop` or for docs-only PRs, the Docker image only for releases (90% of the month's Actions minutes used by 2026-11-12; approved 2026-11-12) | High | Done |
 | [I-032](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md) | 🎨 Invite links: no empty groups on the Family page; one list with each link's status on the People page (added 2026-11-12) | Medium | Done |
+| [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md) | Tests that can't pass by luck: rules for "nothing there" checks in the working agreement, and an audit of the existing ones (after B-019 and B-024 turned two releases red; added 2026-11-13) | High | Done |
+| [I-034](changes/improvements/I-034-no-committed-screenshots/I-034-no-committed-screenshots.md) | Screenshots are looked at and sent in chat, never committed; the ones committed before are deleted (owner, 2026-11-14) | Medium | Done |
 
 ## Bugfixes
 
@@ -150,3 +152,6 @@ owner asks for one.
 | [B-022](changes/bugfixes/B-022-sidebar-user-row-misaligned/B-022-sidebar-user-row-misaligned.md) | The name and the icon buttons are not aligned at the bottom of the sidebar (desktop) | Medium | Done |
 | [B-023](changes/bugfixes/B-023-fold-hover-corners/B-023-fold-hover-corners.md) | A fold's hover is rounded on every corner inside a card whose cells are square (Family privacy) | Low | Done |
 | [B-024](changes/bugfixes/B-024-family-test-expects-used-link-gone/B-024-family-test-expects-used-link-gone.md) | A Family E2E test expects a used invite link to be gone, but I-032 lists it (fixed in the release PR #98) | High | Done |
+| [B-025](changes/bugfixes/B-025-cleanup-timeout-after-big-runs/B-025-cleanup-timeout-after-big-runs.md) | The E2E clean-up times out after a big run and leaves test accounts in `dev` (found by I-033) | Medium | Done |
+| [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md) | One more Family privacy unit test looks inside a fold that is still opening, missed by B-019 (found by I-033) | High | Done |
+| [B-027](changes/bugfixes/B-027-invite-link-groups-on-people/B-027-invite-link-groups-on-people.md) | The People page's invite links lost their groups: only the Family page was meant to drop them (I-032) | Medium | Done |

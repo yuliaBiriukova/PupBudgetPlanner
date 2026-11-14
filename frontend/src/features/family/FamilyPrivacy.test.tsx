@@ -146,7 +146,10 @@ describe('what the family sees, on the Family page (F-030)', () => {
 
     const part = within(await waitFor(() => section('What the family sees'), LOADED));
     await user.click(await part.findByRole('button', { name: /Your accounts.*All \d+ shared/ }));
-    await user.click(part.getByRole('button', { name: 'Mono black: the family sees everything' }));
+    // The fold takes 160 ms to open; until then its rows aren't there to find (B-019, B-026)
+    await user.click(
+      await part.findByRole('button', { name: 'Mono black: the family sees everything' }, LOADED),
+    );
     await user.click(await screen.findByRole('menuitem', { name: /Hidden/ }));
 
     expect(

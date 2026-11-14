@@ -2,6 +2,191 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-14 (F-026: MVP launch, fixes, user guide and checks)
+
+**Done**
+- The owner approved the findings ("Fix 1–6, leave 7"). Fixed on `feature/F-026-mvp-launch`, each with a test:
+  - #1, #6: a Transactions slip too narrow for "September 2026" (phones below about 420 px) shows "Nov 2026" (the
+    whole month is still read out); at 320 px the figures are smaller, and below 360 px the "Whose money" pill shows
+    only the initial. New E2E test at 320 – 412 px.
+  - #2: Settings says "Your name is shown in the menu and to your family."
+  - #3: the password fields keep room for the show / hide button. New E2E test.
+  - #4: every response carries `X-Frame-Options: DENY`, `Content-Security-Policy: frame-ancestors 'none'`,
+    `X-Content-Type-Options: nosniff` and `Referrer-Policy: strict-origin-when-cross-origin`, error pages too
+    (`SecurityHeaders` in the API). Unit tests and an E2E check.
+  - #5: the current month's green in the Reports table is a shade darker; axe is clean on Reports at 768 – 1440 px.
+- Both new E2E tests were run against the old CSS on a fresh dev server and failed there, so they can't pass by luck.
+  (Swapping CSS under a running Vite server isn't a fair check: its class names carry line numbers.)
+- DESIGN_RULES "Screen decisions": the slip's short month name and the narrow lens pill noted on F-020's and F-024's rows.
+- Test data: two `e2e-f026-fix-…@example.com` people (a family with this month's money) and the invite links for them
+  and a Create account screenshot, made in `dev` for the screenshots; deleted at the end, none left.
+
+- README: the user guide "Using Pup Budget" for the family (getting in, installing, first steps, every day, looking
+  back, family and privacy, good to know), with the install steps moved into it; the status line says MVP.
+- F-026 and M6 marked Done in the backlog and the roadmap.
+- Checks: backend build and all 593 tests; frontend lint, formatting, typecheck, all unit tests, the production
+  build, and the full E2E suite (phone and desktop) against it; the new E2E tests 3 times in a row.
+
+**Next**
+- Owner: review and merge the F-026 PR; check the launch checklist's owner rows; answer the open points (production
+  data, backups).
+- Then Claude opens the release PR `develop` → `main`; after the owner merges it, the production smoke check.
+
+## 2026-11-14 (F-026: MVP launch, plan and review pass)
+
+**Done**
+- Planned [F-026](changes/features/F-026-mvp-launch/F-026-mvp-launch.md) on `feature/F-026-mvp-launch`: five steps
+  (review, fixes, launch checklist, user guide, release), the review list, a 10-row launch checklist, the README
+  guide's outline and the production smoke check. The owner approved the plan ("Approved, start", 2026-11-14).
+- Review pass done: the design check (axe and layout) on every page at 360 – 1440 px, light and dark, as a person
+  with data, a new person, a family member, the admin and signed out; screenshots of every page and of the add form,
+  dialogs and error states looked at; keyboard and 320 px reflow. 7 findings in
+  [`findings.md`](changes/features/F-026-mvp-launch/findings.md), 4 of them Medium: the month title cut on phones up to
+  390 px, Settings' outdated "once families come", a long password under the eye button, no security headers on
+  production. Nothing fixed yet.
+- Launch checklist: Claude's rows checked (no secrets in the repo or history, `render.yaml`, production's health and
+  HTTPS); the owner's rows (Render, Neon, cron-job.org, Google, GitHub minutes, production data) are open.
+- Test data: three `e2e-f026-…@example.com` people (a family of two and an empty one) with accounts and transactions,
+  and their 5 invite links, made in `dev` for the review; all deleted at the end, none left. The tests' admin was used
+  for the People page and stays. Nothing of the owner's was touched.
+
+**Next**
+- Owner: go through `findings.md` and approve which findings are fixed here; check the launch checklist's owner rows;
+  answer the plan's open points (production data, backups).
+- Then: the fixes, the README guide, all checks, the PR and the release PR.
+
+## 2026-11-14 (F-025: installable app)
+
+**Done**
+- Planned [F-025](changes/features/F-025-pwa/F-025-pwa.md) on `feature/F-025-pwa` (M6). The owner chose a design
+  round, an update notice with Reload (no reload by itself) and the current logo as the icon. Round 1 had 3 places for
+  the install hint; the owner chose variant 3 "Once, then in More" and approved the final prototype ("Approved, build
+  it", 2026-11-14). On iOS 26 adding to the home screen takes three taps (••• → Share → Add to Home Screen), not two.
+- Built: `vite-plugin-pwa` 2.0 with a manifest and a service worker that precaches only the app's own files (never
+  `/api`), registered in `main.tsx` and left out of Storybook ([ADR 0034](decisions/0034-installable-app.md)); icons
+  drawn from the logo (`scripts/make-app-icons.mjs`); `theme-color` following the app's scheme; on the phone the card
+  once, then *Install the app* first in More; on the desktop the sidebar's row in Chrome or Edge; the install sheet
+  (Chrome's own dialog, or Safari's three taps); "A new version is ready." with Reload; "No connection: you can look,
+  not save" in the top pill and "You're offline." on the start screen. The API sends the manifest as
+  `application/manifest+json`. README says how to install; ARCHITECTURE and DESIGN_RULES updated.
+- Differences from the prototype: the update toast's × is a named 44 px button (the design check asked for it), so
+  on a 375 px phone its text takes two lines; after Chrome's install dialog the app shows no toast of its own (Chrome
+  says it); the Android splash is light in both schemes (a manifest has one background colour).
+- Checked: ESLint, Prettier, typecheck, the build and the Storybook build (no service worker in it); every frontend
+  unit test (406) and the new ones 3 times in a row; every backend test (591); the whole E2E suite against the
+  production build, phone and desktop (114 passed, 24 skipped by project as before), and `pwa.spec.ts` 3 times in a
+  row (26 passed: manifest, Chrome's install check, offline from the cache, `/api` never from the cache); the design
+  check on the new stories (0 issues; the AppLayout stories' 404s are the existing ones, they have no fake API),
+  screenshots at 375 and 1440 px, light and dark, looked at.
+- Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` invite links in `dev`; the clean-up teardown
+  deleted them after each run. Nothing of the owner's was touched.
+- At the owner's request (2026-11-14) the prototype's screenshots are not committed; I-034 stops committing
+  screenshots for every change.
+
+**Next**
+- Owner: review the PR; after the release, install the app on Android and the iPhone and open it at night while the
+  server sleeps.
+- Then F-026, the MVP launch.
+
+## 2026-11-14 (I-034: screenshots are never committed)
+
+**Done**
+- The owner asked why PRs commit screenshots and whether they are needed (2026-11-14): no. About 300 PNGs had piled up
+  in `docs/changes/`, while the rule asked only for 4 per approved prototype. Done at the owner's request ("Yes, stop
+  committing") as [I-034](changes/improvements/I-034-no-committed-screenshots/I-034-no-committed-screenshots.md):
+  `CLAUDE.md`, DESIGN_RULES §2, the change templates and the `design-screen` skill now say screenshots are taken,
+  looked at and sent in chat, never committed; the description file says in words what was approved. `.gitignore`
+  keeps new images in `docs/changes/` out (an owner's reference image can still go in with `git add -f`). Then,
+  at the owner's word ("do it"), the 283 screenshots already committed are deleted too (about 25 MB of every
+  checkout; only I-027's reference image, the owner's, stays), and the 34 links and 8 mentions of them in 24 change
+  docs are reworded. The history keeps them. F-025's PR (#104) had its 16 taken out the same day.
+- Docs only: no code, tests or test data.
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-14 (B-027: invite link groups back on the People page)
+
+**Done**
+- The owner, 2026-11-13: "bring back invite link groups to People, I asked to remove groups only in Family". Planned
+  as [B-027](changes/bugfixes/B-027-invite-link-groups-on-people/B-027-invite-link-groups-on-people.md) (Medium;
+  first numbered B-025, renamed after merging `develop`, where B-025 and B-026 were taken). Root cause: I-032 read the
+  request the wrong way round for People, and its review fix then took the groups off both pages, which share
+  `InviteLinks`. The owner approved the root cause and the fix ("Approved, build it", 2026-11-14).
+- People › Invite links has its groups again (Waiting open, Used and Expired and cancelled folded, each with Select
+  all, the folds kept in the browser), only those with links; the rows say their status in words; cancelling says the
+  link moves to Expired and cancelled. The Family page keeps the one list. DESIGN_RULES "Screen decisions" and the
+  I-032 description point to B-027.
+- Checked: ESLint, Prettier, typecheck and build; every frontend unit test, the People and Family files 3 times in a
+  row; every E2E test, phone and desktop, and `invite-links` with `family` 3 times in a row; the design check on the
+  changed People stories and the Family owner (360 – 1440 px, light and dark), screenshots looked at and kept in the
+  change folder. The backend didn't change.
+- Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` invite links in `dev`; the clean-up teardown
+  deleted them. Nothing of the owner's was touched.
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-14 (B-026: one more fold race in the Family privacy tests)
+
+**Done**
+- [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md),
+  approved by the owner in chat: "hides an account from the family" now waits for the account's row in the opening
+  "Your accounts" fold (`findByRole`), as B-019 does for the other folds. Only the test file changed.
+- Checked: `FamilyPrivacy.test.tsx` 3 runs in a row; ESLint, Prettier. No test data made (unit tests only).
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-14 (B-025: the E2E clean-up's time limit)
+
+**Done**
+- [B-025](changes/bugfixes/B-025-cleanup-timeout-after-big-runs/B-025-cleanup-timeout-after-big-runs.md), approved
+  by the owner in chat: the `cleanup` teardown may take 5 minutes instead of Playwright's default 30 s, so it
+  finishes after a big run. Only the test file changed.
+- Checked: the whole E2E suite with `--repeat-each=3`: 319 tests passed, and the clean-up passed in 32.6 s (over the
+  old limit). ESLint, Prettier.
+- Test data: the run's `e2e-…@example.com` people and `E2E…` links in `dev` were deleted by that clean-up. Nothing
+  of the owner's was touched.
+
+**Next**
+- Owner: review the PR.
+
+## 2026-11-13 (I-033: tests that can't pass by luck)
+
+**Done**
+- [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md), approved by the owner in chat:
+  - `CLAUDE.md` has three rules under "Git workflow": a "nothing there" check comes only after the same part has
+    loaded; when a screen's behaviour changes, the tests of the old behaviour are searched and updated; the changed
+    test files run 3 times before a push. The PR template has a checklist line for the last two.
+  - E2E audit: 52 negative checks, 4 changed (`shell`, `transactions` ×2, `accounts`).
+  - Unit test audit: 101 negative checks, 5 changed (`TransactionsPage` ×3, `FamilyViews`), and a helper
+    `src/test/queries.ts` › `queryAnswered`.
+  - No app code changed.
+- Found on the way and added as `Todo`: [B-025](changes/bugfixes/B-025-cleanup-timeout-after-big-runs/B-025-cleanup-timeout-after-big-runs.md)
+  (the E2E clean-up times out after a big run) and [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md)
+  (one more fold race like B-019).
+- Checked: the changed E2E specs 3× on phone and desktop (125 passed); the whole E2E suite 3× (319 passed); the
+  changed unit files 3× and the whole unit suite 3×; ESLint, Prettier, typecheck.
+- Test data: the E2E runs made `e2e-…@example.com` people and `E2E…` links in `dev`. After the 3× run the clean-up
+  timed out (B-025); run again on its own it passed and deleted them. Nothing of the owner's was touched.
+
+**Next**
+- Owner: review the PR; decide on B-025 and B-026.
+
+## 2026-11-13 (Plan: I-033, tests that can't pass by luck)
+
+**Done**
+- Two releases in a row (#96, #98) went red on CI with the app working: B-019 and B-024 were tests that passed by luck
+  on their change's PR. At the owner's request, planned
+  [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md) (High, proposed): three rules
+  in the working agreement (anchor "nothing there" checks, search the tests when a screen's behaviour changes, run the
+  changed test files 3 times before a push) and an audit of the existing checks (43 in E2E, about 104 in unit tests).
+- Planning only: no code or tests changed.
+
+**Next**
+- Owner: confirm the priority and approve I-033; it is built on `improvement/I-033-steady-test-checks`.
+
 ## 2026-11-13 (B-024: Family E2E test out of date after I-032, fixed in the release PR)
 
 **Done**

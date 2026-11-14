@@ -9,6 +9,12 @@ type InvitationItem = components['schemas']['InvitationItem'];
 const DELETE_BATCH = 200;
 
 /**
+ * How long the clean-up may take. A big run (`--repeat-each=3`) makes several hundred people, and deleting them with
+ * all their data took longer than Playwright's default 30 s (B-025).
+ */
+const CLEANUP_TIMEOUT = 5 * 60_000;
+
+/**
  * Links the tests made: notes that start with `E2E` (newInviteToken's default, people.spec.ts) or the one
  * signUpThroughApi gives.
  */
@@ -23,6 +29,7 @@ function isTestLink(note: string | null): boolean {
 // Leftovers of earlier runs that broke off go too. The tests' admin stays: they can't delete themselves and every
 // run reuses them.
 teardown('remove the accounts and invite links the tests made', async () => {
+  teardown.setTimeout(CLEANUP_TIMEOUT);
   const admin = await signedInAdmin();
   try {
     const people = (await (await admin.get('/api/admin/people')).json()) as PersonItem[];

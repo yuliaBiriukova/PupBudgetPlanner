@@ -2,6 +2,7 @@ import { ActionIcon, Avatar, Tooltip, UnstyledButton } from '@mantine/core';
 import {
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
+  IconDownload,
   IconLogout,
   IconPlus,
 } from '@tabler/icons-react';
@@ -29,6 +30,8 @@ interface SidebarProps {
   user?: ShellUser;
   onAdd: () => void;
   onSignOut?: () => void;
+  /** Chrome or Edge can install the app (F-025): "Install the app" over the account row. */
+  onInstall?: () => void;
 }
 
 /** The width the head row needs to show the whole app name: padding, logo, name and the collapse button. */
@@ -74,7 +77,7 @@ function RailTip({
  * The desktop sidebar. Collapses to a 72 px icon rail with the button next to the logo; in the rail the logo
  * itself is the expand button. Its right edge can be dragged (or moved with ← → and Enter) to resize it.
  */
-export function Sidebar({ state, user, onAdd, onSignOut }: SidebarProps) {
+export function Sidebar({ state, user, onAdd, onSignOut, onInstall }: SidebarProps) {
   const { t } = useTranslation();
   const headRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLButtonElement>(null);
@@ -202,6 +205,15 @@ export function Sidebar({ state, user, onAdd, onSignOut }: SidebarProps) {
           )}
         </nav>
       </FadingScrollArea>
+
+      {onInstall && (
+        <RailTip label={t('pwa.install.title')} collapsed={collapsed}>
+          <UnstyledButton className={classes.link} onClick={onInstall}>
+            <IconDownload size={20} stroke={1.7} />
+            <span className={classes.label}>{t('pwa.install.title')}</span>
+          </UnstyledButton>
+        </RailTip>
+      )}
 
       <div className={classes.foot}>
         {user && (

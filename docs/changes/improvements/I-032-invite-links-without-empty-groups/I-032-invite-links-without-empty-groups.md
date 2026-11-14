@@ -78,9 +78,9 @@ missing*, *None*).
 - When built, the cancel confirmation's "It moves to Expired and cancelled" is said differently on the People page
   (there is no such group there).
 
-Chosen: the owner's direction · Final prototype approved: 2026-11-12. Screenshots in [prototypes/](prototypes/): the
-Invite links tab (`people-…`), two picked (`people-picked-…`), the Family page with a group missing (`family-some-…`)
-and with no links (`family-none-…`), each at 375 and 1440 px, light and dark.
+Chosen: the owner's direction · Final prototype approved: 2026-11-12. Screenshots looked at: the
+Invite links tab, two picked, the Family page with a group missing and with no links, each at 375 and 1440 px, light
+and dark.
 
 ## Tests
 
@@ -97,6 +97,13 @@ and with no links (`family-none-…`), each at 375 and 1440 px, light and dark.
   light and dark; their screenshots looked at.
 
 ## Notes
+
+### Corrected by B-027 (2026-11-14)
+
+The owner wanted the groups gone only on the Family page; the People page's one list was a misreading.
+[B-027](../../bugfixes/B-027-invite-link-groups-on-people/B-027-invite-link-groups-on-people.md) brings the groups
+back to People › Invite links (only those with links, as this change's prototype showed them on the Family page); the
+Family page keeps the one list.
 
 ### Review of PR #97 (owner, 2026-11-13)
 

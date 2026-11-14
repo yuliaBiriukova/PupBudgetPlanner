@@ -10,14 +10,15 @@ function matches(query: string, width: number): boolean {
 
 /**
  * jsdom has no layout, so media queries are answered for a pretend screen width. The default (set before
- * each test in setup.ts) is a 375 px phone; desktop tests call `setScreenWidth(1280)`.
+ * each test in setup.ts) is a 375 px phone; desktop tests call `setScreenWidth(1280)`. `standalone`: the app opened
+ * from the home screen (F-025), `(display-mode: standalone)`.
  */
-export function setScreenWidth(width: number) {
+export function setScreenWidth(width: number, { standalone = false } = {}) {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     configurable: true,
     value: vi.fn((query: string) => ({
-      matches: matches(query, width),
+      matches: query === '(display-mode: standalone)' ? standalone : matches(query, width),
       media: query,
       onchange: null,
       addListener: vi.fn(),

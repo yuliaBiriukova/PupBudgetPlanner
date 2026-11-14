@@ -7,7 +7,7 @@
 | Priority | Medium (proposed: Back or a swipe meant for the keys closes the form, and what was typed is lost) |
 | Status | Done |
 | Branch | `improvement/I-028-fold-away-keys` (planned on `plan/quick-add-keys`) |
-| Design | 🎨 3 prototype stories, then the final prototype (see "Design"); screenshots in [prototypes/](prototypes/) |
+| Design | 🎨 3 prototype stories, then the final prototype (see "Design") |
 | Approved | 2026-11-05 (owner: "Approved, build it", the final prototype) |
 
 ## Goal
@@ -138,7 +138,7 @@ form's overlay over the page, the amount's input, the page's bars); in the Brows
 light and dark: opens folded, a tap on the amount brings the keys up with the handle, `12 + 3` typed, Back folds them
 with the sum kept, Back again closes the form with no step left, a swipe folds them. Screenshots of folded, up,
 mid-swipe and swiped looked at. Approved by the owner on 2026-11-05 ("Approved, build it"); its screenshots (375 and
-1440 px, light and dark, and the keys up at 375 px) are in [prototypes/](prototypes/).
+1440 px, light and dark, and the keys up at 375 px) were looked at.
 
 Built: closing the form with the keys up removed the keys' history step and then the sheet's; the prototype waited for
 the first to go before closing. The build takes both away in one traversal in `popupHistory.ts`.

@@ -25,6 +25,7 @@
 - [ ] Owner approved the change (and its final prototype) before implementation; date in its description file
 - [ ] Latest `develop` pulled into the branch
 - [ ] Build and all tests pass
+- [ ] Tests of the old behaviour searched and updated; changed test files passed 3 runs in a row (I-033)
 - [ ] Changed screens checked in Playwright screenshots (phone and desktop, light and dark), or no UI changes
 - [ ] Playwright output folders cleaned
 - [ ] Test accounts and data removed from shared databases (owner's own untouched), or none were created

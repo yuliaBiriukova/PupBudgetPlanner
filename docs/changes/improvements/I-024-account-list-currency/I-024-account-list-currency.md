@@ -7,7 +7,7 @@
 | Priority | Medium (with several accounts of one name, picking the right one is guesswork) |
 | Status | Done |
 | Branch | `improvement/I-024-account-list-currency` (planned on `plan/prod-testing-fixes`) |
-| Design | 🎨 3 prototype stories, then the final prototype (round 2); screenshots in [prototypes/](prototypes/) |
+| Design | 🎨 3 prototype stories, then the final prototype (round 2) |
 | Approved | 2026-11-05, the final prototype (round 2), by the owner in chat ("Approved, build it") |
 
 ## Goal
@@ -143,7 +143,7 @@ list is *Transactions / Account list* in Storybook.
 
 Approved by the owner on 2026-11-05 ("Approved, build it"). Transfer's From and To fields (closed) stay as they are,
 the name and the balance; only their lists get the new rows. Screenshots of the final prototype (the list open, 375
-and 1440 px, light and dark) are in [prototypes/](prototypes/).
+and 1440 px, light and dark) were looked at.
 
 ## Notes
 

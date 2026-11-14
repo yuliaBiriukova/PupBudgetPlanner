@@ -88,6 +88,9 @@ describe('the Settings page', () => {
     renderApp('/settings');
 
     expect(await screen.findByLabelText('Name', {}, LOADED)).toHaveValue('Olena');
+    expect(
+      screen.getByText('Your name is shown in the menu and to your family.'),
+    ).toBeInTheDocument();
     expect(screen.getByText('olena@example.com')).toBeInTheDocument();
     expect(screen.getByText('Can’t be changed yet.')).toBeInTheDocument();
     expect(within(currencyGroup()).getByRole('radio', { name: 'Hryvnia' })).toBeChecked();

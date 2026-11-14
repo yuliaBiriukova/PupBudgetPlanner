@@ -77,8 +77,8 @@ This file tells Claude (and any human contributor) how we work on this project.
 - IDs are numbered separately per type and never reused.
 - **Every change gets its own folder** in `docs/changes/<type>/` holding all related files: the
   description file **named like the folder** (`F-018-quick-add-income-expense/F-018-quick-add-income-expense.md`,
-  from the templates in [docs/changes/README.md](docs/changes/README.md)), links to its prototype stories,
-  screenshots, notes (the stories themselves live in `frontend/src/prototypes/`).
+  from the templates in [docs/changes/README.md](docs/changes/README.md)), links to its prototype stories and
+  notes (the stories themselves live in `frontend/src/prototypes/`). No screenshots (see "Screens and design").
 - **When a new feature, improvement or bugfix is added to the plan**, create its folder and description
   file right away, together with its row in `docs/BACKLOG.md` (and `docs/ROADMAP.md` if it changes a milestone).
 - **Priority** `High` · `Medium` · `Low` (scale in [docs/changes/README.md](docs/changes/README.md#priority))
@@ -130,6 +130,18 @@ This file tells Claude (and any human contributor) how we work on this project.
   test project). Every suite runs once before the commit and push (step 4 above), not after each edit. Run a
   suite that takes more than a minute in the background and say so, so the owner can see it isn't stuck.
   Why: repeated full runs, each about 2 silent minutes, made I-011 look stuck for almost an hour (I-014).
+- **Tests that can't pass by luck** (I-033). Why: two releases in a row went red on CI with the app working, on a
+  test that had passed on its own change's PR: B-019 looked inside a fold still opening, and B-024 checked a link was
+  gone while the list was still loading, so it kept passing after the review fix made the link stay.
+  - **A "nothing there" check** (`toHaveCount(0)`, `not.toBeVisible()`, `toBeHidden()`, `queryBy…` → `null`,
+    `not.toBeInTheDocument()`) comes only after a check that the same part of the page has loaded, or that the
+    action before it has finished (an awaited `findBy…`, `waitFor`, `toBeVisible()` or a shown toast). It passes the
+    moment it sees nothing, also before the page has drawn it. Where it can, check what *is* there instead (the row
+    reads "Used", not "the note is gone").
+  - **When a change or a review fix changes what a screen shows or hides**, search the unit and E2E tests for the
+    old behaviour (its texts and states) and update them in the same change.
+  - **Before a push, run the changed test files 3 times in a row**: `npx playwright test e2e/<name>.spec.ts
+    --repeat-each=3`, `npx vitest run <files> --repeats=2` (each test once plus two repeats).
 - **Before every commit that changes UI**, check it in Playwright (see "Screens and design") — not only the
   tests passing, but screenshots you have looked at.
 - Never commit secrets. Local secrets go to `dotnet user-secrets` / `.env.local`.
@@ -169,8 +181,10 @@ This file tells Claude (and any human contributor) how we work on this project.
     open the page filling the window, without the sidebar and panel:
     `http://localhost:6006/?path=/story/<story-id>&nav=false&panel=false&globals=viewport.value:!undefined`.
     Phone, tablet and desktop and light / dark are switched in the toolbar.
-  - The change folder keeps the story links and, once it's approved, the final prototype's screenshots (375 and
-    1440 px, light and dark) in `prototypes/`.
+  - The change folder keeps the story links, and the description file says in words what the owner approved.
+    **Screenshots are never committed** (I-034): they are taken and looked at (below) and sent to the owner in
+    chat. Why: about 300 had piled up in `docs/changes/`, repeating what the docs say, unreviewable in a diff and
+    kept by the history for good.
   - When the change is built, delete its prototype stories; the real stories replace them.
   - Earlier changes keep their HTML prototypes.
 - **Test everything with Playwright before showing it** — design variants before they are proposed, real

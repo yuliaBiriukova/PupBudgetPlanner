@@ -89,6 +89,22 @@ test('a wrong password or an unknown email get the same message', async ({ page,
   expect(wrongPassword).toContain(en.auth.errors.credentials);
 });
 
+test('a long password stays clear of the show / hide button', async ({ page }) => {
+  await page.goto('/sign-in');
+  const password = page.getByLabel(en.auth.fields.password, { exact: true });
+  await password.fill('a-very-long-password-that-would-run-under-the-eye-button');
+  const toggle = page.getByRole('button', { name: en.auth.fields.showPassword });
+  await expect(toggle).toBeVisible();
+
+  // Where the typed text ends: the field's right edge less its right padding
+  const textEnd = await password.evaluate((input) => {
+    const box = input.getBoundingClientRect();
+    return box.right - parseFloat(getComputedStyle(input).paddingRight);
+  });
+  const button = await toggle.boundingBox();
+  expect(textEnd).toBeLessThanOrEqual(button?.x ?? 0);
+});
+
 test('a taken email gets a neutral message with a way to sign in', async ({ page, request }) => {
   const person = newPerson('taken');
   expect((await signUpThroughApi(request, person)).ok()).toBe(true);

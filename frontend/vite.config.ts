@@ -1,12 +1,58 @@
 import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vitest/config';
+
+/** The page's background in light mode (theme.ts): the browser's bars and the installed app's splash. */
+const PAGE_LIGHT = '#f5f6f7';
 
 // The local API (`dotnet run` in backend/). Override with API_PROXY_TARGET if it runs elsewhere.
 const apiProxyTarget = process.env.API_PROXY_TARGET ?? 'http://localhost:5297';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // The installable app (F-025, ADR 0034): the manifest and a service worker that keeps the app's own files, so the
+    // app opens at once while the free server sleeps. API answers are never kept. A release waits for the person's
+    // Reload (`registerType: 'prompt'`, src/app/pwa/updates.ts). No service worker in `vite` dev or Storybook.
+    VitePWA({
+      registerType: 'prompt',
+      // Registered in main.tsx, never by the plugin's own script
+      injectRegister: false,
+      // The icons are in `globPatterns` already: no second precache entry for each
+      includeManifestIcons: false,
+      manifest: {
+        id: '/',
+        name: 'Pup Budget Planner',
+        short_name: 'Pup Budget',
+        description: 'Your family budget: expenses, income, transfers and reports.',
+        lang: 'en',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        theme_color: PAGE_LIGHT,
+        background_color: PAGE_LIGHT,
+        icons: [
+          { src: '/pwa-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          {
+            src: '/pwa-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
+      },
+      workbox: {
+        // The app's own files; fonts only as woff2 (every browser the app supports reads it)
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // Pages open from the cache; /api (sign-in with Google, invite links, data) always goes to the server
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//],
+        cleanupOutdatedCaches: true,
+      },
+    }),
+  ],
   server: {
     port: 5173,
     strictPort: true,

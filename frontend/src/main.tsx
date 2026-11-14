@@ -11,6 +11,12 @@ import './shared/i18n/i18n';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
+import { listenForInstall } from './app/pwa/install';
+import { registerServiceWorker } from './app/pwa/register';
+
+// The installable app (F-025): Chrome's install offer can come before the first render
+listenForInstall();
+registerServiceWorker();
 
 const root = document.getElementById('root');
 if (!root) {
