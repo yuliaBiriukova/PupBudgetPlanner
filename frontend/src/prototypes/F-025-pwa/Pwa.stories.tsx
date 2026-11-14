@@ -112,7 +112,7 @@ const meta = {
   title: 'Prototypes/F-025 Installable app',
   component: PwaStory,
   parameters: { layout: 'fullscreen' },
-  args: { variant: 'menu', platform: 'Chrome or Edge', moment: 'Nothing new' },
+  args: { variant: 'both', platform: 'Chrome or Edge', moment: 'Nothing new' },
   argTypes: {
     variant: { table: { disable: true } },
     platform: {
@@ -130,27 +130,17 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/** An "Install the app" row in More (phone) and in the sidebar (desktop, where the browser can install). */
-export const InTheMenu: Story = {
-  name: 'Variant 1: In the menu',
-  args: { variant: 'menu' },
+/**
+ * Variant 3, chosen by the owner (2026-11-14): on the phone the card once at the top of the page, then the row in
+ * More after Not now; on the desktop the sidebar's row in Chrome or Edge.
+ */
+export const Final: Story = {
+  name: 'Final prototype',
 };
 
-/** A card once at the top of the page on the phone; Not now and it's gone for good. */
-export const OnceOnThePage: Story = {
-  name: 'Variant 2: Once on the page',
-  args: { variant: 'card' },
-};
-
-/** The card once, then the row in More; the sidebar's row on the desktop. */
-export const OnceThenInMore: Story = {
-  name: 'Variant 3: Once, then in More',
-  args: { variant: 'both' },
-};
-
-/** Every variant: opened from the home screen without a network (a page the app can't reach by itself). */
+/** Opened from the home screen without a network (a page the app can't reach by itself). */
 export const OfflineAtStart: Story = {
-  name: 'Every variant: offline at start',
+  name: 'Final: offline at start',
   render: () => <OfflineStart />,
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByRole('alert')).toHaveTextContent('You’re offline.');

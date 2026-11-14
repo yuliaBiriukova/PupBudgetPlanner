@@ -4,7 +4,7 @@
 |---|---|
 | Type | Feature |
 | Milestone | M6 — MVP release |
-| Status | In progress (design round 1 shown 2026-11-14, waiting for the owner's choice) |
+| Status | In progress (variant 3 chosen 2026-11-14; final prototype waiting for the owner's approval) |
 | Branch | `feature/F-025-pwa` |
 | Design | 3 prototype stories required: the install hint, the update notice and the offline start (owner, 2026-11-14) |
 | Approved | — |
@@ -71,7 +71,8 @@ Proposed; the owner settles the open points before approval.
 - [x] Owner: answer the open points (2026-11-14)
 - [x] References and 3 prototype stories for the install hint, the update notice and the offline start (round 1,
       2026-11-14)
-- [ ] The owner's choice; the final prototype and the owner's approval
+- [x] The owner's choice: variant 3 (2026-11-14); the final prototype
+- [ ] The owner's approval of the final prototype
 - [ ] ADR 0034: the service worker (Workbox via `vite-plugin-pwa`, `generateSW`): what is cached, `/api` excluded,
       updates on prompt
 - [ ] `vite-plugin-pwa`: manifest, precache of the build, `navigateFallback` to `index.html` with `/api/` in
@@ -202,6 +203,32 @@ pill's place.
 Checked 2026-11-14: the design check on the four stories (360 – 1440 px, light and dark): 0 issues, 0 console errors;
 the states inside the page (More open, both sheets, the card's Not now, the update toast, the offline pill, the
 installed app) as Playwright screenshots at 375 and 1440 px, light and dark, looked at.
+
+Chosen variant: **variant 3 "Once, then in More"** (owner, 2026-11-14). Variants 1 and 2 were removed.
+
+### Final prototype (2026-11-14)
+
+[Final prototype](http://localhost:6006/?path=/story/prototypes-f-025-installable-app--final&nav=false&panel=false&globals=viewport.value:!undefined)
+and [Final: offline at start](http://localhost:6006/?path=/story/prototypes-f-025-installable-app--offline-at-start&nav=false&panel=false&globals=viewport.value:!undefined)
+in *Prototypes / F-025 Installable app*, with the same controls (platform, moment). Variant 3 as shown in round 1:
+
+- **Phone, in a browser:** the card at the top of the page once (the app's icon, "Pup Budget on your home screen",
+  "Opens at once, even while the server sleeps at night.", Install and Not now). Not now hides it for good and says
+  "It's in More whenever you want it."; from then on *Install the app* is the first row in More, with "Opens at once
+  from your home screen" under it.
+- **Desktop, in Chrome or Edge:** *Install the app* as a row over the account row at the sidebar's foot (a tooltip
+  in the rail). Safari on the Mac and Firefox get no hint.
+- **Install** (card, row) opens the sheet (a dialog on the desktop): the home screen picture, one sentence on what it
+  gives; Chrome or Edge: Not now and Install (the browser's own dialog); iPhone: the three taps (••• → Share → Add to
+  Home Screen, then Add) and Got it.
+- **Installed app:** no card, no row, no sheet.
+- **After a release:** the toast "A new version is ready." with Reload, until Reload or ×.
+- **Offline:** the pill "No connection: you can look, not save" in the waking-up pill's place; opened without a
+  network, the start screen says "You're offline." and "Pup Budget opens once the phone is online again." with Try
+  again.
+
+Checked 2026-11-14: the design check on both stories (360 – 1440 px, light and dark): 0 issues, 0 console errors; the
+states inside the page as Playwright screenshots at 375 and 1440 px, light and dark, looked at.
 
 ## Notes
 

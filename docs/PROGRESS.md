@@ -23,8 +23,12 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Checked: typecheck, ESLint, Prettier; the design check on the four stories (0 issues, 0 console errors); the
   states inside the page as Playwright screenshots at 375 and 1440 px, light and dark, looked at. No test data made.
 
+- The owner chose variant 3 "Once, then in More". It became the final prototype as it was; variants 1 and 2 were
+  removed. Checked again: the design check on the final stories (0 issues, 0 console errors) and the screenshots of
+  its states.
+
 **Next**
-- Owner: pick a variant (or a mix); then the final prototype and its approval.
+- Owner: approve the final prototype for implementation.
 
 ## 2026-11-14 (B-027: invite link groups back on the People page)
 
