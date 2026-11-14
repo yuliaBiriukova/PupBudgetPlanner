@@ -13,9 +13,12 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   first.
 - Planning only: no code, no test data.
 
+- The owner answered the open points the same day: a design round with 3 prototype stories, an update notice with
+  Reload (no reload by itself), and the current logo as the home-screen icon.
+
 **Next**
-- Owner: answer F-025's open points (where the install hint lives, update notice or reload by itself, icons); then
-  the design round.
+- The design round: references, then 3 prototype stories for the install hint, the update notice and the offline
+  start.
 
 ## 2026-11-14 (B-027: invite link groups back on the People page)
 

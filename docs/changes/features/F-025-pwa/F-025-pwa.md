@@ -4,9 +4,9 @@
 |---|---|
 | Type | Feature |
 | Milestone | M6 — MVP release |
-| Status | In progress (planned 2026-11-14, waiting for the owner's answers to the open points) |
+| Status | In progress (planned 2026-11-14; open points answered, design round next) |
 | Branch | `feature/F-025-pwa` |
-| Design | 3 prototype stories required: the install hint, the update notice and the offline start (proposed 2026-11-14, see "Open points") |
+| Design | 3 prototype stories required: the install hint, the update notice and the offline start (owner, 2026-11-14) |
 | Approved | — |
 
 ## Goal
@@ -57,11 +57,12 @@ Proposed; the owner settles the open points before approval.
       the app is open, the pill at the top says so instead of "Waking up the server…".
 - [ ] **Updates:** after a release, an open app shows a notice *"A new version is ready"* with a *Reload* button
       (open point 2). A half-filled form is never reloaded away without the person's click. The next cold start
-      uses the new version.
+      uses the new version (owner, 2026-11-14).
 - [ ] **Install hint:** the app offers to install itself in a browser on the phone (and in Chrome / Edge on the
       computer), never inside the installed app. On Android and desktop its button opens the browser's own install
       dialog; on iPhone it shows the two steps (Share → *Add to Home Screen*). Where it lives and how often it
       appears is chosen in the design round (open point 1).
+- [ ] **Icons** from the current logo (owner, 2026-11-14).
 - [ ] **Dark mode:** the browser's bars (`theme-color`) and the splash background follow the light / dark theme.
 - [ ] Works at 375 px and 1440 px, light and dark; every new text through i18n.
 
@@ -101,19 +102,19 @@ Proposed; the owner settles the open points before approval.
 
 ## Open points
 
-Asked on 2026-11-14:
+Asked and answered on 2026-11-14 (owner, in chat):
 
-1. **Design round.** The install hint, the update notice and the offline message are new UI, so the plan is
+1. **Design round: yes, 3 prototype stories.** The install hint, the update notice and the offline message are new UI, so the plan is
    🎨 with 3 prototype stories. The variants would differ in where the install hint lives:
    - an *Install the app* row on the More page (phone) and in the user menu (desktop), opening a small sheet;
    - a one-time banner after sign-in on the phone, with *Not now* (never shown again after that);
    - both: the banner once, and the row on More after that.
 
    The update notice and the offline message reuse the toast and the pill in every variant.
-2. **Updates:** a *"A new version is ready · Reload"* notice (proposed: nothing is lost mid-form), or reload by
-   itself as soon as a release is out (simpler, but can drop a half-typed transaction)?
-3. **Icons:** the current logo as it is (coin stack on the sky circle; on Android's shaped icons the sky fills
-   the whole shape), or a new icon for the home screen?
+2. **Updates: a notice with Reload.** *"A new version is ready · Reload"*, so nothing is lost mid-form (not a
+   reload by itself as soon as a release is out, which could drop a half-typed transaction).
+3. **Icons: the current logo.** The coin stack on the sky circle; on Android's shaped icons the sky fills the whole
+   shape. No new icon.
 
 ## Design
 
