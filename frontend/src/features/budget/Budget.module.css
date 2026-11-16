@@ -411,9 +411,11 @@
     gap: 48px;
   }
 
+  /* As tall as its content, not the groups beside it, or it has no room to stay in place (owner's review of PR #115) */
   .left {
     position: sticky;
     top: 16px;
+    align-self: start;
   }
 
   .wideOnly {

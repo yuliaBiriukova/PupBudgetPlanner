@@ -11,7 +11,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   The owner asked for variants 1 and 3 together: the final prototype has both under the month (the split first), the
   column scrolling on its own when taller than the window; design check clean, screenshots at 1440 × 900 and
   1280 × 640 looked at. Then, from the owner's comments: no sideways scroll in that column, and in the app hovering a
-  group's head lights its whole card. Waiting for the owner's approval of the final prototype.
+  group's head lights its whole card, and the month's column really stays in place (it was stretched to the groups'
+  height). Waiting for the owner's approval of the final prototype.
 - Checks: lint, formatting, typecheck, the budget unit tests and `budget.spec.ts` 3 runs. Test data: the E2E runs'
   people, removed by the clean-up.
 

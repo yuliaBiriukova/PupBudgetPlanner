@@ -339,6 +339,9 @@ amount 15 px medium, an 8 px bar, a rule between it and its categories.
 3. Owner's comments on it: the column had a needless sideways scroll (the rows' hover reaching past it): now it scrolls
    only up and down, and only when taller than the window. And **hovering a group's head lights its whole card**
    (built in the app: `.group:has(> .groupHead:hover)`).
+4. "This block should be sticky when the user scrolls": it was sticky but stretched to the groups' height by the grid,
+   so it scrolled away; now it is as tall as its content (`align-self: start`, in the app) and stays in place to the
+   end of the page.
 
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's
