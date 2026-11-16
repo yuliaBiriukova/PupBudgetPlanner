@@ -6,7 +6,7 @@
 | Milestone | M7 — Budgets |
 | Priority | Medium |
 | Status | Todo |
-| Branch | `feature/F-033-category-budgets` |
+| Branch | `feature/F-033-category-budgets` (planned on `plan/m7-budgets-and-jars`) |
 | Design | 🎨 3 prototype stories required (the Budget page with group and category budgets, "left" in the quick-add form and on Transactions, the reminder banner) |
 | Approved | — |
 
@@ -96,6 +96,9 @@ Chosen variant: — · Final prototype approved: —
 - Screens checked in Playwright screenshots (phone / desktop, light / dark):
 
 ## Notes
+- [F-034](../F-034-saving-jars/F-034-saving-jars.md) (saving jars, built after this) adds jars to the month's plan
+  and, on the Budget page and with the reminder on the 1st, the choice to put the month's saved money into a jar.
+  The Budget page's design should leave room for them.
 - Replaces "Budgets / limits per category" from the post-MVP candidates (PRODUCT.md) and from M11 in the roadmap.
 - [I-016](../../improvements/I-016-category-month-totals/I-016-category-month-totals.md) (this month's total next to
   each category when adding a transaction) overlaps "left" in the quick-add form: for categories with a budget (their

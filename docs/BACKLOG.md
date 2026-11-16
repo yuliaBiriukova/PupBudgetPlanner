@@ -93,6 +93,7 @@ owner asks for one.
 | ID | Feature | Priority | Status |
 |----|---------|----------|--------|
 | [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md) | 🎨 Monthly budgets per category and group: plan each month (prefilled from the last), see what's left on a Budget page, when adding an expense and on Transactions; a reminder on the 1st, banner and push (Q-013; added 2026-11-16) | Medium | Todo |
+| [F-034](changes/features/F-034-saving-jars/F-034-saving-jars.md) | 🎨 Saving jars: symbolic jars for goals (car, apartment) that set money aside inside real accounts; planned in the month's budget; the month's saved money can go into a jar (Q-014; added 2026-11-16; after F-033) | Medium | Todo |
 
 ## Improvements
 

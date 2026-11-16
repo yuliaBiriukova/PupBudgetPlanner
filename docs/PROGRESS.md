@@ -2,12 +2,12 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
-## 2026-11-16 (F-033: monthly budgets per category, planned; M7 is now Budgets)
+## 2026-11-16 (M7 Budgets planned: F-033 monthly budgets, F-034 saving jars)
 
 **Done**
 - The owner replaced M7 "Quality" with "Budgets" and asked for a feature to plan the budget by category and see
-  what's left in each this month. Planned
-  [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md) on `feature/F-033-category-budgets`:
+  what's left in each this month. Planned on `plan/m7-budgets-and-jars` (to be built on its own branch):
+  [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md):
   priority Medium; budgets set month by month, a new month prefilled from the last; no carry-over; "left" on a new
   Budget page, in the quick-add form and on Transactions; a reminder on the 1st as an in-app banner and a phone push.
 - Roadmap: M7 is Budgets; "budgets per category" taken out of M11. The integration tests (Testcontainers) stay an
@@ -18,10 +18,17 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Then the owner asked for group budgets too: a group (Daily living) and the categories in it can both have
   budgets; the categories may not add up to more than the group's (saving blocked); the quick-add form shows a
   category's own "left", or its group's when it has none.
+- Then the owner asked for saving jars in the same milestone and PR:
+  [F-034](changes/features/F-034-saving-jars/F-034-saving-jars.md), priority Medium, built after F-033. A jar is
+  symbolic: it sets money aside inside real accounts, whose balances don't change (each shows in jars / free). Name,
+  icon or colour, optional goal and target date, a note; personal for now. Linked to F-033 two ways: jars are planned
+  in the month's budget, and the month's saved money (budget left over or income minus expenses, the person picks)
+  can go into a jar or stay free, offered when the month closes and any time on the Budget page. Q-014 opened with
+  the smaller points.
 - No code; no test data created.
 
 **Next**
-- F-033 design round: references, then 3 prototype stories in Storybook.
+- Owner: answer Q-014. Then the design rounds, F-033 first: references, then 3 prototype stories in Storybook.
 
 ## 2026-11-16 (F-032: generic default categories, built; M9 done)
 

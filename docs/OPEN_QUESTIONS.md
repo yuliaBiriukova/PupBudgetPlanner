@@ -6,6 +6,7 @@ When a question is answered, move it to "Answered" with the answer and date, and
 
 | ID | Question | Proposal | Blocks |
 |----|----------|----------|--------|
+| Q-014 | Saving jars (F-034): currency, taking money out, reaching the goal, progress, which account saved money comes from, moving what's left mid-month, spending into jar money, where jars show | One currency per jar (NBU rate when converted); take out any time; "Goal reached", then close; progress bar and "a month to make it"; the person picks the account; the month's total "left" goes down; a warning on the account; a section on Accounts or its own page (design round). Details in [F-034](changes/features/F-034-saving-jars/F-034-saving-jars.md#still-open-q-014) | F-034 design round |
 
 ## Answered
 
