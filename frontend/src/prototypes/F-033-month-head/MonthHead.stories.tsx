@@ -6,7 +6,7 @@ import { plannedMonth } from '../../features/budget/budgetTestData';
 import { MonthHeadPage } from './MonthHeadPage';
 
 /** The Budget page in a scrolling main area (its padding as AppLayout's on the desktop), with a fake API. */
-function Screen() {
+function Screen({ variant }: { variant: 'band' | 'slip' }) {
   const routes: MockRoutes = {
     '/api/budget': (_, query) => ({ json: plannedMonth(query.get('month') ?? thisMonth()) }),
     'PUT /api/budget/{part}': { status: 204 },
@@ -19,7 +19,7 @@ function Screen() {
       <MockFetch routes={routes}>
         <main style={{ height: '100dvh', overflow: 'hidden auto' }}>
           <div style={{ maxWidth: 1280, margin: '0 auto', padding: '28px 40px 48px' }}>
-            <MonthHeadPage />
+            <MonthHeadPage variant={variant} />
           </div>
         </main>
       </MockFetch>
@@ -36,4 +36,16 @@ const meta = {
 export default meta;
 
 /** The switcher a band that stays in place, the groups scrolling under it; the month's column as wide as the switcher. */
-export const Final: StoryObj<typeof meta> = { name: 'Final: Sticky month band' };
+export const Final: StoryObj<typeof meta> = {
+  name: 'Final: Sticky month band',
+  args: { variant: 'band' },
+};
+
+/**
+ * The header as Transactions' (owner): the month and its figures on the dark slip with the torn edge; the column under
+ * it holds where the total goes and the spending outside the plan, fitted and sticky as Transactions' left column.
+ */
+export const Slip: StoryObj<typeof meta> = {
+  name: 'Slip header, as Transactions',
+  args: { variant: 'slip' },
+};

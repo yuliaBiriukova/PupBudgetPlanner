@@ -1,0 +1,16 @@
+/* F-033 prototype: the Budget page's header on Transactions' slip (TransactionsPage.module.css); only these are new. */
+
+.slip {
+  margin-bottom: 24px;
+}
+
+/* The month's name as the page's title, set as the Transactions slip's period */
+.title {
+  margin: 0;
+  padding: 0 8px;
+}
+
+/* Over the total: the slip's red, as its bar past the budget */
+.over {
+  color: var(--pup-card-solid-debt);
+}

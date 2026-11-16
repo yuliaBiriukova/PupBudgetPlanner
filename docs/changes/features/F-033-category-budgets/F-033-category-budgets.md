@@ -364,7 +364,18 @@ month's column starts under the switcher, is as wide as it (at least 320 px) and
 comments: "the panel should always stay in place, now it scrolls a little because of padding, make cards to fade when
 they are scrolled to the top": the switcher and the column now stick exactly where they start (the page's 28 px top
 padding counted), nothing moves; over the groups' column a 32 px fade under the band, shown only once the page has
-scrolled (a scroll-driven animation). Waiting for the owner's approval; not built.
+scrolled (a scroll-driven animation). Then "now this scrolls when I scroll the page": on a shorter window the
+column's least height didn't fit and FitColumn counted a 16 px sticky top, so the column was pushed up at the page's end;
+now everything under the month's figure is one scrolling part (min 120 px) and the prototype's FitColumn copy sticks
+at the column's own CSS top: it stays at the same place at every scroll position (checked at 640, 820, 1000 px high).
+
+The owner then asked "can you make the header for budget as for transactions?": a second story,
+[Slip header, as Transactions](http://localhost:6006/?path=/story/prototypes-f-033-month-head--slip&nav=false&panel=false&globals=viewport.value:!undefined):
+the month on Transactions' dark slip with the torn edge (‹ November 2026 ›, *Change total* at the end of the row, "Left
+of 50 000 ₴" and "Spent" big, the slip's bar for the share of the total spent, the days to go and the part in no group
+under it); under it the column (where the total goes, spending outside the plan, delete) fitted and sticky as
+Transactions' left column, and the groups. The slip scrolls away as on Transactions. Waiting for the owner's pick and
+approval; not built.
 
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's

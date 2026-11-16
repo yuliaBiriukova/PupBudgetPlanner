@@ -7,7 +7,8 @@ import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import tx from '../../features/transactions/TransactionsPage.module.css';
 import { cx } from '../../shared/ui/cx';
-import { FitColumn } from '../../shared/ui/FitColumn';
+import { FadingScrollArea } from '../../shared/ui/FadingScrollArea';
+import { FitColumn } from './FitColumn';
 import {
   daysLeft,
   linesOf,
@@ -26,6 +27,7 @@ import {
   type MonthBudgetData,
 } from '../../features/budget/budgetApi';
 import classes from '../../features/budget/Budget.module.css';
+import { BudgetSlip } from './BudgetSlip';
 import proto from './MonthHead.module.css';
 import {
   DeletePlanDialog,
@@ -53,18 +55,22 @@ type Open = BudgetTarget | { kind: 'new'; groupId: string; categoryId?: string }
  * desktop, the groups scrolling under it; the month's column under the switcher, as wide as it and at least 320 px. A
  * copy of the Budget page; only the head, the grid and the column's sticky top are new.
  */
-export function MonthHeadPage() {
+export function MonthHeadPage({ variant = 'band' }: { variant?: 'band' | 'slip' }) {
   const { t } = useTranslation();
   const [month, setMonth] = useBudgetMonth();
   const query = useQuery(monthBudgetQuery(month));
+  const slip = variant === 'slip';
 
   return (
-    <div className={cx(classes.page, proto.page)}>
-      <div className={proto.band} aria-hidden />
-      <div className={proto.fade} aria-hidden />
-      <div className={proto.head}>
-        <MonthHead month={month} onMonth={setMonth} />
-      </div>
+    <div className={cx(classes.page, slip ? '' : proto.page)}>
+      {!slip && <div className={proto.band} aria-hidden />}
+      {!slip && <div className={proto.fade} aria-hidden />}
+      {/* The slip: a planned month's header is the slip (in PlannedMonth), any other state keeps the switcher */}
+      {!(slip && query.data?.planned) && (
+        <div className={slip ? undefined : proto.head}>
+          <MonthHead month={month} onMonth={setMonth} />
+        </div>
+      )}
       {query.isPending ? (
         <div
           className={classes.columns}
@@ -100,7 +106,7 @@ export function MonthHeadPage() {
           </div>
         </div>
       ) : query.data.planned ? (
-        <PlannedMonth data={query.data} />
+        <PlannedMonth data={query.data} slip={slip} onMonth={setMonth} />
       ) : (
         <NotPlanned data={query.data} />
       )}
@@ -157,7 +163,15 @@ function NotPlanned({ data }: { data: MonthBudgetData }) {
   );
 }
 
-function PlannedMonth({ data }: { data: MonthBudgetData }) {
+function PlannedMonth({
+  data,
+  slip,
+  onMonth,
+}: {
+  data: MonthBudgetData;
+  slip: boolean;
+  onMonth: (month: string) => void;
+}) {
   const { t } = useTranslation();
   const [open, setOpen] = useState<Open | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -188,74 +202,91 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
   );
 
   return (
-    <div className={cx(classes.columns, proto.columns)}>
-      {/* The desktop: the month's column stays in place and fits the window, as Transactions' (FitColumn); only the
-          spending outside the plan scrolls inside it */}
-      <FitColumn fit={wide} className={cx(classes.left, proto.left)}>
-        <Hero
+    <>
+      {slip && (
+        <BudgetSlip
           lines={lines}
-          ratesMissing={data.ratesMissing}
-          onEdit={() => {
+          onMonth={onMonth}
+          onEditTotal={() => {
             setOpen({ kind: 'total' });
           }}
         />
-        {wide && <PlanSplit lines={lines} />}
-        {wide && (
-          <OutsidePlan
+      )}
+      <div className={cx(classes.columns, slip ? '' : proto.columns)}>
+        {/* The desktop: the month's column stays in place and fits the window, as Transactions' (FitColumn); only the
+          spending outside the plan scrolls inside it */}
+        <FitColumn fit={wide} className={cx(classes.left, slip ? '' : proto.left)}>
+          {!slip && (
+            <Hero
+              lines={lines}
+              ratesMissing={data.ratesMissing}
+              onEdit={() => {
+                setOpen({ kind: 'total' });
+              }}
+            />
+          )}
+          {/* Under the month's figure, one scrolling part that takes the room left: the column always fits the window,
+            so it never has to move (owner's review) */}
+          {wide && (
+            <FadingScrollArea className={proto.rest}>
+              <div className={proto.restInner}>
+                <PlanSplit lines={lines} />
+                <OutsidePlan
+                  lines={lines}
+                  onNew={(groupId, categoryId) => {
+                    setOpen({ kind: 'new', groupId, categoryId });
+                  }}
+                />
+                <div className={classes.wideOnly}>
+                  {isThisMonth && <ReminderCard />}
+                  {deleteButton}
+                </div>
+              </div>
+            </FadingScrollArea>
+          )}
+        </FitColumn>
+        <div className={cx(classes.groups, slip ? '' : proto.groups)}>
+          {groups.map((group) => (
+            <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
+          ))}
+          {/* The phone and tablet: after the groups, so it doesn't push them down */}
+          {!wide && (
+            <div className={classes.narrowOnly}>
+              {isThisMonth && <ReminderCard />}
+              {deleteButton}
+            </div>
+          )}
+        </div>
+        <DeletePlanDialog
+          month={data.month}
+          opened={deleting}
+          onClose={() => {
+            setDeleting(false);
+          }}
+        />
+        {open?.kind === 'new' && (
+          <NewBudgetDialog
+            key={`${open.groupId}-${open.categoryId ?? ''}`}
+            groupId={open.groupId}
+            categoryId={open.categoryId}
+            data={data}
             lines={lines}
-            onNew={(groupId, categoryId) => {
-              setOpen({ kind: 'new', groupId, categoryId });
-            }}
+            plan={plan}
+            onClose={close}
           />
         )}
-        {wide && (
-          <div className={classes.wideOnly}>
-            {isThisMonth && <ReminderCard />}
-            {deleteButton}
-          </div>
-        )}
-      </FitColumn>
-      <div className={cx(classes.groups, proto.groups)}>
-        {groups.map((group) => (
-          <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
-        ))}
-        {/* The phone and tablet: after the groups, so it doesn't push them down */}
-        {!wide && (
-          <div className={classes.narrowOnly}>
-            {isThisMonth && <ReminderCard />}
-            {deleteButton}
-          </div>
+        {open && open.kind !== 'new' && (
+          <EditBudgetDialog
+            key={JSON.stringify(open)}
+            target={open}
+            data={data}
+            lines={lines}
+            plan={plan}
+            onClose={close}
+          />
         )}
       </div>
-      <DeletePlanDialog
-        month={data.month}
-        opened={deleting}
-        onClose={() => {
-          setDeleting(false);
-        }}
-      />
-      {open?.kind === 'new' && (
-        <NewBudgetDialog
-          key={`${open.groupId}-${open.categoryId ?? ''}`}
-          groupId={open.groupId}
-          categoryId={open.categoryId}
-          data={data}
-          lines={lines}
-          plan={plan}
-          onClose={close}
-        />
-      )}
-      {open && open.kind !== 'new' && (
-        <EditBudgetDialog
-          key={JSON.stringify(open)}
-          target={open}
-          data={data}
-          lines={lines}
-          plan={plan}
-          onClose={close}
-        />
-      )}
-    </div>
+    </>
   );
 }
 

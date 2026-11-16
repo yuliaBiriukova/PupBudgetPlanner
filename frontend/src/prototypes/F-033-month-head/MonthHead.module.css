@@ -93,4 +93,32 @@
     grid-row: 2;
     grid-column: 2;
   }
+
+  /* Everything under the month's figure scrolls as one in the room left (its bar in the gap beside it, as Transactions'
+     "Where it went"); the column's least height is the figure and a little of this, so it always fits */
+  .rest.rest {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 120px;
+    margin: 0 -20px 0 -8px;
+  }
+
+  .rest > :global(.mantine-ScrollArea-viewport) {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+  }
+
+  .restInner {
+    display: grid;
+    gap: 24px;
+    padding: 0 20px 0 8px;
+  }
+
+  /* Inside it the list is as long as it is: one scroll, not two */
+  .restInner :global(.mantine-ScrollArea-root) {
+    display: block;
+    min-height: 0;
+  }
 }
