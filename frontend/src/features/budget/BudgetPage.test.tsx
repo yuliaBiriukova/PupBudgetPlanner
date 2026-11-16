@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw/http';
 import { describe, expect, it } from 'vitest';
 import { LOADED, renderApp } from '../../test/render';
+import { setScreenWidth } from '../../test/screen';
 import { server } from '../../test/server';
 import { shiftMonth, thisMonth } from './budget';
 import { notPlannedMonth, plannedMonth } from './budgetTestData';
@@ -76,7 +77,8 @@ describe('the Budget page', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows under the month where the total goes and the spending outside the plan', async () => {
+  it('shows under the month on the desktop where the total goes and the spending outside the plan', async () => {
+    setScreenWidth(1280);
     useBudget(plannedMonth);
     const user = userEvent.setup();
     renderApp('/budget');
@@ -97,8 +99,9 @@ describe('the Budget page', () => {
     expect(outside).toHaveTextContent('2 586 ₴ in categories without a budget');
     const rows = within(outside).getAllByRole('button');
     expect(rows).toHaveLength(2);
-    expect(rows[0]).toHaveTextContent('ClothingDaily living1 890 ₴');
-    expect(rows[1]).toHaveTextContent('ActivitiesEntertainment696 ₴');
+    // As Transactions' "Where it went": the amount and its share of the month's 31 482 spent
+    expect(rows[0]).toHaveTextContent('Clothing1 890 ₴6%');
+    expect(rows[1]).toHaveTextContent('Activities696 ₴2%');
     // A row opens New budget with its category picked
     await user.click(rows[0] ?? outside);
     const dialog = await screen.findByRole('dialog', { name: 'New budget in Daily living' });

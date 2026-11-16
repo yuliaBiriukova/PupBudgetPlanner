@@ -34,7 +34,7 @@ import {
 } from './formDefaults';
 import { RateLine } from './RateLine';
 import { LIST_FOOT, LIST_GAP, noteRoomHeight } from './noteRoom';
-import { scrollParentOf } from './scrollParent';
+import { scrollParentOf } from '../../shared/ui/scrollParent';
 import classes from './TransactionForm.module.css';
 import {
   isExchange,

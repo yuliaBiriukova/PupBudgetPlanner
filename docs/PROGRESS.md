@@ -9,6 +9,9 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   *Where the … goes* and *Spent outside the plan* under the month on the desktop, built in
   `features/budget/MonthColumn.tsx`; a row of the second opens *New budget* with its category picked. Prototype folder
   deleted.
+- From the owner's comments: the month's column fits and sticks as Transactions' (`FitColumn` moved to `shared/ui`),
+  only the *Spent outside the plan* list scrolls (`FadingScrollArea`), its rows styled as "Where it went".
+  `transactions.spec.ts` run too, as its column moved.
 - Checks: lint, formatting, typecheck, all unit tests (the budget ones 3 runs), the production and Storybook builds,
   `budget.spec.ts` 3 runs on both viewports; screenshots of the Budget page at 1440 px light and dark looked at. Test
   data: the E2E runs' people, removed by the clean-up.

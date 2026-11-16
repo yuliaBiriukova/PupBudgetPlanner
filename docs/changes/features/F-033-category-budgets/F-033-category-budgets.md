@@ -348,6 +348,12 @@ month on the desktop, before the reminder card and *Delete …'s plan*; a row of
 budget* with its category already picked; the month's column scrolls on its own when taller than the window. The
 prototype folder `frontend/src/prototypes/F-033-left-column/` is deleted.
 
+**Owner's comments on the build (2026-11-16):** the column's scroll and stickiness should be as on Transactions, and the
+bars as Transactions' "Where it went". Done: the month's column is Transactions' `FitColumn` (moved to
+`shared/ui/FitColumn.tsx`, with `scrollParentOf`): sticky, fitted to the window as the page scrolls, and only the
+*Spent outside the plan* list scrolls, in the app's `FadingScrollArea`; its rows are "Where it went" rows (name, amount,
+share of the month's spending, the red-tinted bar).
+
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's
   spending from categories with and without budgets, the total from all expenses, prefill from the last planned

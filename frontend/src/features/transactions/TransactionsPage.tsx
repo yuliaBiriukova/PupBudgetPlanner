@@ -3,17 +3,11 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconAlertCircle, IconChevronUp, IconPlus, IconRefresh, IconX } from '@tabler/icons-react';
 import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-  type RefObject,
-} from 'react';
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DESKTOP_QUERY } from '../../app/shell/sections';
 import { cx } from '../../shared/ui/cx';
+import { FitColumn } from '../../shared/ui/FitColumn';
 import { accountsQueryOf } from '../accounts/accountsApi';
 import { BudgetSummary } from '../budget/BudgetLines';
 import { categoriesQuery } from '../categories/categoriesApi';
@@ -33,7 +27,7 @@ import {
 } from './filters';
 import { useDayTitle } from './receiptDays';
 import { Receipts } from './Receipts';
-import { scrollParentOf } from './scrollParent';
+import { scrollParentOf } from '../../shared/ui/scrollParent';
 import { SpendingCalendar } from './SpendingCalendar';
 import { MiniFigures, TotalsSlip } from './TotalsSlip';
 import { TransactionFilters } from './TransactionFilters';
@@ -367,7 +361,7 @@ export function TransactionsPage() {
       {!wide && budget}
       {!wide && controls}
       <div className={classes.columns} data-one={(!calendar && !bars) || undefined}>
-        <FitColumn fit={wide}>
+        <FitColumn fit={wide} className={classes.left}>
           {wide && budget}
           {calendar}
           {bars}
@@ -442,72 +436,4 @@ function useMiniBar(slip: RefObject<HTMLElement | null>, on: boolean) {
     };
   }, [slip, on]);
   return on && away;
-}
-
-/** The room the fitted column keeps under it and over it once it sticks. */
-const COLUMN_GAP_PX = 16;
-
-/** The least the column's parts take: the calendar as it is, "Where it went" at its min-height. */
-function leastHeight(column: HTMLElement): number {
-  return Array.from(column.children).reduce((sum, part) => {
-    const style = getComputedStyle(part);
-    const min = parseFloat(style.minHeight);
-    return (
-      sum +
-      (Number.isNaN(min) || min === 0 ? part.getBoundingClientRect().height : min) +
-      parseFloat(style.marginTop) +
-      parseFloat(style.marginBottom)
-    );
-  }, 0);
-}
-
-/**
- * The desktop's left column: sticky, and ending 16 px above the window's bottom at every scroll position, so the whole
- * of "Where it went" is on screen and its list scrolls inside it (variant 8, owner's review). It ends no lower than
- * the receipts beside it: a sticky column taller than the room left at the page's end is pushed up, its top under the
- * window's (B-008).
- */
-function FitColumn({ fit, children }: { fit: boolean; children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (!fit) {
-      el.style.maxHeight = '';
-      return;
-    }
-    const main = scrollParentOf(el);
-    if (!main) return;
-    let frame = 0;
-    const measure = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const box = main.getBoundingClientRect();
-        const top = Math.max(el.getBoundingClientRect().top, box.top + COLUMN_GAP_PX);
-        const receipts = el.nextElementSibling?.getBoundingClientRect().bottom ?? Infinity;
-        const bottom = Math.min(box.bottom - COLUMN_GAP_PX, receipts);
-        el.style.maxHeight = `${String(Math.round(Math.max(bottom - top, leastHeight(el))))}px`;
-      });
-    };
-    measure();
-    main.addEventListener('scroll', measure, { passive: true });
-    window.addEventListener('resize', measure);
-    // The totals above it (B-007) or the receipts beside it (B-008) change height without a scroll: it fits again
-    const observer = new ResizeObserver(measure);
-    if (main.firstElementChild) observer.observe(main.firstElementChild);
-    if (el.nextElementSibling) observer.observe(el.nextElementSibling);
-    return () => {
-      cancelAnimationFrame(frame);
-      main.removeEventListener('scroll', measure);
-      window.removeEventListener('resize', measure);
-      observer.disconnect();
-    };
-  }, [fit]);
-
-  return (
-    <div className={classes.left} ref={ref}>
-      {children}
-    </div>
-  );
 }

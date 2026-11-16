@@ -1,4 +1,5 @@
 import { Button, Skeleton, UnstyledButton } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconPencil, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -6,6 +7,7 @@ import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import tx from '../transactions/TransactionsPage.module.css';
 import { cx } from '../../shared/ui/cx';
+import { FitColumn } from '../../shared/ui/FitColumn';
 import {
   daysLeft,
   linesOf,
@@ -29,6 +31,9 @@ import { Bar, MonthHead } from './parts';
 import { OutsidePlan, PlanSplit } from './MonthColumn';
 import { useBudgetMonth } from './useBudgetMonth';
 import { ReminderCard } from './Reminder';
+
+/** The desktop's two columns (Budget.module.css, 64em): the month on the left, the groups on the right. */
+const WIDE_QUERY = '(min-width: 64em)';
 
 /** What a dialog is open for: one budget, or a new one in a group. */
 type Open = BudgetTarget | { kind: 'new'; groupId: string; categoryId?: string };
@@ -151,6 +156,7 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
     ...lines.groups.filter((g) => quiet(g)),
   ];
   const isThisMonth = data.month === thisMonth();
+  const wide = useMediaQuery(WIDE_QUERY, false, { getInitialValueInEffect: false });
   const close = () => {
     setOpen(null);
   };
@@ -169,7 +175,9 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
 
   return (
     <div className={classes.columns}>
-      <div className={classes.left}>
+      {/* The desktop: the month's column stays in place and fits the window, as Transactions' (FitColumn); only the
+          spending outside the plan scrolls inside it */}
+      <FitColumn fit={wide} className={classes.left}>
         <Hero
           lines={lines}
           ratesMissing={data.ratesMissing}
@@ -177,28 +185,33 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
             setOpen({ kind: 'total' });
           }}
         />
-        {/* The desktop: under the month, in its column */}
-        <div className={classes.wideOnly}>
-          <PlanSplit lines={lines} />
+        {wide && <PlanSplit lines={lines} />}
+        {wide && (
           <OutsidePlan
             lines={lines}
             onNew={(groupId, categoryId) => {
               setOpen({ kind: 'new', groupId, categoryId });
             }}
           />
-          {isThisMonth && <ReminderCard />}
-          {deleteButton}
-        </div>
-      </div>
+        )}
+        {wide && (
+          <div className={classes.wideOnly}>
+            {isThisMonth && <ReminderCard />}
+            {deleteButton}
+          </div>
+        )}
+      </FitColumn>
       <div className={classes.groups}>
         {groups.map((group) => (
           <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
         ))}
         {/* The phone and tablet: after the groups, so it doesn't push them down */}
-        <div className={classes.narrowOnly}>
-          {isThisMonth && <ReminderCard />}
-          {deleteButton}
-        </div>
+        {!wide && (
+          <div className={classes.narrowOnly}>
+            {isThisMonth && <ReminderCard />}
+            {deleteButton}
+          </div>
+        )}
       </div>
       <DeletePlanDialog
         month={data.month}
