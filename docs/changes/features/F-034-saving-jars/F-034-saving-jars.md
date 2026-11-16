@@ -34,6 +34,9 @@ no way to say "this part of my Monobank money is for the car".
      20,000, spent 17,000 → 3,000) or the month's **income minus expenses** (NET, as in the report). Offered
      **when the month closes** (with the reminder on the 1st: "Last month 3,000 was saved — put it into a jar or
      keep it?") and **any time during the month** with a button on the Budget page.
+  3. **Split across jars** (owner, 2026-11-16): the saved money can be divided between several jars in one go
+     (saving for two things), the rest staying free. Amounts are typed per jar, or filled **by this month's plan**:
+     each jar gets what is still to go of its planned amount, as far as the money reaches.
 
 ### Q-014 and Q-015 (owner accepted Claude's proposals as they were, 2026-11-16)
 
@@ -83,8 +86,12 @@ an account today.
       budgets are. The planned jar amounts count within the month's total: the groups' budgets plus the jars may not
       be bigger than it (saving is blocked, as in F-033).
 - [ ] **Saved money into a jar:** the Budget page shows the month's saved money two ways, what's left of the
-      budgets and income minus expenses, and the person picks one; they put all or part of it into a jar, from an
-      account they pick (the one with the most free money in the jar's currency first), or keep it free. Offered
+      budgets and income minus expenses, and the person picks one; they put all or part of it into one jar or split
+      it across several, each from an account they pick (the one with the most free money in that jar's currency
+      first), and keep the rest free. The split shows an amount per jar, typed by hand or filled with one button
+      **by this month's plan** (each jar gets what is still to go of its planned amount, in the plan's order, until
+      the money runs out); together the amounts may not be more than the saved money, and what is not given out
+      stays free. Offered
       when the month closes (with the reminder on the 1st, F-033) and any time with a button on the Budget page;
       moving it during the month lowers the month's total "left" by that much, the categories' budgets stay as
       planned.
@@ -105,9 +112,11 @@ Chosen variant: — · Final prototype approved: —
 
 ## Tests
 - Unit: in jars / free per account (also in another currency, and when spending eats into jar money), progress and
-  "a month to make it", the month's saved money both ways, the validators; frontend components and hooks.
+  "a month to make it", the month's saved money both ways, the split by this month's plan (money enough for all
+  jars, and running out part-way), the validators; frontend components and hooks.
 - E2E (Playwright): create a jar, set money aside and take it out, see the account's split; plan a jar in the
-  month and see "still to go"; put the month's saved money into a jar; close a jar.
+  month and see "still to go"; split the month's saved money across two jars (by the plan and by hand), the rest
+  staying free; close a jar.
 - Screens checked in Playwright screenshots (phone / desktop, light / dark):
 
 ## Notes

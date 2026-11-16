@@ -29,6 +29,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   can go into a jar or stay free, offered when the month closes and any time on the Budget page.
 - Q-014 (jars' smaller points) and Q-015 (quick-add falls back to the month's total "left"; planned jar amounts
   count within the month's total): the owner accepted Claude's proposals as they were; both moved to Answered.
+- The month's saved money can be split across several jars in one go, typed per jar or filled by this month's plan
+  (each jar gets what is still to go of its planned amount until the money runs out); the rest stays free.
 - No code; no test data created.
 
 **Next**
