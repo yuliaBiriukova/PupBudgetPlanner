@@ -10,6 +10,8 @@ import {
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
+  IconBell,
+  IconBellOff,
   IconChevronRight,
   IconDeviceDesktop,
   IconInfoCircle,
@@ -26,6 +28,7 @@ import { formatMoney } from '../../shared/format/money';
 import { CurrencyPicker } from '../../shared/ui/CurrencyPicker';
 import { accountsQuery, accountsTotalQuery } from '../accounts/accountsApi';
 import { yourCurrencies } from '../accounts/accountGroups';
+import { NotificationsBlocked, useReminder, useSetReminder } from '../budget/reminderApi';
 import { formatLongDate, POLICY_UPDATED } from '../privacy-policy/policy';
 import { TotalRates } from '../accounts/TotalRates';
 import { DeleteAccountSection } from './DeleteAccountSection';
@@ -99,6 +102,7 @@ export function SettingsPage() {
         <NameSection key={settings.data.displayName} settings={settings.data} />
         <CurrencySection current={settings.data.reportCurrency} />
         <ThemeSection />
+        <ReminderSection />
         <PrivacySection />
         <DeleteAccountSection />
       </div>
@@ -340,6 +344,60 @@ function ThemeSection() {
           setColorScheme(value as MantineColorScheme);
         }}
       />
+    </Section>
+  );
+}
+
+/**
+ * The budget reminder on the 1st (F-033), for this device: On / Off in the standard pill switch. Off on an iPhone in
+ * Safari, which can't get notifications: the line says to install the app first. No picture of the notification here
+ * (owner, 2026-11-16): the Budget page's card has it.
+ */
+function ReminderSection() {
+  const { t } = useTranslation();
+  const titleId = useId();
+  const reminder = useReminder();
+  const setReminder = useSetReminder();
+  const state = reminder.data;
+
+  return (
+    <Section id={titleId} title={t('settings.reminderTitle')} text={t('settings.reminderText')}>
+      {(state === 'on' || state === 'off') && (
+        <Choice
+          name="reminder"
+          labelledBy={titleId}
+          value={setReminder.isPending ? (setReminder.variables ? 'on' : 'off') : state}
+          options={[
+            { value: 'on', label: t('settings.reminderOn'), icon: IconBell },
+            { value: 'off', label: t('settings.reminderOff'), icon: IconBellOff },
+          ]}
+          onChange={(value) => {
+            setReminder.mutate(value === 'on', {
+              onSuccess: () => {
+                notifications.show({
+                  message: value === 'on' ? t('budget.reminder.on') : t('budget.reminder.off'),
+                });
+              },
+              onError: (error) => {
+                notifications.show({
+                  color: 'red',
+                  message:
+                    error instanceof NotificationsBlocked
+                      ? t('budget.reminder.blocked')
+                      : t('budget.reminder.error'),
+                });
+              },
+            });
+          }}
+        />
+      )}
+      {state === 'install-first' && (
+        <p className={classes.hint}>{t('settings.reminderInstallFirst')}</p>
+      )}
+      {state === 'blocked' && <p className={classes.hint}>{t('settings.reminderBlocked')}</p>}
+      {(state === 'unsupported' || reminder.isError) && (
+        <p className={classes.hint}>{t('settings.reminderUnsupported')}</p>
+      )}
     </Section>
   );
 }

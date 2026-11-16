@@ -1,0 +1,396 @@
+/* F-033 Monthly budget (final prototype, variant 2 without the pace). Tokens only; every size even (DESIGN_RULES §1).
+   Phone first; from 64em the month in a sticky column on the left, the groups on the right. */
+
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* ---------- The month: its name as the page's title, ‹ › beside it ---------- */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 16px;
+}
+
+.title {
+  margin: 0 4px;
+  font-family: var(--pup-font-display);
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 32px;
+}
+
+.titleShort {
+  display: none;
+}
+
+/* A phone: the month's short name, the whole one still heard */
+@media (max-width: 30em) {
+  .titleShort {
+    display: inline;
+  }
+
+  .titleLong {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+.columns {
+  display: grid;
+  gap: 24px;
+}
+
+.left {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+}
+
+.wideOnly {
+  display: none;
+}
+
+.narrowOnly {
+  padding-top: 16px;
+}
+
+/* ---------- The month's left ---------- */
+.hero {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.heroLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.heroNum {
+  margin: 0 0 4px;
+  font-family: var(--pup-font-display);
+  font-size: 40px;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 48px;
+}
+
+.heroButton {
+  justify-self: start;
+  margin-left: -12px;
+}
+
+.edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -12px 0;
+  border-radius: 999px;
+  color: var(--mantine-color-dimmed);
+}
+
+.edit:hover {
+  background: var(--pup-color-hover);
+  color: var(--mantine-color-text);
+}
+
+.heroText {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.legend {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* ---------- A budget's bar: spent over the budget; past it, red ---------- */
+.bar {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--pup-color-rule);
+}
+
+.bar > span {
+  display: block;
+  width: var(--fill);
+  max-width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--mantine-color-text);
+}
+
+.bar[data-thick] {
+  height: 8px;
+}
+
+.bar[data-over] > span {
+  background: var(--pup-color-expense);
+}
+
+.bar[data-none] {
+  background: transparent;
+  border: 1px dashed var(--pup-color-rule);
+}
+
+/* ---------- Amounts ---------- */
+.num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.over {
+  color: var(--pup-color-expense);
+}
+
+.dim {
+  color: var(--mantine-color-dimmed);
+}
+
+/* ---------- The groups ---------- */
+.groups {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.group {
+  display: grid;
+}
+
+.group + .group,
+.others {
+  padding-top: 8px;
+  border-top: 1px solid var(--pup-color-rule);
+}
+
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 12px 8px 8px;
+  border-radius: var(--mantine-radius-md);
+}
+
+.groupName {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.row {
+  display: grid;
+  gap: 6px;
+  padding: 10px 8px 8px;
+  border-radius: var(--mantine-radius-md);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.groupHead:hover,
+.row:hover {
+  background: var(--pup-color-hover);
+}
+
+.rowTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rowSub {
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.amount {
+  display: grid;
+  justify-items: end;
+  font-size: 14px;
+  text-align: right;
+}
+
+.sumNote {
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+}
+
+.more,
+.othersHead {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 8px;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+  text-align: left;
+}
+
+.more:hover,
+.othersHead:hover {
+  color: var(--mantine-color-text);
+}
+
+.othersHead[aria-expanded='true'] > svg {
+  transform: rotate(180deg);
+}
+
+/* ---------- A month not planned ---------- */
+.empty {
+  padding: 32px 0;
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 0 0 8px;
+  font-family: var(--pup-font-display);
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.emptyText {
+  max-width: 400px;
+  margin: 0 auto 20px;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.emptyButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ---------- The dialogs ---------- */
+.dialogButtons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.push {
+  margin-left: auto;
+}
+
+.amountInput input {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.issue {
+  display: flex;
+  gap: 6px;
+  margin: 4px 0 0;
+  color: var(--pup-color-error-text);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.issue > svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+/* The new budget's dialog: the category's label row as the quick-add form's, its pills, then the budget */
+.pickHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin-bottom: 8px;
+}
+
+.pickLabel {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.pickError {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--pup-color-error-text);
+  font-size: 13px;
+}
+
+.newField {
+  margin-top: 16px;
+}
+
+.facts {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  line-height: 20px;
+  list-style: none;
+}
+
+.facts b {
+  color: var(--mantine-color-text);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (min-width: $mantine-breakpoint-sm) {
+  .title {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .heroNum {
+    font-size: 48px;
+    line-height: 56px;
+  }
+}
+
+@media (min-width: 64em) {
+  .columns {
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 48px;
+  }
+
+  .left {
+    position: sticky;
+    top: 16px;
+  }
+
+  .wideOnly {
+    display: block;
+  }
+
+  .narrowOnly {
+    display: none;
+  }
+}

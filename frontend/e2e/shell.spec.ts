@@ -161,9 +161,9 @@ test('the desktop sidebar collapses to a rail and expands from the logo', async 
   await page.getByRole('button', { name: en.shell.collapseSidebar }).click();
   await expect(handle).toHaveAttribute('aria-valuetext', en.shell.collapsed);
   await expect(page.locator('aside')).toHaveCSS('width', '72px');
-  // In the rail only the icons are left: each keeps its full size, centred on the rail
+  // In the rail only the icons are left (Add and seven sections, F-033): each keeps its full size, centred on the rail
   const icons = await page.locator('aside nav svg').or(sidebarAdd(page).locator('svg')).all();
-  expect(icons).toHaveLength(7);
+  expect(icons).toHaveLength(8);
   for (const icon of icons) {
     const box = await icon.boundingBox();
     expect(

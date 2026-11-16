@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PupBudgetPlanner.Domain.Accounts;
+using PupBudgetPlanner.Domain.Budgets;
+using PupBudgetPlanner.Domain.Reminders;
 using PupBudgetPlanner.Domain.Categories;
 using PupBudgetPlanner.Domain.ExchangeRates;
 using PupBudgetPlanner.Domain.Families;
@@ -41,6 +43,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
     /// <summary>The NBU's official rates kept per day (F-017), shared by everyone.</summary>
     public DbSet<ExchangeRate> ExchangeRates => Set<ExchangeRate>();
+
+    /// <summary>Each person's plan for a month (F-033), with its group and category budgets.</summary>
+    public DbSet<BudgetMonth> BudgetMonths => Set<BudgetMonth>();
+
+    /// <summary>The devices that get the budget reminder on the 1st (F-033).</summary>
+    public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
 
     /// <summary>The provider settings shared by the app and the design-time factory.</summary>
     internal static void Configure(DbContextOptionsBuilder options, string connectionString) =>

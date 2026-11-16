@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { DESKTOP_QUERY } from '../../app/shell/sections';
 import { cx } from '../../shared/ui/cx';
 import { accountsQueryOf } from '../accounts/accountsApi';
+import { BudgetSummary } from '../budget/BudgetLines';
 import { categoriesQuery } from '../categories/categoriesApi';
 import { ME, useWhose, whoParam } from '../family/whose';
 import {
@@ -281,6 +282,8 @@ export function TransactionsPage() {
     );
   }
 
+  // The month's budget (F-033): personal, so only on your own money; under the slip, or over the calendar on the desktop
+  const budget = month && whose.who === ME && <BudgetSummary month={month} />;
   const calendar = month && (
     <SpendingCalendar
       month={month}
@@ -361,9 +364,11 @@ export function TransactionsPage() {
               }
         }
       />
+      {!wide && budget}
       {!wide && controls}
       <div className={classes.columns} data-one={(!calendar && !bars) || undefined}>
         <FitColumn fit={wide}>
+          {wide && budget}
           {calendar}
           {bars}
         </FitColumn>

@@ -7,6 +7,7 @@ import {
 import { apiClient } from '../../shared/api/client';
 import type { components } from '../../shared/api/schema';
 import { accountsQuery } from '../accounts/accountsApi';
+import { budgetKey } from '../budget/budgetApi';
 import { reportsKey } from '../reports/reportsApi';
 import type { TransactionQuery } from './filters';
 
@@ -225,7 +226,7 @@ export const noteSuggestionsQuery = (type: TransactionType, text: string) =>
     staleTime: 60 * 1000,
   });
 
-/** Balances, totals, the lists and the reports change with every save or delete: all of them are fetched again. */
+/** Balances, totals, the lists, the reports and the budget change with every save or delete: all are fetched again. */
 function useRefetchAfterChange() {
   const queryClient = useQueryClient();
   return () =>
@@ -233,6 +234,7 @@ function useRefetchAfterChange() {
       queryClient.invalidateQueries({ queryKey: transactionsKey }),
       queryClient.invalidateQueries({ queryKey: accountsQuery.queryKey }),
       queryClient.invalidateQueries({ queryKey: reportsKey }),
+      queryClient.invalidateQueries({ queryKey: budgetKey }),
     ]);
 }
 

@@ -2,6 +2,45 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-16 (F-033: monthly budget, built; B-029 fixed with it)
+
+**Done**
+- Design round for [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md): references, three
+  prototype stories, the owner picked variant 2, dropped its even pace and asked for the reminder's states; the final
+  prototype was approved 2026-11-16 ("the final prototype for f-033 is approved, build it"). Built on
+  `feature/F-033-category-budgets`; F-033 Done in the backlog and the roadmap (M7 continues with F-034).
+  - API ([ADR 0037](decisions/0037-monthly-budget-and-web-push.md)): `budget_months`, `group_budgets`,
+    `category_budgets`; spent worked out on each read at each day's NBU rate; each level within the one above it,
+    refused only where a change makes it worse; a month starts as a copy of the last planned one or empty.
+    `GET /api/budget?month=`, `POST /api/budget/start`, `PUT /api/budget/total|groups/{id}|categories/{id}`.
+  - The reminder on the 1st: web push encrypted and signed with .NET's own crypto (RFC 8291 / 8292, no new package),
+    `push_subscriptions` per device, `POST /api/reminders/budget` for a cron-job.org job with `X-Reminders-Secret`,
+    once a month a device, only to the browsers' push services. The service worker loads `push-sw.js`.
+  - The app: the Budget page (after Transactions in the sidebar, first under More on the phone) with its dialogs, the
+    banner over the other pages, the *Remind me on the 1st* card, the line under the amount in the quick-add form, the
+    *Budget* block on Transactions, *Budget reminder* in Settings. Prototype stories deleted; *Budget / Budget page*
+    stories.
+  - Decided while building (in the description): the banner only for someone who has planned a month before; the
+    form's line only for expenses; the card and the switch only where the browser has push and the service worker.
+- [B-029](changes/bugfixes/B-029-settings-switch-height/B-029-settings-switch-height.md) fixed here (its one line was
+  part of the approved final prototype): Theme and Budget reminder measure 52 px, as Report currency.
+- Checks: backend build and all 687 tests (RFC 8291's example byte for byte); frontend lint, formatting, typecheck,
+  all 448 unit tests (the changed ones 3 times), the production build, the Storybook build; `budget.spec.ts` on the
+  phone and the desktop 3 times in a row, and the full E2E suite (shell.spec's rail now counts the Budget icon; auth.spec
+  failed once on the sign-in rate limit after the hand-run sign-ins and passed on its rerun); screenshots of every
+  changed screen and state at 375 and 1440 px, light and dark, looked at; the reminder card and switch in the
+  production build with its service worker; the server's push path once against FCM with a made-up device. Not run: the design check (no prototype
+  left) and a real notification on a phone (owner, after the release set-up).
+- Test data: `e2e-…@example.com` people made in `dev` by the E2E runs and the hand-run screenshot specs
+  (`e2e-f033-shots-…`, `e2e-f033-push-…`), their accounts, budgets and one made-up push subscription; removed by the
+  E2E clean-up teardown at the end of the full run. Local VAPID keys and a reminders secret were added to the API's
+  user-secrets (local only).
+
+**Next**
+- Owner: review and merge the F-033 PR. At the release: the VAPID keys and the secret on Render and the cron-job.org
+  job (README, "Budget reminder"), then turn the reminder on on a phone and check the notification. Then F-034's design
+  round.
+
 ## 2026-11-16 (M7 Budgets planned: F-033 monthly budgets, F-034 saving jars)
 
 **Done**

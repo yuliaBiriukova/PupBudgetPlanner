@@ -37,6 +37,14 @@ services:
       # it the clean-up is off.
       - key: Cleanup__Secret
         sync: false
+      # The budget reminder on the 1st (F-033, ADR 0037): the app's VAPID key pair for web push, and the secret the
+      # cron-job.org job sends. Set in the dashboard; without them the reminder is off.
+      - key: Push__PublicKey
+        sync: false
+      - key: Push__PrivateKey
+        sync: false
+      - key: Push__RemindersSecret
+        sync: false
       # The address the privacy policy gives for questions about people's data (F-031). Read by the frontend build (a
       # Docker build arg, see the Dockerfile), so a change needs a new deploy. Set in the dashboard.
       - key: VITE_CONTACT_EMAIL

@@ -1,0 +1,239 @@
+/* F-033: the reminder on the 1st. The lock screen is the install sheet's home screen at night (F-025): the hero's
+   charcoal, the app's tile; the notification on it a light card, as phones draw them */
+
+.lock {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 16px 12px 12px;
+  border-radius: var(--mantine-radius-lg);
+  background: var(--pup-color-hero);
+  color: var(--pup-color-on-hero);
+}
+
+.time {
+  font-family: var(--pup-font-display);
+  font-size: 32px;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  line-height: 40px;
+}
+
+.date {
+  margin-bottom: 12px;
+  color: var(--pup-color-hero-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.note {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+  text-align: left;
+}
+
+.noteText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.noteHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+}
+
+.now {
+  flex: none;
+}
+
+.noteTitle {
+  font-weight: 500;
+}
+
+/* ---------- The card on the Budget page ---------- */
+.card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-lg);
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.cardTitle > svg {
+  flex: none;
+  color: var(--pup-color-accent);
+}
+
+.cardText {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.cardButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- The banner over the other pages: the family band's look (F-024), the accent's tint ---------- */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 8px 4px 8px 16px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-active-bg);
+  color: var(--mantine-color-text);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.bannerIcon {
+  flex: none;
+  color: var(--pup-color-accent);
+}
+
+.bannerText {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.bannerText b {
+  font-weight: 500;
+}
+
+.bannerLink {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  min-height: 44px;
+  margin: -12px 0;
+  padding: 0 8px;
+  color: var(--pup-color-accent);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.bannerLink:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 30em) {
+  .banner {
+    flex-wrap: wrap;
+    padding: 12px 4px 4px 16px;
+  }
+
+  .bannerText {
+    flex-basis: calc(100% - 84px);
+  }
+
+  .bannerLink {
+    order: 3;
+    margin: 0 0 0 20px;
+    padding: 0 8px;
+  }
+}
+
+/* ---------- The quick-add form: what's left under the amount, spent and this one on one bar ---------- */
+.leftLine {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-top: 12px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.leftLine b {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.leftLine b[data-over] {
+  color: var(--pup-color-expense);
+}
+
+.afterBar {
+  display: flex;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--pup-color-rule);
+}
+
+.afterBar > span {
+  height: 100%;
+  background: var(--mantine-color-text);
+}
+
+.afterBar > .afterAdd {
+  background: var(--pup-color-accent);
+}
+
+.afterBar[data-over-now] > span:first-child,
+.afterBar[data-over] > .afterAdd {
+  background: var(--pup-color-expense);
+}
+
+/* ---------- On the Transactions page ---------- */
+.summary {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--pup-color-surface);
+  color: var(--mantine-color-text);
+  font-size: 14px;
+  line-height: 20px;
+  text-decoration: none;
+}
+
+.summary:hover {
+  background: var(--pup-color-hover);
+}
+
+.summaryTop,
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summaryTop > span:first-child {
+  font-weight: 500;
+}
+
+.summaryRow {
+  font-size: 13px;
+}

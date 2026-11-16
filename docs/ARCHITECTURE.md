@@ -16,6 +16,8 @@ flowchart LR
     A --> G[Google OAuth]
     P["cron-job.org ping<br/>every 14 min, 07:00–23:00 Kyiv"] -.->|"/api/health"| A
     C["cron-job.org clean-up<br/>every morning, 07:05 Kyiv"] -.->|"POST /api/cleanup + secret"| A
+    R["cron-job.org budget reminder<br/>the 1st, 09:00 Kyiv"] -.->|"POST /api/reminders/budget + secret"| A
+    A -->|"web push (VAPID)"| W[Browsers' push services]
     SB["Render Static Site (free)<br/>Storybook"]
 ```
 
@@ -105,6 +107,12 @@ erDiagram
     ACCOUNT ||--o{ TRANSACTION : "from"
     ACCOUNT ||--o{ TRANSACTION : "to (transfers)"
     CATEGORY ||--o{ TRANSACTION : "classifies"
+    USER ||--o{ BUDGET_MONTH : plans
+    BUDGET_MONTH ||--o{ GROUP_BUDGET : has
+    BUDGET_MONTH ||--o{ CATEGORY_BUDGET : has
+    CATEGORY_GROUP ||--o{ GROUP_BUDGET : "budgeted in"
+    CATEGORY ||--o{ CATEGORY_BUDGET : "budgeted in"
+    USER ||--o{ PUSH_SUBSCRIPTION : "devices"
     EXCHANGE_RATE
 
     USER { guid Id string Email string DisplayName string ReportCurrency TransactionShare FamilySeesTransactions datetime CreatedAt datetime BlockedAt }
@@ -118,6 +126,10 @@ erDiagram
     CATEGORY { guid Id guid GroupId string Name int SortOrder bool IsArchived bool IsPrivate }
     TRANSACTION { guid Id guid UserId TransactionType Type date Date guid AccountId decimal Amount guid CategoryId guid ToAccountId decimal ToAmount string Note }
     EXCHANGE_RATE { date Date string Currency decimal RateToUah RateSource Source }
+    BUDGET_MONTH { guid Id guid UserId date Month decimal Total datetime CreatedAt }
+    GROUP_BUDGET { guid BudgetMonthId guid GroupId decimal Amount }
+    CATEGORY_BUDGET { guid BudgetMonthId guid CategoryId decimal Amount }
+    PUSH_SUBSCRIPTION { guid Id guid UserId string Endpoint string P256dh string Auth datetime CreatedAt date RemindedFor }
 ```
 
 - `Amount` is always positive; `Type` gives the direction.
@@ -184,6 +196,17 @@ erDiagram
   with data, so the Reports page (F-022) steps back only as far as there is something
   ([ADR 0027](decisions/0027-report-engine.md)). The page keeps its period and currency in its address
   (`/reports?month=2026-10&currency=USD`), and a category's amount links to the Transactions page's address for it.
+- The monthly budget (F-033): a person plans a month on three levels, each optional: a total (`budget_months`, one row
+  a person a month, which also says the month is planned), a budget per expense group (`group_budgets`) and per expense
+  category (`category_budgets`). Only budgets are stored; spent is worked out on each read from the month's expenses in
+  the report currency at each day's NBU rate, as the monthly report. `BudgetPlan` (Domain) keeps each level within the
+  one above it (a group without its own budget counts with its categories' sum) and refuses only a change that makes a
+  level worse. A new month starts as a copy of the last planned one; nothing carries over. Personal: no `who`
+  ([ADR 0037](decisions/0037-monthly-budget-and-web-push.md)).
+- The reminder on the 1st (F-033): a banner in the app, and web push for the devices that turned it on
+  (`push_subscriptions`). cron-job.org calls `POST /api/reminders/budget` with a secret at 09:00 Kyiv; the message is
+  encrypted and signed with .NET's own crypto (RFC 8291, RFC 8292), only to the browsers' push services, once a month a
+  device ([ADR 0037](decisions/0037-monthly-budget-and-web-push.md)).
 - Currencies are ISO 4217 codes (`char(3)`): the hryvnia and every currency the NBU publishes an official rate for,
   listed once in `Currencies.All` (Domain). The API sends the list with the accounts; the frontend only names them.
 
@@ -262,6 +285,7 @@ erDiagram
 - **react-i18next** — every text through translation keys (English now; Ukrainian later).
 - **vite-plugin-pwa** — installable app (manifest + service worker): the service worker keeps only the app's own
   files, never API answers, and a release waits for the person's Reload ([ADR 0034](decisions/0034-installable-app.md), F-025).
+  It also loads `push-sw.js`, which shows the budget reminder's push and opens the Budget page on a tap (F-033).
 - **Storybook** — component catalogue; published as a separate free Render static site.
 
 ## Testing
@@ -307,8 +331,8 @@ flowchart LR
 | CI | built SPA (`vite preview`, proxy `/api` → API) | built API (`dotnet run --no-build`) | PostgreSQL service container |
 | Production | served by the API container | Render web service | Neon `main` branch |
 
-Secrets (connection string, Google client ID/secret) are stored in **Render environment variables**
-and locally in **`dotnet user-secrets`** — never in the repository.
+Secrets (connection string, Google client ID/secret, the clean-up's and the reminder's secrets, the VAPID private
+key) are stored in **Render environment variables** and locally in **`dotnet user-secrets`** — never in the repository.
 
 The privacy policy's contact address is not a secret but stays out of the repository too: the frontend build reads
 it from `VITE_CONTACT_EMAIL` (a Render environment variable passed to the Docker build; locally `frontend/.env.local`),

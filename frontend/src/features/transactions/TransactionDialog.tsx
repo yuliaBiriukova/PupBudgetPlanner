@@ -9,6 +9,7 @@ import { DESKTOP_QUERY } from '../../app/shell/sections';
 import { usePopupHistory } from '../../shared/ui/popupHistory';
 import { ResponsiveDialog } from '../../shared/ui/ResponsiveDialog';
 import { accountsQuery, type Account, type AccountsOverview } from '../accounts/accountsApi';
+import { AmountLeft } from '../budget/BudgetLines';
 import { categoriesQuery, type CategoriesOverview } from '../categories/categoriesApi';
 import { AccountField } from './AccountField';
 import { evaluate, isSum, pressKey } from './amount';
@@ -717,6 +718,14 @@ function TransactionForm({
             if (form.keys !== 'amount') change({ keys: 'amount' });
           }}
         />
+        {form.type === 'Expense' && (
+          <AmountLeft
+            categoryId={form.categoryId}
+            amount={evaluate(form.amount) ?? 0}
+            date={form.date}
+            adding={request.kind === 'add'}
+          />
+        )}
         {exchange && (
           <AmountDisplay
             value={toText}

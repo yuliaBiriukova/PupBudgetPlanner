@@ -41,6 +41,7 @@ decision — write a new ADR that supersedes it.
 | [0034](0034-installable-app.md) | The installable app: a service worker keeps only the app's own files (never the API), and a release waits for the person's Reload | Accepted |
 | [0035](0035-privacy-policy-page.md) | The privacy policy is part of the app (no API request); its contact address is the `VITE_CONTACT_EMAIL` build setting | Accepted |
 | [0036](0036-delete-my-account.md) | Deleting one's own account: confirmed at once (password with the sign-in's lockout, or Google again through a 10-minute protected cookie), family handed over, all in one transaction | Accepted |
+| [0037](0037-monthly-budget-and-web-push.md) | The monthly budget: a month's total, group and category budgets stored, spent worked out on each read, each level within the one above; the reminder on the 1st as web push encrypted and signed with .NET's own crypto, sent by a cron-job.org job | Accepted |
 
 Template for new ADRs:
 

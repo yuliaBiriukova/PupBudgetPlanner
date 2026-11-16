@@ -9,6 +9,7 @@
   "nav": {
     "main": "Main navigation",
     "transactions": "Transactions",
+    "budget": "Budget",
     "accounts": "Accounts",
     "reports": "Reports",
     "categories": "Categories",
@@ -694,7 +695,14 @@
       "text": "Everything in it is gone, and you’re signed out on every device.",
       "invite": "To use Pup Budget again, you’d need a new invite link from the person who looks after it.",
       "signIn": "Go to sign in"
-    }
+    },
+    "reminderTitle": "Budget reminder",
+    "reminderText": "A notification at 09:00 on the 1st to plan the month. On this device only.",
+    "reminderOn": "On",
+    "reminderOff": "Off",
+    "reminderInstallFirst": "On an iPhone the reminder comes to the app on your home screen: install it from More first.",
+    "reminderUnsupported": "This browser can’t show Pup’s notifications.",
+    "reminderBlocked": "Notifications are blocked for Pup in this browser. Allow them in its site settings, then turn the reminder on here."
   },
   "currencies": {
     "UAH": "Ukrainian hryvnia",
@@ -984,6 +992,101 @@
       "show_one": "Show {{count}} transaction",
       "show_other": "Show {{count}} transactions",
       "nothing": "Nothing found"
+    }
+  },
+  "budget": {
+    "loading": "Loading the budget",
+    "error": "Couldn’t load the budget.",
+    "retry": "Try again",
+    "ratesMissing": "Some expenses in other currencies have no NBU rate yet and aren’t counted.",
+    "amount": {
+      "left": "{{amount}} left",
+      "over": "{{amount}} over",
+      "spent": "{{amount}} spent",
+      "nothingSpent": "Nothing spent"
+    },
+    "empty": {
+      "title": "{{month}} has no budget yet",
+      "textFrom": "Start from {{from}}’s: the same total, groups and categories. Then change any line you need.",
+      "text": "Set a total for the month, or a budget for a group or a category.",
+      "startFrom": "Start from {{from}}",
+      "startEmpty": "Start empty",
+      "started": "{{month}} starts from {{from}}’s plan. Change what you need.",
+      "error": "Couldn’t plan the month. Check the connection and try again."
+    },
+    "hero": {
+      "label": "The month",
+      "spent": "Spent this month",
+      "setTotal": "Set a total for the month",
+      "left": "Left of {{total}}",
+      "over": "Over of {{total}}",
+      "notSpent": "Not spent of {{total}}",
+      "edit": "Change the month’s total",
+      "spentLine": "Spent {{amount}}.",
+      "daysToGo_one": "Today is the last day.",
+      "daysToGo_other": "{{count}} days to go.",
+      "noCarry": "What’s left doesn’t carry over to the next month.",
+      "unplanned": "{{amount}} of the total isn’t in any group."
+    },
+    "line": {
+      "of": "{{spent}} of {{budget}}",
+      "noBudget": "No budget",
+      "sumNote": "its categories’ budgets",
+      "another": "Budget for another {{group}} category",
+      "quiet": "{{groups}}: nothing planned or spent"
+    },
+    "dialog": {
+      "totalTitle": "{{month}} in total",
+      "newTitle": "New budget in {{group}}",
+      "budgetFor": "Budget for {{month}}",
+      "noBudget": "No budget",
+      "insidePlaceholder": "{{amount}}, its categories",
+      "category": "Category",
+      "pickCategory": "Pick a category.",
+      "typeBudget": "Type the budget.",
+      "remove": "Remove budget",
+      "cancel": "Cancel",
+      "save": "Save",
+      "spentSoFar": "Spent so far: <b>{{amount}}</b>",
+      "categorySpent": "{{category}} spent so far: <b>{{amount}}</b>",
+      "groupInside": "Its categories’ budgets: <b>{{amount}}</b>. The group’s budget can’t be smaller.",
+      "fitsInGroup": "{{group}}: <b>{{budget}}</b>. Its other categories take <b>{{others}}</b>, so up to <b>{{fits}}</b> fits here.",
+      "fitsInNewGroup": "{{group}}: <b>{{budget}}</b>. Its categories take <b>{{others}}</b>, so up to <b>{{fits}}</b> fits here.",
+      "onlyTotal": "{{group}} has no budget of its own: this counts only in the month’s total.",
+      "groupsTake": "The groups take <b>{{amount}}</b>. The total can’t be smaller.",
+      "overGroup": "Its categories add up to {{inside}}, {{over}} more than {{group}}’s {{budget}}.",
+      "overTotal": "The groups add up to {{inside}}, {{over}} more than the month’s {{budget}}.",
+      "saveError": "Couldn’t save the budget. Check the connection and try again."
+    },
+    "banner": {
+      "text": "<b>{{month}} has no budget yet.</b> Start from {{from}}’s plan and change what you need.",
+      "startFrom": "Start from {{from}}"
+    },
+    "summary": {
+      "title": "Budget"
+    },
+    "form": {
+      "group": "In {{name}}",
+      "total": "This month",
+      "line": "{{whose}}: <b>{{left}}</b>",
+      "lineAfter": "{{whose}}: <b>{{left}}</b>, <after>{{after}}</after> after this"
+    },
+    "reminder": {
+      "title": "Remind me on the 1st",
+      "text": "A notification at 09:00 on the 1st to plan the month. On this device only; the banner in the app stays for everyone.",
+      "textIphone": "A notification at 09:00 on the 1st to plan the month. On an iPhone it comes to the app on your home screen, so install it first.",
+      "turnOn": "Turn on",
+      "notNow": "Not now",
+      "howToInstall": "How to install",
+      "on": "Reminders are on for this device. Turn them off in Settings.",
+      "off": "Reminders are off for this device.",
+      "blocked": "Notifications are blocked for Pup in this browser. Allow them in its site settings, then try again.",
+      "error": "Couldn’t turn the reminder on. Check the connection and try again.",
+      "preview": "How the reminder shows on a phone",
+      "appName": "Pup Budget",
+      "now": "now",
+      "pushTitle": "Plan {{month}}’s budget",
+      "pushBody": "Start from {{from}}’s and change what you need."
     }
   },
   "reports": {
