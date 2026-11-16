@@ -314,6 +314,24 @@ the month is not planned and offers *Start from …* / *Start empty* again; `DEL
 planned). 4. a group is a card (surface, rule border, large radius) with its head bigger: the name in Unbounded 18 px, the
 amount 15 px medium, an 8 px bar, a rule between it and its categories.
 
+## Owner's third review of PR #115 (2026-11-16)
+
+1. "Why is there still an accordion?": the line folding the groups with nothing planned or spent is gone too. **Every
+   group is open**, those with nothing planned or spent after the others.
+2. **Prototypes for point 6** of the first review (the column under the month on the desktop), in
+   `frontend/src/prototypes/F-033-left-column/` (a copy of the Budget page with the new part under the month):
+   - [Variant 1: Not in the plan](http://localhost:6006/?path=/story/prototypes-f-033-left-column--not-in-the-plan-story&nav=false&panel=false&globals=viewport.value:!undefined): this month's spending in categories without a budget,
+     biggest first, with its total; a row opens *New budget* in its group. The money the groups no longer list.
+   - [Variant 2: Running out](http://localhost:6006/?path=/story/prototypes-f-033-left-column--running-out-story&nav=false&panel=false&globals=viewport.value:!undefined): the four categories over or closest to their budget, each
+     with its bar; a row opens its dialog.
+   - [Variant 3: Where the total goes](http://localhost:6006/?path=/story/prototypes-f-033-left-column--where-it-goes-story&nav=false&panel=false&globals=viewport.value:!undefined) (the risk): the month's total as one bar split by
+     the groups' budgets in shades of the text colour, the part in no group left open, and a legend with each group's
+     amount and share; a row scrolls to its group.
+   - References: YNAB's budget screen keeps a side panel (the "inspector") next to the category list for the selected
+     month or category; Monarch's budget page has a summary column beside the groups. Taken: a side column that adds a
+     view of the month the list doesn't give, rather than repeating it.
+   Waiting for the owner's pick; not built.
+
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's
   spending from categories with and without budgets, the total from all expenses, prefill from the last planned

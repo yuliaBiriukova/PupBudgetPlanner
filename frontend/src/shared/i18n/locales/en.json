@@ -1033,7 +1033,6 @@
       "noBudget": "No budget",
       "sumNote": "its categories’ budgets",
       "another": "Budget for another {{group}} category",
-      "quiet": "{{groups}}: nothing planned or spent",
       "first": "Budget for a category in {{group}}"
     },
     "deletePlan": {

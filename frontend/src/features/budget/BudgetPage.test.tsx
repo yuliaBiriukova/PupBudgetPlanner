@@ -35,7 +35,7 @@ function useBudget(answer: (month: string) => ReturnType<typeof plannedMonth>) {
 }
 
 describe('the Budget page', () => {
-  it('shows what’s left of the month, each group and category, and folds the quiet groups', async () => {
+  it('shows what’s left of the month, each group and category, every group open', async () => {
     useBudget(plannedMonth);
     renderApp('/budget');
 
@@ -68,9 +68,12 @@ describe('the Budget page', () => {
         'its categories’ budgets',
       ),
     ).toBeInTheDocument();
+    // No accordions: a group with nothing planned or spent is open too, after the others
+    const health = screen.getByRole('region', { name: 'Health' });
+    expect(within(health).getByRole('button', { name: /^Health/ })).toHaveTextContent('No budget');
     expect(
-      screen.getByRole('button', { name: 'Health: nothing planned or spent' }),
-    ).toHaveAttribute('aria-expanded', 'false');
+      within(health).getByRole('button', { name: 'Budget for a category in Health' }),
+    ).toBeInTheDocument();
   });
 
   it('deletes the month’s plan after asking', async () => {

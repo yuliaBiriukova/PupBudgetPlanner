@@ -213,12 +213,6 @@
   border-top: 1px solid var(--pup-color-rule);
 }
 
-/* The groups with nothing planned or spent: under one line, opened by it */
-.others {
-  display: grid;
-  gap: 16px;
-}
-
 .groupName {
   font-family: var(--pup-font-display);
   font-size: 18px;
@@ -263,8 +257,7 @@
   font-size: 12px;
 }
 
-.more,
-.othersHead {
+.more {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -275,13 +268,8 @@
   text-align: left;
 }
 
-.more:hover,
-.othersHead:hover {
+.more:hover {
   color: var(--mantine-color-text);
-}
-
-.othersHead[aria-expanded='true'] > svg {
-  transform: rotate(180deg);
 }
 
 /* ---------- A month not planned ---------- */

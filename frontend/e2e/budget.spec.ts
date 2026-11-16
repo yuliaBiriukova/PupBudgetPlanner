@@ -173,8 +173,7 @@ test('a budget can be removed, a new one added in a group, and a past month open
   await expect(dialog).toBeHidden();
   await expect(page.getByTestId('month-left')).toHaveText(money(15_000));
 
-  // Every group folded into one line while nothing is planned or spent in it
-  await page.getByRole('button', { name: /: nothing planned or spent$/ }).click();
+  // Every group is open, also with nothing planned or spent in it (no accordions)
   await page.getByRole('button', { name: 'Budget for a category in Daily living' }).click();
   dialog = page.getByRole('dialog', { name: 'New budget in Daily living' });
   await dialog.getByRole('button', { name: 'Save' }).click();

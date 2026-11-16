@@ -1,13 +1,6 @@
 import { Button, Skeleton, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-  IconAlertCircle,
-  IconChevronDown,
-  IconPencil,
-  IconPlus,
-  IconRefresh,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconAlertCircle, IconPencil, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -147,11 +140,15 @@ function NotPlanned({ data }: { data: MonthBudgetData }) {
 function PlannedMonth({ data }: { data: MonthBudgetData }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState<Open | null>(null);
-  const [othersOpen, setOthersOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const lines = linesOf(data);
   const plan = planOf(data);
-  const quiet = lines.groups.filter((g) => g.budget == null && g.spent === 0);
+  // Every group open (owner's second review of PR #115: no accordions); those with nothing planned or spent last
+  const quiet = (g: GroupLine) => g.budget == null && g.spent === 0;
+  const groups = [
+    ...lines.groups.filter((g) => !quiet(g)),
+    ...lines.groups.filter((g) => quiet(g)),
+  ];
   const isThisMonth = data.month === thisMonth();
   const close = () => {
     setOpen(null);
@@ -186,29 +183,9 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
         </div>
       </div>
       <div className={classes.groups}>
-        {lines.groups
-          .filter((g) => g.budget != null || g.spent !== 0)
-          .map((group) => (
-            <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
-          ))}
-        {quiet.length > 0 && (
-          <section className={classes.others}>
-            <UnstyledButton
-              className={classes.othersHead}
-              aria-expanded={othersOpen}
-              onClick={() => {
-                setOthersOpen(!othersOpen);
-              }}
-            >
-              <IconChevronDown size={16} stroke={1.7} aria-hidden />
-              {t('budget.line.quiet', { groups: quiet.map((g) => g.name).join(', ') })}
-            </UnstyledButton>
-            {othersOpen &&
-              quiet.map((group) => (
-                <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
-              ))}
-          </section>
-        )}
+        {groups.map((group) => (
+          <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
+        ))}
         {/* The phone and tablet: after the groups, so it doesn't push them down */}
         <div className={classes.narrowOnly}>
           {isThisMonth && <ReminderCard />}

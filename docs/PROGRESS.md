@@ -2,6 +2,16 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-16 (F-033: the owner's third review of PR #115)
+
+**Done**
+- No accordion left on the Budget page: the groups with nothing planned or spent are open too, after the others.
+- Three prototype stories for point 6 (the desktop column under the month) in `frontend/src/prototypes/F-033-left-column/`:
+  *Not in the plan*, *Running out*, *Where the total goes*; design check clean (0 issues), screenshots looked at.
+  Waiting for the owner's pick.
+- Checks: lint, formatting, typecheck, the budget unit tests and `budget.spec.ts` 3 runs. Test data: the E2E runs'
+  people, removed by the clean-up.
+
 ## 2026-11-16 (F-033: the owner's second review of PR #115)
 
 **Done**
