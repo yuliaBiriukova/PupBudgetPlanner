@@ -13,8 +13,11 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Roadmap: M7 is Budgets; "budgets per category" taken out of M11. The integration tests (Testcontainers) stay an
   idea without a milestone (PRODUCT.md, ADR 0005, ARCHITECTURE.md, CLAUDE.md).
 - Q-013 (groups, family, income, past and skipped months, push time): the owner accepted Claude's proposals as they
-  were; moved to Answered. Budgets per expense category (the group sums them), personal only, past months editable,
-  a skipped month offered to plan, push at 09:00 Kyiv.
+  were; moved to Answered. Personal only, no income budgets, past months editable, a skipped month offered to plan,
+  push at 09:00 Kyiv.
+- Then the owner asked for group budgets too: a group (Daily living) and the categories in it can both have
+  budgets; the categories may not add up to more than the group's (saving blocked); the quick-add form shows a
+  category's own "left", or its group's when it has none.
 - No code; no test data created.
 
 **Next**

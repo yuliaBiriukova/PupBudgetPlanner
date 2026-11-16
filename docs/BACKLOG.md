@@ -92,7 +92,7 @@ owner asks for one.
 
 | ID | Feature | Priority | Status |
 |----|---------|----------|--------|
-| [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md) | 🎨 Monthly budgets per category: plan each month (prefilled from the last), see what's left on a Budget page, when adding an expense and on Transactions; a reminder on the 1st, banner and push (Q-013; added 2026-11-16) | Medium | Todo |
+| [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md) | 🎨 Monthly budgets per category and group: plan each month (prefilled from the last), see what's left on a Budget page, when adding an expense and on Transactions; a reminder on the 1st, banner and push (Q-013; added 2026-11-16) | Medium | Todo |
 
 ## Improvements
 

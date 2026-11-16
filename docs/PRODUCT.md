@@ -59,7 +59,7 @@ people the owner invites can sign up (F-028); later it can open to everyone.
 - Import history from the Google Sheets spreadsheet (2024–2026).
 - Import from Monefy CSV export.
 - Dashboard with charts.
-- Monthly budgets per category: what's left this month, a reminder on the 1st (M7, F-033).
+- Monthly budgets per category and group: what's left this month, a reminder on the 1st (M7, F-033).
 - Export of reports to Excel.
 - Automatic import of card transactions from the Monobank personal API.
 - Transfer fees as part of a transfer.
