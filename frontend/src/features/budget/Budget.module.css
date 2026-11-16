@@ -406,9 +406,15 @@
 }
 
 @media (min-width: 64em) {
+  /* The month's column as wide as the month's switcher heading it, and at least 320 px (owner's review of PR #115);
+     nothing else in it widens it */
   .columns {
-    grid-template-columns: 320px minmax(0, 1fr);
+    grid-template-columns: minmax(320px, max-content) minmax(0, 1fr);
     gap: 48px;
+  }
+
+  .left > :not(.head) {
+    contain: inline-size;
   }
 
   /* As tall as its content, not the groups beside it, or it has no room to stay in place (owner's review of PR #115) */
