@@ -101,6 +101,16 @@ internal sealed class BudgetService(AppDbContext dbContext, IExchangeRateService
             plan => plan.SetCategory(categoryId, amount),
             cancellationToken);
 
+    public async Task<BudgetResult> DeleteAsync(Guid userId, DateOnly month, CancellationToken cancellationToken)
+    {
+        month = BudgetMonth.FirstDayOf(month);
+        // Its group and category budgets go with it (cascade)
+        var deleted = await dbContext.BudgetMonths
+            .Where(plan => plan.UserId == userId && plan.Month == month)
+            .ExecuteDeleteAsync(cancellationToken);
+        return new BudgetResult(deleted == 0 ? BudgetOutcome.NotPlanned : BudgetOutcome.Done);
+    }
+
     /// <summary>
     /// Changes one line of the month's plan, planning the month (empty) first if it wasn't; refused when it makes a
     /// level hold more than it may (F-033).

@@ -212,6 +212,14 @@ test('a budget can be removed, a new one added in a group, and a past month open
   await expect(page).toHaveURL(new RegExp(`month=${lastMonth}`));
   await expect(page.getByText(`Not spent of ${money(20_000)}`)).toBeVisible();
   await expect(page.getByText('What’s left doesn’t carry over to the next month.')).toBeVisible();
+
+  // Its plan deleted (owner's review of PR #115): the month is not planned, and can be started again
+  await page.getByRole('button', { name: `Delete ${lastName}’s plan` }).click();
+  dialog = page.getByRole('dialog', { name: `Delete ${lastName}’s plan?` });
+  await dialog.getByRole('button', { name: 'Delete plan' }).click();
+  await expect(page.getByText(`${lastName}’s plan is deleted.`)).toBeVisible();
+  await expect(page.getByRole('heading', { name: `${lastName} has no budget yet` })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Start empty' })).toBeVisible();
 });
 
 test('the API keeps each level within the one above it', async ({ request, isMobile }) => {

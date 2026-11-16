@@ -1034,9 +1034,16 @@
       "sumNote": "its categories’ budgets",
       "another": "Budget for another {{group}} category",
       "quiet": "{{groups}}: nothing planned or spent",
-      "first": "Budget for a category in {{group}}",
-      "fold": "Fold {{group}}",
-      "unfold": "Unfold {{group}}"
+      "first": "Budget for a category in {{group}}"
+    },
+    "deletePlan": {
+      "action": "Delete {{month}}’s plan",
+      "title": "Delete {{month}}’s plan?",
+      "text": "Its total and every group and category budget go. Transactions stay, and you can plan {{month}} again.",
+      "keep": "Keep",
+      "confirm": "Delete plan",
+      "done": "{{month}}’s plan is deleted.",
+      "error": "Couldn’t delete the plan. Check the connection and try again."
     },
     "dialog": {
       "totalTitle": "{{month}} in total",

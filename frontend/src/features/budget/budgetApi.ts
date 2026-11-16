@@ -142,3 +142,22 @@ export function useStartMonth() {
     onSettled: () => queryClient.invalidateQueries({ queryKey: budgetKey }),
   });
 }
+
+/**
+ * Deletes `month`'s plan (owner's review of PR #115): its total and every group and category budget; the month is then
+ * not planned. Gone already (another device or tab) is what was asked for.
+ */
+export function useDeletePlan() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (month: string) => {
+      const { response } = await apiClient.DELETE('/api/budget', {
+        params: { query: { month } },
+      });
+      if (!response.ok && response.status !== 404)
+        throw new Error(`Couldn't delete the plan: ${String(response.status)}`);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: budgetKey }),
+  });
+}

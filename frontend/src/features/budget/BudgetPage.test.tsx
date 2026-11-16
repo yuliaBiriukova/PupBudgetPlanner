@@ -25,6 +25,11 @@ function useBudget(answer: (month: string) => ReturnType<typeof plannedMonth>) {
       sent.push({ url: '/api/budget/start', body: await request.json() });
       return new HttpResponse(null, { status: 204 });
     }),
+    http.delete('/api/budget', ({ request }) => {
+      const url = new URL(request.url);
+      sent.push({ url: `DELETE ${url.pathname}${url.search}`, body: null });
+      return new HttpResponse(null, { status: 204 });
+    }),
   );
   return sent;
 }
@@ -68,19 +73,21 @@ describe('the Budget page', () => {
     ).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('folds a group and remembers it on the device', async () => {
-    useBudget(plannedMonth);
+  it('deletes the month’s plan after asking', async () => {
+    const sent = useBudget(plannedMonth);
     const user = userEvent.setup();
     renderApp('/budget');
 
-    await user.click(await screen.findByRole('button', { name: 'Fold Daily living' }, LOADED));
-    const daily = screen.getByRole('region', { name: 'Daily living' });
-    expect(within(daily).getByRole('button', { name: 'Unfold Daily living' })).toHaveAttribute(
-      'aria-expanded',
-      'false',
-    );
-    expect(within(daily).queryAllByTestId('budget-row')).toEqual([]);
-    expect(JSON.parse(localStorage.getItem('pup.budget.folded') ?? '[]')).toEqual(['g-daily']);
+    await screen.findByTestId('month-left', {}, LOADED);
+    // The desktop's button under the month and the phone's after the groups: one shows, by the CSS
+    const [deleteButton] = screen.getAllByRole('button', { name: /^Delete .*’s plan$/ });
+    if (!deleteButton) throw new Error('no Delete plan button');
+    await user.click(deleteButton);
+    const dialog = await screen.findByRole('dialog', { name: /^Delete .*’s plan\?$/ });
+    expect(dialog).toHaveTextContent('Transactions stay');
+    await user.click(within(dialog).getByRole('button', { name: 'Delete plan' }));
+    expect(await screen.findByText(/’s plan is deleted\.$/)).toBeInTheDocument();
+    expect(sent).toEqual([{ url: `DELETE /api/budget?month=${month}`, body: null }]);
   });
 
   it('blocks a budget that doesn’t fit its group and saves one that does', async () => {

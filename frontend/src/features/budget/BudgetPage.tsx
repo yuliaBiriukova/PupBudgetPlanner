@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Skeleton, UnstyledButton } from '@mantine/core';
+import { Button, Skeleton, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
@@ -6,9 +6,10 @@ import {
   IconPencil,
   IconPlus,
   IconRefresh,
+  IconTrash,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useId, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import tx from '../transactions/TransactionsPage.module.css';
 import { cx } from '../../shared/ui/cx';
@@ -30,9 +31,8 @@ import {
   type MonthBudgetData,
 } from './budgetApi';
 import classes from './Budget.module.css';
-import { EditBudgetDialog, NewBudgetDialog } from './BudgetDialogs';
+import { DeletePlanDialog, EditBudgetDialog, NewBudgetDialog } from './BudgetDialogs';
 import { Bar, MonthHead } from './parts';
-import { readFolded, writeFolded } from './foldedGroups';
 import { useBudgetMonth } from './useBudgetMonth';
 import { ReminderCard } from './Reminder';
 
@@ -148,14 +148,7 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState<Open | null>(null);
   const [othersOpen, setOthersOpen] = useState(false);
-  const [folded, setFolded] = useState(readFolded);
-  const fold = (groupId: string) => {
-    const next = folded.includes(groupId)
-      ? folded.filter((id) => id !== groupId)
-      : [...folded, groupId];
-    writeFolded(next);
-    setFolded(next);
-  };
+  const [deleting, setDeleting] = useState(false);
   const lines = linesOf(data);
   const plan = planOf(data);
   const quiet = lines.groups.filter((g) => g.budget == null && g.spent === 0);
@@ -163,6 +156,18 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
   const close = () => {
     setOpen(null);
   };
+  const deleteButton = (
+    <UnstyledButton
+      className={classes.more}
+      aria-haspopup="dialog"
+      onClick={() => {
+        setDeleting(true);
+      }}
+    >
+      <IconTrash size={16} stroke={1.7} aria-hidden />
+      {t('budget.deletePlan.action', { month: monthName(data.month) })}
+    </UnstyledButton>
+  );
 
   return (
     <div className={classes.columns}>
@@ -175,24 +180,16 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
           }}
         />
         {/* The desktop: under the month, in its column */}
-        {isThisMonth && (
-          <div className={classes.wideOnly}>
-            <ReminderCard />
-          </div>
-        )}
+        <div className={classes.wideOnly}>
+          {isThisMonth && <ReminderCard />}
+          {deleteButton}
+        </div>
       </div>
       <div className={classes.groups}>
         {lines.groups
           .filter((g) => g.budget != null || g.spent !== 0)
           .map((group) => (
-            <Group
-              key={group.id}
-              group={group}
-              currency={data.currency}
-              folded={folded.includes(group.id)}
-              onFold={fold}
-              onOpen={setOpen}
-            />
+            <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
           ))}
         {quiet.length > 0 && (
           <section className={classes.others}>
@@ -208,24 +205,23 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
             </UnstyledButton>
             {othersOpen &&
               quiet.map((group) => (
-                <Group
-                  key={group.id}
-                  group={group}
-                  currency={data.currency}
-                  folded={folded.includes(group.id)}
-                  onFold={fold}
-                  onOpen={setOpen}
-                />
+                <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
               ))}
           </section>
         )}
         {/* The phone and tablet: after the groups, so it doesn't push them down */}
-        {isThisMonth && (
-          <div className={classes.narrowOnly}>
-            <ReminderCard />
-          </div>
-        )}
+        <div className={classes.narrowOnly}>
+          {isThisMonth && <ReminderCard />}
+          {deleteButton}
+        </div>
       </div>
+      <DeletePlanDialog
+        month={data.month}
+        opened={deleting}
+        onClose={() => {
+          setDeleting(false);
+        }}
+      />
       {open?.kind === 'new' && (
         <NewBudgetDialog
           key={open.groupId}
@@ -325,55 +321,36 @@ function Hero({
 }
 
 /**
- * A group (owner's review of PR #115): its head is a line like a category's (left or over, a bar, "… of …"), opening
- * the group's dialog, with a chevron that folds it; then its categories with a budget, and + to add one more. A
- * category without a budget isn't listed: it comes in with + and goes out with Remove budget.
+ * A group (owner's reviews of PR #115): a card whose head is a line like a category's (left or over, a bar, "… of …")
+ * but bigger, opening the group's dialog; then its categories with a budget, and + to add one more. A category without
+ * a budget isn't listed: it comes in with + and goes out with Remove budget. Groups don't fold.
  */
 function Group({
   group,
   currency,
-  folded,
-  onFold,
   onOpen,
 }: {
   group: GroupLine;
   currency: string;
-  folded: boolean;
-  onFold: (groupId: string) => void;
   onOpen: (open: Open) => void;
 }) {
   const { t } = useTranslation();
   const rows = group.categories.filter((c) => c.budget != null);
   const withoutBudget = group.categories.some((c) => c.budget == null);
-  const listId = useId();
   return (
     <section className={classes.group} aria-label={group.name}>
-      <div className={classes.groupHead}>
-        <ActionIcon
-          variant="subtle"
-          color="gray"
-          className={classes.fold}
-          aria-expanded={!folded}
-          aria-controls={listId}
-          aria-label={t(folded ? 'budget.line.unfold' : 'budget.line.fold', { group: group.name })}
-          onClick={() => {
-            onFold(group.id);
-          }}
-        >
-          <IconChevronDown size={20} stroke={1.7} />
-        </ActionIcon>
-        <LineButton
-          line={group}
-          currency={currency}
-          name={<span className={classes.groupName}>{group.name}</span>}
-          sumOnly={group.own == null && group.budget != null}
-          onClick={() => {
-            onOpen({ kind: 'group', id: group.id });
-          }}
-        />
-      </div>
-      {!folded && (
-        <div id={listId} className={classes.groupBody}>
+      <LineButton
+        line={group}
+        currency={currency}
+        name={<span className={classes.groupName}>{group.name}</span>}
+        sumOnly={group.own == null && group.budget != null}
+        head
+        onClick={() => {
+          onOpen({ kind: 'group', id: group.id });
+        }}
+      />
+      {(rows.length > 0 || withoutBudget) && (
+        <div className={classes.groupBody}>
           {rows.map((category) => (
             <LineButton
               key={category.id}
@@ -412,6 +389,7 @@ function LineButton({
   currency,
   name,
   sumOnly,
+  head,
   testId,
   onClick,
 }: {
@@ -419,6 +397,8 @@ function LineButton({
   currency: string;
   name: ReactNode;
   sumOnly?: boolean;
+  /** A group's head: bigger, its bar thick. */
+  head?: boolean;
   testId?: string;
   onClick: () => void;
 }) {
@@ -426,7 +406,7 @@ function LineButton({
   const money = moneyIn(currency);
   return (
     <UnstyledButton
-      className={classes.row}
+      className={cx(classes.row, head ? classes.groupHead : '')}
       aria-haspopup="dialog"
       data-testid={testId}
       onClick={onClick}
@@ -435,7 +415,7 @@ function LineButton({
         {name}
         <Amount line={line} currency={currency} sumOnly={sumOnly} />
       </span>
-      <Bar spent={line.spent} budget={line.budget} />
+      <Bar spent={line.spent} budget={line.budget} thick={head} />
       <span className={classes.rowSub}>
         {line.budget != null
           ? t('budget.line.of', { spent: money(line.spent), budget: money(line.budget) })

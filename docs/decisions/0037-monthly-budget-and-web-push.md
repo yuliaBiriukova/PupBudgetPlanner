@@ -30,7 +30,7 @@ job besides the keep-awake ping and the morning clean-up (ADR 0033).
   The page checks the same rule before saving and says it in its own words.
 - API (personal, no `who`): `GET /api/budget?month=yyyy-MM` (a month not planned answers `planned: false` and
   `startFrom`, the last planned month before it), `POST /api/budget/start` (`copyLast`), `PUT /api/budget/total`,
-  `PUT /api/budget/groups/{id}`, `PUT /api/budget/categories/{id}` (no amount removes). Setting a budget in a month not
+  `PUT /api/budget/groups/{id}`, `PUT /api/budget/categories/{id}` (no amount removes), `DELETE /api/budget?month=` (the whole plan; the month is then not planned). Setting a budget in a month not
   planned plans it. From 2000 to next month.
 
 **The reminder.**

@@ -67,6 +67,37 @@ public sealed class BudgetControllerTests
     }
 
     [Fact]
+    public async Task Deleting_a_months_plan_deletes_the_signed_in_persons()
+    {
+        budgets.DeleteAsync(Person, November, Arg.Any<CancellationToken>()).Returns(BudgetResult.Done);
+
+        var result = await controller.Delete("2026-11", CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task Deleting_a_month_not_planned_is_not_found()
+    {
+        budgets.DeleteAsync(Person, November, Arg.Any<CancellationToken>())
+            .Returns(new BudgetResult(BudgetOutcome.NotPlanned));
+
+        var result = await controller.Delete("2026-11", CancellationToken.None);
+
+        result.Should().BeAssignableTo<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task Deleting_needs_a_month()
+    {
+        var result = await controller.Delete(null, CancellationToken.None);
+
+        result.Should().BeAssignableTo<ObjectResult>().Which.Value.Should().BeOfType<ValidationProblemDetails>()
+            .Which.Errors.Should().ContainKey("month");
+        await budgets.DidNotReceive().DeleteAsync(Arg.Any<Guid>(), Arg.Any<DateOnly>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task A_budget_that_doesnt_fit_says_what_goes_over_and_by_how_much()
     {
         budgets.SetGroupAsync(Person, November, Group, 9_000, Arg.Any<CancellationToken>())

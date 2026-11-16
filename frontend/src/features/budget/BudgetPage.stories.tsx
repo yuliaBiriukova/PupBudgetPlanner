@@ -33,6 +33,7 @@ function BudgetScreen({ data = 'planned' }: BudgetProps) {
     'PUT /api/budget/{part}': { status: 204 },
     'PUT /api/budget/{part}/{id}': { status: 204 },
     'POST /api/budget/start': { status: 204 },
+    'DELETE /api/budget': { status: 204 },
     // Storybook has no service worker: the reminder's card stays away, as in a browser without push
     '/api/push/key': { json: { publicKey: null } },
   };
@@ -88,6 +89,22 @@ export const DialogBlocked: Story = {
     await userEvent.type(field, '9000');
     await userEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
     await expect(within(dialog).getByRole('alert')).toBeInTheDocument();
+  },
+};
+
+/** Delete the month's plan (owner's review of PR #115): it asks first. */
+export const DeletePlan: Story = {
+  globals: desktop,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByTestId('month-left');
+    const [button] = canvas.getAllByRole('button', { name: /^Delete .*’s plan$/ });
+    if (button) await userEvent.click(button);
+    await expect(
+      await within(canvasElement.ownerDocument.body).findByRole('dialog', {
+        name: /^Delete .*’s plan\?$/,
+      }),
+    ).toBeInTheDocument();
   },
 };
 

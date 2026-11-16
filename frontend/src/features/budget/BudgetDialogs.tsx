@@ -1,4 +1,5 @@
 import { Button, TextInput, UnstyledButton } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { useId, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -17,7 +18,13 @@ import {
   type Overflow,
   type Plan,
 } from './budget';
-import { BudgetRefused, useSetBudget, type BudgetTarget, type MonthBudgetData } from './budgetApi';
+import {
+  BudgetRefused,
+  useDeletePlan,
+  useSetBudget,
+  type BudgetTarget,
+  type MonthBudgetData,
+} from './budgetApi';
 import classes from './Budget.module.css';
 import { IssueText } from './parts';
 
@@ -342,5 +349,61 @@ function SaveError({ error }: { error: Error | null }) {
     <IssueText>
       {error instanceof BudgetRefused ? error.message : t('budget.dialog.saveError')}
     </IssueText>
+  );
+}
+
+/**
+ * Delete a month's plan (owner's review of PR #115): asks first, says what goes and what stays. After it the month is
+ * not planned, and the page offers to start it again.
+ */
+export function DeletePlanDialog({
+  month,
+  opened,
+  onClose,
+}: {
+  month: string;
+  opened: boolean;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const remove = useDeletePlan();
+  const name = monthName(month);
+  return (
+    <ResponsiveDialog
+      opened={opened}
+      onClose={onClose}
+      title={t('budget.deletePlan.title', { month: name })}
+      size={400}
+      footer={
+        <>
+          <Button variant="quiet" onClick={onClose}>
+            {t('budget.deletePlan.keep')}
+          </Button>
+          <Button
+            variant="danger"
+            loading={remove.isPending}
+            onClick={() => {
+              // Not mutate's onSuccess: the month comes back not planned and this dialog is gone before it would run
+              remove.mutateAsync(month).then(
+                () => {
+                  onClose();
+                  notifications.show({ message: t('budget.deletePlan.done', { month: name }) });
+                },
+                () => undefined,
+              );
+            }}
+          >
+            {t('budget.deletePlan.confirm')}
+          </Button>
+        </>
+      }
+    >
+      <p className={classes.deleteText}>{t('budget.deletePlan.text', { month: name })}</p>
+      {remove.isError && (
+        <p className={classes.issue} role="alert">
+          {t('budget.deletePlan.error')}
+        </p>
+      )}
+    </ResponsiveDialog>
   );
 }

@@ -54,6 +54,9 @@ public enum BudgetOutcome
 
     /// <summary>The month is planned already (starting it again would lose its amounts).</summary>
     AlreadyPlanned,
+
+    /// <summary>The month has no plan to delete.</summary>
+    NotPlanned,
 }
 
 public sealed record BudgetResult(BudgetOutcome Outcome, BudgetOverflow? Overflow = null)
@@ -70,6 +73,9 @@ public interface IBudgetService
     Task<MonthBudget> MonthAsync(Guid userId, DateOnly month, CancellationToken cancellationToken);
 
     Task<BudgetResult> StartAsync(Guid userId, DateOnly month, bool copyLast, CancellationToken cancellationToken);
+
+    /// <summary>Deletes the month's plan: its total, group and category budgets (owner's review of PR #115).</summary>
+    Task<BudgetResult> DeleteAsync(Guid userId, DateOnly month, CancellationToken cancellationToken);
 
     Task<BudgetResult> SetTotalAsync(Guid userId, DateOnly month, decimal? amount, CancellationToken cancellationToken);
 

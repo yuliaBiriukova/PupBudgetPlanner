@@ -26,18 +26,40 @@ public sealed class BudgetController(IBudgetService budgets, IValidator<BudgetMo
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<MonthBudget>> Month([FromQuery] string? month, CancellationToken cancellationToken)
     {
-        var query = new BudgetMonthQuery(month);
-        foreach (var error in monthValidator.Validate(query).Errors)
-        {
-            ModelState.AddModelError(JsonNamingPolicy.CamelCase.ConvertName(error.PropertyName), error.ErrorMessage);
-        }
-
-        if (!ModelState.IsValid)
+        if (!ValidQuery(month))
         {
             return ValidationProblem(ModelState);
         }
 
         return Ok(await budgets.MonthAsync(UserId, BudgetMonths.Parse(month)!.Value, cancellationToken));
+    }
+
+    /// <summary>
+    /// Deletes the plan of <paramref name="month"/> (<c>yyyy-MM</c>): its total and every group and category budget.
+    /// The month is then not planned, as if never started; transactions stay.
+    /// </summary>
+    [HttpDelete]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete([FromQuery] string? month, CancellationToken cancellationToken)
+    {
+        if (!ValidQuery(month))
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        return Changed(await budgets.DeleteAsync(UserId, BudgetMonths.Parse(month)!.Value, cancellationToken));
+    }
+
+    private bool ValidQuery(string? month)
+    {
+        foreach (var error in monthValidator.Validate(new BudgetMonthQuery(month)).Errors)
+        {
+            ModelState.AddModelError(JsonNamingPolicy.CamelCase.ConvertName(error.PropertyName), error.ErrorMessage);
+        }
+
+        return ModelState.IsValid;
     }
 
     /// <summary>Plans a month not planned yet: a copy of the last planned one, or empty.</summary>
@@ -83,6 +105,8 @@ public sealed class BudgetController(IBudgetService budgets, IValidator<BudgetMo
                 return NoContent();
             case BudgetOutcome.AlreadyPlanned:
                 return Problem(statusCode: StatusCodes.Status409Conflict, title: "This month is planned already.");
+            case BudgetOutcome.NotPlanned:
+                return Problem(statusCode: StatusCodes.Status404NotFound, title: "This month isn't planned.");
             case BudgetOutcome.Overflow:
                 ModelState.AddModelError("amount", OverflowText(result.Overflow!));
                 return ValidationProblem(ModelState);

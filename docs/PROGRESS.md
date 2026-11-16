@@ -2,6 +2,20 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-16 (F-033: the owner's second review of PR #115)
+
+**Done**
+- Pages centred again, up to 1280 px (DESIGN_RULES §4); groups don't fold any more; a group is a card standing out
+  from its categories (bigger name, thick bar); *Delete …'s plan* asks first and leaves the month not planned
+  (`DELETE /api/budget?month=`). Recorded in the
+  [F-033 description](changes/features/F-033-category-budgets/F-033-category-budgets.md#owners-second-review-of-pr-115-2026-11-16).
+- Point 6 of the first review (the space under the month) still waits for the owner's choice.
+- Checks: backend build and tests, lint, formatting, typecheck, the budget and shell unit tests 3 runs, the production
+  and Storybook builds, the full E2E suite and `budget.spec.ts` 3 runs on both viewports; screenshots of the Budget
+  page and the delete dialog at 375, 1280 and 1920 px, light and dark, and Accounts at 1920 px, looked at.
+- Test data: the `e2e-r2-shots-…@example.com` person of a hand-run screenshot spec and the E2E runs' people, removed
+  by the E2E clean-up.
+
 ## 2026-11-16 (F-033: the owner's review of PR #115)
 
 **Done**

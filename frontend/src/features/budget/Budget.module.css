@@ -53,6 +53,20 @@
   align-content: start;
 }
 
+.wideOnly,
+.narrowOnly {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+/* Delete the month's plan: its icon in line with the column's edge */
+.wideOnly > .more,
+.narrowOnly > .more {
+  margin-left: -8px;
+}
+
+/* The desktop's column under the month; the phone's after the groups */
 .wideOnly {
   display: none;
 }
@@ -168,50 +182,48 @@
 /* ---------- The groups ---------- */
 .groups {
   display: grid;
-  gap: 8px;
+  gap: 16px;
   align-content: start;
 }
 
+/* A group is a card (owner's second review of PR #115): it stands out from its categories, which sit inside it */
 .group {
   display: grid;
+  padding: 4px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-lg);
+  background: var(--pup-color-surface);
 }
 
-.group + .group,
-.others {
-  padding-top: 8px;
-  border-top: 1px solid var(--pup-color-rule);
+/* Its head: a line like a category's, bigger, with a thick bar, ruled off from the categories */
+.row.groupHead {
+  gap: 8px;
+  padding: 12px 12px 10px;
 }
 
-/* A group's head: the chevron that folds it, then its line, as a category's (owner's review of PR #115) */
-.groupHead {
-  display: flex;
-  align-items: flex-start;
-  gap: 4px;
-}
-
-.groupHead > .row {
-  flex: 1;
-  min-width: 0;
-}
-
-.fold {
-  flex: none;
-  margin: 2px 0 0 -8px;
-}
-
-.fold[aria-expanded='false'] > svg {
-  transform: rotate(-90deg);
+.groupHead .amount {
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .groupBody {
   display: grid;
-  /* The categories line up with their group's line, after the chevron */
-  padding-left: 40px;
+  margin: 0 8px;
+  padding: 4px 0;
+  border-top: 1px solid var(--pup-color-rule);
+}
+
+/* The groups with nothing planned or spent: under one line, opened by it */
+.others {
+  display: grid;
+  gap: 16px;
 }
 
 .groupName {
-  font-size: 15px;
-  font-weight: 500;
+  font-family: var(--pup-font-display);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
 }
 
 .row {
@@ -301,6 +313,12 @@
 }
 
 /* ---------- The dialogs ---------- */
+.deleteText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
 .dialogButtons {
   display: flex;
   flex-wrap: wrap;
@@ -402,7 +420,7 @@
   }
 
   .wideOnly {
-    display: block;
+    display: grid;
   }
 
   .narrowOnly {

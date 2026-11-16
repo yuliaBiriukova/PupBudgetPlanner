@@ -295,6 +295,25 @@ category in …* when it has none) brings it back; nothing else is deleted. 4. a
 category's: left or over, its bar, "… of …" (or "No budget"), still opening its dialog. 5. a chevron before each group
 folds it; folded groups are remembered on the device (`pup.budget.folded`). 6. proposed to the owner in chat.
 
+## Owner's second review of PR #115 (2026-11-16)
+
+1. Pages shouldn't start at the left: **centred, but wider than before** (880 px).
+2. No folding of groups: **as it was before** (the owner picked "No folding, as before" when asked what the point
+   meant).
+3. **Delete a month's budget plan.**
+4. A group should **stand out more** than a category.
+
+The owner's words in so many words (approval of what they ask). Point 6 of the first review (the space under the month)
+is still waiting for the owner's choice.
+
+**Built (2026-11-16):** 1. the shell's content column is centred again and grows to 1280 px (the Reports year 1600 px),
+DESIGN_RULES §4. 2. the chevrons and `pup.budget.folded` are gone: every group is open, its categories in line with
+it; the groups with nothing planned or spent are still under one line. 3. *Delete November's plan* under the month
+(after the groups on the phone) asks first ("Its total and every group and category budget go. Transactions stay"), then
+the month is not planned and offers *Start from …* / *Start empty* again; `DELETE /api/budget?month=` (404 when not
+planned). 4. a group is a card (surface, rule border, large radius) with its head bigger: the name in Unbounded 18 px, the
+amount 15 px medium, an 8 px bar, a rule between it and its categories.
+
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's
   spending from categories with and without budgets, the total from all expenses, prefill from the last planned
@@ -303,7 +322,7 @@ folds it; folded groups are remembered on the device (`pup.budget.folded`). 6. p
   components and hooks.
 - E2E (Playwright): plan a month (prefilled from the last), add an expense, see "left" go down on the Budget page,
   in the quick-add form and on Transactions; a month's total with a group and a category budget inside, and saving
-  blocked when the categories go over the group or the groups over the total; change and remove a budget; the banner in an unplanned month. Push is
+  blocked when the categories go over the group or the groups over the total; change and remove a budget; delete a month's plan; the banner in an unplanned month. Push is
   checked by hand on a phone (Playwright can't receive it).
 - Screens checked in Playwright screenshots (phone / desktop, light / dark): the Budget page planned, past and next
   month, not planned with and without a month before, the category dialog blocked, the new budget's dialog, the
