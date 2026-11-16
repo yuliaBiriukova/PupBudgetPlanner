@@ -27,7 +27,8 @@ import {
   type MonthBudgetData,
 } from '../../features/budget/budgetApi';
 import classes from '../../features/budget/Budget.module.css';
-import { BudgetSlip } from './BudgetSlip';
+import { SlipWithBar } from './BudgetSlip';
+import slipClasses from './BudgetSlip.module.css';
 import proto from './MonthHead.module.css';
 import {
   DeletePlanDialog,
@@ -204,7 +205,7 @@ function PlannedMonth({
   return (
     <>
       {slip && (
-        <BudgetSlip
+        <SlipWithBar
           lines={lines}
           onMonth={onMonth}
           onEditTotal={() => {
@@ -215,7 +216,10 @@ function PlannedMonth({
       <div className={cx(classes.columns, slip ? '' : proto.columns)}>
         {/* The desktop: the month's column stays in place and fits the window, as Transactions' (FitColumn); only the
           spending outside the plan scrolls inside it */}
-        <FitColumn fit={wide} className={cx(classes.left, slip ? '' : proto.left)}>
+        <FitColumn
+          fit={wide}
+          className={cx(classes.left, slip ? slipClasses.leftUnderBar : proto.left)}
+        >
           {!slip && (
             <Hero
               lines={lines}

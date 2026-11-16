@@ -374,8 +374,12 @@ The owner then asked "can you make the header for budget as for transactions?": 
 the month on Transactions' dark slip with the torn edge (‹ November 2026 ›, *Change total* at the end of the row, "Left
 of 50 000 ₴" and "Spent" big, the slip's bar for the share of the total spent, the days to go and the part in no group
 under it); under it the column (where the total goes, spending outside the plan, delete) fitted and sticky as
-Transactions' left column, and the groups. The slip scrolls away as on Transactions. Waiting for the owner's pick and
-approval; not built.
+Transactions' left column, and the groups. The slip scrolls away as on Transactions.
+
+The owner picked the slip, "but i'd like it to be sticky as on mobile": as Transactions' phone, once the slip has
+scrolled away a slim dark bar with the torn edge slides in at the top (the month, "18 518 ₴ left", "31 482 ₴ spent", ˄;
+a tap goes back to the top), here on every width: on the desktop as wide as the slip, the month's column sticking under
+it (68 px); on a phone only what's left beside the month. Waiting for the owner's approval; not built.
 
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's

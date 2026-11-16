@@ -14,3 +14,33 @@
 .over {
   color: var(--pup-card-solid-debt);
 }
+
+/* The slim bar on every width (Transactions hides it from 64em: its desktop keeps the slip's column instead) */
+@media (min-width: 64em) {
+  .barWrap.barWrap {
+    display: block;
+  }
+
+  /* As wide as the slip it stands for */
+  .bar.bar {
+    right: 0;
+    left: 0;
+  }
+
+  /* The month's column sticks under the slim bar (52 px) */
+  .leftUnderBar.leftUnderBar {
+    top: 68px;
+  }
+}
+
+.barSpent {
+  color: var(--pup-card-solid-muted);
+  font-weight: 400;
+}
+
+/* A phone: the month and what's left; spent is on the slip */
+@media (max-width: 30em) {
+  .barSpent {
+    display: none;
+  }
+}
