@@ -35,11 +35,10 @@ no way to say "this part of my Monobank money is for the car".
      **when the month closes** (with the reminder on the 1st: "Last month 3,000 was saved — put it into a jar or
      keep it?") and **any time during the month** with a button on the Budget page.
 
-## Still open (Q-014)
-Claude's proposals; the owner decides before the design round.
+### Q-014 and Q-015 (owner accepted Claude's proposals as they were, 2026-11-16)
 
-| # | Question | Proposal |
-|---|----------|----------|
+| # | Question | Answer |
+|---|----------|--------|
 | 1 | Currency | One per jar; money set aside from an account in another currency is converted at the NBU rate of that day |
 | 2 | Taking money out | Allowed any time (the money is the person's); the history keeps every in and out |
 | 3 | Reaching the goal | The jar shows "Goal reached"; the person closes it (archived, history kept) when the money is used |
@@ -73,20 +72,27 @@ an account today.
 - [ ] Account balances don't change; each account with jar money shows its balance, how much is in jars and how
       much is free. The total on the Accounts page shows the same split.
 - [ ] Reports and the balance at month end don't change.
-- [ ] Each jar shows saved so far and, with a goal, its progress; with a target date, how much to save a month to
-      make it.
+- [ ] A jar has one currency; money set aside from an account in another currency is converted at the NBU rate of
+      that day. Money can be taken out any time.
+- [ ] Each jar shows saved so far and, with a goal, a progress bar; with a target date, how much to save a month to
+      make it. A jar that reached its goal shows "Goal reached"; the person closes it when the money is used.
+- [ ] If spending eats into an account's jar money (free money below zero), the account shows a warning ("2,000 of
+      the jar money was spent"); the person takes it out of a jar or tops the account up.
 - [ ] **Plan per jar:** the month's plan (F-033) has amounts for jars; the Budget page shows how much of each has
       been set aside so far and how much is still to go. A new month is prefilled from last month, as F-033's
-      budgets are.
+      budgets are. The planned jar amounts count within the month's total: the groups' budgets plus the jars may not
+      be bigger than it (saving is blocked, as in F-033).
 - [ ] **Saved money into a jar:** the Budget page shows the month's saved money two ways, what's left of the
-      budgets and income minus expenses, and the person picks one; they put all or part of it into a jar, or keep
-      it free. Offered when the month closes (with the reminder on the 1st, F-033) and any time with a button on the
-      Budget page.
+      budgets and income minus expenses, and the person picks one; they put all or part of it into a jar, from an
+      account they pick (the one with the most free money in the jar's currency first), or keep it free. Offered
+      when the month closes (with the reminder on the 1st, F-033) and any time with a button on the Budget page;
+      moving it during the month lowers the month's total "left" by that much, the categories' budgets stay as
+      planned.
 - [ ] Jars are personal; in the family views a member's jars show as F-030 privacy allows.
 - [ ] Works on the phone and on the desktop, light and dark.
 
 ## Tasks
-- [ ] Settle the rest of Q-014 with the owner; update the acceptance criteria.
+- [x] Settle Q-014 and Q-015 with the owner; update the acceptance criteria (2026-11-16).
 - [ ] References (Mobbin and open examples: Monobank jars, savings goals in budgeting apps); note them below.
 - [ ] 3 prototype stories in `frontend/src/prototypes/F-034-saving-jars/`; owner picks; final prototype; owner
       approves.

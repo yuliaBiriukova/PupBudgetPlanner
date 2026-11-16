@@ -37,7 +37,7 @@ Asked by the owner on 2026-11-16 as the new M7 (in place of Quality); it was "bu
 - [ ] Budgets are personal: each person plans their own (no family budget for now).
 - [ ] **When adding an expense**, each category in the quick-add form shows what is left of its own budget this
       month; a category without one shows what is left of its group's budget, if the group has one; failing both,
-      what is left of the month's total, if there is one (proposal, Q-015).
+      what is left of the month's total, if there is one (Q-015).
 - [ ] **On the Transactions page**, a short summary of this month's budget sits next to the month's list.
 - [ ] **Reminder on the 1st of the month:**
   - an in-app banner the first time the person opens the app in a month they haven't planned yet ("Plan this
@@ -74,7 +74,7 @@ Asked by the owner on 2026-11-16 as the new M7 (in place of Quality); it was "bu
 | 4 | Can you look at past months' budgets? | Yes, switch months as on the report; a past month's budget can still be edited |
 | 5 | A month the person skipped (never planned): what do the Budget page and "left" show? | The page offers to plan it (prefilled from the last planned month); no "left" in the quick-add form until it is planned |
 | 6 | Push time on the 1st | 09:00 Kyiv time |
-| 7 | A category with no budget in a group with none: what does the quick-add form show? | Open (Q-015). Proposal: what is left of the month's total, if there is one |
+| 7 | A category with no budget in a group with none: what does the quick-add form show? | What is left of the month's total, if there is one (Q-015, owner accepted the proposal 2026-11-16) |
 
 ## Tasks
 - [x] Settle Q-013 with the owner; update this file (2026-11-16).
@@ -110,6 +110,7 @@ Chosen variant: — · Final prototype approved: —
 ## Notes
 - [F-034](../F-034-saving-jars/F-034-saving-jars.md) (saving jars, built after this) adds jars to the month's plan
   and, on the Budget page and with the reminder on the 1st, the choice to put the month's saved money into a jar.
+  The jars planned in a month count within its total (Q-015).
   The Budget page's design should leave room for them.
 - Replaces "Budgets / limits per category" from the post-MVP candidates (PRODUCT.md) and from M11 in the roadmap.
 - [I-016](../../improvements/I-016-category-month-totals/I-016-category-month-totals.md) (this month's total next to

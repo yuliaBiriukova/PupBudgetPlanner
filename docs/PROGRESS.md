@@ -26,12 +26,13 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   symbolic: it sets money aside inside real accounts, whose balances don't change (each shows in jars / free). Name,
   icon or colour, optional goal and target date, a note; personal for now. Linked to F-033 two ways: jars are planned
   in the month's budget, and the month's saved money (budget left over or income minus expenses, the person picks)
-  can go into a jar or stay free, offered when the month closes and any time on the Budget page. Q-014 opened with
-  the smaller points.
+  can go into a jar or stay free, offered when the month closes and any time on the Budget page.
+- Q-014 (jars' smaller points) and Q-015 (quick-add falls back to the month's total "left"; planned jar amounts
+  count within the month's total): the owner accepted Claude's proposals as they were; both moved to Answered.
 - No code; no test data created.
 
 **Next**
-- Owner: answer Q-014 and Q-015. Then the design rounds, F-033 first: references, then 3 prototype stories in Storybook.
+- Owner: review and merge the planning PR. Then the design rounds, F-033 first: references, then 3 prototype stories in Storybook.
 
 ## 2026-11-16 (F-032: generic default categories, built; M9 done)
 
