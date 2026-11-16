@@ -6,6 +6,7 @@ When a question is answered, move it to "Answered" with the answer and date, and
 
 | ID | Question | Proposal | Blocks |
 |----|----------|----------|--------|
+| Q-013 | Monthly budgets (F-033): per group too? A family budget? Income? Past months? A skipped month? The push time on the 1st? | Per category (the group sums them); personal only for now; no income budgets; past months viewable and editable; a skipped month is offered to plan; push at 09:00 Kyiv. Details in [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md#still-open-q-013) | F-033 design round |
 
 ## Answered
 

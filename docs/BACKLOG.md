@@ -88,6 +88,12 @@ owner asks for one.
 | [F-031](changes/features/F-031-privacy-policy/F-031-privacy-policy.md) | 🎨 Privacy policy page (`/privacy`), so the Google app can be published for people outside the family (added 2026-11-14) | Medium | Done |
 | [F-032](changes/features/F-032-generic-default-categories/F-032-generic-default-categories.md) | Generic default categories for new people instead of the owner's own (Q-011; added 2026-11-15) | Medium | Done |
 
+### M7 — Budgets
+
+| ID | Feature | Priority | Status |
+|----|---------|----------|--------|
+| [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md) | 🎨 Monthly budgets per category: plan each month (prefilled from the last), see what's left on a Budget page, when adding an expense and on Transactions; a reminder on the 1st, banner and push (Q-013; added 2026-11-16) | Medium | Todo |
+
 ## Improvements
 
 | ID | Improvement | Priority | Status |

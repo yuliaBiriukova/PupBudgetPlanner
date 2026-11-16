@@ -272,7 +272,7 @@ erDiagram
 | Frontend unit / component | Vitest, React Testing Library, MSW | Hooks, components, forms | MVP |
 | UI / E2E | **Playwright** | Real user flows in a browser against the real API + PostgreSQL (in CI) | MVP |
 | Visual | Storybook stories (+ Playwright screenshots later) | Components in all states | MVP |
-| Integration | xUnit + `WebApplicationFactory` + Testcontainers (PostgreSQL) | API + database together | **After MVP** |
+| Integration | xUnit + `WebApplicationFactory` + Testcontainers (PostgreSQL) | API + database together | **Not scheduled** (ADR 0005) |
 
 - Integration tests will run **only in CI** (GitHub Actions has Docker), so Docker is not needed locally.
 - E2E in CI uses a PostgreSQL service container; locally they run against a Neon `dev` branch.

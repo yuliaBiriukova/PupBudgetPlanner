@@ -52,13 +52,14 @@ people the owner invites can sign up (F-028); later it can open to everyone.
 
 ### After MVP (candidates, in no fixed order)
 
-- Integration tests (Testcontainers, in CI).
+- Integration tests (Testcontainers, in CI) — an idea without a milestone since M7 "Quality" became "Budgets"
+  (2026-11-16).
 - Email via Resend: email confirmation, password reset, invitations by email.
 - Ukrainian localization.
 - Import history from the Google Sheets spreadsheet (2024–2026).
 - Import from Monefy CSV export.
 - Dashboard with charts.
-- Budgets / limits per category.
+- Monthly budgets per category: what's left this month, a reminder on the 1st (M7, F-033).
 - Export of reports to Excel.
 - Automatic import of card transactions from the Monobank personal API.
 - Transfer fees as part of a transfer.

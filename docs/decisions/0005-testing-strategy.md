@@ -19,6 +19,8 @@ Docker locally, and integration tests were moved after the MVP.
   - Storybook stories for every component and screen state.
 - **After MVP:** integration tests with `WebApplicationFactory` + Testcontainers (PostgreSQL). They run in
   GitHub Actions, which has Docker, so local Docker stays optional.
+- **Update 2026-11-16:** the owner replaced the post-MVP milestone M7 "Quality" with "Budgets". The integration
+  tests stay an idea without a milestone.
 
 ## Consequences
 

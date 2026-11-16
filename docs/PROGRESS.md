@@ -2,6 +2,22 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-16 (F-033: monthly budgets per category, planned; M7 is now Budgets)
+
+**Done**
+- The owner replaced M7 "Quality" with "Budgets" and asked for a feature to plan the budget by category and see
+  what's left in each this month. Planned
+  [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md) on `feature/F-033-category-budgets`:
+  priority Medium; budgets set month by month, a new month prefilled from the last; no carry-over; "left" on a new
+  Budget page, in the quick-add form and on Transactions; a reminder on the 1st as an in-app banner and a phone push.
+- Roadmap: M7 is Budgets; "budgets per category" taken out of M11. The integration tests (Testcontainers) stay an
+  idea without a milestone (PRODUCT.md, ADR 0005, ARCHITECTURE.md, CLAUDE.md).
+- Q-013 opened with the rest: groups, family, income, past and skipped months, push time.
+- No code; no test data created.
+
+**Next**
+- Owner: answer Q-013. Then references and 3 prototype stories for F-033.
+
 ## 2026-11-16 (F-032: generic default categories, built; M9 done)
 
 **Done**
