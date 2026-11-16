@@ -175,7 +175,7 @@ test('a budget can be removed, a new one added in a group, and a past month open
 
   // Every group folded into one line while nothing is planned or spent in it
   await page.getByRole('button', { name: /: nothing planned or spent$/ }).click();
-  await page.getByRole('button', { name: 'Budget for another Daily living category' }).click();
+  await page.getByRole('button', { name: 'Budget for a category in Daily living' }).click();
   dialog = page.getByRole('dialog', { name: 'New budget in Daily living' });
   await dialog.getByRole('button', { name: 'Save' }).click();
   await expect(dialog.getByText('Pick a category.')).toBeVisible();

@@ -2,6 +2,21 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-16 (F-033: the owner's review of PR #115)
+
+**Done**
+- Every page starts at the left after the sidebar and grows to 1280 px (DESIGN_RULES §4); the Budget page uses the
+  whole column. A group lists only its categories with a budget (*Remove budget* takes one out, *+* brings it back), its
+  head is a line like a category's (bar, "… of …"), and a chevron folds it (remembered on the device). Recorded in the
+  [F-033 description](changes/features/F-033-category-budgets/F-033-category-budgets.md#owners-review-of-pr-115-2026-11-16).
+- Point 6 (the empty space under the month on the desktop) proposed to the owner, not built.
+- Checks: lint, formatting, typecheck, the budget and shell unit tests 3 runs, the production and Storybook builds,
+  the full E2E suite (`budget.spec.ts` updated for the new link's words, then 3 runs on both viewports); screenshots of
+  the Budget page (planned, folded, an empty start with spending) at 375, 1440 and 1920 px, light and dark, and every
+  other page at 1920 px, looked at.
+- Test data: the `e2e-f033-review-…@example.com` people of a hand-run screenshot spec and the E2E runs' people,
+  removed by the E2E clean-up.
+
 ## 2026-11-16 (F-033: monthly budget, built; B-029 fixed with it)
 
 **Done**

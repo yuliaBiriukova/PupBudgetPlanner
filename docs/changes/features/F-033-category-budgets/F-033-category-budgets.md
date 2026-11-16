@@ -274,6 +274,27 @@ notification).
   check the notification by hand (it can be sent at once by running the cron job by hand once this month isn't
   planned).
 
+## Owner's review of PR #115 (2026-11-16)
+
+1. The month's head isn't aligned to the left and the page is too narrow; the same on the other pages: **every page
+   aligned to the left and wider** (the shell's content column).
+2. *Start empty* shouldn't list every category with spending as "No budget": an empty month shows **only the groups**
+   and *+ Budget for another … category*; a category is added when its budget is set.
+3. A category can be **taken out of the plan**: it only goes from the list (nothing else is deleted) and comes back with
+   *+*. (Built as: a category's row is there while it has a budget; *Remove budget* takes it out.)
+4. A group's head shows only what's left: it should show **the same as a category** (a bar and "… of …").
+5. **Groups fold** (collapse / expand).
+6. The space under the month on the desktop's left column is wasted: think how to use it (proposal to the owner).
+
+Points 1–5 are the owner's words in so many words (approval of what they ask); point 6 is proposed first.
+
+**Built (2026-11-16):** 1. the shell's content column starts at the left after the sidebar and grows to 1280 px
+(DESIGN_RULES §4), the Budget page uses all of it; checked on every page at 1440 and 1920 px. 2–3. a group lists only
+its categories with a budget; *Remove budget* takes one out, *+ Budget for another … category* (or *Budget for a
+category in …* when it has none) brings it back; nothing else is deleted. 4. a group's head is a line like a
+category's: left or over, its bar, "… of …" (or "No budget"), still opening its dialog. 5. a chevron before each group
+folds it; folded groups are remembered on the device (`pup.budget.folded`). 6. proposed to the owner in chat.
+
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's
   spending from categories with and without budgets, the total from all expenses, prefill from the last planned

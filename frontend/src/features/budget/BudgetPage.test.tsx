@@ -41,10 +41,23 @@ describe('the Budget page', () => {
     expect(within(daily).getByRole('button', { name: /^Eating out/ })).toHaveTextContent(
       '607 ₴ over',
     );
-    expect(within(daily).getByRole('button', { name: /^Clothing/ })).toHaveTextContent(
-      '1 890 ₴ spent',
+    // The group's head is a line like a category's (owner's review of PR #115)
+    expect(within(daily).getByRole('button', { name: /^Daily living/ })).toHaveTextContent(
+      '12 286 ₴ of 22 000 ₴',
     );
-    expect(within(daily).getByRole('button', { name: /^Clothing/ })).toHaveTextContent('No budget');
+    // Only the categories with a budget are listed; Clothing (spent, no budget) comes in with +
+    expect(
+      within(daily)
+        .getAllByTestId('budget-row')
+        .map((row) => row.textContent),
+    ).toEqual([
+      expect.stringContaining('Food'),
+      expect.stringContaining('Eating out'),
+      expect.stringContaining('Transportation'),
+    ]);
+    expect(
+      within(daily).getByRole('button', { name: 'Budget for another Daily living category' }),
+    ).toBeInTheDocument();
     expect(
       within(screen.getByRole('region', { name: 'Subscriptions' })).getByText(
         'its categories’ budgets',
@@ -53,6 +66,21 @@ describe('the Budget page', () => {
     expect(
       screen.getByRole('button', { name: 'Health: nothing planned or spent' }),
     ).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('folds a group and remembers it on the device', async () => {
+    useBudget(plannedMonth);
+    const user = userEvent.setup();
+    renderApp('/budget');
+
+    await user.click(await screen.findByRole('button', { name: 'Fold Daily living' }, LOADED));
+    const daily = screen.getByRole('region', { name: 'Daily living' });
+    expect(within(daily).getByRole('button', { name: 'Unfold Daily living' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+    expect(within(daily).queryAllByTestId('budget-row')).toEqual([]);
+    expect(JSON.parse(localStorage.getItem('pup.budget.folded') ?? '[]')).toEqual(['g-daily']);
   });
 
   it('blocks a budget that doesn’t fit its group and saves one that does', async () => {

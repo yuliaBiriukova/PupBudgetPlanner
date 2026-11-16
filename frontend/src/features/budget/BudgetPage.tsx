@@ -1,4 +1,4 @@
-import { Button, Skeleton, UnstyledButton } from '@mantine/core';
+import { ActionIcon, Button, Skeleton, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
@@ -8,7 +8,7 @@ import {
   IconRefresh,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import tx from '../transactions/TransactionsPage.module.css';
 import { cx } from '../../shared/ui/cx';
@@ -32,6 +32,7 @@ import {
 import classes from './Budget.module.css';
 import { EditBudgetDialog, NewBudgetDialog } from './BudgetDialogs';
 import { Bar, MonthHead } from './parts';
+import { readFolded, writeFolded } from './foldedGroups';
 import { useBudgetMonth } from './useBudgetMonth';
 import { ReminderCard } from './Reminder';
 
@@ -147,6 +148,14 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState<Open | null>(null);
   const [othersOpen, setOthersOpen] = useState(false);
+  const [folded, setFolded] = useState(readFolded);
+  const fold = (groupId: string) => {
+    const next = folded.includes(groupId)
+      ? folded.filter((id) => id !== groupId)
+      : [...folded, groupId];
+    writeFolded(next);
+    setFolded(next);
+  };
   const lines = linesOf(data);
   const plan = planOf(data);
   const quiet = lines.groups.filter((g) => g.budget == null && g.spent === 0);
@@ -176,7 +185,14 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
         {lines.groups
           .filter((g) => g.budget != null || g.spent !== 0)
           .map((group) => (
-            <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
+            <Group
+              key={group.id}
+              group={group}
+              currency={data.currency}
+              folded={folded.includes(group.id)}
+              onFold={fold}
+              onOpen={setOpen}
+            />
           ))}
         {quiet.length > 0 && (
           <section className={classes.others}>
@@ -192,7 +208,14 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
             </UnstyledButton>
             {othersOpen &&
               quiet.map((group) => (
-                <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
+                <Group
+                  key={group.id}
+                  group={group}
+                  currency={data.currency}
+                  folded={folded.includes(group.id)}
+                  onFold={fold}
+                  onOpen={setOpen}
+                />
               ))}
           </section>
         )}
@@ -301,69 +324,124 @@ function Hero({
   );
 }
 
+/**
+ * A group (owner's review of PR #115): its head is a line like a category's (left or over, a bar, "… of …"), opening
+ * the group's dialog, with a chevron that folds it; then its categories with a budget, and + to add one more. A
+ * category without a budget isn't listed: it comes in with + and goes out with Remove budget.
+ */
 function Group({
   group,
   currency,
+  folded,
+  onFold,
   onOpen,
 }: {
   group: GroupLine;
   currency: string;
+  folded: boolean;
+  onFold: (groupId: string) => void;
   onOpen: (open: Open) => void;
 }) {
   const { t } = useTranslation();
-  const money = moneyIn(currency);
-  const rows = group.categories.filter((c) => c.budget != null || c.spent !== 0);
+  const rows = group.categories.filter((c) => c.budget != null);
   const withoutBudget = group.categories.some((c) => c.budget == null);
+  const listId = useId();
   return (
     <section className={classes.group} aria-label={group.name}>
-      <UnstyledButton
-        className={classes.groupHead}
-        aria-haspopup="dialog"
-        onClick={() => {
-          onOpen({ kind: 'group', id: group.id });
-        }}
-      >
-        <span className={classes.groupName}>{group.name}</span>
-        <Amount line={group} currency={currency} sumOnly={group.own == null} />
-      </UnstyledButton>
-      {rows.map((category) => (
-        <UnstyledButton
-          key={category.id}
-          className={classes.row}
-          aria-haspopup="dialog"
-          data-testid="budget-row"
+      <div className={classes.groupHead}>
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          className={classes.fold}
+          aria-expanded={!folded}
+          aria-controls={listId}
+          aria-label={t(folded ? 'budget.line.unfold' : 'budget.line.fold', { group: group.name })}
           onClick={() => {
-            onOpen({ kind: 'category', id: category.id });
+            onFold(group.id);
           }}
         >
-          <span className={classes.rowTop}>
-            <span>{category.name}</span>
-            <Amount line={category} currency={currency} />
-          </span>
-          <Bar spent={category.spent} budget={category.budget} />
-          <span className={classes.rowSub}>
-            {category.budget != null
-              ? t('budget.line.of', {
-                  spent: money(category.spent),
-                  budget: money(category.budget),
-                })
-              : t('budget.line.noBudget')}
-          </span>
-        </UnstyledButton>
-      ))}
-      {withoutBudget && (
-        <UnstyledButton
-          className={classes.more}
-          aria-haspopup="dialog"
+          <IconChevronDown size={20} stroke={1.7} />
+        </ActionIcon>
+        <LineButton
+          line={group}
+          currency={currency}
+          name={<span className={classes.groupName}>{group.name}</span>}
+          sumOnly={group.own == null && group.budget != null}
           onClick={() => {
-            onOpen({ kind: 'new', groupId: group.id });
+            onOpen({ kind: 'group', id: group.id });
           }}
-        >
-          <IconPlus size={16} stroke={1.7} aria-hidden />
-          {t('budget.line.another', { group: group.name })}
-        </UnstyledButton>
+        />
+      </div>
+      {!folded && (
+        <div id={listId} className={classes.groupBody}>
+          {rows.map((category) => (
+            <LineButton
+              key={category.id}
+              line={category}
+              currency={currency}
+              name={<span>{category.name}</span>}
+              testId="budget-row"
+              onClick={() => {
+                onOpen({ kind: 'category', id: category.id });
+              }}
+            />
+          ))}
+          {withoutBudget && (
+            <UnstyledButton
+              className={classes.more}
+              aria-haspopup="dialog"
+              onClick={() => {
+                onOpen({ kind: 'new', groupId: group.id });
+              }}
+            >
+              <IconPlus size={16} stroke={1.7} aria-hidden />
+              {t(rows.length > 0 ? 'budget.line.another' : 'budget.line.first', {
+                group: group.name,
+              })}
+            </UnstyledButton>
+          )}
+        </div>
       )}
     </section>
+  );
+}
+
+/** One budget's line: its name and left (or over), its bar, and "… of …" (or no budget). */
+function LineButton({
+  line,
+  currency,
+  name,
+  sumOnly,
+  testId,
+  onClick,
+}: {
+  line: Line;
+  currency: string;
+  name: ReactNode;
+  sumOnly?: boolean;
+  testId?: string;
+  onClick: () => void;
+}) {
+  const { t } = useTranslation();
+  const money = moneyIn(currency);
+  return (
+    <UnstyledButton
+      className={classes.row}
+      aria-haspopup="dialog"
+      data-testid={testId}
+      onClick={onClick}
+    >
+      <span className={classes.rowTop}>
+        {name}
+        <Amount line={line} currency={currency} sumOnly={sumOnly} />
+      </span>
+      <Bar spent={line.spent} budget={line.budget} />
+      <span className={classes.rowSub}>
+        {line.budget != null
+          ? t('budget.line.of', { spent: money(line.spent), budget: money(line.budget) })
+          : t('budget.line.noBudget')}
+      </span>
+    </UnstyledButton>
   );
 }
 

@@ -2,8 +2,7 @@
    Phone first; from 64em the month in a sticky column on the left, the groups on the right. */
 
 .page {
-  max-width: 1080px;
-  margin: 0 auto;
+  min-width: 0;
 }
 
 /* ---------- The month: its name as the page's title, ‹ › beside it ---------- */
@@ -183,14 +182,31 @@
   border-top: 1px solid var(--pup-color-rule);
 }
 
+/* A group's head: the chevron that folds it, then its line, as a category's (owner's review of PR #115) */
 .groupHead {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 44px;
-  padding: 12px 8px 8px;
-  border-radius: var(--mantine-radius-md);
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.groupHead > .row {
+  flex: 1;
+  min-width: 0;
+}
+
+.fold {
+  flex: none;
+  margin: 2px 0 0 -8px;
+}
+
+.fold[aria-expanded='false'] > svg {
+  transform: rotate(-90deg);
+}
+
+.groupBody {
+  display: grid;
+  /* The categories line up with their group's line, after the chevron */
+  padding-left: 40px;
 }
 
 .groupName {
@@ -207,7 +223,6 @@
   line-height: 20px;
 }
 
-.groupHead:hover,
 .row:hover {
   background: var(--pup-color-hover);
 }
