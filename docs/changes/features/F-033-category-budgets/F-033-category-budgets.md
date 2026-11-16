@@ -21,13 +21,16 @@ Asked by the owner on 2026-11-16 as the new M7 (in place of Quality); it was "bu
       or removed during the month.
 - [ ] Nothing carries over: unspent money or overspending stays in its month.
 - [ ] A **Budget page** shows the month's categories with budget, spent so far and left; a category that went over
-      shows by how much, so it stands out. Budgets are set there.
+      shows by how much, so it stands out. Budgets are set there, per expense category (no income budgets); each
+      group shows the sum of its categories. Past months can be opened and edited; a month that was never planned
+      offers to plan it.
+- [ ] Budgets are personal: each person plans their own (no family budget for now).
 - [ ] **When adding an expense**, each category in the quick-add form shows what is left of its budget this month.
 - [ ] **On the Transactions page**, a short summary of this month's budget sits next to the month's list.
 - [ ] **Reminder on the 1st of the month:**
   - an in-app banner the first time the person opens the app in a month they haven't planned yet ("Plan this
     month's budget", with a button to the Budget page), until they plan it or close it;
-  - a phone push notification on the 1st, for people who turned it on (asked once, per device; works from the
+  - a phone push notification on the 1st at 09:00 Kyiv time, for people who turned it on (asked once, per device; works from the
     installed app, F-025).
 - [ ] The amounts are in the person's report currency; spending in other currencies is converted at the NBU rate of
       each transaction's date (PRODUCT.md, business rule 1), whole amounts (ADR 0018), the same numbers as the
@@ -43,20 +46,19 @@ Asked by the owner on 2026-11-16 as the new M7 (in place of Quality); it was "bu
 - "Left" shows on a **Budget page**, **when adding an expense** and **on the Transactions page**.
 - A **reminder on the 1st**: an **in-app banner** and a **phone push notification**.
 
-## Still open (Q-013)
-Claude's proposals; the owner decides before the design round.
+### Q-013 (owner accepted Claude's proposals as they were, 2026-11-16)
 
-| # | Question | Proposal |
-|---|----------|----------|
+| # | Question | Answer |
+|---|----------|--------|
 | 1 | Budgets per category only, or also per group (e.g. Daily living)? | Per category; the group shows the sum of its categories' budgets |
-| 2 | Family: personal budgets only, or a family budget on the combined view? | Personal budgets first; a family budget later if needed |
+| 2 | Family: personal budgets only, or a family budget on the combined view? | Personal budgets only for now; a family budget later if needed |
 | 3 | Income categories? | No budgets for income |
 | 4 | Can you look at past months' budgets? | Yes, switch months as on the report; a past month's budget can still be edited |
 | 5 | A month the person skipped (never planned): what do the Budget page and "left" show? | The page offers to plan it (prefilled from the last planned month); no "left" in the quick-add form until it is planned |
 | 6 | Push time on the 1st | 09:00 Kyiv time |
 
 ## Tasks
-- [ ] Settle the rest of Q-013 with the owner; update this file.
+- [x] Settle Q-013 with the owner; update this file (2026-11-16).
 - [ ] References (Mobbin and open examples: budgeting apps' category budget screens); note them below.
 - [ ] 3 prototype stories in `frontend/src/prototypes/F-033-category-budgets/`; owner picks; final prototype;
       owner approves.
@@ -90,4 +92,4 @@ Chosen variant: — · Final prototype approved: —
 - Push notifications are new to the app: they need the person's permission on each device, and on an iPhone they
   work only from the app installed on the home screen. The in-app banner covers everyone else.
 - The push is the app's first scheduled job besides the keep-awake ping (Q-002); the free server sleeps at night, so
-  it runs in the day (proposal: 09:00 Kyiv).
+  it runs in the day, at 09:00 Kyiv (Q-013).

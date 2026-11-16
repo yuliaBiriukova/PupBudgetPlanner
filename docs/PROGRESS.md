@@ -12,11 +12,13 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   Budget page, in the quick-add form and on Transactions; a reminder on the 1st as an in-app banner and a phone push.
 - Roadmap: M7 is Budgets; "budgets per category" taken out of M11. The integration tests (Testcontainers) stay an
   idea without a milestone (PRODUCT.md, ADR 0005, ARCHITECTURE.md, CLAUDE.md).
-- Q-013 opened with the rest: groups, family, income, past and skipped months, push time.
+- Q-013 (groups, family, income, past and skipped months, push time): the owner accepted Claude's proposals as they
+  were; moved to Answered. Budgets per expense category (the group sums them), personal only, past months editable,
+  a skipped month offered to plan, push at 09:00 Kyiv.
 - No code; no test data created.
 
 **Next**
-- Owner: answer Q-013. Then references and 3 prototype stories for F-033.
+- F-033 design round: references, then 3 prototype stories in Storybook.
 
 ## 2026-11-16 (F-032: generic default categories, built; M9 done)
 
