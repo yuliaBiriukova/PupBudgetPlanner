@@ -4,7 +4,7 @@ import { MockFetch, type MockRoutes } from '../../test/mockFetch';
 import { thisMonth } from '../../features/budget/budget';
 import { plannedMonth } from '../../features/budget/budgetTestData';
 import { LeftColumnPage, type Panel } from './LeftColumnPage';
-import { NotInThePlan, RunningOut, WhereItGoes } from './Panels';
+import { Both, NotInThePlan, RunningOut, WhereItGoes } from './Panels';
 
 /** F-033, owner's review of PR #115, point 6: what fills the desktop's column under the month. */
 function Screen({ panel }: { panel: Panel }) {
@@ -52,4 +52,10 @@ export const RunningOutStory: Story = {
 export const WhereItGoesStory: Story = {
   name: 'Variant 3: Where the total goes',
   args: { panel: WhereItGoes },
+};
+
+/** Final: where the total goes, then the spending outside the plan (variants 3 and 1 together). */
+export const FinalStory: Story = {
+  name: 'Final: Where it goes and not in the plan',
+  args: { panel: Both },
 };

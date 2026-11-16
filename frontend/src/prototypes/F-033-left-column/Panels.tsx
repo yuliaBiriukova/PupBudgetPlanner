@@ -163,3 +163,14 @@ export const WhereItGoes: Panel = ({ lines }) => {
     </section>
   );
 };
+
+/**
+ * Final prototype (owner's pick, 2026-11-16: variants 1 and 3 together): the plan's shape first, then the money outside
+ * it. Each part shows only when it has something to say.
+ */
+export const Both: Panel = (props) => (
+  <>
+    {WhereItGoes(props)}
+    {NotInThePlan(props)}
+  </>
+);

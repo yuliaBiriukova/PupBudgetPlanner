@@ -126,3 +126,12 @@
 .over {
   color: var(--pup-color-expense);
 }
+
+/* The month's column stays in place while the groups scroll: taller than the window, it scrolls on its own */
+@media (min-width: 64em) {
+  .left {
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}

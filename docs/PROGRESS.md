@@ -8,7 +8,9 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - No accordion left on the Budget page: the groups with nothing planned or spent are open too, after the others.
 - Three prototype stories for point 6 (the desktop column under the month) in `frontend/src/prototypes/F-033-left-column/`:
   *Not in the plan*, *Running out*, *Where the total goes*; design check clean (0 issues), screenshots looked at.
-  Waiting for the owner's pick.
+  The owner asked for variants 1 and 3 together: the final prototype has both under the month (the split first), the
+  column scrolling on its own when taller than the window; design check clean, screenshots at 1440 × 900 and
+  1280 × 640 looked at. Waiting for the owner's approval.
 - Checks: lint, formatting, typecheck, the budget unit tests and `budget.spec.ts` 3 runs. Test data: the E2E runs'
   people, removed by the clean-up.
 

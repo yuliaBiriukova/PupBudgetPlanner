@@ -330,7 +330,12 @@ amount 15 px medium, an 8 px bar, a rule between it and its categories.
    - References: YNAB's budget screen keeps a side panel (the "inspector") next to the category list for the selected
      month or category; Monarch's budget page has a summary column beside the groups. Taken: a side column that adds a
      view of the month the list doesn't give, rather than repeating it.
-   Waiting for the owner's pick; not built.
+   The owner liked variants 1 and 3 and asked for both on the page. **Final prototype:**
+   [Final: Where it goes and not in the plan](http://localhost:6006/?path=/story/prototypes-f-033-left-column--final-story&nav=false&panel=false&globals=viewport.value:!undefined):
+   under the month, *Where the 50 000 ₴ goes* (variant 3), then *Spent outside the plan* (variant 1), then *Delete …'s
+   plan*; each part shows only when it has something (no total → no split; nothing spent outside the plan → no list).
+   The month's column stays in place as before and, when it is taller than the window, scrolls on its own. Desktop
+   only, as the column. Waiting for the owner's approval; not built.
 
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's

@@ -24,6 +24,7 @@ import {
   type MonthBudgetData,
 } from '../../features/budget/budgetApi';
 import classes from '../../features/budget/Budget.module.css';
+import panels from './Panels.module.css';
 import {
   DeletePlanDialog,
   EditBudgetDialog,
@@ -183,7 +184,7 @@ function PlannedMonth({ data, panel }: { data: MonthBudgetData; panel: Panel }) 
 
   return (
     <div className={classes.columns}>
-      <div className={classes.left}>
+      <div className={cx(classes.left, panels.left)}>
         <Hero
           lines={lines}
           ratesMissing={data.ratesMissing}
