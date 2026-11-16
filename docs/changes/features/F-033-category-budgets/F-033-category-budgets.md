@@ -360,8 +360,11 @@ approach, show prototype first"): reverted. **Prototype:**
 [Final: Sticky month band](http://localhost:6006/?path=/story/prototypes-f-033-month-head--final&nav=false&panel=false&globals=viewport.value:!undefined)
 (`frontend/src/prototypes/F-033-month-head/`): on the desktop the switcher stays where it is, over the page, as a band
 that stays in place (the page's background behind it, across the whole width), and the groups scroll under it; the
-month's column starts under the switcher, is as wide as it (at least 320 px) and sticks just under the band. Waiting
-for the owner's approval; not built.
+month's column starts under the switcher, is as wide as it (at least 320 px) and sticks just under the band. Owner's
+comments: "the panel should always stay in place, now it scrolls a little because of padding, make cards to fade when
+they are scrolled to the top": the switcher and the column now stick exactly where they start (the page's 28 px top
+padding counted), nothing moves; over the groups' column a 32 px fade under the band, shown only once the page has
+scrolled (a scroll-driven animation). Waiting for the owner's approval; not built.
 
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's

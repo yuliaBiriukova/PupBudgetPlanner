@@ -61,6 +61,7 @@ export function MonthHeadPage() {
   return (
     <div className={cx(classes.page, proto.page)}>
       <div className={proto.band} aria-hidden />
+      <div className={proto.fade} aria-hidden />
       <div className={proto.head}>
         <MonthHead month={month} onMonth={setMonth} />
       </div>
