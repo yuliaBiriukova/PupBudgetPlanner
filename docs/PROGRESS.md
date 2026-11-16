@@ -29,8 +29,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   phone and the desktop 3 times in a row, and the full E2E suite (shell.spec's rail now counts the Budget icon; auth.spec
   failed once on the sign-in rate limit after the hand-run sign-ins and passed on its rerun); screenshots of every
   changed screen and state at 375 and 1440 px, light and dark, looked at; the reminder card and switch in the
-  production build with its service worker; the server's push path once against FCM with a made-up device. Not run: the design check (no prototype
-  left) and a real notification on a phone (owner, after the release set-up).
+  production build with its service worker; the server's push path once against FCM with a made-up device. Not
+  run: the design check (no prototype left) and a real notification on a phone (owner, after the release set-up).
 - Test data: `e2e-…@example.com` people made in `dev` by the E2E runs and the hand-run screenshot specs
   (`e2e-f033-shots-…`, `e2e-f033-push-…`), their accounts, budgets and one made-up push subscription; removed by the
   E2E clean-up teardown at the end of the full run. Local VAPID keys and a reminders secret were added to the API's
