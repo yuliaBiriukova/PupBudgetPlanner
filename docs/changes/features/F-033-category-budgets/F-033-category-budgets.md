@@ -354,6 +354,15 @@ bars as Transactions' "Where it went". Done: the month's column is Transactions'
 *Spent outside the plan* list scrolls, in the app's `FadingScrollArea`; its rows are "Where it went" rows (name, amount,
 share of the month's spending, the red-tinted bar).
 
+Then: "make month select also sticky and the side panel should be the size of the select and have min width as now".
+A first try put the switcher at the top of the month's column; the owner didn't like it ("revert and try another
+approach, show prototype first"): reverted. **Prototype:**
+[Final: Sticky month band](http://localhost:6006/?path=/story/prototypes-f-033-month-head--final&nav=false&panel=false&globals=viewport.value:!undefined)
+(`frontend/src/prototypes/F-033-month-head/`): on the desktop the switcher stays where it is, over the page, as a band
+that stays in place (the page's background behind it, across the whole width), and the groups scroll under it; the
+month's column starts under the switcher, is as wide as it (at least 320 px) and sticks just under the band. Waiting
+for the owner's approval; not built.
+
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's
   spending from categories with and without budgets, the total from all expenses, prefill from the last planned

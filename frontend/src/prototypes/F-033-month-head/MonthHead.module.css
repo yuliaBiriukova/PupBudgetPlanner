@@ -1,0 +1,55 @@
+/* F-033 prototype: the month's switcher stays in place on the desktop, the month's column as wide as it (min 320 px). */
+
+@media (min-width: 64em) {
+  /* One grid for the page: the switcher over the month's column, the groups beside the column */
+  .page {
+    display: grid;
+    grid-template-columns: minmax(320px, max-content) minmax(0, 1fr);
+    column-gap: 48px;
+    align-items: start;
+  }
+
+  /* The page's other states (loading, not planned, an error) take the whole width under the switcher */
+  .page > :not(.band, .head, .columns) {
+    grid-column: 1 / -1;
+  }
+
+  /* The band behind the switcher, across the page and its sides: what scrolls goes under it */
+  .band {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    grid-row: 1;
+    grid-column: 1 / -1;
+    align-self: stretch;
+    margin: 0 -40px;
+    background: var(--mantine-color-body);
+  }
+
+  .head {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    grid-row: 1;
+    grid-column: 1;
+    padding-top: 12px;
+  }
+
+  /* The month's column and the groups are the page grid's own cells */
+  .columns {
+    display: contents;
+  }
+
+  /* Under the switcher once it sticks; only the switcher sets the column's width */
+  .left {
+    top: 72px;
+    grid-row: 2;
+    grid-column: 1;
+    contain: inline-size;
+  }
+
+  .groups {
+    grid-row: 2;
+    grid-column: 2;
+  }
+}

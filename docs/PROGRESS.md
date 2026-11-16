@@ -12,6 +12,9 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - From the owner's comments: the month's column fits and sticks as Transactions' (`FitColumn` moved to `shared/ui`),
   only the *Spent outside the plan* list scrolls (`FadingScrollArea`), its rows styled as "Where it went".
   `transactions.spec.ts` run too, as its column moved.
+- The month's switcher in the column was reverted at the owner's word; a prototype instead (*Prototypes / F-033 Month
+  head*): the switcher a band over the page that stays in place, the column under it as wide as it, at least 320 px.
+  Design check clean. Waiting for the owner's approval.
 - Checks: lint, formatting, typecheck, all unit tests (the budget ones 3 runs), the production and Storybook builds,
   `budget.spec.ts` 3 runs on both viewports; screenshots of the Budget page at 1440 px light and dark looked at. Test
   data: the E2E runs' people, removed by the clean-up.
