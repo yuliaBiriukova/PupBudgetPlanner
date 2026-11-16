@@ -354,11 +354,6 @@ bars as Transactions' "Where it went". Done: the month's column is Transactions'
 *Spent outside the plan* list scrolls, in the app's `FadingScrollArea`; its rows are "Where it went" rows (name, amount,
 share of the month's spending, the red-tinted bar).
 
-Then: "make month select also sticky and the side panel should be the size of the select and have min width as now".
-On the desktop a planned month's switcher (‹ November 2026 ›) heads the month's column and stays in place with it; the
-column is as wide as the switcher (`minmax(320px, max-content)`, the rest of it `contain: inline-size`), at least
-320 px. A month not planned, loading or an error keep the switcher above the page as before.
-
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's
   spending from categories with and without budgets, the total from all expenses, prefill from the last planned

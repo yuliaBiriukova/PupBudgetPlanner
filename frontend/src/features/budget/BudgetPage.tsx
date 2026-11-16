@@ -47,14 +47,10 @@ export function BudgetPage() {
   const { t } = useTranslation();
   const [month, setMonth] = useBudgetMonth();
   const query = useQuery(monthBudgetQuery(month));
-  const wide = useMediaQuery(WIDE_QUERY, false, { getInitialValueInEffect: false });
-  const head = <MonthHead month={month} onMonth={setMonth} />;
-  // A planned month on the desktop: the switcher heads the month's column and stays in place with it (owner's review)
-  const headInColumn = wide && query.data?.planned === true;
 
   return (
     <div className={classes.page}>
-      {!headInColumn && head}
+      <MonthHead month={month} onMonth={setMonth} />
       {query.isPending ? (
         <div
           className={classes.columns}
@@ -90,7 +86,7 @@ export function BudgetPage() {
           </div>
         </div>
       ) : query.data.planned ? (
-        <PlannedMonth data={query.data} head={headInColumn ? head : null} />
+        <PlannedMonth data={query.data} />
       ) : (
         <NotPlanned data={query.data} />
       )}
@@ -147,7 +143,7 @@ function NotPlanned({ data }: { data: MonthBudgetData }) {
   );
 }
 
-function PlannedMonth({ data, head }: { data: MonthBudgetData; head: ReactNode }) {
+function PlannedMonth({ data }: { data: MonthBudgetData }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState<Open | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -182,7 +178,6 @@ function PlannedMonth({ data, head }: { data: MonthBudgetData; head: ReactNode }
       {/* The desktop: the month's column stays in place and fits the window, as Transactions' (FitColumn); only the
           spending outside the plan scrolls inside it */}
       <FitColumn fit={wide} className={classes.left}>
-        {head}
         <Hero
           lines={lines}
           ratesMissing={data.ratesMissing}
