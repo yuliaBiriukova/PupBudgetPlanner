@@ -163,10 +163,10 @@ test('a budget can be removed, a new one added in a group, and a past month open
   // Never planned this month: start it empty
   await expect(page.getByRole('heading', { name: `${monthName} has no budget yet` })).toBeVisible();
   await page.getByRole('button', { name: 'Start empty' }).click();
-  await expect(page.getByRole('button', { name: 'Set a total for the month' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Set a total' })).toBeVisible();
 
   // A total, then a budget for a category of Daily living
-  await page.getByRole('button', { name: 'Set a total for the month' }).click();
+  await page.getByRole('button', { name: 'Set a total' }).click();
   let dialog = page.getByRole('dialog', { name: `${monthName} in total` });
   await dialog.getByLabel(`Budget for ${monthName}`).fill('15000');
   await dialog.getByRole('button', { name: 'Save' }).click();

@@ -1,15 +1,15 @@
 import { Button, Skeleton, UnstyledButton } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconAlertCircle, IconPencil, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
+import { IconAlertCircle, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import tx from '../transactions/TransactionsPage.module.css';
 import { cx } from '../../shared/ui/cx';
+import { FadingScrollArea } from '../../shared/ui/FadingScrollArea';
 import { FitColumn } from '../../shared/ui/FitColumn';
 import {
-  daysLeft,
   linesOf,
   moneyIn,
   monthName,
@@ -17,7 +17,6 @@ import {
   thisMonth,
   type GroupLine,
   type Line,
-  type MonthLines,
 } from './budget';
 import {
   monthBudgetQuery,
@@ -29,6 +28,7 @@ import classes from './Budget.module.css';
 import { DeletePlanDialog, EditBudgetDialog, NewBudgetDialog } from './BudgetDialogs';
 import { Bar, MonthHead } from './parts';
 import { OutsidePlan, PlanSplit } from './MonthColumn';
+import { SlipWithBar } from './BudgetSlip';
 import { useBudgetMonth } from './useBudgetMonth';
 import { ReminderCard } from './Reminder';
 
@@ -50,7 +50,8 @@ export function BudgetPage() {
 
   return (
     <div className={classes.page}>
-      <MonthHead month={month} onMonth={setMonth} />
+      {/* A planned month's switcher is on its slip */}
+      {!query.data?.planned && <MonthHead month={month} onMonth={setMonth} />}
       {query.isPending ? (
         <div
           className={classes.columns}
@@ -86,7 +87,7 @@ export function BudgetPage() {
           </div>
         </div>
       ) : query.data.planned ? (
-        <PlannedMonth data={query.data} />
+        <PlannedMonth data={query.data} onMonth={setMonth} />
       ) : (
         <NotPlanned data={query.data} />
       )}
@@ -143,7 +144,13 @@ function NotPlanned({ data }: { data: MonthBudgetData }) {
   );
 }
 
-function PlannedMonth({ data }: { data: MonthBudgetData }) {
+function PlannedMonth({
+  data,
+  onMonth,
+}: {
+  data: MonthBudgetData;
+  onMonth: (month: string) => void;
+}) {
   const { t } = useTranslation();
   const [open, setOpen] = useState<Open | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -174,148 +181,79 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
   );
 
   return (
-    <div className={classes.columns}>
-      {/* The desktop: the month's column stays in place and fits the window, as Transactions' (FitColumn); only the
-          spending outside the plan scrolls inside it */}
-      <FitColumn fit={wide} className={classes.left}>
-        <Hero
-          lines={lines}
-          ratesMissing={data.ratesMissing}
-          onEdit={() => {
-            setOpen({ kind: 'total' });
-          }}
-        />
-        {wide && <PlanSplit lines={lines} />}
-        {wide && (
-          <OutsidePlan
-            lines={lines}
-            onNew={(groupId, categoryId) => {
-              setOpen({ kind: 'new', groupId, categoryId });
-            }}
-          />
-        )}
-        {wide && (
-          <div className={classes.wideOnly}>
-            {isThisMonth && <ReminderCard />}
-            {deleteButton}
-          </div>
-        )}
-      </FitColumn>
-      <div className={classes.groups}>
-        {groups.map((group) => (
-          <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
-        ))}
-        {/* The phone and tablet: after the groups, so it doesn't push them down */}
-        {!wide && (
-          <div className={classes.narrowOnly}>
-            {isThisMonth && <ReminderCard />}
-            {deleteButton}
-          </div>
-        )}
-      </div>
-      <DeletePlanDialog
-        month={data.month}
-        opened={deleting}
-        onClose={() => {
-          setDeleting(false);
+    <>
+      <SlipWithBar
+        lines={lines}
+        ratesMissing={data.ratesMissing}
+        onMonth={onMonth}
+        onEditTotal={() => {
+          setOpen({ kind: 'total' });
         }}
       />
-      {open?.kind === 'new' && (
-        <NewBudgetDialog
-          key={`${open.groupId}-${open.categoryId ?? ''}`}
-          groupId={open.groupId}
-          categoryId={open.categoryId}
-          data={data}
-          lines={lines}
-          plan={plan}
-          onClose={close}
+      <div className={classes.columns}>
+        {/* The desktop: the month's column sticks under the slim bar and fits the window, as Transactions' (FitColumn);
+          what's in it scrolls as one, so it always fits and never moves (owner's review of PR #115) */}
+        {wide && (
+          <FitColumn fit className={classes.left}>
+            <FadingScrollArea className={classes.rest}>
+              <div className={classes.restInner}>
+                <PlanSplit lines={lines} />
+                <OutsidePlan
+                  lines={lines}
+                  onNew={(groupId, categoryId) => {
+                    setOpen({ kind: 'new', groupId, categoryId });
+                  }}
+                />
+                <div className={classes.wideOnly}>
+                  {isThisMonth && <ReminderCard />}
+                  {deleteButton}
+                </div>
+              </div>
+            </FadingScrollArea>
+          </FitColumn>
+        )}
+        <div className={classes.groups}>
+          {groups.map((group) => (
+            <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
+          ))}
+          {/* The phone and tablet: after the groups, so it doesn't push them down */}
+          {!wide && (
+            <div className={classes.narrowOnly}>
+              {isThisMonth && <ReminderCard />}
+              {deleteButton}
+            </div>
+          )}
+        </div>
+        <DeletePlanDialog
+          month={data.month}
+          opened={deleting}
+          onClose={() => {
+            setDeleting(false);
+          }}
         />
-      )}
-      {open && open.kind !== 'new' && (
-        <EditBudgetDialog
-          key={JSON.stringify(open)}
-          target={open}
-          data={data}
-          lines={lines}
-          plan={plan}
-          onClose={close}
-        />
-      )}
-    </div>
-  );
-}
-
-/** The month's left big and its bar, as the Transactions page's slip. */
-function Hero({
-  lines,
-  ratesMissing,
-  onEdit,
-}: {
-  lines: MonthLines;
-  ratesMissing: boolean;
-  onEdit: () => void;
-}) {
-  const { t } = useTranslation();
-  const money = moneyIn(lines.currency);
-  const { total } = lines;
-  const past = lines.month < thisMonth();
-  const days = daysLeft(lines.month);
-  const missing = ratesMissing && <p className={classes.legend}>{t('budget.ratesMissing')}</p>;
-  if (total.budget == null || total.left == null)
-    return (
-      <section className={classes.hero} aria-label={t('budget.hero.label')}>
-        <p className={classes.heroLabel}>{t('budget.hero.spent')}</p>
-        <p className={classes.heroNum}>{money(total.spent)}</p>
-        <Button
-          variant="quiet"
-          leftSection={<IconPlus size={20} stroke={1.7} />}
-          onClick={onEdit}
-          className={classes.heroButton}
-        >
-          {t('budget.hero.setTotal')}
-        </Button>
-        {missing}
-      </section>
-    );
-  const amounts = { total: money(total.budget) };
-  return (
-    <section className={classes.hero} aria-label={t('budget.hero.label')}>
-      <p className={classes.heroLabel}>
-        {total.left < 0
-          ? t('budget.hero.over', amounts)
-          : past
-            ? t('budget.hero.notSpent', amounts)
-            : t('budget.hero.left', amounts)}
-        <UnstyledButton
-          className={classes.edit}
-          onClick={onEdit}
-          aria-label={t('budget.hero.edit')}
-        >
-          <IconPencil size={16} stroke={1.7} />
-        </UnstyledButton>
-      </p>
-      <p
-        className={cx(classes.heroNum, total.left < 0 ? classes.over : '')}
-        data-testid="month-left"
-      >
-        {money(Math.abs(total.left))}
-      </p>
-      <Bar spent={total.spent} budget={total.budget} thick />
-      <p className={classes.heroText}>
-        {t('budget.hero.spentLine', { amount: money(total.spent) })}{' '}
-        {past
-          ? t('budget.hero.noCarry')
-          : lines.month === thisMonth()
-            ? t('budget.hero.daysToGo', { count: days })
-            : ''}
-      </p>
-      {lines.unplanned != null && lines.unplanned > 0 && (
-        <p className={classes.legend}>
-          {t('budget.hero.unplanned', { amount: money(lines.unplanned) })}
-        </p>
-      )}
-      {missing}
-    </section>
+        {open?.kind === 'new' && (
+          <NewBudgetDialog
+            key={`${open.groupId}-${open.categoryId ?? ''}`}
+            groupId={open.groupId}
+            categoryId={open.categoryId}
+            data={data}
+            lines={lines}
+            plan={plan}
+            onClose={close}
+          />
+        )}
+        {open && open.kind !== 'new' && (
+          <EditBudgetDialog
+            key={JSON.stringify(open)}
+            target={open}
+            data={data}
+            lines={lines}
+            plan={plan}
+            onClose={close}
+          />
+        )}
+      </div>
+    </>
   );
 }
 

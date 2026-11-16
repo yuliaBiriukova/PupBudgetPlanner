@@ -8,7 +8,7 @@
 | Status | Done (2026-11-16) |
 | Branch | `feature/F-033-category-budgets` (planned on `plan/m7-budgets-and-jars`) |
 | Design | 🎨 3 prototype stories required (the Budget page with the month's total, group and category budgets, "left" in the quick-add form and on Transactions, the reminder banner) |
-| Approved | 2026-11-16 — the description and the final prototype (owner: "the final prototype for f-033 is approved, build it"); 2026-11-16 — the column under the month's final prototype (owner: "Approved, build it") |
+| Approved | 2026-11-16 — the description and the final prototype (owner: "the final prototype for f-033 is approved, build it"); 2026-11-16 — the column under the month's final prototype (owner: "Approved, build it"); 2026-11-16 — the header on Transactions' slip with its slim bar (owner: "Approved, build it") |
 
 ## Goal
 A person plans how much they will spend this month in total, in a group and in each category, then sees at any time how much is left in each
@@ -379,7 +379,14 @@ Transactions' left column, and the groups. The slip scrolls away as on Transacti
 The owner picked the slip, "but i'd like it to be sticky as on mobile": as Transactions' phone, once the slip has
 scrolled away a slim dark bar with the torn edge slides in at the top (the month, "18 518 ₴ left", "31 482 ₴ spent", ˄;
 a tap goes back to the top), here on every width: on the desktop as wide as the slip, the month's column sticking under
-it (68 px); on a phone only what's left beside the month. Waiting for the owner's approval; not built.
+it (68 px); on a phone only what's left beside the month. **Approved 2026-11-16** (owner: "Approved, build it").
+
+**Built (2026-11-16):** `features/budget/BudgetSlip.tsx` (`SlipWithBar`) heads a planned month on every width, with
+Transactions' slip classes; the old figure block (`Hero`) and its texts are gone, the switcher above the page stays
+for a month not planned, loading or an error. On the desktop the month's column sticks under the slim bar (68 px) and
+everything in it scrolls as one (`FadingScrollArea`), so it always fits and never moves; `shared/ui/FitColumn` now
+fits a column at its own CSS top (Transactions' stays 16 px). The prototype folder
+`frontend/src/prototypes/F-033-month-head/` is deleted.
 
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's

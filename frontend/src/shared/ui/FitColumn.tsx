@@ -49,7 +49,9 @@ export function FitColumn({
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const box = main.getBoundingClientRect();
-        const top = Math.max(el.getBoundingClientRect().top, box.top + COLUMN_GAP_PX);
+        // Where it sticks: its CSS top (Transactions' 16 px, Budget's under its slim bar)
+        const stuck = parseFloat(getComputedStyle(el).top) || COLUMN_GAP_PX;
+        const top = Math.max(el.getBoundingClientRect().top, box.top + stuck);
         const receipts = el.nextElementSibling?.getBoundingClientRect().bottom ?? Infinity;
         const bottom = Math.min(box.bottom - COLUMN_GAP_PX, receipts);
         el.style.maxHeight = `${String(Math.round(Math.max(bottom - top, leastHeight(el))))}px`;

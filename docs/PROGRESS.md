@@ -2,6 +2,19 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-16 (F-033: the header on the slip, built)
+
+**Done**
+- The owner approved the slip header with its slim bar ("Approved, build it"; recorded in the F-033 description and
+  DESIGN_RULES): a planned month's header is Transactions' dark slip (‹ month ›, *Change total*, what's left and spent,
+  the bar, the days to go); once it scrolls away a slim bar at the top on every width; on the desktop the month's
+  column sticks under it and scrolls as one, never moving. `FitColumn` fits at the column's own CSS top. The
+  prototypes are deleted.
+- Checks: lint, formatting, typecheck, all unit tests (the budget ones 3 runs), the production and Storybook builds,
+  `budget.spec.ts` 3 runs on both viewports and `transactions.spec.ts` (its column's fitting changed); screenshots of
+  the Budget page on phone and desktop, light and dark, at the top and scrolled to the end, looked at. Test data: the
+  `e2e-slip-shots-…` people of a hand-run spec and the E2E runs' people, removed by the clean-up.
+
 ## 2026-11-16 (F-033: the column under the month, built)
 
 **Done**

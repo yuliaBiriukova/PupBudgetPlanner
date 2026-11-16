@@ -41,8 +41,12 @@ describe('the Budget page', () => {
     renderApp('/budget');
 
     expect(await screen.findByTestId('month-left', {}, LOADED)).toHaveTextContent('18 518 ₴');
-    expect(screen.getByText('Spent 31 482 ₴.', { exact: false })).toBeInTheDocument();
-    expect(screen.getByText('2 500 ₴ of the total isn’t in any group.')).toBeInTheDocument();
+    // On the slip, as Transactions' (owner's review of PR #115): the month, what's left and spent, the days to go
+    const slip = screen.getByRole('region', { name: 'The month' });
+    expect(within(slip).getByRole('heading', { level: 1 })).toHaveTextContent(month.slice(0, 4));
+    expect(slip).toHaveTextContent('Spent31 482 ₴');
+    expect(slip).toHaveTextContent('2 500 ₴ of the total isn’t in any group.');
+    expect(within(slip).getByRole('button', { name: 'Change total' })).toBeInTheDocument();
     const daily = screen.getByRole('region', { name: 'Daily living' });
     expect(within(daily).getByRole('button', { name: /^Eating out/ })).toHaveTextContent(
       '607 ₴ over',

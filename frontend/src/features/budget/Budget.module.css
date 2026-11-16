@@ -412,17 +412,46 @@
   }
 
   /* As tall as its content, not the groups beside it, or it has no room to stay in place (owner's review of PR #115) */
+  /* Sticks under the slim bar (52 px and 16 px of room); at most the window's room left (FitColumn sets it as the page
+     scrolls), and what's in it scrolls as one, so it never has to move */
   .left {
     position: sticky;
-    top: 16px;
+    top: 68px;
     align-self: start;
-    /* At most the window's room (FitColumn sets it as the page scrolls); the spending outside the plan scrolls in it */
     display: flex;
     flex-direction: column;
   }
 
-  .left > * {
-    flex: none;
+  .rest {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 120px;
+    /* Its bar in the gap beside it, as Transactions' "Where it went" */
+    margin: 0 -20px 0 -8px;
+  }
+
+  /* The column has only a max-height: the viewport takes the scroll area's room, not all of its content (B-007) */
+  .rest > :global(.mantine-ScrollArea-viewport) {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+  }
+
+  .restInner {
+    display: grid;
+    gap: 24px;
+    padding: 0 20px 0 8px;
+  }
+
+  /* The slim bar on every width (Transactions shows its only below the desktop), as wide as the slip */
+  .slimWrap.slimWrap {
+    display: block;
+  }
+
+  .slimBar.slimBar {
+    right: 0;
+    left: 0;
   }
 
   .wideOnly {
@@ -430,6 +459,33 @@
   }
 
   .narrowOnly {
+    display: none;
+  }
+}
+
+/* ---------- The month on Transactions' slip (owner's review of PR #115) ---------- */
+.slip {
+  margin-bottom: 24px;
+}
+
+.slipTitle {
+  margin: 0;
+  padding: 0 8px;
+}
+
+/* Over the total: the slip's red, as its bar past the budget */
+.slipOver {
+  color: var(--pup-card-solid-debt);
+}
+
+.slimSpent {
+  color: var(--pup-card-solid-muted);
+  font-weight: 400;
+}
+
+/* A phone: the month and what's left in the slim bar; what's spent is on the slip */
+@media (max-width: 30em) {
+  .slimSpent {
     display: none;
   }
 }

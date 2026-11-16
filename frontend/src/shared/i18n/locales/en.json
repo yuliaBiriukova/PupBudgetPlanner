@@ -1015,18 +1015,12 @@
       "error": "Couldn’t plan the month. Check the connection and try again."
     },
     "hero": {
-      "label": "The month",
-      "spent": "Spent this month",
-      "setTotal": "Set a total for the month",
       "left": "Left of {{total}}",
       "over": "Over of {{total}}",
       "notSpent": "Not spent of {{total}}",
-      "edit": "Change the month’s total",
-      "spentLine": "Spent {{amount}}.",
       "daysToGo_one": "Today is the last day.",
       "daysToGo_other": "{{count}} days to go.",
-      "noCarry": "What’s left doesn’t carry over to the next month.",
-      "unplanned": "{{amount}} of the total isn’t in any group."
+      "noCarry": "What’s left doesn’t carry over to the next month."
     },
     "line": {
       "of": "{{spent}} of {{budget}}",
@@ -1034,6 +1028,18 @@
       "sumNote": "its categories’ budgets",
       "another": "Budget for another {{group}} category",
       "first": "Budget for a category in {{group}}"
+    },
+    "slip": {
+      "label": "The month",
+      "spent": "Spent",
+      "setTotal": "Set a total",
+      "changeTotal": "Change total",
+      "share": "{{share}} % of the total spent",
+      "unplanned": "<b>{{amount}}</b> of the total isn’t in any group.",
+      "leftShort": "{{amount}} left",
+      "overShort": "{{amount}} over",
+      "spentShort": "{{amount}} spent",
+      "backToTop": "Back to the top"
     },
     "split": {
       "title": "Where the {{total}} goes",
