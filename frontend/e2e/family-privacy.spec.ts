@@ -125,11 +125,11 @@ test('what a member keeps is left out of the others’ money, and they still see
     const card = await account(andriyApi, 'Card');
     const pocket = await account(andriyApi, 'Pocket');
     const box = await account(andriyApi, 'Box');
-    const groceries = await expenseCategory(andriyApi, 'Groceries');
+    const food = await expenseCategory(andriyApi, 'Food');
     const gifts = await expenseCategory(andriyApi, 'Gifts');
-    await spend(andriyApi, card, groceries, 100);
-    await spend(andriyApi, pocket, groceries, 20);
-    await spend(andriyApi, box, groceries, 7);
+    await spend(andriyApi, card, food, 100);
+    await spend(andriyApi, pocket, food, 20);
+    await spend(andriyApi, box, food, 7);
     await spend(andriyApi, card, gifts, 300);
     await send(andriyApi, 'post', '/api/transactions', {
       type: 'Transfer',
@@ -173,7 +173,7 @@ test('what a member keeps is left out of the others’ money, and they still see
     );
     expect(family.members.find((member) => member.id === andriyId)?.keepsPrivate).toBe(true);
 
-    // His lines: the card's groceries, and the transfer into "a private account"; not the pocket, box or gifts
+    // His lines: the card's food, and the transfer into "a private account"; not the pocket, box or gifts
     const range = `from=${today}&to=${today}`;
     const lines = await get<{ items: Line[] }>(
       page.request,
@@ -187,7 +187,7 @@ test('what a member keeps is left out of the others’ money, and they still see
     );
     expect(hiddenOnly.items).toEqual([]);
 
-    // His totals: the pocket's groceries count, the box's and the gifts don't
+    // His totals: the pocket's food count, the box's and the gifts don't
     const summary = await get<{ spent: number; count: number }>(
       page.request,
       `/api/transactions/summary?who=${andriyId}&${range}`,

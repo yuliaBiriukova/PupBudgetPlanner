@@ -28,6 +28,8 @@ change later (Q-011), and nobody should end up with an account but no categories
 
 - Changing the default set later is a code change in `DefaultCategories` plus its test. Existing people keep
   their categories; giving them new ones is a separate data migration.
+  - F-032 (2026-11-16) did this: a generic set replaced the spreadsheet's for new accounts only. Tests that need
+    the spreadsheet's set as data use their own copy (`SpreadsheetCategories` in the Domain tests).
 - The backfill uses `gen_random_uuid()` (random UUIDs); categories created by the app use UUID v7. Both are
   plain `uuid` values.
 - The transaction makes sign-up a few rows heavier (7 groups, 33 categories) in one round of inserts.

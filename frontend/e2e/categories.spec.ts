@@ -66,7 +66,7 @@ test('a new person sees the default categories in the report order', async ({ pa
       .click();
   }
   await expect(page.getByRole('heading', { level: 1, name: en.nav.categories })).toBeVisible();
-  await expect(page.getByText('33 categories in 7 groups')).toBeVisible();
+  await expect(page.getByText('41 categories in 7 groups')).toBeVisible();
 
   if (isMobile) {
     // The groups in the report's order, all folded but Income
@@ -75,8 +75,8 @@ test('a new person sees the default categories in the report order', async ({ pa
       /Income/,
       /Home expenses/,
       /Daily living/,
+      /Car/,
       /Health/,
-      /Education/,
       /Entertainment/,
       /Subscriptions/,
     ]);
@@ -87,9 +87,7 @@ test('a new person sees the default categories in the report order', async ({ pa
     // Several groups open at once, and they stay open after a reload
     await home.click();
     await page.getByRole('button', { name: /^Health/ }).click();
-    await expect(
-      page.getByRole('listitem').filter({ hasText: 'Medicine/Drugs/Skincare' }),
-    ).toBeVisible();
+    await expect(page.getByRole('listitem').filter({ hasText: 'Doctor/Dentist' })).toBeVisible();
     await page.reload();
     await expect(page.getByRole('button', { expanded: true })).toHaveText([
       /Income/,
@@ -102,7 +100,12 @@ test('a new person sees the default categories in the report order', async ({ pa
     // The list of groups, Income picked first; another group's categories beside it
     const index = page.getByRole('navigation', { name: en.categories.groups });
     await expect(index.getByRole('button', { name: /^(?!Add)/ })).toHaveCount(7);
-    await expect(openTags(page, false, 'Income')).toHaveText(['Salary', 'Gifts', 'Other']);
+    await expect(openTags(page, false, 'Income')).toHaveText([
+      'Salary',
+      'Side income',
+      'Gifts',
+      'Other',
+    ]);
 
     await index.getByRole('button', { name: /^Health/ }).click();
     await expect(index.getByRole('button', { name: /^Health/ })).toHaveAttribute(
@@ -113,9 +116,9 @@ test('a new person sees the default categories in the report order', async ({ pa
     await expect(health).toContainText('Expenses, 4 categories');
     await expect(openTags(page, false, 'Health')).toHaveText([
       'Doctor/Dentist',
-      'Medicine/Drugs/Skincare',
-      'Emergency',
+      'Medicine',
       'Therapy',
+      'Other',
     ]);
   }
 });
@@ -126,19 +129,20 @@ test('a person adds, renames, reorders, moves and deletes a category and a group
 }) => {
   expect((await signUpThroughApi(page.request, newPerson('categories-edit'))).ok()).toBe(true);
   await page.goto('/categories');
-  await expect(page.getByText('33 categories in 7 groups')).toBeVisible();
+  await expect(page.getByText('41 categories in 7 groups')).toBeVisible();
 
-  // A new category at the end of Education
-  await openGroup(page, isMobile, 'Education');
-  await page.getByRole('button', { name: 'Add a category to Education' }).click();
+  // A new category at the end of Health
+  await openGroup(page, isMobile, 'Health');
+  await page.getByRole('button', { name: 'Add a category to Health' }).click();
   let dialog = page.getByRole('dialog', { name: sheet.newCategory });
   await dialog.getByRole('textbox', { name: sheet.name }).fill('Swimming');
   await dialog.getByRole('button', { name: sheet.add }).click();
   await expect(page.getByText('“Swimming” added')).toBeVisible();
-  await expect(openTags(page, isMobile, 'Education')).toHaveText([
-    'English lessons',
-    'Piano lessons',
-    'Driving',
+  await expect(openTags(page, isMobile, 'Health')).toHaveText([
+    'Doctor/Dentist',
+    'Medicine',
+    'Therapy',
+    'Other',
     'Swimming',
   ]);
 
@@ -147,32 +151,35 @@ test('a person adds, renames, reorders, moves and deletes a category and a group
   dialog = page.getByRole('dialog', { name: sheet.editCategory });
   await dialog.getByRole('textbox', { name: sheet.name }).fill('Pool');
   const up = dialog.getByRole('button', { name: 'Move “Pool” up' });
-  for (let step = 0; step < 3; step++) {
+  for (let step = 0; step < 4; step++) {
     await up.focus();
     await page.keyboard.press('Enter');
   }
   await expect(up).toBeDisabled();
   await dialog.getByRole('button', { name: sheet.save }).click();
   await expect(page.getByText('“Pool” saved')).toBeVisible();
-  await expect(openTags(page, isMobile, 'Education')).toHaveText([
+  await expect(openTags(page, isMobile, 'Health')).toHaveText([
     'Pool',
-    'English lessons',
-    'Piano lessons',
-    'Driving',
+    'Doctor/Dentist',
+    'Medicine',
+    'Therapy',
+    'Other',
   ]);
 
   // Moved to another group of its kind, at its end
   await page.getByRole('button', { name: 'Pool', exact: true }).click();
   dialog = page.getByRole('dialog', { name: sheet.editCategory });
-  await dialog.getByRole('radio', { name: 'Health' }).click();
+  await dialog.getByRole('radio', { name: 'Entertainment' }).click();
   await dialog.getByRole('button', { name: sheet.save }).click();
-  await expect(page.getByText('“Pool” moved to Health')).toBeVisible();
-  await openGroup(page, isMobile, 'Health');
-  await expect(openTags(page, isMobile, 'Health')).toHaveText([
-    'Doctor/Dentist',
-    'Medicine/Drugs/Skincare',
-    'Emergency',
-    'Therapy',
+  await expect(page.getByText('“Pool” moved to Entertainment')).toBeVisible();
+  await openGroup(page, isMobile, 'Entertainment');
+  await expect(openTags(page, isMobile, 'Entertainment')).toHaveText([
+    'Activities',
+    'Books',
+    'Games',
+    'Hobbies',
+    'Vacation',
+    'Other',
     'Pool',
   ]);
 
@@ -191,34 +198,34 @@ test('a person adds, renames, reorders, moves and deletes a category and a group
   // A new expense group, renamed and moved first among the expense groups, then deleted while empty
   await page.getByRole('button', { name: en.categories.edit.addGroup.Expense }).click();
   dialog = page.getByRole('dialog', { name: sheet.newGroup });
-  await dialog.getByRole('textbox', { name: sheet.name }).fill('Car');
+  await dialog.getByRole('textbox', { name: sheet.name }).fill('Pets');
   await dialog.getByRole('button', { name: sheet.add }).click();
-  await expect(page.getByText('Group “Car” added')).toBeVisible();
+  await expect(page.getByText('Group “Pets” added')).toBeVisible();
 
-  await editGroup(page, isMobile, 'Car');
+  await editGroup(page, isMobile, 'Pets');
   dialog = page.getByRole('dialog', { name: sheet.editGroup });
-  await dialog.getByRole('textbox', { name: sheet.name }).fill('Auto');
+  await dialog.getByRole('textbox', { name: sheet.name }).fill('Animals');
   for (let step = 0; step < 6; step++)
-    await dialog.getByRole('button', { name: 'Move “Auto” up' }).click();
+    await dialog.getByRole('button', { name: 'Move “Animals” up' }).click();
   await dialog.getByRole('button', { name: sheet.save }).click();
-  await expect(page.getByText('Group “Auto” saved')).toBeVisible();
+  await expect(page.getByText('Group “Animals” saved')).toBeVisible();
   const order = isMobile
     ? page.getByRole('heading', { level: 2 })
     : page
         .getByRole('navigation', { name: en.categories.groups })
         .getByRole('button', { name: /^(?!Add)/ });
-  await expect(order.nth(1)).toHaveText(/^Auto/);
+  await expect(order.nth(1)).toHaveText(/^Animals/);
 
-  await editGroup(page, isMobile, 'Auto');
+  await editGroup(page, isMobile, 'Animals');
   dialog = page.getByRole('dialog', { name: sheet.editGroup });
   await expect(dialog).toContainText(sheet.groupDelete);
   await dialog.getByRole('button', { name: sheet.delete }).click();
   await page
-    .getByRole('dialog', { name: 'Delete the group “Auto”?' })
+    .getByRole('dialog', { name: 'Delete the group “Animals”?' })
     .getByRole('button', { name: sheet.delete })
     .click();
-  await expect(page.getByText('Group “Auto” deleted')).toBeVisible();
-  await expect(page.getByText('33 categories in 7 groups')).toBeVisible();
+  await expect(page.getByText('Group “Animals” deleted')).toBeVisible();
+  await expect(page.getByText('41 categories in 7 groups')).toBeVisible();
 });
 
 async function post<T>(request: APIRequestContext, url: string, data: object): Promise<T> {
@@ -246,55 +253,55 @@ test('a hidden category leaves the quick-add form, stays in the report and comes
   const categories = (await (await page.request.get('/api/categories')).json()) as {
     groups: { categories: { id: string; name: string }[] }[];
   };
-  const groceries = categories.groups
+  const food = categories.groups
     .flatMap((group) => group.categories)
-    .find((category) => category.name === 'Groceries');
+    .find((category) => category.name === 'Food');
   await post(page.request, '/api/transactions', {
     type: 'Expense',
     date: today,
     note: null,
     accountId: wallet.id,
-    categoryId: groceries?.id,
+    categoryId: food?.id,
     amount: 640,
   });
 
   // Hidden, not deleted: it has a transaction
   await page.goto('/categories');
   await openGroup(page, isMobile, 'Daily living');
-  await page.getByRole('button', { name: 'Groceries', exact: true }).click();
+  await page.getByRole('button', { name: 'Food', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: sheet.editCategory });
   await expect(dialog).toContainText('It has 1 transaction, so it’s hidden, not deleted.');
   await dialog.getByRole('button', { name: sheet.hide }).click();
   await page
-    .getByRole('dialog', { name: 'Hide “Groceries”?' })
+    .getByRole('dialog', { name: 'Hide “Food”?' })
     .getByRole('button', { name: sheet.hide })
     .click();
-  await expect(page.getByText('“Groceries” hidden. Its transactions keep it')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Groceries, hidden' })).toBeVisible();
+  await expect(page.getByText('“Food” hidden. Its transactions keep it')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Food, hidden' })).toBeVisible();
 
   // The quick-add form doesn't offer it
   await openAddForm(page, isMobile);
   const form = en.transactions.form;
   const add = page.getByRole('dialog', { name: 'Add expense' });
   await add.getByRole('button', { name: form.allCategories }).click();
-  await page.getByLabel(form.searchCategories).fill('groc');
-  await expect(page.getByText('No category matches “groc”.')).toBeVisible();
+  await page.getByLabel(form.searchCategories).fill('food');
+  await expect(page.getByText('No category matches “food”.')).toBeVisible();
   await page.keyboard.press('Escape');
   await page.keyboard.press('Escape');
 
   // The month's report still shows it with its amount
   await page.goto(`/reports?month=${today.slice(0, 7)}`);
-  await expect(page.getByRole('region', { name: 'Daily living' })).toContainText(/Groceries/);
+  await expect(page.getByRole('region', { name: 'Daily living' })).toContainText(/Food/);
   await expect(page.getByRole('region', { name: 'Daily living' })).toContainText(/640/);
 
   // Shown again, at the end of its group
   await page.goto('/categories');
   await openGroup(page, isMobile, 'Daily living');
-  await page.getByRole('button', { name: 'Groceries, hidden' }).click();
+  await page.getByRole('button', { name: 'Food, hidden' }).click();
   await page
-    .getByRole('dialog', { name: '“Groceries” is hidden' })
+    .getByRole('dialog', { name: '“Food” is hidden' })
     .getByRole('button', { name: sheet.showAgain })
     .click();
-  await expect(page.getByText('“Groceries” is back in Daily living')).toBeVisible();
-  await expect(openTags(page, isMobile, 'Daily living').last()).toHaveText('Groceries');
+  await expect(page.getByText('“Food” is back in Daily living')).toBeVisible();
+  await expect(openTags(page, isMobile, 'Daily living').last()).toHaveText('Food');
 });

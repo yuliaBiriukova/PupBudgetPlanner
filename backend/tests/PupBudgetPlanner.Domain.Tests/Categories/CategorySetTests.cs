@@ -7,7 +7,7 @@ public sealed class CategorySetTests
 {
     private static readonly Guid Olena = Guid.CreateVersion7();
 
-    private readonly CategorySet set = new(Olena, DefaultCategories.CreateFor(Olena));
+    private readonly CategorySet set = new(Olena, SpreadsheetCategories.CreateFor(Olena));
 
     private CategoryGroup Group(string name) => set.Groups.Single(group => group.Name == name);
 

@@ -100,21 +100,19 @@ people the owner invites can sign up (F-028); later it can open to everyone.
 
 ## Default categories
 
-Based on the 2026 spreadsheet (Yulia's and Vlad's sheets merged; "Therapist" and "Therapy" are the
-same category; meter categories such as electricity and water are dropped — they are part of "Bills").
+A generic set every person gets when they sign up, family included (F-032, agreed with the owner 2026-11-16).
+Every group ends with "Other". People add, rename and remove their own in Categories (F-029).
 
 | Group | Categories |
 |-------|-----------|
-| Income | Salary, Gifts, Other |
-| Home expenses | Rent, Bills, Home supplies, Electronics, Bank commission, Gifts, Tax, Delivery, Other |
-| Daily living | Groceries, Clothing, Eating out, Transportation, Salon/Barber, Sport |
-| Health | Doctor/Dentist, Medicine/Drugs/Skincare, Emergency, Therapy |
-| Education | English lessons, Piano lessons, Driving |
-| Entertainment | Activities, Books, Games, Hobbies, Vacation |
-| Subscriptions | Spotify, Phone, Subscriptions |
+| Income | Salary, Side income, Gifts, Other |
+| Home expenses | Rent, Bills, Home supplies, Electronics, Bank fees, Tax, Delivery, Services, Other |
+| Daily living | Food, Toiletries, Clothing, Eating out, Transportation, Self-care, Sport, Gifts, Other |
+| Car | Fuel, Parking, Service & repairs, Insurance, Other |
+| Health | Doctor/Dentist, Medicine, Therapy, Other |
+| Entertainment | Activities, Books, Games, Hobbies, Vacation, Other |
+| Subscriptions | Music & streaming, Phone, Software, Other |
 
-> "Emergency" was under Home expenses in Vlad's sheet; the default puts it under Health (agreed 2026-10-27).
-
-> Some of these are the owner's own rather than generic: Bank commission, English / Piano lessons, Driving,
-> Spotify, Emergency. They stay the default while only the family uses the app (owner's choice, 2026-10-28).
-> A generic default set for other people is planned after the MVP (Q-011).
+> Until F-032 the default was the 2026 spreadsheet's set (Yulia's and Vlad's sheets merged), with some personal
+> categories (Bank commission, English / Piano lessons, Driving, Spotify, Emergency). Accounts made before F-032
+> keep the set they got; nothing in them was changed.

@@ -2,13 +2,13 @@ using PupBudgetPlanner.Domain.Categories;
 
 namespace PupBudgetPlanner.Domain.Tests.Categories;
 
-/// <summary>The default set every new person gets (F-013, PRODUCT.md "Default categories").</summary>
+/// <summary>The default set every new person gets (F-013, F-032, PRODUCT.md "Default categories").</summary>
 public sealed class DefaultCategoriesTests
 {
     private static readonly Guid Olena = Guid.CreateVersion7();
 
     [Fact]
-    public void It_has_the_spreadsheet_groups_and_categories_in_their_order()
+    public void It_has_the_agreed_groups_and_categories_in_their_order()
     {
         var groups = DefaultCategories.CreateFor(Olena);
 
@@ -16,23 +16,22 @@ public sealed class DefaultCategoriesTests
                 $"{group.Name} ({group.Kind}): " + string.Join(", ",
                     group.Categories.OrderBy(category => category.SortOrder).Select(category => category.Name)))
             .Should().Equal(
-                "Income (Income): Salary, Gifts, Other",
-                "Home expenses (Expense): Rent, Bills, Home supplies, Electronics, Bank commission, Gifts, Tax, Delivery, Other",
-                "Daily living (Expense): Groceries, Clothing, Eating out, Transportation, Salon/Barber, Sport",
-                "Health (Expense): Doctor/Dentist, Medicine/Drugs/Skincare, Emergency, Therapy",
-                "Education (Expense): English lessons, Piano lessons, Driving",
-                "Entertainment (Expense): Activities, Books, Games, Hobbies, Vacation",
-                "Subscriptions (Expense): Spotify, Phone, Subscriptions");
+                "Income (Income): Salary, Side income, Gifts, Other",
+                "Home expenses (Expense): Rent, Bills, Home supplies, Electronics, Bank fees, Tax, Delivery, Services, Other",
+                "Daily living (Expense): Food, Toiletries, Clothing, Eating out, Transportation, Self-care, Sport, Gifts, Other",
+                "Car (Expense): Fuel, Parking, Service & repairs, Insurance, Other",
+                "Health (Expense): Doctor/Dentist, Medicine, Therapy, Other",
+                "Entertainment (Expense): Activities, Books, Games, Hobbies, Vacation, Other",
+                "Subscriptions (Expense): Music & streaming, Phone, Software, Other");
     }
 
     [Fact]
-    public void Emergency_is_under_health()
+    public void Every_group_ends_with_other()
     {
         var groups = DefaultCategories.CreateFor(Olena);
 
-        groups.Where(group => group.Categories.Any(category => category.Name == "Emergency"))
-            .Select(group => group.Name)
-            .Should().Equal("Health");
+        groups.Should().AllSatisfy(group =>
+            group.Categories.MaxBy(category => category.SortOrder)!.Name.Should().Be("Other"));
     }
 
     [Fact]

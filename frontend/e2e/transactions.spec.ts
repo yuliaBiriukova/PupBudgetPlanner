@@ -100,12 +100,12 @@ test('a person adds an expense from an account’s card, changes it, deletes it,
   await typeAmount(dialog, isMobile, '250');
   // No transactions yet: the category is found in All categories
   await dialog.getByRole('button', { name: form.allCategories }).click();
-  await page.getByLabel(form.searchCategories).fill('groc');
+  await page.getByLabel(form.searchCategories).fill('food');
   await page
     .getByRole('dialog', { name: form.category })
-    .getByRole('button', { name: 'Groceries' })
+    .getByRole('button', { name: 'Food' })
     .click();
-  await expect(dialog.getByRole('radio', { name: 'Groceries' })).toBeChecked();
+  await expect(dialog.getByRole('radio', { name: 'Food' })).toBeChecked();
   await dialog.getByLabel(form.note, { exact: true }).fill('Silpo');
   await saveButton(dialog, isMobile, form.saveExpense).click();
 
@@ -123,10 +123,8 @@ test('a person adds an expense from an account’s card, changes it, deletes it,
 
   // On the Transactions page: change it
   await page.goto('/transactions');
-  // On the day's receipt (the desktop's Where it went has a Groceries line too)
-  const row = page
-    .getByRole('region', { name: /^Today, / })
-    .getByRole('button', { name: /Groceries/ });
+  // On the day's receipt (the desktop's Where it went has a Food line too)
+  const row = page.getByRole('region', { name: /^Today, / }).getByRole('button', { name: /Food/ });
   await expect(row).toContainText('Wallet, Silpo');
   await expect(row).toContainText('−250 ₴');
   await row.click();
@@ -279,7 +277,7 @@ test('a person finds the month’s eating out, changes one on its receipt and de
   expect(response.ok()).toBe(true);
   await addAccount(page, 'Mono black', 5000, 'Bank');
   await addAccount(page, 'Wallet', 1000, 'Cash');
-  await addExpense(page, 'Mono black', 'Groceries', 612, 'Silpo');
+  await addExpense(page, 'Mono black', 'Food', 612, 'Silpo');
   await addExpense(page, 'Wallet', 'Eating out', 380, 'Lunch');
   await addExpense(page, 'Mono black', 'Eating out', 150, 'Coffee');
 
@@ -303,9 +301,9 @@ test('a person finds the month’s eating out, changes one on its receipt and de
       .click();
   }
   await expect(page).toHaveURL(/category=/);
-  // The picked category's lines first, so "no Groceries" isn't seen while the list is drawn again (I-033)
+  // The picked category's lines first, so "no Food" isn't seen while the list is drawn again (I-033)
   await expect(receipt.getByRole('button', { name: /^Eating out/ }).first()).toBeVisible();
-  await expect(receipt.getByRole('button', { name: /^Groceries/ })).toHaveCount(0);
+  await expect(receipt.getByRole('button', { name: /^Food/ })).toHaveCount(0);
   await expect(totals).toContainText(en.transactions.totals.spentPicked);
   await expect(totals).toContainText('530 ₴');
 
@@ -354,10 +352,10 @@ test('a note used before is suggested while typing the next one; two letters and
   let dialog = page.getByRole('dialog', { name: 'Add expense' });
   await typeAmount(dialog, isMobile, '612');
   await dialog.getByRole('button', { name: form.allCategories }).click();
-  await page.getByLabel(form.searchCategories).fill('groc');
+  await page.getByLabel(form.searchCategories).fill('food');
   await page
     .getByRole('dialog', { name: form.category })
-    .getByRole('button', { name: 'Groceries' })
+    .getByRole('button', { name: 'Food' })
     .click();
   await dialog.getByLabel(form.note, { exact: true }).fill('Silpo, wine for Friday');
   await saveButton(dialog, isMobile, form.saveExpense).click();
@@ -390,7 +388,7 @@ test('on the phone a new note leaves no empty gap above Save; an earlier one’s
   const response = await signUpThroughApi(page.request, newPerson('note-gap'));
   expect(response.ok()).toBe(true);
   await addAccount(page, 'Mono black', 5000, 'Bank');
-  await addExpense(page, 'Mono black', 'Groceries', 612, 'Silpo, wine for Friday');
+  await addExpense(page, 'Mono black', 'Food', 612, 'Silpo, wine for Friday');
 
   // The room the phone's keyboard leaves (B-009)
   await page.setViewportSize({ width: 375, height: 520 });
@@ -438,7 +436,7 @@ test('on the phone Save comes right after the Note’s list, short or long, with
   expect(response.ok()).toBe(true);
   await addAccount(page, 'Mono black', 5000, 'Bank');
   for (const note of ['Silpo', 'Silpo, wine for Friday', 'Simcard top-up', 'Sushi', 'Salon'])
-    await addExpense(page, 'Mono black', 'Groceries', 100, note);
+    await addExpense(page, 'Mono black', 'Food', 100, note);
 
   // The room the phone's keyboard leaves (B-014)
   await page.setViewportSize({ width: 375, height: 520 });
@@ -499,10 +497,10 @@ test('a day picked in the calendar: Add transaction starts on it, and the saved 
   await expect(dialog.getByRole('radio', { name: day.format('dddd, D MMM YYYY') })).toBeChecked();
   await typeAmount(dialog, isMobile, '120');
   await dialog.getByRole('button', { name: form.allCategories }).click();
-  await page.getByLabel(form.searchCategories).fill('groc');
+  await page.getByLabel(form.searchCategories).fill('food');
   await page
     .getByRole('dialog', { name: form.category })
-    .getByRole('button', { name: 'Groceries' })
+    .getByRole('button', { name: 'Food' })
     .click();
   await saveButton(dialog, isMobile, form.saveExpense).click();
 
@@ -510,7 +508,7 @@ test('a day picked in the calendar: Add transaction starts on it, and the saved 
   await expect(
     page
       .getByRole('region', { name: new RegExp(`, ${day.format('D MMM')}$`) })
-      .getByRole('button', { name: /Groceries/ }),
+      .getByRole('button', { name: /Food/ }),
   ).toContainText('−120 ₴');
 });
 
@@ -650,7 +648,7 @@ test('the account list shows each account’s bank and currency, the one used la
   await addAccount(page, 'Mono', 500, 'Bank', 'USD');
   await addAccount(page, 'Wallet', 300, 'Cash');
   // The dollar Mono used, then the Wallet: the Wallet is used last, the hryvnia Mono never
-  await addExpense(page, 'Mono', 'Groceries', 20, 'Silpo', 'USD');
+  await addExpense(page, 'Mono', 'Food', 20, 'Silpo', 'USD');
   await addExpense(page, 'Wallet', 'Eating out', 80, 'Lunch');
 
   await page.goto('/transactions');
@@ -705,16 +703,16 @@ test('a receipt’s cents added up on the amount: the sum is saved rounded, on t
   await typeAmount(dialog, isMobile, '12.30+45.80');
   await expect(dialog).toContainText('= 58 ₴');
   await dialog.getByRole('button', { name: form.allCategories }).click();
-  await page.getByLabel(form.searchCategories).fill('groc');
+  await page.getByLabel(form.searchCategories).fill('food');
   await page
     .getByRole('dialog', { name: form.category })
-    .getByRole('button', { name: 'Groceries' })
+    .getByRole('button', { name: 'Food' })
     .click();
   await saveButton(dialog, isMobile, form.saveExpense).click();
 
   await expect(page.getByText('Expense saved. Mono black:')).toBeVisible();
   await expect(
-    page.getByRole('region', { name: /^Today, / }).getByRole('button', { name: /Groceries/ }),
+    page.getByRole('region', { name: /^Today, / }).getByRole('button', { name: /Food/ }),
   ).toContainText('−58 ₴');
 });
 
@@ -882,10 +880,10 @@ test('the saved toast is in sight: at the top under the header on the phone, cle
   const dialog = await openAddForm(page, isMobile);
   await typeAmount(dialog, isMobile, '125');
   await dialog.getByRole('button', { name: form.allCategories }).click();
-  await page.getByLabel(form.searchCategories).fill('groc');
+  await page.getByLabel(form.searchCategories).fill('food');
   await page
     .getByRole('dialog', { name: form.category })
-    .getByRole('button', { name: 'Groceries' })
+    .getByRole('button', { name: 'Food' })
     .click();
   await saveButton(dialog, isMobile, form.saveExpense).click();
 
