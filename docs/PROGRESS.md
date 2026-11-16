@@ -2,6 +2,40 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-16 (M7 Budgets planned: F-033 monthly budgets, F-034 saving jars)
+
+**Done**
+- The owner replaced M7 "Quality" with "Budgets" and asked for a feature to plan the budget by category and see
+  what's left in each this month. Planned on `plan/m7-budgets-and-jars` (to be built on its own branch):
+  [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md):
+  priority Medium; budgets set month by month, a new month prefilled from the last; no carry-over; "left" on a new
+  Budget page, in the quick-add form and on Transactions; a reminder on the 1st as an in-app banner and a phone push.
+- Roadmap: M7 is Budgets; "budgets per category" taken out of M11. The integration tests (Testcontainers) stay an
+  idea without a milestone (PRODUCT.md, ADR 0005, ARCHITECTURE.md, CLAUDE.md).
+- Q-013 (groups, family, income, past and skipped months, push time): the owner accepted Claude's proposals as they
+  were; moved to Answered. Personal only, no income budgets, past months editable, a skipped month offered to plan,
+  push at 09:00 Kyiv.
+- Then the owner asked for group budgets too: a group (Daily living) and the categories in it can both have
+  budgets; the categories may not add up to more than the group's (saving blocked); the quick-add form shows a
+  category's own "left", or its group's when it has none.
+- And a total for the month: the groups' budgets (a group without one counts with its categories' sum) may not be
+  bigger than it; saving blocked. Q-015 opened: what the quick-add form shows when neither the category nor its
+  group has a budget, and whether F-034's planned jar amounts count within the total.
+- Then the owner asked for saving jars in the same milestone and PR:
+  [F-034](changes/features/F-034-saving-jars/F-034-saving-jars.md), priority Medium, built after F-033. A jar is
+  symbolic: it sets money aside inside real accounts, whose balances don't change (each shows in jars / free). Name,
+  icon or colour, optional goal and target date, a note; personal for now. Linked to F-033 two ways: jars are planned
+  in the month's budget, and the month's saved money (budget left over or income minus expenses, the person picks)
+  can go into a jar or stay free, offered when the month closes and any time on the Budget page.
+- Q-014 (jars' smaller points) and Q-015 (quick-add falls back to the month's total "left"; planned jar amounts
+  count within the month's total): the owner accepted Claude's proposals as they were; both moved to Answered.
+- The month's saved money can be split across several jars in one go, typed per jar or filled by this month's plan
+  (each jar gets what is still to go of its planned amount until the money runs out); the rest stays free.
+- No code; no test data created.
+
+**Next**
+- Owner: review and merge the planning PR. Then the design rounds, F-033 first: references, then 3 prototype stories in Storybook.
+
 ## 2026-11-16 (F-032: generic default categories, built; M9 done)
 
 **Done**

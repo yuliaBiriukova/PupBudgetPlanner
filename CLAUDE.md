@@ -215,7 +215,7 @@ This file tells Claude (and any human contributor) how we work on this project.
 - [ ] Accounts and data created for testing are removed (owner's own untouched); the PROGRESS entry says so.
 - [ ] Docs show the change as `Done` in the PR itself (see "Finishing a change").
 
-Integration tests (Testcontainers) are planned after the MVP — see ADR 0005.
+Integration tests (Testcontainers) are an idea without a milestone — see ADR 0005.
 
 ## Coding conventions
 

@@ -20,11 +20,11 @@ Feature details are in [BACKLOG.md](BACKLOG.md) and [changes/](changes/).
 
 | # | Milestone | Outcome |
 |---|-----------|---------|
-| M7 | Quality | Integration tests with Testcontainers in CI |
+| M7 | Budgets | A monthly budget (a total, groups and categories): plan each month, see what's left on a Budget page, when adding an expense and on Transactions; a reminder on the 1st (F-033); saving jars for goals, filled from the month's plan and its savings (F-034) |
 | M8 | Email | Resend: email confirmation, password reset, invitations by email |
 | M9 | Privacy & categories | Delete my account (F-027, done); a privacy policy page (F-031, done); a generic default set for new people (F-032, done) |
 | M10 | Data import | Spreadsheet history 2024–2026, Monefy CSV |
-| M11 | Insights | Dashboard with charts, budgets per category, Excel export |
+| M11 | Insights | Dashboard with charts, Excel export |
 | M12 | Localization | Ukrainian UI |
 | M13 | Automation | Monobank API auto-import of card transactions |
 
