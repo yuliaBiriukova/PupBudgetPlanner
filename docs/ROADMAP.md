@@ -22,7 +22,7 @@ Feature details are in [BACKLOG.md](BACKLOG.md) and [changes/](changes/).
 |---|-----------|---------|
 | M7 | Quality | Integration tests with Testcontainers in CI |
 | M8 | Email | Resend: email confirmation, password reset, invitations by email |
-| M9 | Privacy & categories | Delete my account (F-027, done); a privacy policy page (F-031, done); a generic default set for new people (Q-011) |
+| M9 | Privacy & categories | Delete my account (F-027, done); a privacy policy page (F-031, done); a generic default set for new people (F-032, done) |
 | M10 | Data import | Spreadsheet history 2024–2026, Monefy CSV |
 | M11 | Insights | Dashboard with charts, budgets per category, Excel export |
 | M12 | Localization | Ukrainian UI |

@@ -35,14 +35,15 @@ public sealed class CategoriesOverviewTests
         var overview = CategoriesOverview.From(Olena, DefaultCategories.CreateFor(Olena).Reverse(), NoTransactions);
 
         overview.Groups.Select(Line).Should().Equal(
-            "Income (Income): Salary, Gifts, Other",
-            "Home expenses (Expense): Rent, Bills, Home supplies, Electronics, Bank commission, Gifts, Tax, " +
-            "Delivery, Other",
-            "Daily living (Expense): Groceries, Clothing, Eating out, Transportation, Salon/Barber, Sport",
-            "Health (Expense): Doctor/Dentist, Medicine/Drugs/Skincare, Emergency, Therapy",
-            "Education (Expense): English lessons, Piano lessons, Driving",
-            "Entertainment (Expense): Activities, Books, Games, Hobbies, Vacation",
-            "Subscriptions (Expense): Spotify, Phone, Subscriptions");
+            "Income (Income): Salary, Side income, Gifts, Other",
+            "Home expenses (Expense): Rent, Bills, Home supplies, Electronics, Bank fees, Tax, Delivery, Services, " +
+            "Other",
+            "Daily living (Expense): Food, Toiletries, Clothing, Eating out, Transportation, Self-care, Sport, Gifts, " +
+            "Other",
+            "Car (Expense): Fuel, Parking, Service & repairs, Insurance, Other",
+            "Health (Expense): Doctor/Dentist, Medicine, Therapy, Other",
+            "Entertainment (Expense): Activities, Books, Games, Hobbies, Vacation, Other",
+            "Subscriptions (Expense): Music & streaming, Phone, Software, Other");
     }
 
     [Fact]

@@ -86,7 +86,7 @@ test('the yearly and monthly reports count an expense, a dollar income and an ex
   await save({
     type: 'Expense',
     accountId: hryvnias.id,
-    categoryId: categoryId('Groceries'),
+    categoryId: categoryId('Food'),
     amount: 2_500,
   });
   await save({
@@ -119,7 +119,7 @@ test('the yearly and monthly reports count an expense, a dollar income and an ex
   expect(report.monthsCounted).toBe(1);
   const daily = report.groups.find((group) => group.name === 'Daily living');
   expect(
-    daily?.categories.find((category) => category.name === 'Groceries')?.amounts.months[monthIndex],
+    daily?.categories.find((category) => category.name === 'Food')?.amounts.months[monthIndex],
   ).toBe(2_500);
   expect(report.summary.expenses.months[monthIndex]).toBe(2_500);
   expect(report.summary.expenses.average).toBe(2_500);
@@ -170,7 +170,7 @@ test('entered transactions appear in the report, and a category opens its transa
       accountId: wallet.id,
       ...data,
     });
-  await save({ type: 'Expense', categoryId: categoryId('Groceries'), amount: 1_234 });
+  await save({ type: 'Expense', categoryId: categoryId('Food'), amount: 1_234 });
   await save({ type: 'Income', categoryId: categoryId('Salary'), amount: 20_000 });
 
   await page.goto('/reports');
@@ -190,7 +190,7 @@ test('entered transactions appear in the report, and a category opens its transa
       await expect(table.getByRole('button', { name: /before your first entry/ })).toBeVisible();
     }
     await table.getByRole('button', { name: 'Daily living' }).click();
-    await expect(table.getByRole('row', { name: /^Groceries/ })).toContainText(/1\s234/);
+    await expect(table.getByRole('row', { name: /^Food/ })).toContainText(/1\s234/);
     await table
       .getByRole('button', { name: new RegExp(`^${monthShort}.*, open the month`) })
       .click();
@@ -202,9 +202,9 @@ test('entered transactions appear in the report, and a category opens its transa
   );
   const daily = page.getByRole('region', { name: 'Daily living' });
   await expect(daily).toContainText(/1\s234\s₴/);
-  await daily.getByRole('link', { name: /^Groceries/ }).click();
+  await daily.getByRole('link', { name: /^Food/ }).click();
 
-  // Groceries' transactions in this month
-  await expect(page).toHaveURL(`/transactions?category=${categoryId('Groceries') ?? ''}`);
+  // Food' transactions in this month
+  await expect(page).toHaveURL(`/transactions?category=${categoryId('Food') ?? ''}`);
   await expect(page.getByText(/1\s234\s₴/).first()).toBeVisible();
 });

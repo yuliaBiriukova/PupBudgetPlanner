@@ -1,22 +1,23 @@
 namespace PupBudgetPlanner.Domain.Categories;
 
 /// <summary>
-/// The groups and categories every new person starts with, in the spreadsheet's order (PRODUCT.md "Default
-/// categories"). Several are the owner's own; a generic set for other people is planned after the MVP (Q-011).
+/// The groups and categories every new person starts with (PRODUCT.md "Default categories"): a generic set agreed
+/// with the owner in F-032, every group ending with "Other". People who signed up before F-032 keep the
+/// spreadsheet's set they got then.
 /// </summary>
 public static class DefaultCategories
 {
     private static readonly (string Name, CategoryKind Kind, string[] Categories)[] Groups =
     [
-        ("Income", CategoryKind.Income, ["Salary", "Gifts", "Other"]),
+        ("Income", CategoryKind.Income, ["Salary", "Side income", "Gifts", "Other"]),
         ("Home expenses", CategoryKind.Expense,
-            ["Rent", "Bills", "Home supplies", "Electronics", "Bank commission", "Gifts", "Tax", "Delivery", "Other"]),
+            ["Rent", "Bills", "Home supplies", "Electronics", "Bank fees", "Tax", "Delivery", "Services", "Other"]),
         ("Daily living", CategoryKind.Expense,
-            ["Groceries", "Clothing", "Eating out", "Transportation", "Salon/Barber", "Sport"]),
-        ("Health", CategoryKind.Expense, ["Doctor/Dentist", "Medicine/Drugs/Skincare", "Emergency", "Therapy"]),
-        ("Education", CategoryKind.Expense, ["English lessons", "Piano lessons", "Driving"]),
-        ("Entertainment", CategoryKind.Expense, ["Activities", "Books", "Games", "Hobbies", "Vacation"]),
-        ("Subscriptions", CategoryKind.Expense, ["Spotify", "Phone", "Subscriptions"]),
+            ["Food", "Toiletries", "Clothing", "Eating out", "Transportation", "Self-care", "Sport", "Gifts", "Other"]),
+        ("Car", CategoryKind.Expense, ["Fuel", "Parking", "Service & repairs", "Insurance", "Other"]),
+        ("Health", CategoryKind.Expense, ["Doctor/Dentist", "Medicine", "Therapy", "Other"]),
+        ("Entertainment", CategoryKind.Expense, ["Activities", "Books", "Games", "Hobbies", "Vacation", "Other"]),
+        ("Subscriptions", CategoryKind.Expense, ["Music & streaming", "Phone", "Software", "Other"]),
     ];
 
     /// <summary>A fresh copy of the default set owned by <paramref name="userId"/>, with new ids.</summary>

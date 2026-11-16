@@ -1,6 +1,6 @@
 namespace PupBudgetPlanner.Domain.Categories;
 
-/// <summary>A row in the report (Groceries, Rent, …) that classifies expenses or incomes. Belongs to one group.</summary>
+/// <summary>A row in the report (Food, Rent, …) that classifies expenses or incomes. Belongs to one group.</summary>
 public sealed class Category
 {
     public const int NameMaxLength = 50;

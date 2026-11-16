@@ -1,7 +1,7 @@
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Application.Reports;
 using PupBudgetPlanner.Domain;
-using PupBudgetPlanner.Domain.Categories;
+using PupBudgetPlanner.Domain.Tests.Categories;
 using PupBudgetPlanner.Domain.Transactions;
 
 namespace PupBudgetPlanner.Application.Tests.Reports;
@@ -66,7 +66,7 @@ public sealed class SpreadsheetYearTests
 
     private static Report Build()
     {
-        var groups = DefaultCategories.CreateFor(Guid.CreateVersion7());
+        var groups = SpreadsheetCategories.CreateFor(Guid.CreateVersion7());
         Guid CategoryOf(string group, string category) =>
             groups.Single(item => item.Name == group).Categories.Single(item => item.Name == category).Id;
 

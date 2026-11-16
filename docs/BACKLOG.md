@@ -86,6 +86,7 @@ owner asks for one.
 |----|---------|----------|--------|
 | [F-027](changes/features/F-027-delete-account/F-027-delete-account.md) | 🎨 Delete my account | Low | Done |
 | [F-031](changes/features/F-031-privacy-policy/F-031-privacy-policy.md) | 🎨 Privacy policy page (`/privacy`), so the Google app can be published for people outside the family (added 2026-11-14) | Medium | Done |
+| [F-032](changes/features/F-032-generic-default-categories/F-032-generic-default-categories.md) | Generic default categories for new people instead of the owner's own (Q-011; added 2026-11-15) | Medium | Done |
 
 ## Improvements
 

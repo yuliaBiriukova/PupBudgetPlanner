@@ -27,8 +27,8 @@ async function get<T>(request: APIRequestContext, url: string): Promise<T> {
   return (await response.json()) as T;
 }
 
-/** A cash account in hryvnias and an expense on it today, in the person's own Groceries. */
-async function spendOnGroceries(request: APIRequestContext, amount: number) {
+/** A cash account in hryvnias and an expense on it today, in the person's own Food. */
+async function spendOnFood(request: APIRequestContext, amount: number) {
   const wallet = await post<{ id: string }>(request, '/api/accounts', {
     name: 'Wallet',
     currency: 'UAH',
@@ -43,14 +43,14 @@ async function spendOnGroceries(request: APIRequestContext, amount: number) {
     request,
     '/api/categories',
   );
-  const groceries = categories.groups
+  const food = categories.groups
     .flatMap((group) => group.categories)
-    .find((category) => category.name === 'Groceries');
+    .find((category) => category.name === 'Food');
   return post<{ transaction: { id: string } }>(request, '/api/transactions', {
     type: 'Expense',
     date: today,
     accountId: wallet?.id,
-    categoryId: groceries?.id,
+    categoryId: food?.id,
     amount,
     note: null,
   });
@@ -61,14 +61,14 @@ interface Report {
   summary: { expenses: { total: number | null } };
 }
 
-const groceriesOf = (report: Report) =>
+const foodOf = (report: Report) =>
   report.groups
     .flatMap((group) => group.categories)
-    .filter((category) => category.name === 'Groceries')
+    .filter((category) => category.name === 'Food')
     .map((category) => category.amounts.total);
 
 /**
- * Olena (the page's person) starts a family and Andriy joins it with her link; each spends on Groceries. Returns
+ * Olena (the page's person) starts a family and Andriy joins it with her link; each spends on Food. Returns
  * Andriy's API and his id.
  */
 async function kovalenko(page: Page) {
@@ -86,8 +86,8 @@ async function kovalenko(page: Page) {
   const family = await get<{ members: { id: string; isYou: boolean }[] }>(andriyApi, '/api/family');
   const andriyId = family.members.find((member) => member.isYou)?.id ?? '';
 
-  const olenas = await spendOnGroceries(page.request, 1_000);
-  await spendOnGroceries(andriyApi, 600);
+  const olenas = await spendOnFood(page.request, 1_000);
+  await spendOnFood(andriyApi, 600);
   return { andriyApi, andriyId, olenasTransaction: olenas?.transaction.id ?? '' };
 }
 
@@ -110,18 +110,18 @@ test('a member sees another’s money and the family’s, but changes only their
     try {
       expect((await signUpThroughApi(strangerApi, stranger)).ok()).toBe(true);
 
-      // The family's report merges their Groceries; Andriy's has only his
+      // The family's report merges their Food; Andriy's has only his
       const family = await get<Report>(
         page.request,
         `/api/reports/month?month=${month}&who=family`,
       );
-      expect(groceriesOf(family)).toEqual([1_600]);
+      expect(foodOf(family)).toEqual([1_600]);
       expect(family.summary.expenses.total).toBe(1_600);
       const his = await get<Report>(
         page.request,
         `/api/reports/month?month=${month}&who=${andriyId}`,
       );
-      expect(groceriesOf(his)).toEqual([600]);
+      expect(foodOf(his)).toEqual([600]);
       const list = await get<{ items: { ownerId: string; amount: number }[] }>(
         page.request,
         `/api/transactions?who=family&from=${today}&to=${today}`,
@@ -161,7 +161,7 @@ test('a member’s expense appears in the family’s report, and their lines ope
     } else {
       const table = page.getByRole('table');
       await table.getByRole('button', { name: 'Daily living' }).click();
-      await expect(table.getByRole('row', { name: /^Groceries/ })).toContainText(/1\s600/);
+      await expect(table.getByRole('row', { name: /^Food/ })).toContainText(/1\s600/);
     }
 
     // Andriy's money on Transactions: his line is there, only to look at; the slip has no Add
@@ -171,7 +171,7 @@ test('a member’s expense appears in the family’s report, and their lines ope
     const line = page
       .getByRole('region', { name: /^Today/ })
       .locator('li')
-      .filter({ hasText: /^Groceries/ });
+      .filter({ hasText: /^Food/ });
     await expect(line).toHaveCount(1);
     await expect(line.getByRole('button')).toHaveCount(0);
     // Only the sidebar's Add is left on the desktop (it adds Olena's own); the phone's + is a button of its own

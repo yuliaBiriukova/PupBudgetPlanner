@@ -4,4 +4,9 @@
     <ProjectReference Include="..\..\src\PupBudgetPlanner.Application\PupBudgetPlanner.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The spreadsheet's categories, test data shared with the Domain tests (F-032) -->
+    <Compile Include="..\PupBudgetPlanner.Domain.Tests\Categories\SpreadsheetCategories.cs" Link="Categories\SpreadsheetCategories.cs" />
+  </ItemGroup>
+
 </Project>

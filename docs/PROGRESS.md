@@ -2,6 +2,31 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-16 (F-032: generic default categories, built; M9 done)
+
+**Done**
+- Planned [F-032](changes/features/F-032-generic-default-categories/F-032-generic-default-categories.md) on
+  `feature/F-032-generic-default-categories` (2026-11-15) and settled the set with the owner over six review rounds;
+  Q-011 moved to Answered. The owner approved it 2026-11-16 ("Approved, build it"). F-032 Done in the backlog; M9 done
+  in the roadmap.
+- Everyone who signs up from now on, family included, gets 7 groups and 41 categories: Income, Home expenses, Daily
+  living, Car (new), Health, Entertainment, Subscriptions, each ending with "Other"; the personal categories renamed or
+  dropped, the Education group removed (`DefaultCategories`, PRODUCT.md "Default categories"). Existing accounts keep
+  their categories; no data migration.
+- Tests: `DefaultCategoriesTests` and `CategoriesOverviewTests` check the new set; the tests that used the old default
+  as data (`CategorySetTests`, `SpreadsheetYearTests`) get it from a test copy, `SpreadsheetCategories` (Domain tests,
+  linked into the Application tests; ADR 0015 notes it). E2E: Groceries → Food and the new groups and counts in the
+  categories, transactions, reports, family views and family privacy specs.
+- Checks: backend build and all 636 tests; frontend lint, formatting, typecheck, all 429 unit tests, the production
+  build; the changed E2E specs (phone and desktop), 3 times in a row, and the full E2E suite; a new person's
+  Categories page in screenshots at 375 px and 1440 px, light and dark, looked at, and walked through in the Browser
+  pane. Not run: the design check (no story or screen changed).
+- Test data: `e2e-…` people and their invite links made in `dev` by the E2E runs and two throwaway specs
+  (`e2e-f032-shots-…`, `e2e-f032-manual-…@example.com`); removed by the clean-up teardown. None left.
+
+**Next**
+- Owner: review and merge the F-032 PR. Then agree the order of the next milestones (M7, M8, M10 – M13).
+
 ## 2026-11-15 (F-027: delete my account, built)
 
 **Done**

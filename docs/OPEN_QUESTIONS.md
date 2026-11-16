@@ -6,12 +6,12 @@ When a question is answered, move it to "Answered" with the answer and date, and
 
 | ID | Question | Proposal | Blocks |
 |----|----------|----------|--------|
-| Q-011 | Default categories for people outside the family: the current set is the owner's own (Bank commission, English / Piano lessons, Driving, Spotify, Emergency) | A generic set: drop or rename the personal ones (Spotify → Music & streaming, Salon/Barber → Personal care, Medicine/Drugs/Skincare → Medicine); consider Car, Pets, Kids, Taxi. Decided after the MVP (owner, 2026-11-06), apart from adding own categories (F-029) | Opening sign-up beyond the family |
 
 ## Answered
 
 | ID | Question | Answer | Date |
 |----|----------|--------|------|
+| Q-011 | Default categories for people outside the family: the current set is the owner's own (Bank commission, English / Piano lessons, Driving, Spotify, Emergency) | A generic set for everyone who signs up from now on (family too); existing accounts keep theirs. The personal ones renamed or dropped (no Education group), Toiletries, Services, Software, Side income, an "Other" in every group and a Car group added; no Pets or Kids groups. The set is in [F-032](changes/features/F-032-generic-default-categories/F-032-generic-default-categories.md#agreed) | 2026-11-15 |
 | Q-010 | Deleting an account: right away or after a grace period; how to confirm; a family owner with other members; signing up again; export first? | Right away; the password (or Google once more) plus a typed word; the owner picks the next owner, as "Leave family" does; signing up again needs an invite like anyone new; export once M11 has it. Details in [F-027](changes/features/F-027-delete-account/F-027-delete-account.md#agreed) | 2026-11-14 |
 | Q-012 | Accounts already created on production before invite-only sign-up | They keep access and show "Before invites"; after the release the admin looks through the People page and blocks or deletes anyone unknown (F-028) | 2026-10-29 |
 | Q-001 | Group of the default "Emergency" category | Health | 2026-10-27 |
