@@ -26,11 +26,12 @@ import {
 import classes from './Budget.module.css';
 import { DeletePlanDialog, EditBudgetDialog, NewBudgetDialog } from './BudgetDialogs';
 import { Bar, MonthHead } from './parts';
+import { OutsidePlan, PlanSplit } from './MonthColumn';
 import { useBudgetMonth } from './useBudgetMonth';
 import { ReminderCard } from './Reminder';
 
 /** What a dialog is open for: one budget, or a new one in a group. */
-type Open = BudgetTarget | { kind: 'new'; groupId: string };
+type Open = BudgetTarget | { kind: 'new'; groupId: string; categoryId?: string };
 
 /**
  * The Budget page (F-033, final prototype): what's left of the month big with its bar, the groups and categories with
@@ -178,6 +179,13 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
         />
         {/* The desktop: under the month, in its column */}
         <div className={classes.wideOnly}>
+          <PlanSplit lines={lines} />
+          <OutsidePlan
+            lines={lines}
+            onNew={(groupId, categoryId) => {
+              setOpen({ kind: 'new', groupId, categoryId });
+            }}
+          />
           {isThisMonth && <ReminderCard />}
           {deleteButton}
         </div>
@@ -201,8 +209,9 @@ function PlannedMonth({ data }: { data: MonthBudgetData }) {
       />
       {open?.kind === 'new' && (
         <NewBudgetDialog
-          key={open.groupId}
+          key={`${open.groupId}-${open.categoryId ?? ''}`}
           groupId={open.groupId}
+          categoryId={open.categoryId}
           data={data}
           lines={lines}
           plan={plan}
@@ -315,7 +324,7 @@ function Group({
   const rows = group.categories.filter((c) => c.budget != null);
   const withoutBudget = group.categories.some((c) => c.budget == null);
   return (
-    <section className={classes.group} aria-label={group.name}>
+    <section className={classes.group} aria-label={group.name} id={`budget-group-${group.id}`}>
       <LineButton
         line={group}
         currency={currency}

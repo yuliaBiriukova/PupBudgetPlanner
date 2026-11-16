@@ -76,6 +76,35 @@ describe('the Budget page', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows under the month where the total goes and the spending outside the plan', async () => {
+    useBudget(plannedMonth);
+    const user = userEvent.setup();
+    renderApp('/budget');
+
+    const split = await screen.findByRole('region', { name: /^Where the 50.000.₴ goes$/ }, LOADED);
+    const legend = within(split).getAllByRole('button');
+    expect(legend).toHaveLength(4);
+    for (const [row, text] of [
+      [legend[0], 'Home expenses23 000 ₴46 %'],
+      [legend[1], 'Daily living22 000 ₴44 %'],
+      [legend[2], 'Entertainment2 000 ₴4 %'],
+      [legend[3], 'Subscriptions500 ₴1 %'],
+    ] as const)
+      expect(row).toHaveTextContent(text);
+    expect(split).toHaveTextContent('Not in any group2 500 ₴5 %');
+
+    const outside = screen.getByRole('region', { name: 'Spent outside the plan' });
+    expect(outside).toHaveTextContent('2 586 ₴ in categories without a budget');
+    const rows = within(outside).getAllByRole('button');
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveTextContent('ClothingDaily living1 890 ₴');
+    expect(rows[1]).toHaveTextContent('ActivitiesEntertainment696 ₴');
+    // A row opens New budget with its category picked
+    await user.click(rows[0] ?? outside);
+    const dialog = await screen.findByRole('dialog', { name: 'New budget in Daily living' });
+    expect(within(dialog).getByRole('radio', { name: 'Clothing' })).toBeChecked();
+  });
+
   it('deletes the month’s plan after asking', async () => {
     const sent = useBudget(plannedMonth);
     const user = userEvent.setup();

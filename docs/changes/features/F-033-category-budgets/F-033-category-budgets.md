@@ -8,7 +8,7 @@
 | Status | Done (2026-11-16) |
 | Branch | `feature/F-033-category-budgets` (planned on `plan/m7-budgets-and-jars`) |
 | Design | 🎨 3 prototype stories required (the Budget page with the month's total, group and category budgets, "left" in the quick-add form and on Transactions, the reminder banner) |
-| Approved | 2026-11-16 — the description and the final prototype (owner: "the final prototype for f-033 is approved, build it") |
+| Approved | 2026-11-16 — the description and the final prototype (owner: "the final prototype for f-033 is approved, build it"); 2026-11-16 — the column under the month's final prototype (owner: "Approved, build it") |
 
 ## Goal
 A person plans how much they will spend this month in total, in a group and in each category, then sees at any time how much is left in each
@@ -335,13 +335,18 @@ amount 15 px medium, an 8 px bar, a rule between it and its categories.
    under the month, *Where the 50 000 ₴ goes* (variant 3), then *Spent outside the plan* (variant 1), then *Delete …'s
    plan*; each part shows only when it has something (no total → no split; nothing spent outside the plan → no list).
    The month's column stays in place as before and, when it is taller than the window, scrolls on its own. Desktop
-   only, as the column. Waiting for the owner's approval; not built.
+   only, as the column. **Approved 2026-11-16** (owner: "Approved, build it").
 3. Owner's comments on it: the column had a needless sideways scroll (the rows' hover reaching past it): now it scrolls
    only up and down, and only when taller than the window. And **hovering a group's head lights its whole card**
    (built in the app: `.group:has(> .groupHead:hover)`).
 4. "This block should be sticky when the user scrolls": it was sticky but stretched to the groups' height by the grid,
    so it scrolled away; now it is as tall as its content (`align-self: start`, in the app) and stays in place to the
    end of the page.
+
+**Built (2026-11-16, after the approval):** `PlanSplit` and `OutsidePlan` (`features/budget/MonthColumn.tsx`) under the
+month on the desktop, before the reminder card and *Delete …'s plan*; a row of *Spent outside the plan* opens *New
+budget* with its category already picked; the month's column scrolls on its own when taller than the window. The
+prototype folder `frontend/src/prototypes/F-033-left-column/` is deleted.
 
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's

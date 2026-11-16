@@ -1,4 +1,4 @@
-/* F-033 review point 6 (prototype): the desktop column under the month. Tokens only; sizes even (DESIGN_RULES §1). */
+/* F-033 the desktop column under the month (owner's review of PR #115). Tokens only; sizes even (DESIGN_RULES §1). */
 
 .panel {
   display: grid;
@@ -38,7 +38,7 @@
   line-height: 20px;
 }
 
-.row:not(.static):hover {
+button.row:hover {
   background: var(--pup-color-hover);
 }
 
@@ -57,19 +57,6 @@
 
 .row:hover .plus {
   color: var(--mantine-color-text);
-}
-
-/* Running out: a category's line, as on the right but smaller */
-.lineRow {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 6px;
-  padding: 8px;
-}
-
-.lineTop {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
 }
 
 /* Where the total goes: one bar split by the groups' budgets */
@@ -121,20 +108,4 @@
 
 .dim {
   color: var(--mantine-color-dimmed);
-}
-
-.over {
-  color: var(--pup-color-expense);
-}
-
-/* The month's column stays in place while the groups scroll: taller than the window, it scrolls on its own */
-@media (min-width: 64em) {
-  .left {
-    max-height: calc(100dvh - 32px);
-    /* Up and down only; the rows' hover reaches 8 px past the column, so it has 8 px of room on each side */
-    margin: 0 -8px;
-    padding: 0 8px;
-    overflow: hidden auto;
-    scrollbar-width: thin;
-  }
 }

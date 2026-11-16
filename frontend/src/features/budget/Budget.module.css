@@ -416,6 +416,12 @@
     position: sticky;
     top: 16px;
     align-self: start;
+    /* Taller than the window, it scrolls on its own, up and down only: the rows' hover reaches 8 px past it */
+    max-height: calc(100dvh - 32px);
+    margin: 0 -8px;
+    padding: 0 8px;
+    overflow: hidden auto;
+    scrollbar-width: thin;
   }
 
   .wideOnly {

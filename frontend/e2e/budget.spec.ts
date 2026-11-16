@@ -193,6 +193,12 @@ test('a budget can be removed, a new one added in a group, and a past month open
     .getByTestId('budget-row')
     .filter({ hasText: 'Food' });
   await expect(food).toContainText(`${money(8_000)} left`);
+  // Under the month: Daily living takes 8 000 of the 15 000 (its categories' sum), the rest is in no group
+  const split = page.getByRole('region', { name: /^Where the .* goes$/ });
+  await expect(split.getByRole('button', { name: /^Daily living/ })).toHaveText(
+    new RegExp(`^Daily living${money(8_000)}53.%$`),
+  );
+  await expect(split).toContainText(`Not in any group${money(7_000)}47`);
 
   // Removed: Daily living has nothing planned or spent again
   await food.click();

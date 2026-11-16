@@ -2,6 +2,17 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-16 (F-033: the column under the month, built)
+
+**Done**
+- The owner approved the final prototype ("Approved, build it", recorded in the F-033 description and DESIGN_RULES):
+  *Where the … goes* and *Spent outside the plan* under the month on the desktop, built in
+  `features/budget/MonthColumn.tsx`; a row of the second opens *New budget* with its category picked. Prototype folder
+  deleted.
+- Checks: lint, formatting, typecheck, all unit tests (the budget ones 3 runs), the production and Storybook builds,
+  `budget.spec.ts` 3 runs on both viewports; screenshots of the Budget page at 1440 px light and dark looked at. Test
+  data: the E2E runs' people, removed by the clean-up.
+
 ## 2026-11-16 (F-033: the owner's third review of PR #115)
 
 **Done**

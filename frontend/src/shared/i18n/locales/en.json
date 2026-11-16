@@ -1035,6 +1035,16 @@
       "another": "Budget for another {{group}} category",
       "first": "Budget for a category in {{group}}"
     },
+    "split": {
+      "title": "Where the {{total}} goes",
+      "share": "{{share}} %",
+      "free": "Not in any group"
+    },
+    "outside": {
+      "title": "Spent outside the plan",
+      "lead": "{{amount}} in categories without a budget",
+      "set": "Set a budget"
+    },
     "deletePlan": {
       "action": "Delete {{month}}’s plan",
       "title": "Delete {{month}}’s plan?",

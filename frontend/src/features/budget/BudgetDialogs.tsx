@@ -215,16 +215,20 @@ export function EditBudgetDialog({
  */
 export function NewBudgetDialog({
   groupId,
+  categoryId,
   data,
   lines,
   plan,
   onClose,
-}: DialogProps & { groupId: string }) {
+}: DialogProps & {
+  groupId: string;
+  /** Picked to begin with (from Spent outside the plan). */ categoryId?: string;
+}) {
   const { t } = useTranslation();
   const money = moneyIn(data.currency);
   const overflowText = useOverflowText(data.currency);
   const save = useSetBudget(data.month);
-  const [picked, setPicked] = useState<string | null>(null);
+  const [picked, setPicked] = useState<string | null>(categoryId ?? null);
   const [text, setText] = useState('');
   const [tried, setTried] = useState(false);
   const pillsId = useId();
