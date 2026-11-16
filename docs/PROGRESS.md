@@ -18,6 +18,9 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - Then the owner asked for group budgets too: a group (Daily living) and the categories in it can both have
   budgets; the categories may not add up to more than the group's (saving blocked); the quick-add form shows a
   category's own "left", or its group's when it has none.
+- And a total for the month: the groups' budgets (a group without one counts with its categories' sum) may not be
+  bigger than it; saving blocked. Q-015 opened: what the quick-add form shows when neither the category nor its
+  group has a budget, and whether F-034's planned jar amounts count within the total.
 - Then the owner asked for saving jars in the same milestone and PR:
   [F-034](changes/features/F-034-saving-jars/F-034-saving-jars.md), priority Medium, built after F-033. A jar is
   symbolic: it sets money aside inside real accounts, whose balances don't change (each shows in jars / free). Name,
@@ -28,7 +31,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - No code; no test data created.
 
 **Next**
-- Owner: answer Q-014. Then the design rounds, F-033 first: references, then 3 prototype stories in Storybook.
+- Owner: answer Q-014 and Q-015. Then the design rounds, F-033 first: references, then 3 prototype stories in Storybook.
 
 ## 2026-11-16 (F-032: generic default categories, built; M9 done)
 

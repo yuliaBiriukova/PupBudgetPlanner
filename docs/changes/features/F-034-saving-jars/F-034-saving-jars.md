@@ -48,6 +48,7 @@ Claude's proposals; the owner decides before the design round.
 | 6 | Moving what's left during the month | The Budget page's total "left" for the month goes down by what was moved; the categories' budgets stay as planned |
 | 7 | Free money shrinks below what's in jars (spent from an account with money set aside) | The account shows a warning "2,000 of the jar money was spent"; the person takes it out of a jar or tops the account up |
 | 8 | Where | A Jars section on the Accounts page (or its own page in the menu), decided in the design round |
+| 9 | Do the jars planned in the month count within F-033's total for the month? (Q-015) | Yes: the total is what the person plans to spend and set aside, so the groups' budgets plus the planned jar amounts may not be bigger than it |
 
 ## Options considered
 The main choice was what "symbolic" means for the balances.
