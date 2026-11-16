@@ -131,7 +131,10 @@
 @media (min-width: 64em) {
   .left {
     max-height: calc(100dvh - 32px);
-    overflow-y: auto;
+    /* Up and down only; the rows' hover reaches 8 px past the column, so it has 8 px of room on each side */
+    margin: 0 -8px;
+    padding: 0 8px;
+    overflow: hidden auto;
     scrollbar-width: thin;
   }
 }

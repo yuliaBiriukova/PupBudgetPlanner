@@ -336,6 +336,9 @@ amount 15 px medium, an 8 px bar, a rule between it and its categories.
    plan*; each part shows only when it has something (no total → no split; nothing spent outside the plan → no list).
    The month's column stays in place as before and, when it is taller than the window, scrolls on its own. Desktop
    only, as the column. Waiting for the owner's approval; not built.
+3. Owner's comments on it: the column had a needless sideways scroll (the rows' hover reaching past it): now it scrolls
+   only up and down, and only when taller than the window. And **hovering a group's head lights its whole card**
+   (built in the app: `.group:has(> .groupHead:hover)`).
 
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's

@@ -233,6 +233,15 @@
   background: var(--pup-color-hover);
 }
 
+/* A group's head lights its whole card (owner's review of PR #115), not only itself */
+.group:has(> .groupHead:hover) {
+  background: var(--pup-color-hover);
+}
+
+.row.groupHead:hover {
+  background: transparent;
+}
+
 .rowTop {
   display: flex;
   justify-content: space-between;
