@@ -8,11 +8,13 @@
   border-top: 1px solid var(--pup-color-rule);
 }
 
-.label {
+/* A panel's title: a heading set as Transactions' "Where it went" */
+.title {
   margin: 0;
-  color: var(--mantine-color-dimmed);
-  font-size: 14px;
-  line-height: 20px;
+  font-family: var(--pup-font-display);
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.4;
 }
 
 .lead {
@@ -112,15 +114,17 @@ button.row:hover {
 
 /* Spent outside the plan: Transactions' "Where it went" rows; on the desktop the list takes the column's room left and
    scrolls in it, its bar in the gap beside it (as Transactions') */
-.bars {
-  padding: 0 20px 0 8px;
-}
-
-.outsideScroll {
-  margin: 0 -20px 0 -8px;
-}
-
 @media (min-width: 64em) {
+  /* Room for the list's own scroll bar in the gap beside it, only where it scrolls: on the phone it would reach past
+     the screen */
+  .bars {
+    padding: 0 20px 0 8px;
+  }
+
+  .outsideScroll {
+    margin: 0 -20px 0 -8px;
+  }
+
   .outside {
     display: flex;
     flex: 1 1 auto !important;
@@ -128,7 +132,7 @@ button.row:hover {
     min-height: 160px;
   }
 
-  .outside > .label,
+  .outside > .title,
   .outside > .lead {
     flex: none;
   }

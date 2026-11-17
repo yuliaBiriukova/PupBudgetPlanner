@@ -1,5 +1,5 @@
 import { UnstyledButton } from '@mantine/core';
-import type { CSSProperties } from 'react';
+import { useId, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cx } from '../../shared/ui/cx';
 import { FadingScrollArea } from '../../shared/ui/FadingScrollArea';
@@ -18,6 +18,7 @@ const shade = (index: number) => `${String(Math.max(24, 92 - index * 30))}%`;
  */
 export function PlanSplit({ lines }: { lines: MonthLines }) {
   const { t } = useTranslation();
+  const titleId = useId();
   const money = moneyIn(lines.currency);
   const total = lines.total.budget;
   if (total == null || total <= 0) return null;
@@ -28,11 +29,10 @@ export function PlanSplit({ lines }: { lines: MonthLines }) {
   const share = (amount: number) => Math.round((amount / total) * 100);
   const width = (amount: number) => `${String((amount / total) * 100)}%`;
   return (
-    <section
-      className={classes.panel}
-      aria-label={t('budget.split.title', { total: money(total) })}
-    >
-      <p className={classes.label}>{t('budget.split.title', { total: money(total) })}</p>
+    <section className={classes.panel} aria-labelledby={titleId}>
+      <h2 id={titleId} className={classes.title}>
+        {t('budget.split.title', { total: money(total) })}
+      </h2>
       <div className={classes.split} aria-hidden data-testid="plan-split">
         {parts.map((group, index) => (
           <span
@@ -96,6 +96,7 @@ export function OutsidePlan({
   onNew: (groupId: string, categoryId: string) => void;
 }) {
   const { t } = useTranslation();
+  const titleId = useId();
   const money = moneyIn(lines.currency);
   const rows = lines.groups
     .flatMap((group) =>
@@ -108,8 +109,10 @@ export function OutsidePlan({
   const sum = rows.reduce((total, row) => total + row.spent, 0);
   const max = rows[0]?.spent ?? 0;
   return (
-    <section className={cx(classes.panel, classes.outside)} aria-label={t('budget.outside.title')}>
-      <p className={classes.label}>{t('budget.outside.title')}</p>
+    <section className={cx(classes.panel, classes.outside)} aria-labelledby={titleId}>
+      <h2 id={titleId} className={classes.title}>
+        {t('budget.outside.title')}
+      </h2>
       <p className={classes.lead}>{t('budget.outside.lead', { amount: money(sum) })}</p>
       <FadingScrollArea className={classes.outsideScroll}>
         <ul className={cx(tx.bars, classes.bars)}>

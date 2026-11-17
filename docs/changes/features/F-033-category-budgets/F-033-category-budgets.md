@@ -405,6 +405,11 @@ receipts end 16 px above the window at the page's end, so no space opens under "
 the desktop too, as wide as the slip, with ‹ the period and its year › (a month or a year steps; *Nov 2026* on a phone)
 and ˄ back to the top, `inert` while hidden; the left column sticks under it (68 px).
 
+"Why are these headings just p when on transactions it's h2?": an oversight (the prototype's grey label carried over).
+*Where the … goes* and *Spent outside the plan* are now `h2`s naming their sections, set as Transactions' "Where it
+went" (Unbounded 18 px, 300). The design check also caught the list reaching 4–20 px past the screen on the phone and
+tablet (the room for its scroll bar, which only the desktop needs): that room is now the desktop's only.
+
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's
   spending from categories with and without budgets, the total from all expenses, prefill from the last planned
