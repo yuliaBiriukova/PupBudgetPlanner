@@ -1,6 +1,14 @@
-import { Button, Skeleton, UnstyledButton, VisuallyHidden } from '@mantine/core';
+import { ActionIcon, Button, Skeleton, UnstyledButton, VisuallyHidden } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconAlertCircle, IconChevronUp, IconPlus, IconRefresh, IconX } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronUp,
+  IconPlus,
+  IconRefresh,
+  IconX,
+} from '@tabler/icons-react';
 import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
@@ -84,7 +92,8 @@ export function TransactionsPage() {
     placeholderData: keepPreviousData,
   });
   const slip = useRef<HTMLElement>(null);
-  const miniOn = useMiniBar(slip, !wide);
+  // The slim bar on every width, the desktop too (owner's review of PR #115, as the Budget page's)
+  const miniOn = useMiniBar(slip, true);
 
   const picked = filterCount(filters) > 0;
   const month = filters.period.kind === 'month' ? filters.period.month : undefined;
@@ -301,6 +310,30 @@ export function TransactionsPage() {
     />
   );
   const layout = wide ? 'desktop' : tablet ? 'tablet' : 'phone';
+  /** The slim bar's ‹ and ›: a month or a year steps, as on the slip; other periods have none. */
+  const miniStep = (step: -1 | 1) => {
+    const kind = filters.period.kind;
+    if (kind !== 'month' && kind !== 'year') return null;
+    const target = stepped(filters.period, step);
+    const unit = kind === 'year' ? 'Year' : 'Month';
+    return (
+      <ActionIcon
+        variant="subtle"
+        className={classes.step}
+        disabled={!target}
+        aria-label={t(`transactions.totals.${step < 0 ? 'previous' : 'next'}${unit}`)}
+        onClick={() => {
+          if (target) set(withPeriod(filters, target));
+        }}
+      >
+        {step < 0 ? (
+          <IconChevronLeft size={20} stroke={1.7} />
+        ) : (
+          <IconChevronRight size={20} stroke={1.7} />
+        )}
+      </ActionIcon>
+    );
+  };
   const controls = <TransactionFilters {...filterProps} layout={layout} />;
 
   return (
@@ -308,12 +341,28 @@ export function TransactionsPage() {
       <VisuallyHidden>
         <h1>{t('nav.transactions')}</h1>
       </VisuallyHidden>
-      {!wide && (
-        <div className={classes.miniWrap} data-on={miniOn || undefined}>
-          <UnstyledButton
-            className={classes.mini}
-            tabIndex={miniOn ? 0 : -1}
-            aria-hidden={!miniOn}
+      <div className={classes.miniWrap} data-on={miniOn || undefined}>
+        {/* ‹ the period and its year ›, the figures and ˄ back to the top (owner's review of PR #115) */}
+        <div className={classes.mini} inert={!miniOn}>
+          {miniStep(-1)}
+          <span className={classes.miniMonth}>
+            {month ? (
+              <>
+                <span className={classes.miniLong}>{dayjs(`${month}-01`).format('MMMM YYYY')}</span>
+                <span className={classes.miniShort} aria-hidden="true">
+                  {dayjs(`${month}-01`).format('MMM YYYY')}
+                </span>
+              </>
+            ) : (
+              periodLabel
+            )}
+          </span>
+          {miniStep(1)}
+          <MiniFigures summary={summary.data} />
+          <ActionIcon
+            variant="subtle"
+            className={cx(classes.step, classes.miniUp)}
+            aria-label={t('transactions.totals.backToTop')}
             onClick={() => {
               scrollParentOf(slip.current)?.scrollTo({
                 top: 0,
@@ -323,15 +372,10 @@ export function TransactionsPage() {
               });
             }}
           >
-            <span className={classes.miniMonth}>
-              {month ? dayjs(`${month}-01`).format('MMMM') : periodLabel}
-            </span>
-            <MiniFigures summary={summary.data} />
-            <IconChevronUp size={20} stroke={1.7} aria-hidden />
-            <VisuallyHidden>{t('transactions.totals.backToTop')}</VisuallyHidden>
-          </UnstyledButton>
+            <IconChevronUp size={20} stroke={1.7} />
+          </ActionIcon>
         </div>
-      )}
+      </div>
       <TotalsSlip
         ref={slip}
         period={filters.period}

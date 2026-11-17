@@ -399,6 +399,12 @@ lower than the groups, which ended 48 px above the window (the page's padding) w
 on the desktop the Budget page now pulls its end in by 32 px, so Delete stays 16 px above the window's bottom all the way
 (checked at 760 and 920 px high).
 
+The owner then asked for the Transactions page in this review: "the same issue happens on transactions page after Where
+it went, fix it; also make the header sticky as on budget". Done there (it shares FitColumn and the slim bar): the
+receipts end 16 px above the window at the page's end, so no space opens under "Where it went"; the slim bar shows on
+the desktop too, as wide as the slip, with ‹ the period and its year › (a month or a year steps; *Nov 2026* on a phone)
+and ˄ back to the top, `inert` while hidden; the left column sticks under it (68 px).
+
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's
   spending from categories with and without budgets, the total from all expenses, prefill from the last planned

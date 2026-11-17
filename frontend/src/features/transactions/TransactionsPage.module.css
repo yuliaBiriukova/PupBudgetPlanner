@@ -393,9 +393,38 @@
   }
 }
 
+/* The desktop: as wide as the slip it stands for (owner's review of PR #115: the slim bar on every width) */
 @media (min-width: 64em) {
-  .miniWrap {
+  .mini {
+    right: 0;
+    left: 0;
+  }
+}
+
+/* ‹ the period ›: its own step buttons, ˄ at the end; the month's short name on a phone */
+.mini {
+  padding-left: 4px;
+}
+
+.miniMonth {
+  flex: none;
+}
+
+.miniUp {
+  flex: none;
+}
+
+.miniShort {
+  display: none;
+}
+
+@media (max-width: 30em) {
+  .miniLong {
     display: none;
+  }
+
+  .miniShort {
+    display: inline;
   }
 }
 
@@ -554,12 +583,20 @@
     display: none;
   }
 
-  /* At most the window's visible height (set as it scrolls); "Where it went" scrolls inside it */
+  /* At most the window's visible height (set as it scrolls); "Where it went" scrolls inside it. It sticks under the
+     slim bar (52 px and 16 px of room), now on the desktop too (owner's review of PR #115) */
   .left {
     position: sticky;
-    top: 16px;
+    top: 68px;
     display: flex;
     flex-direction: column;
+  }
+
+  /* The receipts end 16 px above the window's bottom at the page's end, as the column beside them does mid-scroll, not
+     the page's 48 px: the column, which ends no lower than the receipts, keeps its height and nothing opens under
+     "Where it went" (owner's review of PR #115) */
+  .columns {
+    margin-bottom: -32px;
   }
 }
 

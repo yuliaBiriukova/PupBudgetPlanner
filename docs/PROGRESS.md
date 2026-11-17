@@ -9,6 +9,9 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   the year; every state of the page (not planned, loading, error) has the slip; the two panels show on the phone and
   tablet after the groups. No more space opening under *Delete …'s plan* at the page's end (the page's end pulled in
   32 px on the desktop).
+- Transactions, at the owner's word in the same review: no space under "Where it went" at the page's end, and the slim
+  bar (with ‹ the period and year › and ˄) on the desktop too, the left column sticking under it.
+  `transactions.spec.ts` 3 runs and the full E2E suite run.
 - Checks: lint, formatting, typecheck, all unit tests (the budget ones 3 runs), the build, `budget.spec.ts` 3 runs on
   both viewports; screenshots on phone and desktop (top, scrolled, next month not planned) looked at. Test data: the
   `e2e-slip-shots-…` people and the E2E runs' people, removed by the clean-up.
