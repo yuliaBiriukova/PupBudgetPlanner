@@ -394,6 +394,10 @@ Transactions' "Where it went" (where the total goes and Delete stay put; FitColu
 hidden. 4. every state of the page has the slip: a month not planned shows what was spent over *Start from …* / *Start
 empty*, loading its placeholder, an error the month row. 5. on the phone and tablet the two panels come after the groups
 (they were made for the desktop's empty column only).
+Then "when I scroll to the end of the page there appears extra space after Delete November's plan": the column ends no
+lower than the groups, which ended 48 px above the window (the page's padding) while the column kept 16 px mid-scroll;
+on the desktop the Budget page now pulls its end in by 32 px, so Delete stays 16 px above the window's bottom all the way
+(checked at 760 and 920 px high).
 
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's

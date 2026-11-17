@@ -426,6 +426,13 @@
     flex: none;
   }
 
+  /* The groups end 16 px above the window's bottom at the page's end, as the column beside them does mid-scroll (its
+     16 px of room), not the page's 48 px: the column, which ends no lower than the groups, keeps its height and nothing
+     opens under Delete (owner's review of PR #115) */
+  .page {
+    margin-bottom: -32px;
+  }
+
   /* The slim bar on every width (Transactions shows its only below the desktop), as wide as the slip */
   .slimWrap.slimWrap {
     display: block;
