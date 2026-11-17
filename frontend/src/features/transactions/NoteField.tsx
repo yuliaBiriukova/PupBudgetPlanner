@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { FadingScrollArea } from '../../shared/ui/FadingScrollArea';
 import { LIST_FOOT, LIST_GAP } from './noteRoom';
 import { NOTE_MAX_LENGTH, shownNotes, splitAtTyped, SUGGESTIONS_DELAY } from './noteSuggestions';
-import { scrollParentOf } from './scrollParent';
+import { scrollParentOf } from '../../shared/ui/scrollParent';
 import classes from './TransactionForm.module.css';
 import { noteSuggestionsQuery, type TransactionType } from './transactionsApi';
 

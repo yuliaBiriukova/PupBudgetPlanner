@@ -3,6 +3,7 @@ import { apiClient } from '../../shared/api/client';
 import type { components } from '../../shared/api/schema';
 import { accountsTotalQuery } from '../accounts/accountsApi';
 import { currentUserQuery } from '../auth/authApi';
+import { budgetKey } from '../budget/budgetApi';
 import { reportsKey } from '../reports/reportsApi';
 
 /** The person's name, email and report currency (F-016); the theme is kept on the device, not here. */
@@ -55,6 +56,7 @@ export function useChangeReportCurrency() {
       queryClient.setQueryData(settingsQuery.queryKey, settings);
       void queryClient.invalidateQueries({ queryKey: accountsTotalQuery.queryKey });
       void queryClient.invalidateQueries({ queryKey: reportsKey });
+      void queryClient.invalidateQueries({ queryKey: budgetKey });
     },
   });
 }

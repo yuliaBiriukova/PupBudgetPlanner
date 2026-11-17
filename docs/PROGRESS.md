@@ -2,6 +2,136 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-17 (F-033: the owner's comments on the slip)
+
+**Done**
+- Only *Spent outside the plan* scrolls in the month's column (as Transactions); the slim bar switches months and shows
+  the year; every state of the page (not planned, loading, error) has the slip; the two panels show on the phone and
+  tablet after the groups. No more space opening under *Delete …'s plan* at the page's end (the page's end pulled in
+  32 px on the desktop).
+- Transactions, at the owner's word in the same review: no space under "Where it went" at the page's end, and the slim
+  bar (with ‹ the period and year › and ˄) on the desktop too, the left column sticking under it.
+  `transactions.spec.ts` 3 runs and the full E2E suite run.
+- The two panels' titles are `h2` headings set as "Where it went"; the list no longer reaches past the phone's edge.
+- Checks: lint, formatting, typecheck, all unit tests (the budget ones 3 runs), the build, `budget.spec.ts` 3 runs on
+  both viewports; screenshots on phone and desktop (top, scrolled, next month not planned) looked at. Test data: the
+  `e2e-slip-shots-…` people and the E2E runs' people, removed by the clean-up.
+
+## 2026-11-16 (F-033: the header on the slip, built)
+
+**Done**
+- The owner approved the slip header with its slim bar ("Approved, build it"; recorded in the F-033 description and
+  DESIGN_RULES): a planned month's header is Transactions' dark slip (‹ month ›, *Change total*, what's left and spent,
+  the bar, the days to go); once it scrolls away a slim bar at the top on every width; on the desktop the month's
+  column sticks under it and scrolls as one, never moving. `FitColumn` fits at the column's own CSS top. The
+  prototypes are deleted.
+- Checks: lint, formatting, typecheck, all unit tests (the budget ones 3 runs), the production and Storybook builds,
+  `budget.spec.ts` 3 runs on both viewports and `transactions.spec.ts` (its column's fitting changed); screenshots of
+  the Budget page on phone and desktop, light and dark, at the top and scrolled to the end, looked at. Test data: the
+  `e2e-slip-shots-…` people of a hand-run spec and the E2E runs' people, removed by the clean-up.
+
+## 2026-11-16 (F-033: the column under the month, built)
+
+**Done**
+- The owner approved the final prototype ("Approved, build it", recorded in the F-033 description and DESIGN_RULES):
+  *Where the … goes* and *Spent outside the plan* under the month on the desktop, built in
+  `features/budget/MonthColumn.tsx`; a row of the second opens *New budget* with its category picked. Prototype folder
+  deleted.
+- From the owner's comments: the month's column fits and sticks as Transactions' (`FitColumn` moved to `shared/ui`),
+  only the *Spent outside the plan* list scrolls (`FadingScrollArea`), its rows styled as "Where it went".
+  `transactions.spec.ts` run too, as its column moved.
+- The month's switcher in the column was reverted at the owner's word; a prototype instead (*Prototypes / F-033 Month
+  head*): the switcher a band over the page that stays in place, the column under it as wide as it, at least 320 px.
+  Design check clean. Then from the owner's comments: nothing moves as the page scrolls, and the cards fade under the
+  switcher once scrolled; the column no longer moves at the page's end on shorter windows. A second story puts the
+  month on Transactions' dark slip (owner: "make the header for budget as for transactions"). The owner picked it, with
+  the phone's slim bar once the slip scrolls away, on every width. Waiting for the owner's approval.
+- Checks: lint, formatting, typecheck, all unit tests (the budget ones 3 runs), the production and Storybook builds,
+  `budget.spec.ts` 3 runs on both viewports; screenshots of the Budget page at 1440 px light and dark looked at. Test
+  data: the E2E runs' people, removed by the clean-up.
+
+## 2026-11-16 (F-033: the owner's third review of PR #115)
+
+**Done**
+- No accordion left on the Budget page: the groups with nothing planned or spent are open too, after the others.
+- Three prototype stories for point 6 (the desktop column under the month) in `frontend/src/prototypes/F-033-left-column/`:
+  *Not in the plan*, *Running out*, *Where the total goes*; design check clean (0 issues), screenshots looked at.
+  The owner asked for variants 1 and 3 together: the final prototype has both under the month (the split first), the
+  column scrolling on its own when taller than the window; design check clean, screenshots at 1440 × 900 and
+  1280 × 640 looked at. Then, from the owner's comments: no sideways scroll in that column, and in the app hovering a
+  group's head lights its whole card, and the month's column really stays in place (it was stretched to the groups'
+  height). Waiting for the owner's approval of the final prototype.
+- Checks: lint, formatting, typecheck, the budget unit tests and `budget.spec.ts` 3 runs. Test data: the E2E runs'
+  people, removed by the clean-up.
+
+## 2026-11-16 (F-033: the owner's second review of PR #115)
+
+**Done**
+- Pages centred again, up to 1280 px (DESIGN_RULES §4); groups don't fold any more; a group is a card standing out
+  from its categories (bigger name, thick bar); *Delete …'s plan* asks first and leaves the month not planned
+  (`DELETE /api/budget?month=`). Recorded in the
+  [F-033 description](changes/features/F-033-category-budgets/F-033-category-budgets.md#owners-second-review-of-pr-115-2026-11-16).
+- Point 6 of the first review (the space under the month) still waits for the owner's choice.
+- Checks: backend build and tests, lint, formatting, typecheck, the budget and shell unit tests 3 runs, the production
+  and Storybook builds, the full E2E suite and `budget.spec.ts` 3 runs on both viewports; screenshots of the Budget
+  page and the delete dialog at 375, 1280 and 1920 px, light and dark, and Accounts at 1920 px, looked at.
+- Test data: the `e2e-r2-shots-…@example.com` person of a hand-run screenshot spec and the E2E runs' people, removed
+  by the E2E clean-up.
+
+## 2026-11-16 (F-033: the owner's review of PR #115)
+
+**Done**
+- Every page starts at the left after the sidebar and grows to 1280 px (DESIGN_RULES §4); the Budget page uses the
+  whole column. A group lists only its categories with a budget (*Remove budget* takes one out, *+* brings it back), its
+  head is a line like a category's (bar, "… of …"), and a chevron folds it (remembered on the device). Recorded in the
+  [F-033 description](changes/features/F-033-category-budgets/F-033-category-budgets.md#owners-review-of-pr-115-2026-11-16).
+- Point 6 (the empty space under the month on the desktop) proposed to the owner, not built.
+- Checks: lint, formatting, typecheck, the budget and shell unit tests 3 runs, the production and Storybook builds,
+  the full E2E suite (`budget.spec.ts` updated for the new link's words, then 3 runs on both viewports); screenshots of
+  the Budget page (planned, folded, an empty start with spending) at 375, 1440 and 1920 px, light and dark, and every
+  other page at 1920 px, looked at.
+- Test data: the `e2e-f033-review-…@example.com` people of a hand-run screenshot spec and the E2E runs' people,
+  removed by the E2E clean-up.
+
+## 2026-11-16 (F-033: monthly budget, built; B-029 fixed with it)
+
+**Done**
+- Design round for [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md): references, three
+  prototype stories, the owner picked variant 2, dropped its even pace and asked for the reminder's states; the final
+  prototype was approved 2026-11-16 ("the final prototype for f-033 is approved, build it"). Built on
+  `feature/F-033-category-budgets`; F-033 Done in the backlog and the roadmap (M7 continues with F-034).
+  - API ([ADR 0037](decisions/0037-monthly-budget-and-web-push.md)): `budget_months`, `group_budgets`,
+    `category_budgets`; spent worked out on each read at each day's NBU rate; each level within the one above it,
+    refused only where a change makes it worse; a month starts as a copy of the last planned one or empty.
+    `GET /api/budget?month=`, `POST /api/budget/start`, `PUT /api/budget/total|groups/{id}|categories/{id}`.
+  - The reminder on the 1st: web push encrypted and signed with .NET's own crypto (RFC 8291 / 8292, no new package),
+    `push_subscriptions` per device, `POST /api/reminders/budget` for a cron-job.org job with `X-Reminders-Secret`,
+    once a month a device, only to the browsers' push services. The service worker loads `push-sw.js`.
+  - The app: the Budget page (after Transactions in the sidebar, first under More on the phone) with its dialogs, the
+    banner over the other pages, the *Remind me on the 1st* card, the line under the amount in the quick-add form, the
+    *Budget* block on Transactions, *Budget reminder* in Settings. Prototype stories deleted; *Budget / Budget page*
+    stories.
+  - Decided while building (in the description): the banner only for someone who has planned a month before; the
+    form's line only for expenses; the card and the switch only where the browser has push and the service worker.
+- [B-029](changes/bugfixes/B-029-settings-switch-height/B-029-settings-switch-height.md) fixed here (its one line was
+  part of the approved final prototype): Theme and Budget reminder measure 52 px, as Report currency.
+- Checks: backend build and all 687 tests (RFC 8291's example byte for byte); frontend lint, formatting, typecheck,
+  all 448 unit tests (the changed ones 3 times), the production build, the Storybook build; `budget.spec.ts` on the
+  phone and the desktop 3 times in a row, and the full E2E suite (shell.spec's rail now counts the Budget icon; auth.spec
+  failed once on the sign-in rate limit after the hand-run sign-ins and passed on its rerun); screenshots of every
+  changed screen and state at 375 and 1440 px, light and dark, looked at; the reminder card and switch in the
+  production build with its service worker; the server's push path once against FCM with a made-up device. Not
+  run: the design check (no prototype left) and a real notification on a phone (owner, after the release set-up).
+- Test data: `e2e-…@example.com` people made in `dev` by the E2E runs and the hand-run screenshot specs
+  (`e2e-f033-shots-…`, `e2e-f033-push-…`), their accounts, budgets and one made-up push subscription; removed by the
+  E2E clean-up teardown at the end of the full run. Local VAPID keys and a reminders secret were added to the API's
+  user-secrets (local only).
+
+**Next**
+- Owner: review and merge the F-033 PR. At the release: the VAPID keys and the secret on Render and the cron-job.org
+  job (README, "Budget reminder"), then turn the reminder on on a phone and check the notification. Then F-034's design
+  round.
+
 ## 2026-11-16 (M7 Budgets planned: F-033 monthly budgets, F-034 saving jars)
 
 **Done**

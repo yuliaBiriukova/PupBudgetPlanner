@@ -9,7 +9,7 @@ import { FAMILY, useWhose } from '../family/whose';
 import whoseClasses from '../family/Whose.module.css';
 import { LineWhose } from '../family/WhoseLens';
 import { byDay, useDayTitle } from './receiptDays';
-import { scrollParentOf } from './scrollParent';
+import { scrollParentOf } from '../../shared/ui/scrollParent';
 import { SignedAmount } from './SignedAmount';
 import classes from './TransactionsPage.module.css';
 import { isExchange, type DayTotal, type Transaction } from './transactionsApi';

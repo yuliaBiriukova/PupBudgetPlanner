@@ -33,6 +33,8 @@
   display: grid;
   gap: 12px;
   min-width: 0;
+  /* B-029: packed at the top, so a pill switch keeps its 52 px beside a taller title and line */
+  align-content: start;
 }
 
 @media (min-width: 64em) {

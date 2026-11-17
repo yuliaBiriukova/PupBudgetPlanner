@@ -92,7 +92,7 @@ owner asks for one.
 
 | ID | Feature | Priority | Status |
 |----|---------|----------|--------|
-| [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md) | 🎨 Monthly budget: a total for the month, budgets per group and category, each within the one above; plan each month (prefilled from the last), see what's left on a Budget page, when adding an expense and on Transactions; a reminder on the 1st, banner and push (Q-013; added 2026-11-16) | Medium | Todo |
+| [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md) | 🎨 Monthly budget: a total for the month, budgets per group and category, each within the one above; plan each month (prefilled from the last), see what's left on a Budget page, when adding an expense and on Transactions; a reminder on the 1st, banner and push (Q-013; added 2026-11-16) | Medium | Done |
 | [F-034](changes/features/F-034-saving-jars/F-034-saving-jars.md) | 🎨 Saving jars: symbolic jars for goals (car, apartment) that set money aside inside real accounts; planned in the month's budget; the month's saved money can go into a jar (Q-014; added 2026-11-16; after F-033) | Medium | Todo |
 
 ## Improvements
@@ -165,3 +165,4 @@ owner asks for one.
 | [B-026](changes/bugfixes/B-026-family-privacy-test-fold-leftover/B-026-family-privacy-test-fold-leftover.md) | One more Family privacy unit test looks inside a fold that is still opening, missed by B-019 (found by I-033) | High | Done |
 | [B-027](changes/bugfixes/B-027-invite-link-groups-on-people/B-027-invite-link-groups-on-people.md) | The People page's invite links lost their groups: only the Family page was meant to drop them (I-032) | Medium | Done |
 | [B-028](changes/bugfixes/B-028-smoke-test-signed-out/B-028-smoke-test-signed-out.md) | The smoke test "the app opens on Transactions" can't pass on production: it runs signed out there (found by F-026) | Low | Done |
+| [B-029](changes/bugfixes/B-029-settings-switch-height/B-029-settings-switch-height.md) | Settings: the Theme switch is taller than the app's pill switch (71 px, not 52): it stretches to its title's height (found in F-033's prototype, 2026-11-16) | Low | Done (in F-033) |

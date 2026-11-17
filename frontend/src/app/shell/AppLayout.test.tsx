@@ -43,6 +43,15 @@ describe('app shell on the phone', () => {
     ).toBeInTheDocument();
   });
 
+  it('puts Budget first under More on the phone, not in the tab bar (F-033)', async () => {
+    const user = userEvent.setup();
+    renderApp('/transactions');
+
+    await user.click(await screen.findByRole('button', { name: 'More' }, LOADED));
+    const sheet = await screen.findByRole('dialog', { name: 'More' });
+    expect(within(sheet).getAllByRole('link')[0]).toHaveTextContent('Budget');
+  });
+
   it('names the four places of the tab bar, with no + of its own (I-030)', async () => {
     renderApp('/accounts');
 
@@ -159,7 +168,15 @@ describe('app shell on the desktop', () => {
       within(nav)
         .getAllByRole('link')
         .map((link) => link.textContent),
-    ).toEqual(['Transactions', 'Accounts', 'Reports', 'Categories', 'Family', 'Settings']);
+    ).toEqual([
+      'Transactions',
+      'Budget',
+      'Accounts',
+      'Reports',
+      'Categories',
+      'Family',
+      'Settings',
+    ]);
     expect(within(nav).getByRole('link', { name: 'Settings' })).toHaveAttribute(
       'aria-current',
       'page',

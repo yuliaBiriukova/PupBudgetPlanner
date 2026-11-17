@@ -17,6 +17,19 @@ const defaultHandlers = [
   http.get('/api/auth/sign-up', () => HttpResponse.json({ mode: 'InviteOnly' })),
   // In no family (F-023), unless a test says otherwise
   http.get('/api/family', () => new HttpResponse(null, { status: 204 })),
+  // The month's budget (F-033) the shell's banner and the quick-add form ask for: never planned, nothing before it
+  http.get('/api/budget', ({ request }) =>
+    HttpResponse.json({
+      month: new URL(request.url).searchParams.get('month') ?? '2026-11',
+      currency: 'UAH',
+      planned: false,
+      startFrom: null,
+      total: null,
+      spent: 0,
+      groups: [],
+      ratesMissing: false,
+    }),
+  ),
 ];
 
 /** MSW server for unit tests. Add handlers per test with `server.use(http.get(...))`. */

@@ -50,6 +50,8 @@ export default defineConfig({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
         cleanupOutdatedCaches: true,
+        // The budget reminder's push and its tap (F-033, public/push-sw.js)
+        importScripts: ['/push-sw.js'],
       },
     }),
   ],

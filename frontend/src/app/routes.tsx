@@ -1,5 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router';
 import { AccountsPage } from '../features/accounts/AccountsPage';
+import { BudgetPage } from '../features/budget/BudgetPage';
 import { GuestOnly, SignInPage, SignUpPage } from '../features/auth/AuthPages';
 import { InviteRoute } from '../features/auth/InviteRoute';
 import { CategoriesPage } from '../features/categories/CategoriesPage';
@@ -17,6 +18,7 @@ import { SignedInLayout } from './SignedInLayout';
 export const sectionRoutes: RouteObject[] = [
   { index: true, element: <Navigate to="/transactions" replace /> },
   { path: 'transactions', element: <TransactionsPage /> },
+  { path: 'budget', element: <BudgetPage /> },
   { path: 'accounts', element: <AccountsPage /> },
   { path: 'reports', element: <ReportsPage /> },
   { path: 'categories', element: <CategoriesPage /> },

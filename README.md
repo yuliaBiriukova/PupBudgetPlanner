@@ -148,6 +148,28 @@ on Render an environment variable of the service (a change needs a new deploy), 
 `VITE_CONTACT_EMAIL=<address>` in `frontend/.env.local`. Without it the page names "the person who runs Pup Budget"
 ([ADR 0035](docs/decisions/0035-privacy-policy-page.md)).
 
+**Budget reminder** (F-033, [ADR 0037](docs/decisions/0037-monthly-budget-and-web-push.md)): the notification on
+the 1st is a web push signed with the app's own VAPID key pair. Make a pair once per environment (Node 24, nothing to
+install) and keep the private key out of the repository:
+
+```bash
+node -e "const {privateKey}=require('crypto').generateKeyPairSync('ec',{namedCurve:'P-256'});const j=privateKey.export({format:'jwk'});const b=s=>Buffer.from(s,'base64url');console.log('PublicKey  '+Buffer.concat([Buffer.from([4]),b(j.x),b(j.y)]).toString('base64url'));console.log('PrivateKey '+j.d)"
+```
+
+```bash
+cd backend
+dotnet user-secrets set "Push:PublicKey" "<public key>" --project src/PupBudgetPlanner.Api
+dotnet user-secrets set "Push:PrivateKey" "<private key>" --project src/PupBudgetPlanner.Api
+dotnet user-secrets set "Push:RemindersSecret" "<a long random secret>" --project src/PupBudgetPlanner.Api
+```
+
+On Render the same three are `Push__PublicKey`, `Push__PrivateKey` and `Push__RemindersSecret` (a new pair there, not
+the local one; changing the pair later turns everyone's reminder off until they turn it on again). Then a
+cron-job.org job, like the morning clean-up: `POST https://pup-budget-planner.onrender.com/api/reminders/budget` at
+09:00 Europe/Kyiv on day 1 of every month (`0 9 1 * *`), header `X-Reminders-Secret: <the secret>`, timeout 60 s
+(the call wakes the sleeping service). Without the keys Settings says notifications aren't available; without the
+secret every call gets 401. Push works only in the production build (`npm run build`), which has the service worker.
+
 Migrations are applied when the API starts. `GET /api/health` returns 200 without touching the database.
 In Development the OpenAPI document is at `http://localhost:5297/openapi/v1.json`.
 

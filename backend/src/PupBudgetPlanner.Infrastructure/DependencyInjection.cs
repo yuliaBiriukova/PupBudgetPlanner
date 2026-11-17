@@ -7,21 +7,25 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using PupBudgetPlanner.Application.Access;
 using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.Auth;
+using PupBudgetPlanner.Application.Budgets;
 using PupBudgetPlanner.Application.Categories;
 using PupBudgetPlanner.Application.Cleanup;
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Application.Families;
+using PupBudgetPlanner.Application.Reminders;
 using PupBudgetPlanner.Application.Reports;
 using PupBudgetPlanner.Application.Settings;
 using PupBudgetPlanner.Application.Transactions;
 using PupBudgetPlanner.Infrastructure.Access;
 using PupBudgetPlanner.Infrastructure.Accounts;
+using PupBudgetPlanner.Infrastructure.Budgets;
 using PupBudgetPlanner.Infrastructure.Categories;
 using PupBudgetPlanner.Infrastructure.Cleanup;
 using PupBudgetPlanner.Infrastructure.ExchangeRates;
 using PupBudgetPlanner.Infrastructure.Families;
 using PupBudgetPlanner.Infrastructure.Identity;
 using PupBudgetPlanner.Infrastructure.Persistence;
+using PupBudgetPlanner.Infrastructure.Reminders;
 using PupBudgetPlanner.Infrastructure.Reports;
 using PupBudgetPlanner.Infrastructure.Transactions;
 
@@ -56,6 +60,8 @@ public static class DependencyInjection
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<IReportService, ReportService>();
+        services.AddScoped<IBudgetService, BudgetService>();
+        services.AddReminders(configuration);
 
         return services;
     }
@@ -119,6 +125,16 @@ public static class DependencyInjection
         services.AddSingleton<NbuGate>();
         services.AddScoped<IExchangeRateStore, ExchangeRateStore>();
         services.AddScoped<IExchangeRateService, ExchangeRateService>();
+    }
+
+    /// <summary>The budget reminder on the 1st as a web push (F-033, ADR 0037).</summary>
+    private static void AddReminders(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<PushOptions>(configuration.GetSection(PushOptions.SectionName));
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddHttpClient<IWebPushSender, WebPushSender>(http => http.Timeout = TimeSpan.FromSeconds(15));
+        services.AddScoped<IPushSubscriptionService, PushSubscriptionService>();
+        services.AddScoped<IBudgetReminderService, BudgetReminderService>();
     }
 
     /// <summary>Applies pending EF Core migrations (one API instance, so start-up is a safe place).</summary>

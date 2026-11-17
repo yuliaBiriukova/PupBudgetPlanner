@@ -1151,6 +1151,321 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/budget": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** month written `yyyy-MM`, from 2000 to next month. */
+        get: {
+            parameters: {
+                query?: {
+                    month?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MonthBudget"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Deletes the plan of month (`yyyy-MM`): its total and every group and category budget.
+         *     The month is then not planned, as if never started; transactions stay.
+         */
+        delete: {
+            parameters: {
+                query?: {
+                    month?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/budget/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Plans a month not planned yet: a copy of the last planned one, or empty. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StartMonthRequest"];
+                    "text/json": components["schemas"]["StartMonthRequest"];
+                    "application/*+json": components["schemas"]["StartMonthRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/budget/total": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** The month's total; no amount removes it. Refused when the groups would take more. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SetBudgetRequest"];
+                    "text/json": components["schemas"]["SetBudgetRequest"];
+                    "application/*+json": components["schemas"]["SetBudgetRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/budget/groups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** An expense group's own budget; refused when its categories or the total don't fit. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SetBudgetRequest"];
+                    "text/json": components["schemas"]["SetBudgetRequest"];
+                    "application/*+json": components["schemas"]["SetBudgetRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/budget/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** An expense category's budget; refused when its group or the total doesn't hold it. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SetBudgetRequest"];
+                    "text/json": components["schemas"]["SetBudgetRequest"];
+                    "application/*+json": components["schemas"]["SetBudgetRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/categories": {
         parameters: {
             query?: never;
@@ -2804,6 +3119,195 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/push/key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The key a browser subscribes with; none when push isn't set up on this server. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PushKey"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/push/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Reminds this device from now on. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SavePushSubscriptionRequest"];
+                    "text/json": components["schemas"]["SavePushSubscriptionRequest"];
+                    "application/*+json": components["schemas"]["SavePushSubscriptionRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/push/subscription/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stops reminding this device. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RemovePushSubscriptionRequest"];
+                    "text/json": components["schemas"]["RemovePushSubscriptionRequest"];
+                    "application/*+json": components["schemas"]["RemovePushSubscriptionRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reminders/budget": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "X-Reminders-Secret"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ReminderReport"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/rates": {
         parameters: {
             query?: never;
@@ -3594,6 +4098,33 @@ export interface components {
             name: string;
         };
         /**
+         * @description A category on the Budget page: its budget this month (none without one) and what was spent on it, in the report
+         *     currency. Hidden categories come only when they have a budget or spending.
+         */
+        BudgetCategoryLine: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** Format: double */
+            budget: null | number | string;
+            /** Format: double */
+            spent: number | string;
+        };
+        /**
+         * @description An expense group on the Budget page: its own budget (none when it counts with its categories' sum) and what was spent
+         *     in all its categories, with or without a budget of their own.
+         */
+        BudgetGroupLine: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** Format: double */
+            budget: null | number | string;
+            /** Format: double */
+            spent: number | string;
+            categories: components["schemas"]["BudgetCategoryLine"][];
+        };
+        /**
          * @description How an account's card looks on the Accounts page (F-014). Named by the look, so the names fit both themes: Solid
          *     is charcoal in light mode and light grey in dark mode.
          * @enum {unknown}
@@ -3863,6 +4394,26 @@ export interface components {
             /** Format: uuid */
             newOwnerId: null | string;
         };
+        /**
+         * @description One person's month on the Budget page (F-033), in their report currency. Planned: the month has a
+         *     plan (also an empty one); otherwise the amounts are none and StartFrom names the last planned month
+         *     before it, which "Start from …" copies (none when there is none). Spent is all the month's
+         *     expenses, what the total counts against. Spending in other currencies is at the NBU rate of each transaction's day;
+         *     RatesMissing: some had no rate and aren't counted. Amounts are kept as they are and rounded when
+         *     shown (ADR 0018).
+         */
+        MonthBudget: {
+            month: string;
+            currency: string;
+            planned: boolean;
+            startFrom: null | string;
+            /** Format: double */
+            total: null | number | string;
+            /** Format: double */
+            spent: number | string;
+            groups: components["schemas"]["BudgetGroupLine"][];
+            ratesMissing: boolean;
+        };
         /** @description A type's most used categories, most used first: the form's category pills. */
         MostUsedCategories: {
             type: components["schemas"]["TransactionType"];
@@ -3897,6 +4448,10 @@ export interface components {
             status?: null | number | string;
             detail?: null | string;
             instance?: null | string;
+        };
+        /** @description The app's public key for subscribing; none when push isn't set up on this server. */
+        PushKey: {
+            publicKey: null | string;
         };
         /**
          * @description One currency's NBU rate: hryvnias for one unit of Currency, as the NBU publishes it (F-016;
@@ -3933,6 +4488,15 @@ export interface components {
             password: string;
             inviteToken?: null | string;
         };
+        /** @description What one run of the reminder did: reminded, dropped (the device unsubscribed) and failed devices. */
+        ReminderReport: {
+            /** Format: int32 */
+            sent: number | string;
+            /** Format: int32 */
+            removed: number | string;
+            /** Format: int32 */
+            failed: number | string;
+        };
         /**
          * @description What removing did: deleted for good, or hidden because its transactions keep it.
          * @enum {unknown}
@@ -3941,6 +4505,10 @@ export interface components {
         /** @description What removing did: deleted for good, or hidden because its transactions keep it. */
         RemovedItem: {
             removal: components["schemas"]["Removal"];
+        };
+        /** @description The device to stop reminding. */
+        RemovePushSubscriptionRequest: {
+            endpoint: string;
         };
         RenameFamilyRequest: {
             name: string;
@@ -4047,6 +4615,12 @@ export interface components {
             transaction: components["schemas"]["TransactionItem"];
             balances: components["schemas"]["BalanceChange"][];
         };
+        /** @description A device's push subscription, as the browser's `PushSubscription.toJSON()` gives it. */
+        SavePushSubscriptionRequest: {
+            endpoint: string;
+            p256dh: string;
+            auth: string;
+        };
         /**
          * @description A new transaction or the changed one, as the form sends it (F-018). A transfer (F-019) has
          *     ToAccountId and no category; ToAmount is what the To account got, needed
@@ -4067,6 +4641,12 @@ export interface components {
             toAccountId?: null | string;
             /** Format: double */
             toAmount?: null | number | string;
+        };
+        /** @description Sets one budget of Month (`yyyy-MM`); no amount removes it. */
+        SetBudgetRequest: {
+            month: string;
+            /** Format: double */
+            amount: null | number | string;
         };
         /** @description What the family sees of one of your accounts (F-030). */
         ShareAccountRequest: {
@@ -4103,6 +4683,14 @@ export interface components {
         SourceKind: "Cash" | "Bank" | "Own";
         StartFamilyRequest: {
             name: string;
+        };
+        /**
+         * @description Plans Month: with CopyLast as a copy of the last planned month before it (all
+         *     three levels), otherwise empty.
+         */
+        StartMonthRequest: {
+            month: string;
+            copyLast: boolean;
         };
         /**
          * @description One transaction as the lists show it, with its account's and category's names and the account's currency: an

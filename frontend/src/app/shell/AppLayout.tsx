@@ -2,6 +2,7 @@ import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation } from 'react-router';
+import { ReminderBanner } from '../../features/budget/Reminder';
 import { useKeptText } from '../../features/family/privacy';
 import { FAMILY, useWhose } from '../../features/family/whose';
 import { WhoseBand } from '../../features/family/WhoseLens';
@@ -101,6 +102,7 @@ function Shell({ user, onSignOut }: AppLayoutProps) {
         <main className={classes.main}>
           <div className={classes.content}>
             {showCard && <InstallCard onInstall={installSheet.open} onDismiss={card.dismiss} />}
+            <ReminderBanner />
             <PageBand />
             <Outlet />
           </div>

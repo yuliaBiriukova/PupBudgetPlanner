@@ -1,6 +1,7 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../shared/api/client';
 import type { components } from '../../shared/api/schema';
+import { budgetKey } from '../budget/budgetApi';
 import { reportsKey } from '../reports/reportsApi';
 
 type Schemas = components['schemas'];
@@ -85,6 +86,7 @@ function useCategoryMutation<Variables, Result>(
         queryClient.invalidateQueries({ queryKey: categoriesQuery.queryKey }),
         queryClient.invalidateQueries({ queryKey: ['transactions'] }),
         queryClient.invalidateQueries({ queryKey: reportsKey }),
+        queryClient.invalidateQueries({ queryKey: budgetKey }),
       ]),
   });
 }
