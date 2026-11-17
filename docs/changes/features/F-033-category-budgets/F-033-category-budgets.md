@@ -388,6 +388,13 @@ everything in it scrolls as one (`FadingScrollArea`), so it always fits and neve
 fits a column at its own CSS top (Transactions' stays 16 px). The prototype folder
 `frontend/src/prototypes/F-033-month-head/` is deleted.
 
+**Owner's comments on the build (2026-11-17), done:** 1. only *Spent outside the plan* scrolls in the column, as
+Transactions' "Where it went" (where the total goes and Delete stay put; FitColumn's own sticky top keeps it in place).
+2–3. the slim bar has ‹ the month and its year › (*Nov 2026* on a phone) and ˄ back to the top; it is `inert` while
+hidden. 4. every state of the page has the slip: a month not planned shows what was spent over *Start from …* / *Start
+empty*, loading its placeholder, an error the month row. 5. on the phone and tablet the two panels come after the groups
+(they were made for the desktop's empty column only).
+
 ## Tests
 - Unit: spent / left for the month's total, each group and category (currency conversion, over budget, a group's
   spending from categories with and without budgets, the total from all expenses, prefill from the last planned

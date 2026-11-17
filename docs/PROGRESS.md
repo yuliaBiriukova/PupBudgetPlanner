@@ -2,6 +2,16 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-17 (F-033: the owner's comments on the slip)
+
+**Done**
+- Only *Spent outside the plan* scrolls in the month's column (as Transactions); the slim bar switches months and shows
+  the year; every state of the page (not planned, loading, error) has the slip; the two panels show on the phone and
+  tablet after the groups.
+- Checks: lint, formatting, typecheck, all unit tests (the budget ones 3 runs), the build, `budget.spec.ts` 3 runs on
+  both viewports; screenshots on phone and desktop (top, scrolled, next month not planned) looked at. Test data: the
+  `e2e-slip-shots-…` people and the E2E runs' people, removed by the clean-up.
+
 ## 2026-11-16 (F-033: the header on the slip, built)
 
 **Done**

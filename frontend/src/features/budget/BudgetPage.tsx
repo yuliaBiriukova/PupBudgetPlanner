@@ -7,7 +7,6 @@ import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import tx from '../transactions/TransactionsPage.module.css';
 import { cx } from '../../shared/ui/cx';
-import { FadingScrollArea } from '../../shared/ui/FadingScrollArea';
 import { FitColumn } from '../../shared/ui/FitColumn';
 import {
   linesOf,
@@ -26,7 +25,7 @@ import {
 } from './budgetApi';
 import classes from './Budget.module.css';
 import { DeletePlanDialog, EditBudgetDialog, NewBudgetDialog } from './BudgetDialogs';
-import { Bar, MonthHead } from './parts';
+import { Bar } from './parts';
 import { OutsidePlan, PlanSplit } from './MonthColumn';
 import { SlipWithBar } from './BudgetSlip';
 import { useBudgetMonth } from './useBudgetMonth';
@@ -50,8 +49,16 @@ export function BudgetPage() {
 
   return (
     <div className={classes.page}>
-      {/* A planned month's switcher is on its slip */}
-      {!query.data?.planned && <MonthHead month={month} onMonth={setMonth} />}
+      {/* Every state has the slip (owner's review of PR #115); a planned month's is in PlannedMonth, with Change total */}
+      {!query.data?.planned && (
+        <SlipWithBar
+          month={month}
+          lines={query.data && linesOf(query.data)}
+          loading={query.isPending}
+          ratesMissing={query.data?.ratesMissing ?? false}
+          onMonth={setMonth}
+        />
+      )}
       {query.isPending ? (
         <div
           className={classes.columns}
@@ -59,11 +66,6 @@ export function BudgetPage() {
           aria-busy="true"
           aria-label={t('budget.loading')}
         >
-          <div className={classes.hero}>
-            <Skeleton height={20} width={160} radius="sm" />
-            <Skeleton height={48} width={240} radius="sm" />
-            <Skeleton height={8} radius="xl" />
-          </div>
           <div className={classes.groups}>
             {[0, 1, 2, 3].map((i) => (
               <Skeleton key={i} height={64} radius="md" />
@@ -167,6 +169,17 @@ function PlannedMonth({
   const close = () => {
     setOpen(null);
   };
+  const panels = (
+    <>
+      <PlanSplit lines={lines} />
+      <OutsidePlan
+        lines={lines}
+        onNew={(groupId, categoryId) => {
+          setOpen({ kind: 'new', groupId, categoryId });
+        }}
+      />
+    </>
+  );
   const deleteButton = (
     <UnstyledButton
       className={classes.more}
@@ -183,6 +196,7 @@ function PlannedMonth({
   return (
     <>
       <SlipWithBar
+        month={data.month}
         lines={lines}
         ratesMissing={data.ratesMissing}
         onMonth={onMonth}
@@ -192,24 +206,14 @@ function PlannedMonth({
       />
       <div className={classes.columns}>
         {/* The desktop: the month's column sticks under the slim bar and fits the window, as Transactions' (FitColumn);
-          what's in it scrolls as one, so it always fits and never moves (owner's review of PR #115) */}
+          only the spending outside the plan scrolls in it, as Transactions' "Where it went" (owner's review of PR #115) */}
         {wide && (
           <FitColumn fit className={classes.left}>
-            <FadingScrollArea className={classes.rest}>
-              <div className={classes.restInner}>
-                <PlanSplit lines={lines} />
-                <OutsidePlan
-                  lines={lines}
-                  onNew={(groupId, categoryId) => {
-                    setOpen({ kind: 'new', groupId, categoryId });
-                  }}
-                />
-                <div className={classes.wideOnly}>
-                  {isThisMonth && <ReminderCard />}
-                  {deleteButton}
-                </div>
-              </div>
-            </FadingScrollArea>
+            {panels}
+            <div className={classes.wideOnly}>
+              {isThisMonth && <ReminderCard />}
+              {deleteButton}
+            </div>
           </FitColumn>
         )}
         <div className={classes.groups}>
@@ -217,8 +221,10 @@ function PlannedMonth({
             <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
           ))}
           {/* The phone and tablet: after the groups, so it doesn't push them down */}
+          {/* The two panels after the groups on the phone and tablet too (owner's review of PR #115) */}
           {!wide && (
             <div className={classes.narrowOnly}>
+              {panels}
               {isThisMonth && <ReminderCard />}
               {deleteButton}
             </div>

@@ -166,6 +166,8 @@ describe('the Budget page', () => {
 
     const start = await screen.findByRole('button', { name: /^Start from/ }, LOADED);
     expect(screen.getByRole('button', { name: 'Start empty' })).toBeInTheDocument();
+    // The slip in this state too, with what was spent (owner's review of PR #115)
+    expect(screen.getByRole('region', { name: 'The month' })).toHaveTextContent('Spent31 482 ₴');
     await user.click(start);
     expect(await screen.findByText(/starts from .*’s plan/)).toBeInTheDocument();
     expect(sent).toEqual([{ url: '/api/budget/start', body: { month, copyLast: true } }]);

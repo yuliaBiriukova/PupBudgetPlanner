@@ -413,7 +413,7 @@
 
   /* As tall as its content, not the groups beside it, or it has no room to stay in place (owner's review of PR #115) */
   /* Sticks under the slim bar (52 px and 16 px of room); at most the window's room left (FitColumn sets it as the page
-     scrolls), and what's in it scrolls as one, so it never has to move */
+     scrolls): only the spending outside the plan scrolls in it, as Transactions' "Where it went" */
   .left {
     position: sticky;
     top: 68px;
@@ -422,26 +422,8 @@
     flex-direction: column;
   }
 
-  .rest {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    min-height: 120px;
-    /* Its bar in the gap beside it, as Transactions' "Where it went" */
-    margin: 0 -20px 0 -8px;
-  }
-
-  /* The column has only a max-height: the viewport takes the scroll area's room, not all of its content (B-007) */
-  .rest > :global(.mantine-ScrollArea-viewport) {
-    flex: 1;
-    height: auto;
-    min-height: 0;
-  }
-
-  .restInner {
-    display: grid;
-    gap: 24px;
-    padding: 0 20px 0 8px;
+  .left > * {
+    flex: none;
   }
 
   /* The slim bar on every width (Transactions shows its only below the desktop), as wide as the slip */
@@ -488,4 +470,17 @@
   .slimSpent {
     display: none;
   }
+}
+
+/* The slim bar with ‹ the month and its year ›: its own step buttons, ˄ at the end */
+.slimBar {
+  padding-left: 4px;
+}
+
+.slimMonth {
+  flex: none;
+}
+
+.slimUp {
+  flex: none;
 }
