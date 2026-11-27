@@ -337,5 +337,13 @@ approved: —
 
 Owner, 2026-11-27: not "Jars short by …"; picked "1 789 ₴ of jar money spent" (with the warning icon) for every place
 that said it: the account cards, the account lists of the move and split dialogs, and *Where the jar money lies*. The
-move dialog's warning reads "Mono black has no free money: 1 789 ₴ of its jar money is already spent." Open: on a
-five-in-a-row card (1920 px) the line needs 153 px and the card has 127 px.
+move dialog's warning reads "Mono black has no free money: 1 789 ₴ of its jar money is already spent." On a
+five-in-a-row card (1920 px) the line needs 153 px and the card has 127 px; asked how to fit it, the owner wanted to
+see all three ways, each a story opening on Accounts (nothing changes at 1440 px or on the phone, where it fits):
+- [Card fit 1: Two lines](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--card-fit-1&nav=false&panel=false&globals=viewport.value:!undefined):
+  the line wraps; a card is at least a bank card tall and grows, the row stretching the others so the balances stay
+  level (the hryvnia row 161 px instead of 145 at 1920 px).
+- [Card fit 2: Short on the card](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--card-fit-2&nav=false&panel=false&globals=viewport.value:!undefined):
+  the card says "1 789 ₴ spent"; the full wording stays everywhere else.
+- [Card fit 3: Four a row](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--card-fit-3&nav=false&panel=false&globals=viewport.value:!undefined):
+  cards at least 260 px wide, so four a row at 1920 px (was five).

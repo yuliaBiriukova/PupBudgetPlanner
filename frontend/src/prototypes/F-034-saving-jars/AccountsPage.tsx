@@ -18,9 +18,15 @@ import { useJarWorld } from './worldContext';
 /**
  * The Accounts page with the jars' money on it: In total says what is free and what is in jars; every account card
  * with jar money says what of it is free, above its balance (owner, 2026-11-19: "Free only" of the three ways shown).
- * A card whose jar money was spent says how much the jars are short, in the card's debt colour.
+ * A card whose jar money was spent says how much of it, in the card's debt colour.
+ *
+ * `cardFit` (owner, 2026-11-27): "1 789 ₴ of jar money spent" is wider than a five-in-a-row card at 1920 px. `wrap`: it
+ * takes two lines and the whole row grows; `short`: the card says only "1 789 ₴ spent"; `four`: at most four cards a
+ * row, each at least 260 px. Without it the line is cut off there.
  */
-export function AccountsPage() {
+export type CardFit = 'wrap' | 'short' | 'four';
+
+export function AccountsPage({ cardFit }: { cardFit?: CardFit }) {
   const world = useJarWorld();
   const [groupBy, setGroupBy] = useState<GroupBy>('currency');
   const currencyTitle = useCurrencyTitle();
@@ -94,7 +100,14 @@ export function AccountsPage() {
                 </span>
               )}
             </div>
-            <ul className={cx(pageClasses.cards, classes.fiveCards)}>
+            <ul
+              className={cx(
+                pageClasses.cards,
+                classes.fiveCards,
+                cardFit === 'wrap' && classes.fitWrap,
+                cardFit === 'four' && classes.fitFour,
+              )}
+            >
               {group.accounts.map((account) => (
                 <li key={account.id}>
                   <FreeCard
@@ -102,6 +115,7 @@ export function AccountsPage() {
                     meta={groupBy === 'currency' ? sourceOf(account) : undefined}
                     code={groupBy === 'source' ? account.currency : undefined}
                     inJars={inJarsOf(account, world.moves)}
+                    short={cardFit === 'short'}
                   />
                 </li>
               ))}
@@ -130,11 +144,13 @@ function FreeCard({
   meta,
   code,
   inJars,
+  short = false,
 }: {
   account: Account;
   meta?: string;
   code?: string;
   inJars: number;
+  short?: boolean;
 }) {
   const free = account.balance - inJars;
   const amount = formatMoney(account.balance, account.currency);
@@ -142,7 +158,7 @@ function FreeCard({
   return (
     <div className={cardClasses.withEdge} data-style={account.cardStyle}>
       <UnstyledButton
-        className={cx(cardClasses.card, pageClasses.card)}
+        className={cx(cardClasses.card, pageClasses.card, classes.fitCard)}
         data-style={account.cardStyle}
         data-edge
       >
@@ -156,7 +172,7 @@ function FreeCard({
             <span className={cx(classes.cardLine, free < 0 && classes.cardWarn)}>
               {free < 0 && <IconAlertTriangle size={16} stroke={1.7} aria-hidden />}
               {free < 0
-                ? `${formatMoney(-free, account.currency)} of jar money spent`
+                ? `${formatMoney(-free, account.currency)}${short ? ' spent' : ' of jar money spent'}`
                 : `${formatMoney(free, account.currency)} free`}
             </span>
           )}

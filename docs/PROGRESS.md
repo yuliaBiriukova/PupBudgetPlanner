@@ -71,6 +71,10 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
 - The owner picked *Bars* without the jars' colours: in the final prototype, the pieces in shades of the text colour as
   the Budget's split; the three variant stories deleted. Typecheck, ESLint, Prettier, design check clean; looked at at
   375 and 1440 px, light and dark.
+- No red ring on a short account's bar; "Jars short by …" became "1 789 ₴ of jar money spent" everywhere. It doesn't fit a
+  five-in-a-row card at 1920 px: three stories for it (*Card fit 1: Two lines*, *2: Short on the card*, *3: Four a
+  row*). Typecheck, ESLint, Prettier and the design check clean; each looked at at 1920, 1440 and 375 px, light and
+  dark.
 
 **Next**
 - The owner approves the final prototype in so many words; then the build (ADR for the jar model first).

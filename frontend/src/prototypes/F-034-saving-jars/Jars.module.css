@@ -787,3 +787,35 @@
   flex: none;
   white-space: nowrap;
 }
+
+/* Card fit, variant "Two lines" (owner, 2026-11-27): the spent line wraps; a card may grow past a bank card's shape,
+   and every card in its row stretches to the tallest, so the balances stay level */
+.fitWrap .cardWarn {
+  align-items: flex-start;
+  white-space: normal;
+}
+
+@container accounts (min-width: 420px) {
+  /* No fixed shape: a card is at least a bank card tall (from its own width) and grows to fit; the row stretches
+     the others to the tallest */
+  .fitWrap > li {
+    container-type: inline-size;
+  }
+
+  .fitWrap > li > * {
+    height: 100%;
+  }
+
+  .fitWrap .fitCard {
+    height: 100%;
+    min-height: calc(100cqw / 1.586);
+    aspect-ratio: auto;
+  }
+}
+
+/* Card fit, variant "Four a row": cards at least 260 px wide, so the spent line always fits */
+@container accounts (min-width: 420px) {
+  .fiveCards.fiveCards.fitFour {
+    grid-template-columns: repeat(auto-fill, minmax(max(260px, calc((100% - 3 * 14px) / 4)), 1fr));
+  }
+}
