@@ -55,7 +55,7 @@ export function JarMoney() {
                 <span>{account.name}</span>
                 <span className={classes.num}>{m(account.balance, account.currency)}</span>
               </span>
-              <span className={cx(classes.moneyBar, free < 0 && classes.moneyShort)} aria-hidden>
+              <span className={classes.moneyBar} aria-hidden>
                 {pieces.map(({ jar, amount }, index) => (
                   <span
                     key={jar.id}

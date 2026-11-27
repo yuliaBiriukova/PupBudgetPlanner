@@ -745,11 +745,6 @@
   background: color-mix(in srgb, var(--mantine-color-text) var(--shade), var(--mantine-color-body));
 }
 
-/* Short: the jars hold more than the account has; a red line under the bar says it */
-.moneyBar.moneyShort {
-  box-shadow: 0 0 0 2px var(--pup-color-expense);
-}
-
 /* Two or three accounts in a row on a wide screen, one on the phone */
 .barGrid {
   display: grid;
