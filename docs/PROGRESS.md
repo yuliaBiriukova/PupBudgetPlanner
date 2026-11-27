@@ -75,6 +75,8 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   five-in-a-row card at 1920 px: three stories for it (*Card fit 1: Two lines*, *2: Short on the card*, *3: Four a
   row*). Typecheck, ESLint, Prettier and the design check clean; each looked at at 1920, 1440 and 375 px, light and
   dark.
+- Card fit 2 says "1 789 ₴ overspent" (owner); tablets show three cards a row (from 180 px) instead of two big ones.
+  Design check clean; counts checked at 768, 1024, 1440 and 1920 px.
 
 **Next**
 - The owner approves the final prototype in so many words; then the build (ADR for the jar model first).

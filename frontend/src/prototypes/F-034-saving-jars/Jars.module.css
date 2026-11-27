@@ -253,6 +253,14 @@
   }
 }
 
+/* A tablet's column (narrower than four 224 px cards): three a row from 180 px, as the app has it, instead of two big
+   ones (owner, 2026-11-27) */
+@container accounts (min-width: 420px) and (max-width: 937px) {
+  .fiveCards.fiveCards {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
 /* The free line and the balance, 4 px apart */
 .cardMoney {
   display: flex;
@@ -814,7 +822,7 @@
 }
 
 /* Card fit, variant "Four a row": cards at least 260 px wide, so the spent line always fits */
-@container accounts (min-width: 420px) {
+@container accounts (min-width: 938px) {
   .fiveCards.fiveCards.fitFour {
     grid-template-columns: repeat(auto-fill, minmax(max(260px, calc((100% - 3 * 14px) / 4)), 1fr));
   }

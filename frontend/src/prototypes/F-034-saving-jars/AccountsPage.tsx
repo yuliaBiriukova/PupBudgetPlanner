@@ -104,7 +104,7 @@ export function AccountsPage({ cardFit }: { cardFit?: CardFit }) {
               className={cx(
                 pageClasses.cards,
                 classes.fiveCards,
-                cardFit === 'wrap' && classes.fitWrap,
+                (cardFit === 'wrap' || cardFit === 'short') && classes.fitWrap,
                 cardFit === 'four' && classes.fitFour,
               )}
             >
