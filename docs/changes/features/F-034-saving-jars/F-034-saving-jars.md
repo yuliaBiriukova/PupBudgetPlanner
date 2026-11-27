@@ -267,6 +267,23 @@ Owner, 2026-11-27, two more, built into the final prototype:
    jars are short takes its shortfall off *Free to spend* (owner: "Keep subtracting"); accounts with no jars count as
    free in full.
 
+Owner, 2026-11-27: *Where the jar money lies* should be an h2 heading, and the block "seems redundant or not
+straight-forward": other variants asked for. The heading is now set as the app's other section headings ("Where it
+went": the display font, 18 px). Three directions, each a story opening on Jars with the block under the shelf:
+- [Jar money 1: Only when short](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--jar-money-1&nav=false&panel=false&globals=viewport.value:!undefined):
+  no list. Which account holds a jar's money is already in the jar's window, each account's free money on Accounts.
+  Only while an account's jars are short, a box says so in a sentence ("Mono black has 48 211 ₴, but its jars hold
+  50 000 ₴: 1 789 ₴ of the jar money was spent.") with *Take out* (the jar with the most money on it).
+- [Jar money 2: Bars](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--jar-money-2&nav=false&panel=false&globals=viewport.value:!undefined):
+  each account with jar money: its balance, one bar with a piece per jar in the jar's own colour and the free rest an
+  outline, the jars named with their amounts under it and what is free (or short) at the right. Two or three accounts
+  in a row on a wide screen.
+- [Jar money 3: How Free adds up](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--jar-money-3&nav=false&panel=false&globals=viewport.value:!undefined):
+  a small table of every account, jars or not: in jars, free (another currency's in hryvnias under it), ending in
+  *Free to spend* — the number on top, so it explains itself. It shows that a credit card's debt (Mono credit,
+  −4 312 ₴) is taken off *Free to spend* too.
+The final prototype keeps the list as it was (with the h2) until one is picked.
+
 Owner, 2026-11-19: **no table view for jars.** The final prototype's Jars page is the shelf only: the *Jars* / *Table*
 switch and the ledger with its months are gone from it (points about the table above, the third review's 1 and the UX
 review's 4, no longer apply to the final prototype). A jar's ins and outs are in its window, under *History*.

@@ -696,3 +696,171 @@
 .formEnd > button {
   flex: none;
 }
+
+/* The block under the shelf (owner, 2026-11-27): a section heading as the app's others ("Where it went") */
+.sectionHead {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 8px;
+  font-family: var(--pup-font-display);
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+/* 1. Only when short: one quiet box, only while an account's jars are short */
+.shortBox {
+  margin: 12px 0 0;
+  padding: 16px 20px;
+  border: 1px solid var(--pup-color-rule);
+  border-radius: var(--mantine-radius-md);
+}
+
+.shortIcon {
+  flex: none;
+  color: var(--pup-color-expense);
+}
+
+.shortRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.shortText {
+  flex: 1 1 320px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.shortText strong {
+  font-weight: 500;
+}
+
+/* 2. Bars: the balance on one line, the bar, then in jars and free under its two ends */
+.barRow {
+  display: grid;
+  gap: 6px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--pup-color-rule);
+}
+
+.barTop,
+.barBottom {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.barBottom {
+  font-size: 13px;
+}
+
+.moneyBar {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.moneyBar > span {
+  flex: 0 0 var(--part);
+  min-width: 4px;
+}
+
+.moneyJar {
+  background: var(--jar);
+}
+
+/* Short: the jars hold more than the account has; a red line under the bar says it */
+.moneyBar.moneyShort {
+  box-shadow: 0 0 0 2px var(--pup-color-expense);
+}
+
+/* Two or three accounts in a row on a wide screen, one on the phone */
+.barGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 0 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barJars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  min-width: 0;
+}
+
+.barJar {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.barDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--jar);
+}
+
+.moneyFree {
+  flex-grow: 1 !important;
+  border-radius: 0 999px 999px 0;
+  box-shadow: inset 0 0 0 1px var(--pup-color-rule);
+}
+
+/* 3. How Free adds up: a small ledger, figures right-aligned in columns */
+.sumTable {
+  max-width: 720px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.sumTable th,
+.sumTable td {
+  padding: 10px 0 10px 16px;
+  border-bottom: 1px solid var(--pup-color-rule);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sumTable th:first-child {
+  padding-left: 0;
+  text-align: left;
+  font-weight: 400;
+  white-space: normal;
+}
+
+.sumTable thead th {
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.sumTable small {
+  display: block;
+  font-size: 12px;
+}
+
+.sumTable tfoot th,
+.sumTable tfoot td {
+  border-bottom: 0;
+  font-weight: 500;
+}
+
+/* What is free (or short) stays on one line at the bar's right end */
+.barBottom > :last-child {
+  flex: none;
+  white-space: nowrap;
+}

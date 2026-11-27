@@ -62,6 +62,13 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   ESLint, Prettier and the design check clean; Budget, its split, the From list and the move dialog looked at at 375
   and 1440 px, light and dark. No test data: nothing touches the API.
 
+- 2026-11-27, the owner's next review: the split's *From* field only once an amount is typed; how *Set aside* and
+  *Free to spend* are counted, explained and recorded ("Keep subtracting" a short account). *Where the jar money lies*
+  set as an h2 like the app's section headings, and three stories for the block: *Jar money 1: Only when short*,
+  *2: Bars* (a piece per jar in its colour), *3: How Free adds up* (a table ending in Free to spend). Typecheck,
+  ESLint, Prettier and the design check on the four stories clean; each looked at at 375 and 1440 px, light and dark,
+  *Take out* in variant 1 clicked through. No test data.
+
 **Next**
 - The owner approves the final prototype in so many words; then the build (ADR for the jar model first).
 

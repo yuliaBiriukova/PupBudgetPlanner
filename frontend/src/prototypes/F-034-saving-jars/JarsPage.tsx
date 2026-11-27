@@ -1,11 +1,11 @@
 import { Button, Title, UnstyledButton } from '@mantine/core';
-import { IconAlertTriangle, IconCheck, IconPlus } from '@tabler/icons-react';
-import { useId, type CSSProperties } from 'react';
-import { OVERVIEW } from '../../features/accounts/accountsTestData';
+import { IconCheck, IconPlus } from '@tabler/icons-react';
+import { type CSSProperties } from 'react';
 import { formatMoney } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
 import { goalText, JAR_ICONS, jarStyle, splitTotal } from './jarHelpers';
-import { inJarsOf, progress, reached, savedIn, type Jar } from './jars';
+import { progress, reached, savedIn, type Jar } from './jars';
+import { JarMoney, type JarMoneyKind } from './JarMoney';
 import classes from './Jars.module.css';
 import { useJarDialogs } from './useJarDialogs';
 import { useJarWorld } from './worldContext';
@@ -15,13 +15,11 @@ import { useJarWorld } from './worldContext';
  * drawn on a shelf, each with Put in under it (owner, 2026-11-19: no table view); under them, the accounts the jar
  * money lies on.
  */
-export function JarsPage() {
+export function JarsPage({ money = 'list' }: { money?: JarMoneyKind }) {
   const world = useJarWorld();
   const jars = useJarDialogs();
-  const accountsHeading = useId();
   const open = world.jars.filter((jar) => !jar.closed);
   const { inJars, free } = splitTotal(world.moves);
-  const holding = OVERVIEW.accounts.filter((a) => inJarsOf(a, world.moves) !== 0);
 
   return (
     <div className={classes.page}>
@@ -71,35 +69,12 @@ export function JarsPage() {
         </ul>
       </div>
 
-      <section className={classes.freeList} aria-labelledby={accountsHeading}>
-        <h2 id={accountsHeading} className={classes.subhead}>
-          Where the jar money lies
-        </h2>
-        <ul className={classes.rows}>
-          {holding.map((account) => {
-            const inside = inJarsOf(account, world.moves);
-            const left = account.balance - inside;
-            return (
-              <li key={account.id} className={classes.row}>
-                <span className={classes.rowMain}>
-                  {account.name}
-                  <span className={cx(classes.rowDate, left < 0 && classes.over)}>
-                    {left < 0 ? (
-                      <span className={classes.rowWarn}>
-                        <IconAlertTriangle size={16} stroke={1.7} aria-hidden />
-                        Jars short by {formatMoney(-left, account.currency)}
-                      </span>
-                    ) : (
-                      `${formatMoney(left, account.currency)} free of ${formatMoney(account.balance, account.currency)}`
-                    )}
-                  </span>
-                </span>
-                <span className={classes.num}>{formatMoney(inside, account.currency)} in jars</span>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+      <JarMoney
+        kind={money}
+        onTakeOut={(jar) => {
+          jars.moveJar(jar, 'out');
+        }}
+      />
       {jars.dialogs}
     </div>
   );
