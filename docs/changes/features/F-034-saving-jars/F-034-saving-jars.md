@@ -246,6 +246,10 @@ Seen and left for the owner to decide: the shelf has *New jar* twice (the button
 *From …* is a plain select that appears once an amount is typed, not the move dialog's account field; "To a jar" (the
 switch), "Move from Car" (the title) and "Move" (the button) name one thing three ways; a required field's placeholder
 turns red with the error and reads as a typed value (the theme's, app-wide).
+Owner, 2026-11-27, on these: *New jar* stays twice (the button and the dashed jar) on every width; the move is
+"To a jar" on the switch and "Move to jar" in the title and on the button (built into the final prototype); the red
+placeholder is fixed app-wide in its own change, [I-035](../../improvements/I-035-calm-error-placeholders/I-035-calm-error-placeholders.md).
+The split's *From …* select: explained to the owner again, not decided yet.
 
 Owner, 2026-11-19: **no table view for jars.** The final prototype's Jars page is the shelf only: the *Jars* / *Table*
 switch and the ledger with its months are gone from it (points about the table above, the third review's 1 and the UX

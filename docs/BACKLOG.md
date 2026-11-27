@@ -132,6 +132,7 @@ owner asks for one.
 | [I-032](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md) | 🎨 Invite links: no empty groups on the Family page; one list with each link's status on the People page (added 2026-11-12) | Medium | Done |
 | [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md) | Tests that can't pass by luck: rules for "nothing there" checks in the working agreement, and an audit of the existing ones (after B-019 and B-024 turned two releases red; added 2026-11-13) | High | Done |
 | [I-034](changes/improvements/I-034-no-committed-screenshots/I-034-no-committed-screenshots.md) | Screenshots are looked at and sent in chat, never committed; the ones committed before are deleted (owner, 2026-11-14) | Medium | Done |
+| [I-035](changes/improvements/I-035-calm-error-placeholders/I-035-calm-error-placeholders.md) | A field's placeholder stays grey when the field has an error, instead of turning red and reading as a typed value; app-wide, in the theme (from F-034's UX review; added 2026-11-27) | Low | Todo |
 
 ## Bugfixes
 

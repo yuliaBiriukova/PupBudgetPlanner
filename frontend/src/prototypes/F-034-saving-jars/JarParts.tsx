@@ -380,7 +380,7 @@ export function MoveDialog({
           ? `Put into ${jar.name}`
           : kind === 'out'
             ? `Take out of ${jar.name}`
-            : `Move from ${jar.name}`
+            : 'Move to jar'
       }
       footer={
         <div className={classes.footer}>
@@ -388,7 +388,7 @@ export function MoveDialog({
             Cancel
           </Button>
           <Button onClick={save}>
-            {kind === 'in' ? 'Put in' : kind === 'out' ? 'Take out' : 'Move'}
+            {kind === 'in' ? 'Put in' : kind === 'out' ? 'Take out' : 'Move to jar'}
             {intoJar !== null && intoJar > 0 ? ` ${formatMoney(intoJar, jar.currency)}` : ''}
           </Button>
         </div>
