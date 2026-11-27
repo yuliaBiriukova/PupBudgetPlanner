@@ -1,0 +1,682 @@
+/* F-034 prototype: saving jars. Colours from the theme and Mantine's palette only; sizes even */
+
+.num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.in {
+  color: var(--pup-color-income);
+}
+
+.over {
+  color: var(--pup-color-expense);
+}
+
+.dim {
+  color: var(--mantine-color-dimmed);
+}
+
+/* ---------- Shared: icon, bar ---------- */
+.icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--jar-soft);
+  color: var(--jar-text);
+}
+
+.bar {
+  position: relative;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--pup-color-rule);
+}
+
+.bar > span {
+  display: block;
+  width: var(--fill);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--jar);
+  transition: width 600ms ease-out;
+}
+
+.bar[data-none] {
+  background: transparent;
+  border: 1px dashed var(--pup-color-rule);
+}
+
+.reached {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  color: var(--pup-color-income);
+  font-weight: 500;
+}
+
+/* ---------- The jar's dialog ---------- */
+.dialogHeading {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.dialogName {
+  overflow: hidden;
+  font-family: var(--pup-font-display);
+  font-size: 20px;
+  font-weight: 300;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: var(--mantine-color-dimmed);
+}
+
+.iconButton:hover {
+  background: var(--pup-color-hover);
+  color: var(--mantine-color-text);
+}
+
+.dialogBody {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.label {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.hero {
+  margin: 0 0 12px;
+  font-family: var(--pup-font-display);
+  font-size: 36px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.goalLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  justify-content: space-between;
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.pace {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.note {
+  margin: 8px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.subhead {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--pup-color-rule);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.rowMain {
+  min-width: 0;
+}
+
+.rowDate {
+  display: block;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ---------- Forms ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fieldLabel {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pillCaption {
+  flex: none;
+  white-space: nowrap;
+  color: var(--mantine-color-dimmed);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.iconPill {
+  width: 44px;
+  padding: 0;
+}
+
+.swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--jar);
+}
+
+.twoFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.warning {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--pup-color-error-bg);
+  color: var(--pup-color-error-text);
+  font-size: 14px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+/* ================= The Accounts page ================= */
+.split {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin-top: 12px;
+}
+
+.splitItem {
+  font-size: 14px;
+}
+
+.splitItem strong {
+  font-weight: 500;
+}
+
+/* At most five account cards in a row, each at least 224 px wide (owner, 2026-11-17: wider cards): four at 1440 px,
+   five at 1920 px (the page column is 1200 px there). Where only one fits (a tablet's
+   column) the card is flatter than a bank card, so it doesn't grow huge */
+@container accounts (min-width: 420px) {
+  .fiveCards.fiveCards {
+    grid-template-columns: repeat(auto-fill, minmax(max(224px, calc((100% - 4 * 14px) / 5)), 1fr));
+  }
+}
+
+/* The free line and the balance, 4 px apart */
+.cardMoney {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* The card's one line of jar money: what of the balance is free */
+.cardLine {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+  color: var(--card-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.cardLine svg {
+  flex: none;
+}
+
+.cardWarn {
+  color: var(--card-debt);
+}
+
+/* ================= The Jars page ================= */
+.page {
+  max-width: 1280px;
+}
+
+.pageHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  padding: 8px 0 18px;
+}
+
+.pageHead h1 {
+  margin: 0 auto 0 0;
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 40px;
+  margin: 0 0 28px;
+  padding: 14px 0 16px;
+  border-top: 1px solid var(--pup-color-rule);
+  border-bottom: 1px solid var(--pup-color-rule);
+}
+
+.summaryAmount {
+  display: block;
+  font-family: var(--pup-font-display);
+  font-size: 28px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+.summarySmall {
+  display: block;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.shelf {
+  container: shelf / inline-size;
+}
+
+.shelfList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A jar is five rows (the glass, name, amount, goal, Put in) shared by every jar in its line: a name that takes two
+   lines keeps the amounts under it level with its neighbours' */
+.shelfList > li {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 5;
+  row-gap: 4px;
+  justify-items: center;
+  min-width: 0;
+  margin-bottom: 24px;
+}
+
+@container shelf (min-width: 560px) {
+  .shelfList {
+    grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+    gap: 0 20px;
+  }
+
+  .shelfList > li {
+    margin-bottom: 32px;
+  }
+}
+
+.tile {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 4;
+  row-gap: 8px;
+  justify-items: center;
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 4px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.tile:hover {
+  background: var(--pup-color-hover);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--mantine-color-text);
+  outline-offset: 2px;
+}
+
+/* The glass jar: a lid, then a rounded body filled to the progress in the jar's colour (gradients, no layers) */
+.glass {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  width: 112px;
+}
+
+.lid {
+  width: 64px;
+  height: 14px;
+  border-radius: 6px;
+  background: var(--jar);
+}
+
+.body {
+  display: grid;
+  place-items: start center;
+  padding-top: 20px;
+  width: 112px;
+  height: 122px;
+  border: 2px solid var(--pup-color-field-border);
+  border-radius: 28px 28px 32px 32px;
+  background:
+    linear-gradient(
+      to top,
+      var(--jar-soft) var(--fill),
+      var(--jar) var(--fill),
+      var(--jar) calc(var(--fill) + 2px),
+      transparent calc(var(--fill) + 2px)
+    ),
+    var(--pup-color-surface);
+}
+
+.glassIcon {
+  display: inline-flex;
+  color: var(--jar-text);
+}
+
+/* The whole name, on two lines when it needs them (a third is cut) */
+.tileName {
+  display: -webkit-box;
+  /* A one-line name sits on its amount, next to a neighbour's two lines */
+  align-self: end;
+  max-width: 100%;
+  overflow: hidden;
+  font-weight: 500;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.tileAmount {
+  font-family: var(--pup-font-display);
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+.tileGoal {
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.tileNew {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  grid-row: 1;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 122px;
+  padding: 0;
+  /* Level with a jar's body: under the tile's 8 px, the 14 px lid and its 4 px gap (owner, 2026-11-17) */
+  margin: 26px auto 0;
+  border: 2px dashed var(--pup-color-field-border);
+  border-radius: 28px 28px 32px 32px;
+  color: var(--mantine-color-dimmed);
+}
+
+.freeList {
+  margin: 12px 0 0;
+}
+
+.rowWarn {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  color: var(--pup-color-expense);
+}
+
+.confirmText {
+  margin: 0;
+}
+
+/* ================= The Budget page's jars, the dialogs ================= */
+.shelfItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+/* The Budget page's jars: a card like a group, its rows like categories */
+.saved {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px 16px;
+  align-items: center;
+  margin-top: 4px;
+  padding: 16px 4px 4px;
+  border-top: 1px solid var(--pup-color-rule);
+}
+
+/* One column: the card is narrow beside the month, so the button goes under the amounts, not over them */
+.savedButton {
+  justify-self: start;
+}
+
+@media (max-width: 47.99em) {
+  .savedButton {
+    justify-self: stretch;
+  }
+}
+
+.savedTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.savedText {
+  margin: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+}
+
+.savedWays {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* On the Budget page the two amounts stand together, as the Jars page's totals do, not at the card's two halves */
+.saved .savedWays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 40px;
+}
+
+.savedWay {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.savedWay strong {
+  font-family: var(--pup-font-display);
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.savedWay span {
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.wayPill {
+  flex-direction: column;
+  align-items: flex-start;
+  height: auto;
+  min-height: 64px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  white-space: normal;
+}
+
+.wayAmount {
+  font-family: var(--pup-font-display);
+  font-size: 20px;
+  font-weight: 300;
+}
+
+.splitRows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.splitRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 128px;
+  gap: 4px 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--pup-color-rule);
+}
+
+.splitRow:last-child {
+  border-bottom: 0;
+}
+
+.splitName {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.splitName small {
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.splitFrom {
+  grid-column: 2 / -1;
+}
+
+.splitTotals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.rateLine {
+  margin: 4px 0 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.fieldError {
+  margin: -8px 0 0;
+  color: var(--pup-color-expense);
+  font-size: 13px;
+}
+
+/* The jar's history, folded at first (owner, 2026-11-17) */
+.foldHeading {
+  margin: 0;
+}
+
+.fold {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  /* The hover's tint reaches 8 px past the text, so the icon starts on the rows' left edge */
+  width: calc(100% + 16px);
+  min-height: 44px;
+  margin: 0 -8px;
+  padding: 0 8px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.fold:hover {
+  background: var(--pup-color-hover);
+}
+
+.foldTitle {
+  flex: 1;
+  text-align: left;
+}
+
+.foldCount {
+  color: var(--mantine-color-dimmed);
+  font-weight: 400;
+}
+
+.foldChevron {
+  color: var(--mantine-color-dimmed);
+  transition: transform 150ms ease;
+}
+
+.fold[aria-expanded='true'] .foldChevron {
+  transform: rotate(180deg);
+}
+
+/* The end of the jar's edit form: Close jar with what it does (as the account form's end, I-011) */
+.formEnd {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--pup-color-rule);
+}
+
+.formEnd > button {
+  flex: none;
+}

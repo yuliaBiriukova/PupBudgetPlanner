@@ -5,7 +5,7 @@
 | Type | Feature |
 | Milestone | M7 — Budgets |
 | Priority | Medium |
-| Status | Todo |
+| Status | In progress |
 | Branch | `feature/F-034-saving-jars` (planned on `plan/m7-budgets-and-jars`) |
 | Design | 🎨 3 prototype stories required (the jars list, a jar with its goal and history, putting money in and taking it out) |
 | Approved | — |
@@ -106,9 +106,176 @@ an account today.
 - [ ] Backend, frontend, tests and docs once approved (ADR for the jar model).
 
 ## Design
-References (Mobbin, other apps, the internet): —
-Prototype stories: *Prototypes / F-034 Saving jars* in Storybook (`frontend/src/prototypes/F-034-saving-jars/`).
-Chosen variant: — · Final prototype approved: —
+References (open pages only, nothing that needs a sign-in):
+- [monobank Banka](https://monobank.ua/en/banka): a jar is drawn as a glass jar whose fill level rises toward the goal,
+  with a name, a goal and a date. Taken: the fill level as the jar's own picture (variant 2).
+- [YNAB targets](https://support.ynab.com/en_us/getting-started-with-targets-ryAEP08xC): a thin progress bar under each
+  target and "how much more is needed" for the month. Taken: the bar and the line "save … a month to make it" (all
+  variants).
+- [Monzo savings goals](https://monzo.com/blog/2018/07/19/set-savings-goals): pots next to the main balance, each with a
+  name, an image and a goal. Taken: jars sit next to the accounts, the money in them told apart from the rest
+  (variant 1).
+- [Actual Budget, envelope budgeting](https://actualbudget.org/docs/getting-started/envelope-budgeting): envelopes are
+  virtual, the money stays on the real accounts. Taken: option B as agreed, the account saying what of it is set aside.
+- [Goodbudget](https://www.nerdwallet.com/finance/learn/goodbudget-app-review): savings envelopes kept apart from the
+  monthly ones. Taken: jars as their own list, not mixed into the month's budgets.
+
+Brief: the couple sets money aside for a car, an apartment, a holiday, inside the Monobank or Deposit account where it
+really lies. The one job: see how close each goal is and how much of the money on the accounts is still free to spend;
+that comes first. The subject's world: a glass jar on the shelf, an envelope with "for the car" on it, the Deposit
+card. The feeling: "calm, it's put away".
+
+Plan from the design system: reused the Accounts page's head, *In total*, groups and `AccountCard` (copied into the
+prototype to add the free / in jars line), `AddCard`, `ResponsiveDialog` / `BottomSheet`, the pill switch, `Pills`, the
+fields, the budget's 6 px bar. New: the jar card or tile, the jar's dialog (saved, goal, bar, the month's pace, where
+the money lies, history), *Put in / Take out* with the account picked from pills (the most free money first), *New
+jar*. A jar's colour is one of Mantine's palette colours from the theme (no new token). Motion: only the bar filling
+after a put in.
+
+Round 1 (2026-11-17), three directions:
+1. **On Accounts**: a *Jars* row of cards between *In total* and the accounts; each account card says what of it is
+   free and what is in jars, *In total* the same for everything. Bold element: the free amount.
+2. **A page of drawn jars** (after Budget in the menu): every jar drawn as a glass jar filled to its progress, with
+   what is set aside and what is free on top. Bold element: the jars filling up.
+3. **The ledger** (a page of their own): a table, a row per jar with saved, goal, still to go, a month to make it and
+   what went in each of the last months; a row opens in place with its history and *Put in / Take out* right there.
+   Bold element: the months, as in the spreadsheet.
+
+The month's plan for jars and the split of the saved money (F-033's Budget page) come in round 2, on the variant the
+owner picks.
+Prototype stories: *Prototypes / F-034 Saving jars* in Storybook (`frontend/src/prototypes/F-034-saving-jars/`), in
+the app's shell, Olena's accounts from the Accounts stories with five jars (one goal reached, one account whose jar
+money was partly spent):
+- [Variant 1: On Accounts](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--variant-1&nav=false&panel=false&globals=viewport.value:!undefined)
+- [Variant 2: Drawn jars](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--variant-2&nav=false&panel=false&globals=viewport.value:!undefined)
+- [Variant 3: Ledger](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--variant-3&nav=false&panel=false&globals=viewport.value:!undefined)
+
+In every variant a jar opens (a dialog, or in place in the ledger) with Put in / Take out that work while the story is
+open, and *New jar* opens the form. Variants 2 and 3 are shown at `/jars`; the *Jars* item in the menu is described,
+not drawn.
+
+Round 2 (owner, 2026-11-17: "I like variant 2 and 3, maybe we can add toggle for how to display the jars"; the Jars
+item missing from the menu; how money gets into jars; jars in the budget):
+[Final prototype](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--final-prototype&nav=false&panel=false&globals=viewport.value:!undefined)
+(its `start` control opens Budget or Accounts first; the menu works too):
+- **Menu:** *Jars* after Budget in the sidebar, and under More on the phone after Budget.
+- **Jars page:** what is set aside and what is free on top; a pill switch *Jars* / *Table*, kept on the device: the
+  drawn jars (variant 2) with *Put in* under each, or the ledger (variant 3) with its rows opening in place; under them
+  the accounts the jar money lies on, each with its free part.
+- **Money into a jar, three ways:** *Put in* (under a jar, or in its dialog) from an account, the most free money
+  first; *To a jar* in the same dialog moves money from one jar to another, the money staying on its account; and the
+  Budget page's saved money split across jars. *Take out* gives it back to an account. The history names each
+  ("Moved to Apartment", "November's saved money").
+- **Budget page:** a *Jars* card after the groups with something planned or spent: what is still to go of the jars'
+  plan, a row per planned jar (set aside of planned, its bar), *Plan a jar for November*. A row opens the jar's plan:
+  the amount, a button with the pace that makes the goal by its date, and a red line when the groups' budgets and the
+  jars come to more than the month's total (Save blocked). A *Saved in November so far* card first in the month's
+  column (after the groups on the phone; *November is over* for a past month, as the reminder on the 1st offers):
+  what's left of the budgets and income minus expenses side by side, *Put into jars* opens the split: pick which
+  amount, *Fill by November's plan* or type per jar, each from an account, *Into jars* and *Stays free* under them.
+- **Accounts page:** variant 1's cards: free and in jars under the balance; *In total* says the same.
+- Not drawn yet: the slip's "… isn't in any group" and *Where the 80 000 ₴ goes* still leave the jars out; in the build
+  they count the jars' plan as a part of their own.
+
+Owner's review of the final prototype (2026-11-17), built into the same story:
+1. *Put in / Take out / To a jar* use the quick-add form's fields: the calculator display for the amount, the account
+   field and its list (each account's free money, or how much of the jar lies on it, on the right; the most free money
+   first), and a jar field and list built the same way.
+2. The jar's history is folded under a *History* row with its icon and count; it opens on a click.
+3. Money in another currency goes into a jar (Q-014, 1): putting in, the accounts in the jar's currency come first, then
+   the others; from one in another currency the amount is typed in its currency, with "4 135 ₴ into Car at today's NBU
+   rate, $1 = 41.35 ₴" under it. The account's free money goes down in its own currency. The Budget's split keeps to
+   accounts in the jar's currency.
+4. Account cards: from the tablet's width every card is one height in its row, with room for the free and in-jars
+   lines, so the balances line up.
+5. The saved money moved from the month's column to the end of the *Jars* card (a block with the two amounts and *Put
+   into jars*), so *Where the … goes* and *Spent outside the plan* keep the column as F-033 has it.
+
+Owner's second review (2026-11-17):
+1. The jar's pencil opens *Edit …*: the new-jar form filled in (a jar with money keeps its currency), *Close jar* at its
+   end with what it does.
+2. Account cards: the two lines were too tall; three ways with one line at most, each a story opening on Accounts:
+   - [Account cards 1: One line](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--cards-1&nav=false&panel=false&globals=viewport.value:!undefined):
+     "30 000 ₴ free" under the balance, the jars' amount with the jar icon on the right of the same line.
+   - [Account cards 2: Free only](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--cards-2&nav=false&panel=false&globals=viewport.value:!undefined):
+     only "30 000 ₴ free" under the balance; no jars' amount on the card (owner, 2026-11-17: first it was on the bank
+     line, the owner kept the free line and dropped the jar one). The card keeps a bank card's 1.59:1 shape.
+   - [Account cards 3: Free first](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--cards-3&nav=false&panel=false&globals=viewport.value:!undefined):
+     the free money is the big number, "free of 250 000 ₴" and the jars' amount under it.
+   On a narrow card (five in a row) the line of 1 and 3 wraps in two; the card is 3:2 instead of a bank card's 1.59:1
+   so it still fits.
+3. At most five cards in a row, each at least 224 px wide: five at 1920 px (the page column is 1200 px), four at
+   1440 px, three at 1024 px; where one fits per row (a tablet's column) the card is flatter (2.6:1).
+4. *New jar* on the shelf is level with the jars' bodies, under the lids.
+
+Owner's third review (2026-11-17):
+1. A jar open for many months, in the table: the months shown (as many as fit, three to six) page back and forth with
+   arrows above the table ("Aug – Nov 2026"), back to the page that starts with the oldest jar money; an *Earlier*
+   column before them holds everything put in before the first month shown, so a row still adds up to *Saved*. Every
+   month column is as wide. The fake data has an apartment jar since January 2025 to show it. On the phone and tablet
+   (two lines per jar) there are no month columns; a jar's history is in its opened row.
+2. *Account cards 2: Free only*: "X free" is above the balance now.
+3. When spending ate into the jar money the card says "Jars short by 1 789 ₴" (with the warning icon) instead of
+   "−1 789 ₴ free", as the move dialog's account list already did.
+4. The *Jars* card on Budget is where round 3 put it: in the right column after the groups with a plan, *Saved in
+   November so far* at its end. On a narrow column the *Put into jars* button covered the two amounts; it is now under
+   them.
+
+Claude's UX review of the prototypes (2026-11-17, asked by the owner: "fix what looks bad and breaks UX/UI
+principles"), built into the same stories:
+1. *New jar* / *Edit*: the currency is the app's one currency list (the shared `CurrencyPicker`, custom rule of F-016)
+   instead of a four-way switch; a jar with money shows it greyed with the reason. *By* is a month picker
+   (`MonthPickerInput`, cleared with its ×) instead of a month typed as text.
+2. *Close jar* asks first, from the jar's window and from its edit form: "Close Car?", how much becomes free, *Keep it*
+   / *Close jar* (DESIGN_RULES §6: an action that can't be taken back is confirmed).
+3. A jar's name is whole on the shelf: on two lines when it needs them ("Summer in the Carpathians" was cut), the
+   jars of a line sharing their rows so the amounts stay level.
+4. The table's rows show they open: a chevron after the jar's name, turned over when open (the phone rows had one);
+   the cells are 2 px tighter a side so the table still fits. A month arrow with nowhere to go is only dimmer, no grey
+   disc.
+5. *Put in / Take out*: a missing amount only turns the display red, as the transaction form does (custom rule of
+   F-018); the line under it stays for a limit ("Only … of the jar lies on …").
+6. *Account cards 3: Free first*: jars short no longer shows "−1 789 ₴" big in red, which read as a debt next to the
+   credit card's; it is "0 ₴" with "Jars short by 1 789 ₴" under it. On all three cards the free line and the balance
+   are 4 px apart (they touched).
+7. Small ones: *Where the jar money lies* says "Jars short by …" in red, as the cards do; the History row's icon starts
+   on the rows' left edge; *Take out* has its minus in the reached jar's window too; the Budget's two saved amounts
+   stand together instead of at the card's two halves.
+
+Seen and left for the owner to decide: the shelf has *New jar* twice (the button and the dashed jar); the split's
+*From …* is a plain select that appears once an amount is typed, not the move dialog's account field; "To a jar" (the
+switch), "Move from Car" (the title) and "Move" (the button) name one thing three ways; a required field's placeholder
+turns red with the error and reads as a typed value (the theme's, app-wide).
+
+Owner, 2026-11-19: **no table view for jars.** The final prototype's Jars page is the shelf only: the *Jars* / *Table*
+switch and the ledger with its months are gone from it (points about the table above, the third review's 1 and the UX
+review's 4, no longer apply to the final prototype). A jar's ins and outs are in its window, under *History*.
+*Variant 3: Ledger* stays as round 1's story.
+
+Owner, 2026-11-19: **account cards: "Free only"** ("let's keep cards 2 variant, create final prototype and remove the
+rest"). The prototype is now one story, the
+[Final prototype](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--final-prototype&nav=false&panel=false&globals=viewport.value:!undefined)
+(its `start` control opens Budget or Accounts first; the menu works too). The stories *Variant 1–3* and *Account cards
+1–3* and their code are deleted, so their links above no longer open. What the final prototype is:
+- **Menu:** *Jars* after Budget in the sidebar, under More on the phone.
+- **Jars page:** what is set aside and what is free on top; the jars drawn on a shelf, each filled to its progress, with
+  its name (whole, on two lines at most), what is saved, its share of the goal or "Goal reached", and *Put in* under
+  it; a dashed *New jar* after them; under the shelf, the accounts the jar money lies on, each with its free part or
+  "Jars short by …". No table view.
+- **A jar's window:** saved, the bar, to go, the month's pace and plan, the note, where the money lies, *History*
+  folded; *Take out* / *Put in*, or *Take out* / *Close jar* once the goal is reached; the pencil opens *Edit*.
+- **Put in / Take out / To a jar:** the quick-add form's amount display and account field, a jar field for a move,
+  another currency at today's NBU rate.
+- **New jar / Edit:** name, icon, colour, the app's currency list, goal, a month picker for *By*, note; *Close jar* at
+  the end of *Edit*. Closing asks first.
+- **Budget page:** the *Jars* card after the groups with a plan (a row per planned jar, *Plan a jar for November*, the
+  saved money with *Put into jars* and its split across jars).
+- **Accounts page:** *In total* says what is free and what is in jars; a card with jar money says "30 000 ₴ free"
+  above its balance, or "Jars short by 1 789 ₴" with the warning icon; no jars' amount on the card; at most five cards
+  in a row.
+
+Chosen variant: 2 "Drawn jars" (the table view of 3 dropped), account cards "Free only" (2026-11-19) · Final prototype
+approved: —
 
 ## Tests
 - Unit: in jars / free per account (also in another currency, and when spending eats into jar money), progress and

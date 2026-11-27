@@ -2,6 +2,60 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-17 (F-034: saving jars, design round 1)
+
+**Done**
+- F-034 started on `feature/F-034-saving-jars` (In progress). References (monobank Banka, YNAB targets, Monzo goals,
+  Actual Budget, Goodbudget), the brief and the plan in the F-034 description.
+- Three prototype stories in `frontend/src/prototypes/F-034-saving-jars/`, in the app's shell: *On Accounts* (a row of
+  jar cards; In total and the account cards say what is free and what is in jars), *Drawn jars* (a page of glass jars
+  filled to their progress), *Ledger* (a table with the last months, a row opening in place). In each, a jar's goal,
+  pace, where its money lies and history; Put in / Take out with the account as pills; New jar.
+- Checks: typecheck, ESLint, Prettier; the design check (360–1440 px, light and dark, axe) clean on all three; the
+  dialogs, put in, take out, a reached goal, New jar and the ledger's open row clicked through in Playwright at 375 and
+  1440 px, light and dark, screenshots looked at. No test data: nothing touches the API.
+
+- Round 2 from the owner's comments (variants 2 and 3 with a switch, Jars in the menu, how money gets into jars, jars
+  in the budget): the *Final prototype* story, in a copy of the shell with Jars after Budget: the Jars page with the
+  *Jars* / *Table* switch and *Put in* under each jar; *To a jar* in the move dialog; a copy of the Budget page with
+  the month's jars and the saved money split across jars; Accounts with the free / in jars split. Design check clean;
+  the switch, put in, to a jar, the plan over the total, the split, More and Accounts clicked through at 375 and
+  1440 px, light and dark, screenshots looked at.
+
+- The owner's review of the final prototype, built into it: the move dialog with the quick-add form's amount display
+  and account field (a jar field the same way), the jar's history folded, accounts in another currency into a jar at
+  the NBU rate, account cards one height per row with the balances lined up, the saved money at the end of the Jars
+  card instead of the month's column. Design check clean; the new states clicked through and looked at.
+
+- The owner's second review: the jar's pencil opens its edit form (Close jar at its end); three account-card stories
+  for the free / in-jars money in one line at most (*One line*, *Jars by the bank* (later *Free only*), *Free first*); at most five cards
+  in a row, each at least 224 px wide; *New jar* level with the jars. Design check clean; cards looked at at 375, 800,
+  1024, 1440 and 1920 px, light and dark.
+- Account cards 2 became *Free only* at the owner's word: "X free" under the balance stays, the jars' amount on the
+  bank line is gone, so the card keeps a bank card's shape. Design check clean; looked at at 375 and 1920 px.
+- The owner's third review: the jars table pages through the months with arrows and an *Earlier* column (fake data
+  now has a jar since January 2025); "X free" above the card's balance; "Jars short by …" instead of "−X free"; the
+  Budget page's *Saved* block no longer lets its button cover the amounts. Design check clean; looked at the table at
+  1440 and 1920 px, the Budget Jars card at 800 px, the cards at 1440 px, light and dark.
+
+- Claude's UX review of the prototypes, at the owner's word (seven fixes, listed in the F-034 description): the
+  shared currency list and a month picker in the jar form, *Close jar* asking first, whole jar names on the shelf, a
+  chevron on the table's rows, no error text under a missing amount, *Free first* without a false debt, small
+  alignments. Typecheck, ESLint, Prettier clean; the changed states looked at in Playwright at 375 and 1440 px, light
+  and dark. No test data: nothing touches the API.
+
+- 2026-11-19, the owner's word: no table view for jars. The final prototype's Jars page is the shelf only (the switch
+  and the ledger are out of it; *Variant 3: Ledger* stays as round 1's story). Typecheck, ESLint, Prettier and the
+  design check on the final prototype clean; the page looked at at 375 and 1440 px, light and dark.
+
+- 2026-11-19, the owner picked the account cards "Free only" and asked for the final prototype alone: one story,
+  *Final prototype* (Jars, Budget, Accounts); the stories *Variant 1–3* and *Account cards 1–3*, their code and the
+  styles only they used are deleted. Typecheck, ESLint, Prettier and the design check clean; Jars, a jar's window, the
+  move, edit and close dialogs, the Budget split and Accounts looked at at 375 and 1440 px, light and dark.
+
+**Next**
+- The owner approves the final prototype in so many words; then the build (ADR for the jar model first).
+
 ## 2026-11-17 (F-033: the owner's comments on the slip)
 
 **Done**
