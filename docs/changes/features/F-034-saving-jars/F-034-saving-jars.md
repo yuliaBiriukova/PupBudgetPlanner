@@ -284,6 +284,12 @@ went": the display font, 18 px). Three directions, each a story opening on Jars 
   −4 312 ₴) is taken off *Free to spend* too.
 The final prototype keeps the list as it was (with the h2) until one is picked.
 
+Owner, 2026-11-27: "I like variant 2 look, but I don't like the colors." Built into the final prototype: *Bars*, the
+jars' pieces in shades of the text colour (darkest the biggest jar on that account, lighter for each next, as the
+Budget's *Where the … goes*), square swatches before the jar names; the free rest an outline, a short account's bar
+ringed in red. The *Jar money 1–3* stories and the code only they used are deleted, so their links above no longer
+open.
+
 Owner, 2026-11-19: **no table view for jars.** The final prototype's Jars page is the shelf only: the *Jars* / *Table*
 switch and the ledger with its months are gone from it (points about the table above, the third review's 1 and the UX
 review's 4, no longer apply to the final prototype). A jar's ins and outs are in its window, under *History*.

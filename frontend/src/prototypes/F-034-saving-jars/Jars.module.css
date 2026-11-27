@@ -709,38 +709,6 @@
   line-height: 1.4;
 }
 
-/* 1. Only when short: one quiet box, only while an account's jars are short */
-.shortBox {
-  margin: 12px 0 0;
-  padding: 16px 20px;
-  border: 1px solid var(--pup-color-rule);
-  border-radius: var(--mantine-radius-md);
-}
-
-.shortIcon {
-  flex: none;
-  color: var(--pup-color-expense);
-}
-
-.shortRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.shortText {
-  flex: 1 1 320px;
-  margin: 0;
-  font-size: 14px;
-  line-height: 22px;
-}
-
-.shortText strong {
-  font-weight: 500;
-}
-
 /* 2. Bars: the balance on one line, the bar, then in jars and free under its two ends */
 .barRow {
   display: grid;
@@ -774,7 +742,7 @@
 }
 
 .moneyJar {
-  background: var(--jar);
+  background: color-mix(in srgb, var(--mantine-color-text) var(--shade), var(--mantine-color-body));
 }
 
 /* Short: the jars hold more than the account has; a red line under the bar says it */
@@ -809,54 +777,14 @@
   flex: none;
   width: 8px;
   height: 8px;
-  border-radius: 999px;
-  background: var(--jar);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--mantine-color-text) var(--shade), var(--mantine-color-body));
 }
 
 .moneyFree {
   flex-grow: 1 !important;
   border-radius: 0 999px 999px 0;
   box-shadow: inset 0 0 0 1px var(--pup-color-rule);
-}
-
-/* 3. How Free adds up: a small ledger, figures right-aligned in columns */
-.sumTable {
-  max-width: 720px;
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.sumTable th,
-.sumTable td {
-  padding: 10px 0 10px 16px;
-  border-bottom: 1px solid var(--pup-color-rule);
-  text-align: right;
-  white-space: nowrap;
-}
-
-.sumTable th:first-child {
-  padding-left: 0;
-  text-align: left;
-  font-weight: 400;
-  white-space: normal;
-}
-
-.sumTable thead th {
-  color: var(--mantine-color-dimmed);
-  font-size: 13px;
-  font-weight: 400;
-}
-
-.sumTable small {
-  display: block;
-  font-size: 12px;
-}
-
-.sumTable tfoot th,
-.sumTable tfoot td {
-  border-bottom: 0;
-  font-weight: 500;
 }
 
 /* What is free (or short) stays on one line at the bar's right end */

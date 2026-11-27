@@ -5,7 +5,7 @@ import { formatMoney } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
 import { goalText, JAR_ICONS, jarStyle, splitTotal } from './jarHelpers';
 import { progress, reached, savedIn, type Jar } from './jars';
-import { JarMoney, type JarMoneyKind } from './JarMoney';
+import { JarMoney } from './JarMoney';
 import classes from './Jars.module.css';
 import { useJarDialogs } from './useJarDialogs';
 import { useJarWorld } from './worldContext';
@@ -15,7 +15,7 @@ import { useJarWorld } from './worldContext';
  * drawn on a shelf, each with Put in under it (owner, 2026-11-19: no table view); under them, the accounts the jar
  * money lies on.
  */
-export function JarsPage({ money = 'list' }: { money?: JarMoneyKind }) {
+export function JarsPage() {
   const world = useJarWorld();
   const jars = useJarDialogs();
   const open = world.jars.filter((jar) => !jar.closed);
@@ -69,12 +69,7 @@ export function JarsPage({ money = 'list' }: { money?: JarMoneyKind }) {
         </ul>
       </div>
 
-      <JarMoney
-        kind={money}
-        onTakeOut={(jar) => {
-          jars.moveJar(jar, 'out');
-        }}
-      />
+      <JarMoney />
       {jars.dialogs}
     </div>
   );

@@ -68,6 +68,9 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   *2: Bars* (a piece per jar in its colour), *3: How Free adds up* (a table ending in Free to spend). Typecheck,
   ESLint, Prettier and the design check on the four stories clean; each looked at at 375 and 1440 px, light and dark,
   *Take out* in variant 1 clicked through. No test data.
+- The owner picked *Bars* without the jars' colours: in the final prototype, the pieces in shades of the text colour as
+  the Budget's split; the three variant stories deleted. Typecheck, ESLint, Prettier, design check clean; looked at at
+  375 and 1440 px, light and dark.
 
 **Next**
 - The owner approves the final prototype in so many words; then the build (ADR for the jar model first).

@@ -10,7 +10,6 @@ import { plannedMonth } from '../../features/budget/budgetTestData';
 import { OLENA_ID } from '../../features/family/familyTestData';
 import { MockFetch, type MockRoutes } from '../../test/mockFetch';
 import { AccountsPage } from './AccountsPage';
-import type { JarMoneyKind } from './JarMoney';
 import { JarsPage } from './JarsPage';
 import { AppLayout } from './ProtoAppLayout';
 import { ProtoBudgetPage } from './ProtoBudgetPage';
@@ -44,7 +43,7 @@ const PAGES = { Jars: '/jars', Budget: '/budget', Accounts: '/accounts' } as con
  * free): Jars after Budget in the menu; the Jars page shows the jars on a shelf; Budget has the month's jars and the
  * saved money; Accounts says what of each account is free. The jars live in the prototype; the API counts as awake.
  */
-function Final({ start, money = 'list' }: { start: keyof typeof PAGES; money?: JarMoneyKind }) {
+function Final({ start }: { start: keyof typeof PAGES }) {
   const [client] = useState(awakeClient);
   const [router] = useState(() =>
     createMemoryRouter(
@@ -52,7 +51,7 @@ function Final({ start, money = 'list' }: { start: keyof typeof PAGES; money?: J
         {
           element: <AppLayout user={{ name: 'Olena', email: 'olena@example.com' }} />,
           children: [
-            { path: 'jars', element: <JarsPage money={money} /> },
+            { path: 'jars', element: <JarsPage /> },
             { path: 'budget', element: <ProtoBudgetPage /> },
             { path: 'accounts', element: <AccountsPage /> },
             ...sectionRoutes.filter(
@@ -82,7 +81,6 @@ const meta = {
   args: { start: 'Jars' },
   argTypes: {
     start: { control: 'inline-radio', options: Object.keys(PAGES) },
-    money: { table: { disable: true } },
   },
   beforeEach: () => {
     localStorage.removeItem('pup.sidebar');
@@ -94,25 +92,5 @@ export default meta;
 /** Opens on Jars; Budget and Accounts are in the menu. `start` opens another page first. */
 export const FinalPrototype: StoryObj<typeof meta> = {
   name: 'Final prototype',
-  render: (args) => <Final key={args.start} {...args} />,
-};
-
-/** The block under the shelf, round of 2026-11-27 (owner: "Where the jar money lies" seemed redundant or not
- * straightforward). Each opens on Jars; scroll under the shelf. */
-export const JarMoney1: StoryObj<typeof meta> = {
-  name: 'Jar money 1: Only when short',
-  args: { money: 'short' },
-  render: (args) => <Final key={args.start} {...args} />,
-};
-
-export const JarMoney2: StoryObj<typeof meta> = {
-  name: 'Jar money 2: Bars',
-  args: { money: 'bars' },
-  render: (args) => <Final key={args.start} {...args} />,
-};
-
-export const JarMoney3: StoryObj<typeof meta> = {
-  name: 'Jar money 3: How Free adds up',
-  args: { money: 'sum' },
   render: (args) => <Final key={args.start} {...args} />,
 };
