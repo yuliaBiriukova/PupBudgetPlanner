@@ -796,7 +796,7 @@
   white-space: nowrap;
 }
 
-/* Card fit, variant "Two lines" (owner, 2026-11-27): the spent line wraps; a card may grow past a bank card's shape,
+/* The overspent line wraps where it doesn't fit (owner, 2026-11-27: Card fit 2); a card may grow past a bank card's shape,
    and every card in its row stretches to the tallest, so the balances stay level */
 .fitWrap .cardWarn {
   align-items: flex-start;
@@ -818,12 +818,5 @@
     height: 100%;
     min-height: calc(100cqw / 1.586);
     aspect-ratio: auto;
-  }
-}
-
-/* Card fit, variant "Four a row": cards at least 260 px wide, so the spent line always fits */
-@container accounts (min-width: 938px) {
-  .fiveCards.fiveCards.fitFour {
-    grid-template-columns: repeat(auto-fill, minmax(max(260px, calc((100% - 3 * 14px) / 4)), 1fr));
   }
 }

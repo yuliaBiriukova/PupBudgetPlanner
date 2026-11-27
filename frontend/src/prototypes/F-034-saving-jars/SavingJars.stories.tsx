@@ -9,7 +9,7 @@ import { thisMonth } from '../../features/budget/budget';
 import { plannedMonth } from '../../features/budget/budgetTestData';
 import { OLENA_ID } from '../../features/family/familyTestData';
 import { MockFetch, type MockRoutes } from '../../test/mockFetch';
-import { AccountsPage, type CardFit } from './AccountsPage';
+import { AccountsPage } from './AccountsPage';
 import { JarsPage } from './JarsPage';
 import { AppLayout } from './ProtoAppLayout';
 import { ProtoBudgetPage } from './ProtoBudgetPage';
@@ -43,7 +43,7 @@ const PAGES = { Jars: '/jars', Budget: '/budget', Accounts: '/accounts' } as con
  * free): Jars after Budget in the menu; the Jars page shows the jars on a shelf; Budget has the month's jars and the
  * saved money; Accounts says what of each account is free. The jars live in the prototype; the API counts as awake.
  */
-function Final({ start, cardFit }: { start: keyof typeof PAGES; cardFit?: CardFit }) {
+function Final({ start }: { start: keyof typeof PAGES }) {
   const [client] = useState(awakeClient);
   const [router] = useState(() =>
     createMemoryRouter(
@@ -53,7 +53,7 @@ function Final({ start, cardFit }: { start: keyof typeof PAGES; cardFit?: CardFi
           children: [
             { path: 'jars', element: <JarsPage /> },
             { path: 'budget', element: <ProtoBudgetPage /> },
-            { path: 'accounts', element: <AccountsPage cardFit={cardFit} /> },
+            { path: 'accounts', element: <AccountsPage /> },
             ...sectionRoutes.filter(
               (route) => !['jars', 'budget', 'accounts'].includes(route.path ?? ''),
             ),
@@ -92,27 +92,5 @@ export default meta;
 /** Opens on Jars; Budget and Accounts are in the menu. `start` opens another page first. */
 export const FinalPrototype: StoryObj<typeof meta> = {
   name: 'Final prototype',
-  render: (args) => <Final key={args.start} {...args} />,
-};
-
-/**
- * "1 789 ₴ of jar money spent" on an account card that is too narrow for it (five a row at 1920 px), owner 2026-11-27:
- * three ways, each opening on Accounts.
- */
-export const CardFit1: StoryObj<typeof meta> = {
-  name: 'Card fit 1: Two lines',
-  args: { start: 'Accounts', cardFit: 'wrap' },
-  render: (args) => <Final key={args.start} {...args} />,
-};
-
-export const CardFit2: StoryObj<typeof meta> = {
-  name: 'Card fit 2: Short on the card',
-  args: { start: 'Accounts', cardFit: 'short' },
-  render: (args) => <Final key={args.start} {...args} />,
-};
-
-export const CardFit3: StoryObj<typeof meta> = {
-  name: 'Card fit 3: Four a row',
-  args: { start: 'Accounts', cardFit: 'four' },
   render: (args) => <Final key={args.start} {...args} />,
 };

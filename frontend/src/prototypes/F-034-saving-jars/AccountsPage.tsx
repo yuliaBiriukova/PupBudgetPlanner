@@ -18,15 +18,10 @@ import { useJarWorld } from './worldContext';
 /**
  * The Accounts page with the jars' money on it: In total says what is free and what is in jars; every account card
  * with jar money says what of it is free, above its balance (owner, 2026-11-19: "Free only" of the three ways shown).
- * A card whose jar money was spent says how much of it, in the card's debt colour.
- *
- * `cardFit` (owner, 2026-11-27): "1 789 ₴ of jar money spent" is wider than a five-in-a-row card at 1920 px. `wrap`: it
- * takes two lines and the whole row grows; `short`: the card says only "1 789 ₴ overspent" (owner, the same day); `four`: at most four cards a
- * row, each at least 260 px. Without it the line is cut off there.
+ * A card whose jar money was spent says "1 789 ₴ overspent" in the card's debt colour (owner, 2026-11-27: Card fit 2):
+ * where it doesn't fit on one line (three cards a row on a tablet) it wraps, and the row grows so the balances stay level.
  */
-export type CardFit = 'wrap' | 'short' | 'four';
-
-export function AccountsPage({ cardFit }: { cardFit?: CardFit }) {
+export function AccountsPage() {
   const world = useJarWorld();
   const [groupBy, setGroupBy] = useState<GroupBy>('currency');
   const currencyTitle = useCurrencyTitle();
@@ -100,14 +95,7 @@ export function AccountsPage({ cardFit }: { cardFit?: CardFit }) {
                 </span>
               )}
             </div>
-            <ul
-              className={cx(
-                pageClasses.cards,
-                classes.fiveCards,
-                (cardFit === 'wrap' || cardFit === 'short') && classes.fitWrap,
-                cardFit === 'four' && classes.fitFour,
-              )}
-            >
+            <ul className={cx(pageClasses.cards, classes.fiveCards, classes.fitWrap)}>
               {group.accounts.map((account) => (
                 <li key={account.id}>
                   <FreeCard
@@ -115,7 +103,6 @@ export function AccountsPage({ cardFit }: { cardFit?: CardFit }) {
                     meta={groupBy === 'currency' ? sourceOf(account) : undefined}
                     code={groupBy === 'source' ? account.currency : undefined}
                     inJars={inJarsOf(account, world.moves)}
-                    short={cardFit === 'short'}
                   />
                 </li>
               ))}
@@ -137,20 +124,18 @@ function sourceOf(account: Account): string {
 
 /**
  * `AccountCard` copied for the prototype: a card with jar money says above its balance what of it is free; when
- * spending ate into the jar money, how much the jars are short instead of a free amount below zero.
+ * spending ate into the jar money, how much was overspent instead of a free amount below zero.
  */
 function FreeCard({
   account,
   meta,
   code,
   inJars,
-  short = false,
 }: {
   account: Account;
   meta?: string;
   code?: string;
   inJars: number;
-  short?: boolean;
 }) {
   const free = account.balance - inJars;
   const amount = formatMoney(account.balance, account.currency);
@@ -172,7 +157,7 @@ function FreeCard({
             <span className={cx(classes.cardLine, free < 0 && classes.cardWarn)}>
               {free < 0 && <IconAlertTriangle size={16} stroke={1.7} aria-hidden />}
               {free < 0
-                ? `${formatMoney(-free, account.currency)}${short ? ' overspent' : ' of jar money spent'}`
+                ? `${formatMoney(-free, account.currency)} overspent`
                 : `${formatMoney(free, account.currency)} free`}
             </span>
           )}

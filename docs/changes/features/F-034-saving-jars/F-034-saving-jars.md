@@ -351,5 +351,10 @@ see all three ways, each a story opening on Accounts (nothing changes at 1440 px
   tablet's 601 px, 294 × 185 px each. Now, in a column narrower than four 224 px cards, three a row from 180 px (as the
   app has it): 191 px wide at 768 px, three at 1024 px; four at 1440 px and five at 1920 px stay. Card fit 3's 260 px
   rule starts above that too.
+
+Owner, 2026-11-27: "Yes, use Card fit 2". In the final prototype an account card says "1 789 ₴ overspent" (the
+warning icon, the card's debt colour); where it doesn't fit on one line (three cards a row on a tablet) it wraps and the
+row grows, the balances level. Everywhere else stays "1 789 ₴ of jar money spent". Tablets have three cards a row. The
+*Card fit 1–3* stories and the code only they used are deleted, so their links above no longer open.
 - [Card fit 3: Four a row](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--card-fit-3&nav=false&panel=false&globals=viewport.value:!undefined):
   cards at least 260 px wide, so four a row at 1920 px (was five).

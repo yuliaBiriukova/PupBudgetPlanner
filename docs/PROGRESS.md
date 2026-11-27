@@ -77,6 +77,7 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   dark.
 - Card fit 2 says "1 789 ₴ overspent" (owner); tablets show three cards a row (from 180 px) instead of two big ones.
   Design check clean; counts checked at 768, 1024, 1440 and 1920 px.
+- The owner picked Card fit 2: in the final prototype; the card-fit stories deleted. Design check clean.
 
 **Next**
 - The owner approves the final prototype in so many words; then the build (ADR for the jar model first).
