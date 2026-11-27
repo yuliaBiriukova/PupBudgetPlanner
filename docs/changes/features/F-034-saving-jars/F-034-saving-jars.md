@@ -47,7 +47,7 @@ no way to say "this part of my Monobank money is for the car".
 | 3 | Reaching the goal | The jar shows "Goal reached"; the person closes it (archived, history kept) when the money is used |
 | 4 | Progress | Saved / goal with a progress bar; with a target date, "save 4,200 a month to make it" |
 | 5 | Which account saved money is set aside from | The person picks it (the account with the most free money in the jar's currency comes first) |
-| 6 | Moving what's left during the month | The Budget page's total "left" for the month goes down by what was moved; the categories' budgets stay as planned |
+| 6 | Moving what's left during the month | ~~The Budget page's total "left" for the month goes down by what was moved~~ Changed by the owner, 2026-11-27: money put into jars is not an expense; the month's *Spent* and *Left* and the categories' budgets don't change. The jars' plan is a part of the month's total (Q-015), shown in *Where the … goes* |
 | 7 | Free money shrinks below what's in jars (spent from an account with money set aside) | The account shows a warning "2,000 of the jar money was spent"; the person takes it out of a jar or tops the account up |
 | 8 | Where | A Jars section on the Accounts page (or its own page in the menu), decided in the design round |
 | 9 | Do the jars planned in the month count within F-033's total for the month? (Q-015) | Yes: the total is what the person plans to spend and set aside, so the groups' budgets plus the planned jar amounts may not be bigger than it |
@@ -93,8 +93,10 @@ an account today.
       the money runs out); together the amounts may not be more than the saved money, and what is not given out
       stays free. Offered
       when the month closes (with the reminder on the 1st, F-033) and any time with a button on the Budget page;
-      moving it during the month lowers the month's total "left" by that much, the categories' budgets stay as
-      planned.
+      money put into jars is not an expense: the month's *Spent* and *Left* and the categories' budgets don't
+      change (owner, 2026-11-27).
+- [ ] The jars' plan is a part of the month's total (Q-015): *Where the … goes* shows *Jars* as a part beside the
+      groups, and the slip's "… isn't in any group" and *Not in any group* leave it out.
 - [ ] Jars are personal; in the family views a member's jars show as F-030 privacy allows.
 - [ ] Works on the phone and on the desktop, light and dark.
 
@@ -174,8 +176,8 @@ item missing from the menu; how money gets into jars; jars in the budget):
   what's left of the budgets and income minus expenses side by side, *Put into jars* opens the split: pick which
   amount, *Fill by November's plan* or type per jar, each from an account, *Into jars* and *Stays free* under them.
 - **Accounts page:** variant 1's cards: free and in jars under the balance; *In total* says the same.
-- Not drawn yet: the slip's "… isn't in any group" and *Where the 80 000 ₴ goes* still leave the jars out; in the build
-  they count the jars' plan as a part of their own.
+- ~~Not drawn yet: the slip's "… isn't in any group" and *Where the 80 000 ₴ goes* still leave the jars out~~ Drawn
+  2026-11-27 (below).
 
 Owner's review of the final prototype (2026-11-17), built into the same story:
 1. *Put in / Take out / To a jar* use the quick-add form's fields: the calculator display for the amount, the account
@@ -249,7 +251,17 @@ turns red with the error and reads as a typed value (the theme's, app-wide).
 Owner, 2026-11-27, on these: *New jar* stays twice (the button and the dashed jar) on every width; the move is
 "To a jar" on the switch and "Move to jar" in the title and on the button (built into the final prototype); the red
 placeholder is fixed app-wide in its own change, [I-035](../../improvements/I-035-calm-error-placeholders/I-035-calm-error-placeholders.md).
-The split's *From …* select: explained to the owner again, not decided yet.
+
+Owner, 2026-11-27, two more, built into the final prototype:
+1. **The split's account:** the move dialog's account field (the bank under the name, the free money on the right, the
+   most free money first) under each jar, shown from the start, with a *From* label before it in the icons' column
+   instead of "From" in every option.
+2. **Jars aren't spending:** "Do not count money put into jars as an expense, it's just the money that was planned for
+   some spending that can't be spent for something else. But show the jars in *Where the 80 000 ₴ goes*." The month's
+   *Spent* and *Left* don't change when money goes into a jar; the split's hint says so. *Where the 80 000 ₴ goes* has
+   *Jars* (the month's jar plan, 32 000 ₴, 40 %) as a part sorted with the groups, its row bringing the Jars card into
+   view; *Not in any group* and the slip's "… isn't in any group" are what's left after the groups and the jars
+   (500 ₴, was 32 500 ₴).
 
 Owner, 2026-11-19: **no table view for jars.** The final prototype's Jars page is the shelf only: the *Jars* / *Table*
 switch and the ledger with its months are gone from it (points about the table above, the third review's 1 and the UX

@@ -8,6 +8,7 @@ import form from '../../features/transactions/TransactionForm.module.css';
 import { KEEP_FORM_OPEN } from '../../features/transactions/transactionForm';
 import { cx } from '../../shared/ui/cx';
 import type { Jar } from './jars';
+import classes from './Jars.module.css';
 
 /** One account the money can come from or go back to, with what to show on its right. */
 export interface AccountOption {
@@ -35,16 +36,20 @@ export function JarAccountField({
   value,
   options,
   onChange,
+  inline = false,
 }: {
   label: string;
   value: AccountOption;
   options: AccountOption[];
   onChange: (accountId: string) => void;
+  /** The label before the field on the same line (the Budget's split, owner 2026-11-27), not above it. */
+  inline?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   return (
     <PickField
       label={label}
+      inline={inline}
       open={open}
       setOpen={setOpen}
       icon={<IconWallet size={20} stroke={1.7} aria-hidden />}
@@ -145,8 +150,10 @@ function PickField({
   sub,
   right,
   children,
+  inline = false,
 }: {
   label: string;
+  inline?: boolean;
   open: boolean;
   setOpen: (open: boolean) => void;
   icon: ReactNode;
@@ -156,10 +163,14 @@ function PickField({
   children: ReactNode;
 }) {
   return (
-    <div className={form.block}>
-      <div className={form.blockHead}>
-        <span className={form.label}>{label}</span>
-      </div>
+    <div className={inline ? classes.inlinePick : form.block}>
+      {inline ? (
+        <span className={cx(form.label, classes.inlineLabel)}>{label}</span>
+      ) : (
+        <div className={form.blockHead}>
+          <span className={form.label}>{label}</span>
+        </div>
+      )}
       <Picker
         opened={open}
         onClose={() => {

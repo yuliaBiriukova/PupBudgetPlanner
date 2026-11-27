@@ -29,3 +29,11 @@ export function useJarWorld(): JarWorld {
   if (!world) throw new Error('useJarWorld needs JarWorldProvider');
   return world;
 }
+
+/** What the month plans for jars: part of the month's total (Q-015), but not spending (owner, 2026-11-27). */
+export function useJarsPlanned(): number {
+  const world = useJarWorld();
+  return world.jars
+    .filter((j) => !j.closed && world.plan[j.id] !== undefined)
+    .reduce((s, j) => s + (world.plan[j.id] ?? 0), 0);
+}

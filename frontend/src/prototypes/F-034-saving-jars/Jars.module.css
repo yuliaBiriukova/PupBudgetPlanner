@@ -601,8 +601,24 @@
   font-size: 13px;
 }
 
-.splitFrom {
+/* The account under a jar in the split (owner, 2026-11-27): "From" in the icons' column, the move dialog's account
+   field across the rest of the row */
+.inlinePick {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  min-width: 0;
+}
+
+.inlinePick > :last-child {
   grid-column: 2 / -1;
+  min-width: 0;
+}
+
+.inlineLabel {
+  color: var(--mantine-color-dimmed);
+  font-weight: 400;
 }
 
 .splitTotals {

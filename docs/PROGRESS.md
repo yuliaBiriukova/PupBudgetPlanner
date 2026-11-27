@@ -53,6 +53,15 @@ Newest entries on top. Each entry: what was done, decisions, what's next.
   styles only they used are deleted. Typecheck, ESLint, Prettier and the design check clean; Jars, a jar's window, the
   move, edit and close dialogs, the Budget split and Accounts looked at at 375 and 1440 px, light and dark.
 
+- 2026-11-27, the work moved from `develop`'s working tree onto `feature/F-034-saving-jars` and committed. The
+  owner's answers on the points left from the UX review: *New jar* stays twice; the move is "To a jar" on the switch
+  and "Move to jar" in its title and button; the red placeholder becomes its own change, I-035 (Low, Todo). Then two
+  more, built into the final prototype: the Budget's split picks each jar's account with the move dialog's field and
+  a *From* label before it; money put into jars isn't an expense (the month's spent and left stay), and *Where the …
+  goes* shows *Jars* as a part beside the groups, the slip's "… isn't in any group" leaving them out. Typecheck,
+  ESLint, Prettier and the design check clean; Budget, its split, the From list and the move dialog looked at at 375
+  and 1440 px, light and dark. No test data: nothing touches the API.
+
 **Next**
 - The owner approves the final prototype in so many words; then the build (ADR for the jar model first).
 

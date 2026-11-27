@@ -30,11 +30,13 @@ import {
   NewBudgetDialog,
 } from '../../features/budget/BudgetDialogs';
 import { Bar } from '../../features/budget/parts';
-import { OutsidePlan, PlanSplit } from '../../features/budget/MonthColumn';
+import { OutsidePlan } from '../../features/budget/MonthColumn';
 import { SlipWithBar } from '../../features/budget/BudgetSlip';
 import { useBudgetMonth } from '../../features/budget/useBudgetMonth';
 import { ReminderCard } from '../../features/budget/Reminder';
 import { JarsPlan } from './BudgetJars';
+import { useJarsPlanned } from './worldContext';
+import { JarsPlanSplit } from './JarsPlanSplit';
 
 /** The desktop's two columns (Budget.module.css, 64em): the month on the left, the groups on the right. */
 const WIDE_QUERY = '(min-width: 64em)';
@@ -164,7 +166,13 @@ function PlannedMonth({
   const { t } = useTranslation();
   const [open, setOpen] = useState<Open | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const lines = linesOf(data);
+  const groupLines = linesOf(data);
+  const jarsPlanned = useJarsPlanned();
+  // The jars' plan is a part of the month's total (Q-015): the slip's "… isn't in any group" leaves it out
+  const lines = {
+    ...groupLines,
+    unplanned: groupLines.unplanned == null ? null : groupLines.unplanned - jarsPlanned,
+  };
   const plan = planOf(data);
   // Every group open (owner's second review of PR #115: no accordions); those with nothing planned or spent last
   const quiet = (g: GroupLine) => g.budget == null && g.spent === 0;
@@ -179,7 +187,7 @@ function PlannedMonth({
   };
   const panels = (
     <>
-      <PlanSplit lines={lines} />
+      <JarsPlanSplit lines={groupLines} jars={jarsPlanned} />
       <OutsidePlan
         lines={lines}
         onNew={(groupId, categoryId) => {

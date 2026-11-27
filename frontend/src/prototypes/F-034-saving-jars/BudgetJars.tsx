@@ -1,4 +1,4 @@
-import { Button, Select, TextInput, UnstyledButton } from '@mantine/core';
+import { Button, TextInput, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconPigMoney, IconPlus, IconWand } from '@tabler/icons-react';
 import { useId, useState } from 'react';
@@ -11,6 +11,7 @@ import pills from '../../shared/ui/Pills.module.css';
 import { ResponsiveDialog } from '../../shared/ui/ResponsiveDialog';
 import { accountsFor } from './jarHelpers';
 import { JarIcon } from './JarParts';
+import { JarAccountField, type AccountOption } from './MoveFields';
 import {
   monthName as jarMonth,
   MONTH_INCOME,
@@ -56,7 +57,7 @@ export function JarsPlan({
   );
 
   return (
-    <section className={budget.group} aria-label="Jars">
+    <section id="budget-jars" className={budget.group} aria-label="Jars">
       <div className={cx(budget.row, budget.groupHead)}>
         <span className={budget.rowTop}>
           <span className={budget.groupName}>Jars</span>
@@ -451,6 +452,12 @@ function SplitDialog({
             const options = accountsFor(jar, world.moves).filter(
               (o) => o.account.currency === jar.currency,
             );
+            // The move dialog's account field (owner, 2026-11-27): each account's free money on its right
+            const fields: AccountOption[] = options.map(({ account, free }) => ({
+              account,
+              money: free < 0 ? `Jars short by ${money(-free)}` : `${money(free)} free`,
+              short: free < 0,
+            }));
             return (
               <li key={jar.id} className={classes.splitRow}>
                 <JarIcon jar={jar} />
@@ -475,19 +482,15 @@ function SplitDialog({
                     setTexts((now) => ({ ...now, [jar.id]: value }));
                   }}
                 />
-                {(amounts[jar.id] ?? 0) > 0 && (
-                  <Select
-                    className={classes.splitFrom}
-                    aria-label={`${jar.name} from`}
-                    allowDeselect={false}
-                    value={from[jar.id] ?? options[0]?.account.id ?? null}
-                    onChange={(value) => {
-                      if (value) setFrom((now) => ({ ...now, [jar.id]: value }));
+                {fields[0] && (
+                  <JarAccountField
+                    inline
+                    label="From"
+                    value={fields.find((f) => f.account.id === from[jar.id]) ?? fields[0]}
+                    options={fields}
+                    onChange={(id) => {
+                      setFrom((now) => ({ ...now, [jar.id]: id }));
                     }}
-                    data={options.map(({ account, free }) => ({
-                      value: account.id,
-                      label: `From ${account.name}, ${money(Math.max(0, free))} free`,
-                    }))}
                   />
                 )}
               </li>
@@ -500,8 +503,8 @@ function SplitDialog({
           </p>
         )}
         <p className={classes.hint}>
-          Putting it into jars now lowers what's left of {name}'s total; the categories' budgets
-          stay as planned.
+          Money put into jars isn't spent: it stays on the account, set aside for the jar. {name}'s
+          spending and budgets don't change.
         </p>
       </div>
     </ResponsiveDialog>
