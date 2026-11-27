@@ -299,7 +299,7 @@ export function MoveDialog({
           amount: free,
           money:
             free < 0
-              ? `Jars short by ${formatMoney(-free, account.currency)}`
+              ? `${formatMoney(-free, account.currency)} of jar money spent`
               : `${formatMoney(free, account.currency)} free`,
           short: free < 0,
         }))
@@ -327,7 +327,7 @@ export function MoveDialog({
   const warning =
     kind === 'in' && picked && amount !== null && amount > picked.amount
       ? picked.amount <= 0
-        ? `${picked.account.name} has no free money: its jars are already short by ${formatMoney(-picked.amount, typedIn)}.`
+        ? `${picked.account.name} has no free money: ${formatMoney(-picked.amount, typedIn)} of its jar money is already spent.`
         : `${picked.account.name} has ${formatMoney(picked.amount, typedIn)} free: the rest would be money already spent.`
       : null;
 

@@ -455,7 +455,7 @@ function SplitDialog({
             // The move dialog's account field (owner, 2026-11-27): each account's free money on its right
             const fields: AccountOption[] = options.map(({ account, free }) => ({
               account,
-              money: free < 0 ? `Jars short by ${money(-free)}` : `${money(free)} free`,
+              money: free < 0 ? `${money(-free)} of jar money spent` : `${money(free)} free`,
               short: free < 0,
             }));
             return (

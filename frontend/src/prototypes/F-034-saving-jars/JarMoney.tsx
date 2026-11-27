@@ -86,7 +86,7 @@ export function JarMoney() {
                 {free < 0 ? (
                   <span className={classes.rowWarn}>
                     <IconAlertTriangle size={16} stroke={1.7} aria-hidden />
-                    Jars short by {m(-free, account.currency)}
+                    {m(-free, account.currency)} of jar money spent
                   </span>
                 ) : (
                   <span className={cx(classes.num, classes.dim)}>

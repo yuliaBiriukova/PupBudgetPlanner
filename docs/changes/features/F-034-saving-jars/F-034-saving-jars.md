@@ -287,7 +287,7 @@ The final prototype keeps the list as it was (with the h2) until one is picked.
 Owner, 2026-11-27: "I like variant 2 look, but I don't like the colors." Built into the final prototype: *Bars*, the
 jars' pieces in shades of the text colour (darkest the biggest jar on that account, lighter for each next, as the
 Budget's *Where the … goes*), square swatches before the jar names; the free rest an outline; a short account's bar (owner, the same day: no
-red outline) looks like the others, "Jars short by …" saying it. The *Jar money 1–3* stories and the code only they used are deleted, so their links above no longer
+red outline) looks like the others, the red line under it saying it. The *Jar money 1–3* stories and the code only they used are deleted, so their links above no longer
 open.
 
 Owner, 2026-11-19: **no table view for jars.** The final prototype's Jars page is the shelf only: the *Jars* / *Table*
@@ -334,3 +334,8 @@ approved: —
   reminder.
 - "Family" privacy (F-030) decides per account what members see; jars need the same choice, or follow the accounts
   they are set aside from. Decided in the design round.
+
+Owner, 2026-11-27: not "Jars short by …"; picked "1 789 ₴ of jar money spent" (with the warning icon) for every place
+that said it: the account cards, the account lists of the move and split dialogs, and *Where the jar money lies*. The
+move dialog's warning reads "Mono black has no free money: 1 789 ₴ of its jar money is already spent." Open: on a
+five-in-a-row card (1920 px) the line needs 153 px and the card has 127 px.

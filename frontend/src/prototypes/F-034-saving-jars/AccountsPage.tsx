@@ -156,7 +156,7 @@ function FreeCard({
             <span className={cx(classes.cardLine, free < 0 && classes.cardWarn)}>
               {free < 0 && <IconAlertTriangle size={16} stroke={1.7} aria-hidden />}
               {free < 0
-                ? `Jars short by ${formatMoney(-free, account.currency)}`
+                ? `${formatMoney(-free, account.currency)} of jar money spent`
                 : `${formatMoney(free, account.currency)} free`}
             </span>
           )}
