@@ -254,8 +254,8 @@ placeholder is fixed app-wide in its own change, [I-035](../../improvements/I-03
 
 Owner, 2026-11-27, two more, built into the final prototype:
 1. **The split's account:** the move dialog's account field (the bank under the name, the free money on the right, the
-   most free money first) under each jar, shown from the start, with a *From* label before it in the icons' column
-   instead of "From" in every option.
+   most free money first) under a jar once an amount is typed for it (owner, the same day: not from the start), with a
+   *From* label before it in the icons' column instead of "From" in every option.
 2. **Jars aren't spending:** "Do not count money put into jars as an expense, it's just the money that was planned for
    some spending that can't be spent for something else. But show the jars in *Where the 80 000 ₴ goes*." The month's
    *Spent* and *Left* don't change when money goes into a jar; the split's hint says so. *Where the 80 000 ₴ goes* has

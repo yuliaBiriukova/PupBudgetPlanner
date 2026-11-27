@@ -482,7 +482,8 @@ function SplitDialog({
                     setTexts((now) => ({ ...now, [jar.id]: value }));
                   }}
                 />
-                {fields[0] && (
+                {/* Only once an amount is typed (owner, 2026-11-27) */}
+                {(amounts[jar.id] ?? 0) > 0 && fields[0] && (
                   <JarAccountField
                     inline
                     label="From"
