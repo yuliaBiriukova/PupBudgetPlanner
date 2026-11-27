@@ -344,6 +344,7 @@ see all three ways, each a story opening on Accounts (nothing changes at 1440 px
   the line wraps; a card is at least a bank card tall and grows, the row stretching the others so the balances stay
   level (the hryvnia row 161 px instead of 145 at 1920 px).
 - [Card fit 2: Short on the card](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--card-fit-2&nav=false&panel=false&globals=viewport.value:!undefined):
-  the card says "1 789 ₴ spent"; the full wording stays everywhere else.
+  the card says "1 789 ₴ overspent" (owner, the same day; first "1 789 ₴ spent"); the full wording stays everywhere
+  else. It needs 123 px (131 px for a five-digit amount); a 1920 px card has 147 px.
 - [Card fit 3: Four a row](http://localhost:6006/?path=/story/prototypes-f-034-saving-jars--card-fit-3&nav=false&panel=false&globals=viewport.value:!undefined):
   cards at least 260 px wide, so four a row at 1920 px (was five).

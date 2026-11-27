@@ -21,7 +21,7 @@ import { useJarWorld } from './worldContext';
  * A card whose jar money was spent says how much of it, in the card's debt colour.
  *
  * `cardFit` (owner, 2026-11-27): "1 789 ₴ of jar money spent" is wider than a five-in-a-row card at 1920 px. `wrap`: it
- * takes two lines and the whole row grows; `short`: the card says only "1 789 ₴ spent"; `four`: at most four cards a
+ * takes two lines and the whole row grows; `short`: the card says only "1 789 ₴ overspent" (owner, the same day); `four`: at most four cards a
  * row, each at least 260 px. Without it the line is cut off there.
  */
 export type CardFit = 'wrap' | 'short' | 'four';
@@ -172,7 +172,7 @@ function FreeCard({
             <span className={cx(classes.cardLine, free < 0 && classes.cardWarn)}>
               {free < 0 && <IconAlertTriangle size={16} stroke={1.7} aria-hidden />}
               {free < 0
-                ? `${formatMoney(-free, account.currency)}${short ? ' spent' : ' of jar money spent'}`
+                ? `${formatMoney(-free, account.currency)}${short ? ' overspent' : ' of jar money spent'}`
                 : `${formatMoney(free, account.currency)} free`}
             </span>
           )}
