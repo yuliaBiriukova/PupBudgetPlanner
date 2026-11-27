@@ -13,6 +13,8 @@ namespace PupBudgetPlanner.Application.Accounts;
 /// <paramref name="OwnerId"/> is whose it is: someone else's only opens to look at (F-024).
 /// <paramref name="FamilySees"/> is what the other members of the family see of it (F-030): your own as you set it,
 /// someone else's Everything or BalanceOnly (a hidden one isn't there).
+/// <paramref name="InJars"/> is what of its balance is set aside into open saving jars, in its currency (F-034): the
+/// rest is free; for someone else's account only when it is shared in full, otherwise 0.
 /// </summary>
 public sealed record AccountItem(
     Guid Id,
@@ -31,7 +33,8 @@ public sealed record AccountItem(
     DateTimeOffset? ArchivedAt,
     int TransactionCount,
     DateTimeOffset? LastUsedAt,
-    AccountShare FamilySees);
+    AccountShare FamilySees,
+    decimal InJars);
 
 public enum SaveAccountOutcome
 {
@@ -111,11 +114,13 @@ public sealed record RateItem(string Currency, decimal Rate);
 /// person's report currency, F-016) at the NBU rates of <paramref name="RatesDate"/>, with the rates it used: the
 /// person's other currencies and the report currency's own when it isn't the hryvnia.
 /// <paramref name="Total"/> is empty when there are no rates for it (<see cref="RatesStatus.Missing"/>). With
-/// accounts in the report currency only, no rates are needed: no date and no rates.
+/// accounts in the report currency only, no rates are needed: no date and no rates. <paramref name="InJars"/> is what of
+/// the total is set aside into jars (F-034), at the same rates (none when the total is none); the rest is free to spend.
 /// </summary>
 public sealed record AccountsTotal(
     string Currency,
     decimal? Total,
     DateOnly? RatesDate,
     RatesStatus Status,
-    IReadOnlyList<RateItem> Rates);
+    IReadOnlyList<RateItem> Rates,
+    decimal? InJars);

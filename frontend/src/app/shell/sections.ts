@@ -2,6 +2,7 @@ import {
   IconChartBar,
   IconChartDonut3,
   IconListTree,
+  IconPigMoney,
   IconReceipt,
   IconSettings,
   IconUserShield,
@@ -13,6 +14,7 @@ import {
 export type SectionId =
   | 'transactions'
   | 'budget'
+  | 'jars'
   | 'accounts'
   | 'reports'
   | 'categories'
@@ -30,6 +32,8 @@ export interface Section {
 export const SECTIONS: readonly Section[] = [
   { id: 'transactions', path: '/transactions', icon: IconReceipt },
   { id: 'budget', path: '/budget', icon: IconChartDonut3 },
+  // Saving jars (F-034): after Budget, under More on the phone too
+  { id: 'jars', path: '/jars', icon: IconPigMoney },
   { id: 'accounts', path: '/accounts', icon: IconWallet },
   { id: 'reports', path: '/reports', icon: IconChartBar },
   { id: 'categories', path: '/categories', icon: IconListTree },

@@ -28,8 +28,13 @@ const defaultHandlers = [
       spent: 0,
       groups: [],
       ratesMissing: false,
+      income: 0,
+      jars: [],
+      saved: { leftOfBudgets: 0, net: 0, intoJars: 0 },
     }),
   ),
+  // No saving jars (F-034), unless a test says otherwise; the Budget page asks for them, and the accounts' free money
+  http.get('/api/jars', () => HttpResponse.json([])),
 ];
 
 /** MSW server for unit tests. Add handlers per test with `server.use(http.get(...))`. */

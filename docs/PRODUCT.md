@@ -61,7 +61,7 @@ people the owner invites can sign up (F-028); later it can open to everyone.
 - Dashboard with charts.
 - A monthly budget (a total, groups and categories): what's left this month, a reminder on the 1st (M7, F-033, done
   2026-11-16).
-- Saving jars: symbolic jars for goals that set money aside inside real accounts (M7, F-034).
+- Saving jars: symbolic jars for goals that set money aside inside real accounts (M7, F-034, done 2026-11-27).
 - Export of reports to Excel.
 - Automatic import of card transactions from the Monobank personal API.
 - Transfer fees as part of a transfer.
@@ -80,6 +80,8 @@ people the owner invites can sign up (F-028); later it can open to everyone.
 | Category | A row in the report, e.g. Groceries. Belongs to a group. Owned by one person. |
 | Report currency | Currency in which reports are shown (default UAH). |
 | Family | A group of people who see each other's finances. |
+| Jar | A saving goal (a car, an apartment) that sets money aside inside real accounts; one currency, a goal and a month, both optional (F-034). |
+| Free money | What of an account is not in jars: its balance less its jar money. |
 
 ## Business rules
 
@@ -100,6 +102,9 @@ people the owner invites can sign up (F-028); later it can open to everyone.
 7. **Average** in the yearly report = total ÷ number of months that already passed in that year
    (the spreadsheet always divided by 12), this month included, counted from the person's first month with data
    (F-021).
+8. **Jars are not accounts and not spending** (F-034). Money put into a jar stays on its account: the balance,
+   reports and the balance at month end don't change, only what of the account is free. A month's plan may set money
+   aside for jars within its total, but money put into jars doesn't count as spent.
 
 ## Default categories
 

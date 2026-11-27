@@ -94,6 +94,17 @@ public sealed class BudgetController(IBudgetService budgets, IValidator<BudgetMo
         Guid id, SetBudgetRequest request, CancellationToken cancellationToken) =>
         Changed(await budgets.SetCategoryAsync(UserId, MonthOf(request.Month), id, request.Amount, cancellationToken));
 
+    /// <summary>
+    /// What the month plans to set aside into an open jar in its currency (F-034); no amount takes it out of the plan.
+    /// Refused when the groups and jars would take more than the total.
+    /// </summary>
+    [HttpPut("jars/{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SetJar(Guid id, SetBudgetRequest request, CancellationToken cancellationToken) =>
+        Changed(await budgets.SetJarAsync(UserId, MonthOf(request.Month), id, request.Amount, cancellationToken));
+
     /// <summary>The validators have checked the month already.</summary>
     private static DateOnly MonthOf(string month) => BudgetMonths.Parse(month)!.Value;
 
@@ -111,7 +122,7 @@ public sealed class BudgetController(IBudgetService budgets, IValidator<BudgetMo
                 ModelState.AddModelError("amount", OverflowText(result.Overflow!));
                 return ValidationProblem(ModelState);
             default:
-                return Problem(statusCode: StatusCodes.Status404NotFound, title: "There is no such expense group or category.");
+                return Problem(statusCode: StatusCodes.Status404NotFound, title: "There is no such expense group, category or jar.");
         }
     }
 
@@ -120,7 +131,9 @@ public sealed class BudgetController(IBudgetService budgets, IValidator<BudgetMo
     {
         string Amount(decimal value) => value.ToString("#,0", CultureInfo.InvariantCulture);
         return overflow.IsTotal
-            ? $"The groups add up to {Amount(overflow.Inside)}, {Amount(overflow.Over)} more than the month's total of {Amount(overflow.Budget)}."
+            ? overflow.Jars > 0
+                ? $"The groups and jars add up to {Amount(overflow.Inside)}, {Amount(overflow.Over)} more than the month's total of {Amount(overflow.Budget)}."
+                : $"The groups add up to {Amount(overflow.Inside)}, {Amount(overflow.Over)} more than the month's total of {Amount(overflow.Budget)}."
             : $"Its categories add up to {Amount(overflow.Inside)}, {Amount(overflow.Over)} more than the group's {Amount(overflow.Budget)}.";
     }
 }

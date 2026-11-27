@@ -2,6 +2,34 @@
 
 Newest entries on top. Each entry: what was done, decisions, what's next.
 
+## 2026-11-27 (F-034: saving jars, built)
+
+**Done**
+- The owner approved the final prototype ("final prototype for F-034 is approved, build it"); the date is in the
+  description and DESIGN_RULES "Screen decisions".
+- API ([ADR 0038](decisions/0038-saving-jars.md)): `jars`, `jar_moves` and `jar_budgets` (migration `AddJars`);
+  what is in a jar, where it lies and what of an account is free worked out on each read; `GET/POST/PUT /api/jars`,
+  `POST /api/jars/{id}/close`, `POST /api/jars/{id}/moves`, `POST /api/jars/saved-money`, `PUT /api/budget/jars/{id}`;
+  the month's budget has its income, its jars and its saved money two ways; accounts and In total say what is in jars.
+- App: *Jars* after Budget (under More on the phone), the Jars page (the shelf, *Where the jar money lies*), a jar's
+  window, Put in / Take out / To a jar, New jar / Edit / Close jar; on Budget the Jars card with the plan per jar and
+  the saved money split, *Jars* in *Where the … goes*; on Accounts "X free" or "X overspent" on the cards and the split
+  under In total; at most five cards a row, three on tablets. Stories *Jars / Jars page*, *With jars* on Budget and
+  Accounts; the prototype stories deleted.
+- Decided while building (in the description): only jars in the month's currency are planned; saved money is given
+  out once; taking out gives back the account amount's share; an account with jar money can't be deleted; someone
+  else's card says what is free only when shared in full.
+- Found by the E2E test and fixed before the PR: the move dialog opened behind the jar's window when the shelf's *Put
+  in* had been used first; the split did nothing when saved before the accounts had loaded.
+- Checks: backend build and all tests; frontend typecheck, ESLint, Prettier, unit tests, production and Storybook
+  builds; E2E `jars.spec.ts` (new), `budget.spec.ts`, `accounts.spec.ts` and `shell.spec.ts` (the rail now has nine icons) 3 runs in a row, the full suite once (`pwa.spec.ts` on the production build);
+  screens at 375 and 1440 px, light and dark, looked at.
+- Test data: the E2E tests' and the screenshot script's people (`e2e-jars…`, `e2e-f034-shots…@example.com`) were made on
+  the `dev` database through `newPerson` and removed by the E2E clean-up after each run; nothing of the owner's touched.
+
+**Next**
+- The owner reviews the PR. I-035 (calm error placeholders) is the change left from F-034's review.
+
 ## 2026-11-17 (F-034: saving jars, design round 1)
 
 **Done**

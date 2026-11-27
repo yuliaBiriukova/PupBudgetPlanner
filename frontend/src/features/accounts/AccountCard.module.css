@@ -124,6 +124,42 @@ button.card:is([data-style='Plain'], [data-style='Envelope']):hover {
   color: var(--card-debt);
 }
 
+/* The balance with what of it is free above it (F-034), 4 px apart */
+.money {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.balance {
+  display: block;
+}
+
+/* The card's one line of jar money: what of the balance is free */
+.jarLine {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+  color: var(--card-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.jarLine svg {
+  flex: none;
+}
+
+/* Spending ate into the jar money: the card's debt colour, and the line wraps where it doesn't fit (Card fit 2, owner
+   2026-11-27); the card's row then grows so the balances stay level (Accounts.module.css) */
+.jarShort {
+  align-items: flex-start;
+  color: var(--card-debt);
+  white-space: normal;
+}
+
 /* The one moment: a new (or restored) card gets a short accent ring */
 .card[data-new]::after {
   content: '';

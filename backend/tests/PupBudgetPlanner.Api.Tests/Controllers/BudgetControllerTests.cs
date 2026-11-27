@@ -48,7 +48,7 @@ public sealed class BudgetControllerTests
     [Fact]
     public async Task The_month_asked_for_is_the_signed_in_persons()
     {
-        var month = new MonthBudget("2026-11", "UAH", true, null, 50_000, 120, [], false);
+        var month = new MonthBudget("2026-11", "UAH", true, null, 50_000, 120, [], false, 0, [], new SavedMoney(0, 0, 0));
         budgets.MonthAsync(Person, November, Arg.Any<CancellationToken>()).Returns(month);
 
         var result = await controller.Month("2026-11", CancellationToken.None);
@@ -115,6 +115,27 @@ public sealed class BudgetControllerTests
     {
         BudgetController.OverflowText(new BudgetOverflow(null, 51_000, 50_000))
             .Should().Be("The groups add up to 51,000, 1,000 more than the month's total of 50,000.");
+    }
+
+    [Fact]
+    public void The_total_going_over_with_jars_planned_names_the_jars_too()
+    {
+        BudgetController.OverflowText(new BudgetOverflow(null, 51_000, 50_000, 6_000))
+            .Should().Be("The groups and jars add up to 51,000, 1,000 more than the month's total of 50,000.");
+    }
+
+    [Fact]
+    public async Task A_jar_planned_is_the_signed_in_persons_and_one_not_theirs_not_found()
+    {
+        var jar = Guid.CreateVersion7();
+        budgets.SetJarAsync(Person, November, jar, 5_000, Arg.Any<CancellationToken>()).Returns(BudgetResult.Done);
+        budgets.SetJarAsync(Person, November, Group, 5_000, Arg.Any<CancellationToken>())
+            .Returns(new BudgetResult(BudgetOutcome.NotFound));
+
+        (await controller.SetJar(jar, new SetBudgetRequest("2026-11", 5_000), CancellationToken.None))
+            .Should().BeOfType<NoContentResult>();
+        (await controller.SetJar(Group, new SetBudgetRequest("2026-11", 5_000), CancellationToken.None))
+            .Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     [Fact]

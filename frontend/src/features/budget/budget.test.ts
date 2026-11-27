@@ -33,6 +33,29 @@ describe('a month’s lines', () => {
     expect(lines.isEmpty).toBe(false);
   });
 
+  it('leave the jars’ plan out of what is in no group (F-034)', () => {
+    const lines = linesOf({
+      ...data,
+      jars: [
+        {
+          id: 'j-car',
+          name: 'Car',
+          icon: 'Car',
+          color: 'Blue',
+          planned: 2_000,
+          setAside: 500,
+          isClosed: false,
+        },
+      ],
+    });
+
+    expect(lines.jarsPlanned).toBe(2_000);
+    expect(lines.unplanned).toBe(500);
+    // Not spending: what's left of the month stays
+    expect(lines.total.left).toBe(18_518);
+    expect(planOf({ ...data, jars: [] }).jars).toEqual({});
+  });
+
   it('are empty for a month not planned', () => {
     expect(linesOf(toMonthBudget(notPlannedMonth('2026-12', '2026-11'))).isEmpty).toBe(true);
   });
@@ -61,8 +84,20 @@ describe('each level fits within the one above it', () => {
     const next = withBudget(plan, { kind: 'category', id: 'c-phone' }, 3_000);
 
     expect(newOverflows(plan, next, data)).toEqual([
-      { groupId: null, name: '', inside: 50_200, budget: 50_000 },
+      { groupId: null, name: '', inside: 50_200, budget: 50_000, jars: 0 },
     ]);
+  });
+
+  it('counts the jars planned in the month within its total, beside the groups (F-034)', () => {
+    // 47 500 for the groups leaves 2 500: a jar of 3 000 goes 500 over
+    const next = withBudget(plan, { kind: 'jar', id: 'j-car' }, 3_000);
+
+    expect(newOverflows(plan, next, data)).toEqual([
+      { groupId: null, name: '', inside: 50_500, budget: 50_000, jars: 3_000 },
+    ]);
+    expect(newOverflows(plan, withBudget(plan, { kind: 'jar', id: 'j-car' }, 2_500), data)).toEqual(
+      [],
+    );
   });
 
   it('blocks lowering the total below the groups, and lets a level already over be put right', () => {

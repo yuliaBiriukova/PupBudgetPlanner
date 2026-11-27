@@ -17,16 +17,22 @@ public static class TotalInReportCurrency
     /// <paramref name="rates"/> may be null when <see cref="NeedsRates"/> said no. Without a rate for every currency
     /// there is no total (<see cref="RatesStatus.Missing"/>).
     /// </summary>
-    public static AccountsTotal Of(IReadOnlyList<CurrencyTotal> totals, string currency, DayRates? rates)
+    public static AccountsTotal Of(IReadOnlyList<CurrencyTotal> totals, string currency, DayRates? rates) =>
+        Of(totals, [], currency, rates);
+
+    /// <summary>With what of each currency is in jars (F-034), converted the same way.</summary>
+    public static AccountsTotal Of(
+        IReadOnlyList<CurrencyTotal> totals, IReadOnlyList<CurrencyTotal> inJars, string currency, DayRates? rates)
     {
         if (rates is null)
         {
-            return new AccountsTotal(currency, totals.Sum(total => total.Total), null, RatesStatus.Current, []);
+            return new AccountsTotal(
+                currency, totals.Sum(total => total.Total), null, RatesStatus.Current, [], inJars.Sum(jar => jar.Total));
         }
 
         if (Conversion.TotalIn(currency, totals, rates.ToUah) is not { } sum)
         {
-            return new AccountsTotal(currency, null, null, RatesStatus.Missing, []);
+            return new AccountsTotal(currency, null, null, RatesStatus.Missing, [], null);
         }
 
         var shown = totals
@@ -37,6 +43,7 @@ public static class TotalInReportCurrency
             .Select(code => rates.ToUah.TryGetValue(code, out var rate) ? new RateItem(code, rate) : null)
             .OfType<RateItem>()
             .ToList();
-        return new AccountsTotal(currency, sum, rates.Date, rates.Status, shown);
+        return new AccountsTotal(
+            currency, sum, rates.Date, rates.Status, shown, Conversion.TotalIn(currency, inJars, rates.ToUah));
     }
 }

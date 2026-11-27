@@ -1,59 +1,40 @@
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useId, type CSSProperties } from 'react';
-import type { Account } from '../../features/accounts/accountsApi';
-import { OVERVIEW } from '../../features/accounts/accountsTestData';
+import { useTranslation } from 'react-i18next';
 import { formatMoney } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
-import { inJarsOf } from './jars';
+import type { Account } from '../accounts/accountsApi';
+import { holdingAccounts, shade } from './jars';
+import type { Jar } from './jarsApi';
 import classes from './Jars.module.css';
-import { useJarWorld } from './worldContext';
-
-const m = formatMoney;
-
-/** Darkest for the biggest jar, lighter for each next: shades of the text colour, as the Budget's *Where the … goes*. */
-const shade = (index: number) => `${String(Math.max(24, 92 - index * 30))}%`;
 
 /**
- * Where the jar money lies (owner, 2026-11-27: variant 2, *Bars*, without the jars' colours): each account holding jar
- * money with its balance and one bar, a piece per jar in shades of the text colour (darkest the biggest), the free rest
- * an outline; under it the jars with their amounts and, on the right, what is free or how short the jars are. Two or
- * three accounts in a row on a wide screen.
+ * Where the jar money lies (owner, 2026-11-27: *Bars* without the jars' colours): each account holding jar money with
+ * its balance and one bar, a piece per jar in shades of the text colour (darkest the biggest), the free rest an
+ * outline; under it the jars with their amounts and, on the right, what is free or how much of the jar money was spent.
+ * Two or three accounts in a row on a wide screen.
  */
-export function JarMoney() {
+export function JarMoney({ jars, accounts }: { jars: Jar[]; accounts: Account[] }) {
+  const { t } = useTranslation();
   const heading = useId();
-  const world = useJarWorld();
-  const holding = OVERVIEW.accounts
-    .map((account) => {
-      const inside = inJarsOf(account, world.moves);
-      return { account, inside, free: account.balance - inside };
-    })
-    .filter((a) => a.inside !== 0);
-  const piecesOf = (account: Account) =>
-    world.jars
-      .map((jar) => ({
-        jar,
-        amount: world.moves
-          .filter((mv) => mv.jarId === jar.id && mv.accountId === account.id)
-          .reduce((sum, mv) => sum + (mv.accountAmount ?? mv.amount), 0),
-      }))
-      .filter((p) => p.amount > 0)
-      .sort((a, b) => b.amount - a.amount);
+  const holding = holdingAccounts(jars, accounts);
+  if (holding.length === 0) return null;
 
   return (
     <section className={classes.freeList} aria-labelledby={heading}>
       <h2 id={heading} className={classes.sectionHead}>
-        Where the jar money lies
+        {t('jars.where.title')}
       </h2>
       <ul className={classes.barGrid}>
-        {holding.map(({ account, inside, free }) => {
-          const whole = Math.max(account.balance, inside);
+        {holding.map(({ account, pieces, inJars, free }) => {
+          const whole = Math.max(account.balance, inJars);
           const share = (amount: number) => `${String(whole > 0 ? (amount / whole) * 100 : 0)}%`;
-          const pieces = piecesOf(account);
+          const money = (amount: number) => formatMoney(amount, account.currency);
           return (
-            <li key={account.id} className={classes.barRow}>
+            <li key={account.id} className={classes.barRow} data-testid="jar-money-account">
               <span className={classes.barTop}>
                 <span>{account.name}</span>
-                <span className={classes.num}>{m(account.balance, account.currency)}</span>
+                <span className={classes.num}>{money(account.balance)}</span>
               </span>
               <span className={classes.moneyBar} aria-hidden>
                 {pieces.map(({ jar, amount }, index) => (
@@ -79,18 +60,18 @@ export function JarMoney() {
                         style={{ '--shade': shade(index) } as CSSProperties}
                         aria-hidden
                       />
-                      {jar.name} <span className={classes.num}>{m(amount, account.currency)}</span>
+                      {jar.name} <span className={classes.num}>{money(amount)}</span>
                     </span>
                   ))}
                 </span>
                 {free < 0 ? (
                   <span className={classes.rowWarn}>
                     <IconAlertTriangle size={16} stroke={1.7} aria-hidden />
-                    {m(-free, account.currency)} of jar money spent
+                    {t('jars.where.spent', { amount: money(-free) })}
                   </span>
                 ) : (
                   <span className={cx(classes.num, classes.dim)}>
-                    {m(free, account.currency)} free
+                    {t('jars.where.free', { amount: money(free) })}
                   </span>
                 )}
               </span>

@@ -23,7 +23,10 @@ public sealed class BudgetMonth
 
     public ICollection<CategoryBudget> Categories { get; } = [];
 
-    /// <summary>A month planned now, empty or with <paramref name="from"/>'s amounts (all three levels).</summary>
+    /// <summary>What the month plans to set aside into jars (F-034), within the total (Q-015).</summary>
+    public ICollection<JarBudget> Jars { get; } = [];
+
+    /// <summary>A month planned now, empty or with <paramref name="from"/>'s amounts (all three levels and the jars).</summary>
     public static BudgetMonth Start(Guid userId, DateOnly month, DateTimeOffset now, BudgetMonth? from = null)
     {
         var started = new BudgetMonth
@@ -47,6 +50,14 @@ public sealed class BudgetMonth
             });
         }
 
+        foreach (var jar in from?.Jars ?? [])
+        {
+            started.Jars.Add(new JarBudget
+            {
+                BudgetMonthId = started.Id, JarId = jar.JarId, Amount = jar.Amount, Order = jar.Order,
+            });
+        }
+
         return started;
     }
 
@@ -56,7 +67,38 @@ public sealed class BudgetMonth
     public BudgetPlan Plan => new(
         Total,
         Groups.ToDictionary(group => group.GroupId, group => group.Amount),
-        Categories.ToDictionary(category => category.CategoryId, category => category.Amount));
+        Categories.ToDictionary(category => category.CategoryId, category => category.Amount),
+        Jars.ToDictionary(jar => jar.JarId, jar => jar.Amount));
+
+    /// <summary>Sets what the month plans for a jar (F-034); none takes the jar out of the plan.</summary>
+    public void SetJar(Guid jarId, decimal? amount)
+    {
+        var current = Jars.FirstOrDefault(jar => jar.JarId == jarId);
+        if (amount is null)
+        {
+            if (current is not null)
+            {
+                Jars.Remove(current);
+            }
+
+            return;
+        }
+
+        if (current is null)
+        {
+            Jars.Add(new JarBudget
+            {
+                BudgetMonthId = Id,
+                JarId = jarId,
+                Amount = Money.Whole(amount.Value),
+                Order = Jars.Count == 0 ? 0 : Jars.Max(jar => jar.Order) + 1,
+            });
+        }
+        else
+        {
+            current.Amount = Money.Whole(amount.Value);
+        }
+    }
 
     /// <summary>Sets the month's total, whole (ADR 0018); none removes it.</summary>
     public void SetTotal(decimal? amount) => Total = amount is { } value ? Money.Whole(value) : null;
@@ -121,6 +163,19 @@ public sealed class GroupBudget
     public Guid GroupId { get; init; }
 
     public decimal Amount { get; set; }
+}
+
+/// <summary>What one month plans to set aside into a jar (F-034), in the month's currency.</summary>
+public sealed class JarBudget
+{
+    public Guid BudgetMonthId { get; init; }
+
+    public Guid JarId { get; init; }
+
+    public decimal Amount { get; set; }
+
+    /// <summary>Where it comes in the plan: the order it was planned in ("Fill by the plan" follows it).</summary>
+    public int Order { get; init; }
 }
 
 /// <summary>An expense category's budget in one month.</summary>

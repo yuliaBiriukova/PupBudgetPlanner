@@ -24,6 +24,7 @@ function totalIn(currency: string): AccountsTotal {
     rates: used
       .filter((code) => code !== 'UAH')
       .map((code) => ({ currency: code, rate: RATES[code] ?? 0 })),
+    inJars: 0,
   };
 }
 

@@ -30,6 +30,7 @@ import { OutsidePlan, PlanSplit } from './MonthColumn';
 import { SlipWithBar } from './BudgetSlip';
 import { useBudgetMonth } from './useBudgetMonth';
 import { ReminderCard } from './Reminder';
+import { JarsPlan } from '../jars/BudgetJars';
 
 /** The desktop's two columns (Budget.module.css, 64em): the month on the left, the groups on the right. */
 const WIDE_QUERY = '(min-width: 64em)';
@@ -217,7 +218,14 @@ function PlannedMonth({
           </FitColumn>
         )}
         <div className={classes.groups}>
-          {groups.map((group) => (
+          {groups
+            .filter((g) => !quiet(g))
+            .map((group) => (
+              <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
+            ))}
+          {/* The month's jars (F-034): after the groups with something planned or spent */}
+          <JarsPlan data={data} lines={lines} plan={plan} />
+          {groups.filter(quiet).map((group) => (
             <Group key={group.id} group={group} currency={data.currency} onOpen={setOpen} />
           ))}
           {/* The phone and tablet: after the groups, so it doesn't push them down */}

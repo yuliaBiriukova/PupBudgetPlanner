@@ -1,4 +1,5 @@
 using System.Globalization;
+using PupBudgetPlanner.Domain;
 using PupBudgetPlanner.Domain.Budgets;
 using PupBudgetPlanner.Domain.Categories;
 using PupBudgetPlanner.Domain.ExchangeRates;
@@ -28,21 +29,44 @@ public static class BudgetBuilder
         DateOnly? startFrom,
         IReadOnlyList<BudgetSpending> spending,
         IReadOnlyDictionary<DateOnly, IReadOnlyDictionary<string, decimal>> rates)
+        => Build(month, currency, groups, plan, startFrom, spending, [], rates, [], 0);
+
+    /// <summary>
+    /// With the month's <paramref name="income"/> (summed the same way, for its saved money), its
+    /// <paramref name="jars"/> plan and what went into jars from its saved money already (F-034).
+    /// </summary>
+    public static MonthBudget Build(
+        DateOnly month,
+        string currency,
+        IReadOnlyList<CategoryGroup> groups,
+        BudgetMonth? plan,
+        DateOnly? startFrom,
+        IReadOnlyList<BudgetSpending> spending,
+        IReadOnlyList<BudgetSpending> income,
+        IReadOnlyDictionary<DateOnly, IReadOnlyDictionary<string, decimal>> rates,
+        IReadOnlyList<BudgetJarLine> jars,
+        decimal savedIntoJars)
     {
         var missing = false;
+        decimal InCurrency(BudgetSpending row)
+        {
+            if (row.Currency == currency)
+            {
+                return row.Amount;
+            }
+
+            var rate = rates.TryGetValue(row.Date, out var day) ? Conversion.Rate(row.Currency, currency, day) : null;
+            missing |= rate is null;
+            return row.Amount * rate ?? 0;
+        }
+
         var spent = new Dictionary<Guid, decimal>();
         foreach (var row in spending)
         {
-            decimal? amount = row.Amount;
-            if (row.Currency != currency)
-            {
-                var rate = rates.TryGetValue(row.Date, out var day) ? Conversion.Rate(row.Currency, currency, day) : null;
-                amount = row.Amount * rate;
-                missing |= rate is null;
-            }
-
-            spent[row.CategoryId] = spent.GetValueOrDefault(row.CategoryId) + (amount ?? 0);
+            spent[row.CategoryId] = spent.GetValueOrDefault(row.CategoryId) + InCurrency(row);
         }
+
+        var earned = income.Sum(InCurrency);
 
         var budgets = plan?.Plan;
         var lines = groups
@@ -80,8 +104,24 @@ public static class BudgetBuilder
             plan?.Total,
             spent.Values.Sum(),
             lines,
-            missing);
+            missing,
+            earned,
+            jars,
+            new SavedMoney(
+                plan is null ? 0 : LeftOfBudgets(lines), Money.Whole(earned - spent.Values.Sum()), savedIntoJars));
     }
+
+    /// <summary>
+    /// What's left of the groups' budgets, nothing over counted (F-034): a group without its own budget counts with its
+    /// categories' sum, as on the page; whole.
+    /// </summary>
+    public static decimal LeftOfBudgets(IEnumerable<BudgetGroupLine> groups) =>
+        Money.Whole(groups.Sum(group =>
+        {
+            var inside = group.Categories.Sum(category => category.Budget ?? 0);
+            var budget = group.Budget ?? inside;
+            return budget > 0 ? Math.Max(0, budget - group.Spent) : 0;
+        }));
 
     private static bool IsHidden(CategoryGroup group, Guid categoryId) =>
         group.IsArchived || group.Categories.First(category => category.Id == categoryId).IsArchived;

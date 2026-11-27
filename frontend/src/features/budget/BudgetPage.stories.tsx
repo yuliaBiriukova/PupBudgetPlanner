@@ -6,14 +6,38 @@ import { shiftMonth, thisMonth } from './budget';
 import { BudgetPage } from './BudgetPage';
 import { notPlannedMonth, plannedMonth } from './budgetTestData';
 import { PushPreview, ReminderBanner } from './Reminder';
+import { JARS, OVERVIEW_WITH_JARS } from '../jars/jarsTestData';
+
+/** The month with 80 000 in total and three jars planned (the final prototype's): 32 000 within it, beside the groups. */
+function withJars(month: ReturnType<typeof plannedMonth>): ReturnType<typeof plannedMonth> {
+  const jar = (id: string, planned: number, setAside: number) => {
+    const item = JARS.find((j) => j.id === id);
+    return {
+      id,
+      name: item?.name ?? id,
+      icon: item?.icon ?? 'Car',
+      color: item?.color ?? 'Blue',
+      planned,
+      setAside,
+      isClosed: false,
+    };
+  };
+  return {
+    ...month,
+    total: 80_000,
+    jars: [jar('car', 15_000, 0), jar('carpathians', 5_000, 0), jar('laptop', 12_000, 12_000)],
+  };
+}
 
 interface BudgetProps {
   /** `planned`: the final prototype's month; `next`: next month, not planned; `new`: never planned anything. */
   data?: 'planned' | 'next' | 'new' | 'loading' | 'error';
+  /** With saving jars (F-034): three planned in the month, within its total of 80 000. */
+  jars?: boolean;
 }
 
 /** The Budget page (F-033) with a fake API. */
-function BudgetScreen({ data = 'planned' }: BudgetProps) {
+function BudgetScreen({ data = 'planned', jars = false }: BudgetProps) {
   const month = thisMonth();
   const routes: MockRoutes = {
     '/api/budget':
@@ -26,7 +50,9 @@ function BudgetScreen({ data = 'planned' }: BudgetProps) {
               return {
                 json:
                   data === 'planned' && asked <= month
-                    ? plannedMonth(asked)
+                    ? jars
+                      ? withJars(plannedMonth(asked))
+                      : plannedMonth(asked)
                     : notPlannedMonth(asked, data === 'new' ? null : month),
               };
             },
@@ -34,6 +60,9 @@ function BudgetScreen({ data = 'planned' }: BudgetProps) {
     'PUT /api/budget/{part}/{id}': { status: 204 },
     'POST /api/budget/start': { status: 204 },
     'DELETE /api/budget': { status: 204 },
+    '/api/jars': { json: jars ? JARS : [] },
+    '/api/accounts': { json: OVERVIEW_WITH_JARS },
+    'POST /api/jars/saved-money': { status: 204 },
     // Storybook has no service worker: the reminder's card stays away, as in a browser without push
     '/api/push/key': { json: { publicKey: null } },
   };
@@ -110,6 +139,28 @@ export const DeletePlan: Story = {
 
 /** Next month, not planned yet: start it from this month's plan, or empty. */
 export const NotPlanned: Story = { args: { data: 'next' } };
+
+/**
+ * With saving jars (F-034): the month's jars after the groups with a plan, the saved money at the end of their card,
+ * and *Jars* as a part of *Where the 80 000 ₴ goes*.
+ */
+export const WithJars: Story = { args: { jars: true } };
+
+export const WithJarsDesktop: Story = { args: { jars: true }, globals: desktop };
+
+/** The saved money split across jars: filled by the month's plan, each jar from an account. */
+export const SavedMoneySplit: Story = {
+  args: { jars: true },
+  globals: desktop,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('button', { name: 'Put into jars' }));
+    const dialog = await within(canvasElement.ownerDocument.body).findByRole('dialog', {
+      name: /saved money into jars$/,
+    });
+    await userEvent.click(within(dialog).getByRole('button', { name: /^Fill by/ }));
+  },
+};
 
 /** Someone who has never planned a month: only Start empty. */
 export const NeverPlanned: Story = { args: { data: 'new' } };

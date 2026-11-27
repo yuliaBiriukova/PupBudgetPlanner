@@ -1,13 +1,14 @@
 import { UnstyledButton, VisuallyHidden } from '@mantine/core';
 import { IconPigMoney, IconSelector, IconWallet } from '@tabler/icons-react';
 import { useState, type ReactNode } from 'react';
-import type { Account } from '../../features/accounts/accountsApi';
-import { ACCOUNT_LIST_HEIGHT } from '../../features/transactions/AccountField';
-import { Picker } from '../../features/transactions/Picker';
-import form from '../../features/transactions/TransactionForm.module.css';
-import { KEEP_FORM_OPEN } from '../../features/transactions/transactionForm';
+import { useTranslation } from 'react-i18next';
+import type { Account } from '../accounts/accountsApi';
+import { ACCOUNT_LIST_HEIGHT } from '../transactions/AccountField';
+import { Picker } from '../transactions/Picker';
+import form from '../transactions/TransactionForm.module.css';
+import { KEEP_FORM_OPEN } from '../transactions/transactionForm';
 import { cx } from '../../shared/ui/cx';
-import type { Jar } from './jars';
+import type { Jar } from './jarsApi';
 import classes from './Jars.module.css';
 
 /** One account the money can come from or go back to, with what to show on its right. */
@@ -18,16 +19,18 @@ export interface AccountOption {
   short?: boolean;
 }
 
-function sourceOf(account: Account): string {
-  return account.source === 'Cash'
-    ? 'Cash'
-    : account.source === 'Bank'
-      ? (account.bankName ?? '')
-      : (account.sourceName ?? '');
+function useSourceOf() {
+  const { t } = useTranslation();
+  return (account: Account): string =>
+    account.source === 'Cash'
+      ? t('accounts.cash')
+      : account.source === 'Bank'
+        ? (account.bankName ?? '')
+        : (account.sourceName ?? '');
 }
 
 /**
- * The quick-add form's account field (F-018, `AccountField`) copied for the jars: the same field and list, but each
+ * The quick-add form's account field (F-018, `AccountField`) for the jars (F-034): the same field and list, but each
  * account's right side says what is free on it (or how much of the jar lies on it) instead of its balance, and the list
  * keeps the given order (the most free money first).
  */
@@ -46,6 +49,7 @@ export function JarAccountField({
   inline?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const sourceOf = useSourceOf();
   return (
     <PickField
       label={label}
@@ -105,17 +109,18 @@ export function JarField({
   savedOf: (jar: Jar) => string;
   onChange: (jarId: string) => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   return (
     <PickField
-      label="Into"
+      label={t('jars.move.into')}
       open={open}
       setOpen={setOpen}
       icon={<IconPigMoney size={20} stroke={1.7} aria-hidden />}
       name={value.name}
       right={<span className={form.balance}>{savedOf(value)}</span>}
     >
-      <ul className={form.list} aria-label="Jars">
+      <ul className={form.list} aria-label={t('jars.move.jarList')}>
         {jars.map((jar) => (
           <li key={jar.id}>
             <UnstyledButton

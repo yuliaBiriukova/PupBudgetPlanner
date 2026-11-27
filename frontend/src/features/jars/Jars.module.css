@@ -1,4 +1,4 @@
-/* F-034 prototype: saving jars. Colours from the theme and Mantine's palette only; sizes even */
+/* F-034: saving jars. Colours from the theme and Mantine's palette only; sizes even */
 
 .num {
   font-variant-numeric: tabular-nums;
@@ -226,67 +226,6 @@
   margin: 0;
   color: var(--mantine-color-dimmed);
   font-size: 13px;
-}
-
-/* ================= The Accounts page ================= */
-.split {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 24px;
-  margin-top: 12px;
-}
-
-.splitItem {
-  font-size: 14px;
-}
-
-.splitItem strong {
-  font-weight: 500;
-}
-
-/* At most five account cards in a row, each at least 224 px wide (owner, 2026-11-17: wider cards): four at 1440 px,
-   five at 1920 px (the page column is 1200 px there). Where only one fits (a tablet's
-   column) the card is flatter than a bank card, so it doesn't grow huge */
-@container accounts (min-width: 420px) {
-  .fiveCards.fiveCards {
-    grid-template-columns: repeat(auto-fill, minmax(max(224px, calc((100% - 4 * 14px) / 5)), 1fr));
-  }
-}
-
-/* A tablet's column (narrower than four 224 px cards): three a row from 180 px, as the app has it, instead of two big
-   ones (owner, 2026-11-27) */
-@container accounts (min-width: 420px) and (max-width: 937px) {
-  .fiveCards.fiveCards {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  }
-}
-
-/* The free line and the balance, 4 px apart */
-.cardMoney {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-/* The card's one line of jar money: what of the balance is free */
-.cardLine {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  min-width: 0;
-  color: var(--card-muted);
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-  line-height: 16px;
-  white-space: nowrap;
-}
-
-.cardLine svg {
-  flex: none;
-}
-
-.cardWarn {
-  color: var(--card-debt);
 }
 
 /* ================= The Jars page ================= */
@@ -796,27 +735,17 @@
   white-space: nowrap;
 }
 
-/* The overspent line wraps where it doesn't fit (owner, 2026-11-27: Card fit 2); a card may grow past a bank card's shape,
-   and every card in its row stretches to the tallest, so the balances stay level */
-.fitWrap .cardWarn {
-  align-items: flex-start;
-  white-space: normal;
+/* No jars yet: a line under the shelf */
+.emptyText {
+  margin: 12px 0 0;
+  color: var(--mantine-color-dimmed);
 }
 
-@container accounts (min-width: 420px) {
-  /* No fixed shape: a card is at least a bank card tall (from its own width) and grows to fit; the row stretches
-     the others to the tallest */
-  .fitWrap > li {
-    container-type: inline-size;
-  }
+/* A suggestion button (the pace, Fill by the plan) sits at the start of its line */
+.startButton {
+  align-self: flex-start;
+}
 
-  .fitWrap > li > * {
-    height: 100%;
-  }
-
-  .fitWrap .fitCard {
-    height: 100%;
-    min-height: calc(100cqw / 1.586);
-    aspect-ratio: auto;
-  }
+.splitFooter {
+  gap: 12px;
 }

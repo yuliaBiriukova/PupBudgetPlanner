@@ -9,6 +9,7 @@ using PupBudgetPlanner.Domain.Categories;
 using PupBudgetPlanner.Domain.ExchangeRates;
 using PupBudgetPlanner.Domain.Families;
 using PupBudgetPlanner.Domain.Invitations;
+using PupBudgetPlanner.Domain.Jars;
 using PupBudgetPlanner.Domain.Transactions;
 using PupBudgetPlanner.Infrastructure.Identity;
 
@@ -46,6 +47,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
     /// <summary>Each person's plan for a month (F-033), with its group and category budgets.</summary>
     public DbSet<BudgetMonth> BudgetMonths => Set<BudgetMonth>();
+
+    /// <summary>Saving jars (F-034) and the money set aside into them on the person's accounts.</summary>
+    public DbSet<Jar> Jars => Set<Jar>();
+
+    public DbSet<JarMove> JarMoves => Set<JarMove>();
 
     /// <summary>The devices that get the budget reminder on the 1st (F-033).</summary>
     public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();

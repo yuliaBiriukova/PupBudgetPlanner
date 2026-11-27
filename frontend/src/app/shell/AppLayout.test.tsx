@@ -171,6 +171,7 @@ describe('app shell on the desktop', () => {
     ).toEqual([
       'Transactions',
       'Budget',
+      'Jars',
       'Accounts',
       'Reports',
       'Categories',

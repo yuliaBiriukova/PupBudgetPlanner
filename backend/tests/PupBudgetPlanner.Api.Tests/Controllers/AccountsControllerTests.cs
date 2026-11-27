@@ -24,7 +24,7 @@ public sealed class AccountsControllerTests
 
     private static readonly AccountItem Item = new(
         AccountId, UserId, "Wallet", "UAH", SourceKind.Cash, null, null, null, null, 1_200m, new DateOnly(2026, 1, 1),
-        1_200m, CardStyle.Envelope, null, 0, null, AccountShare.Everything);
+        1_200m, CardStyle.Envelope, null, 0, null, AccountShare.Everything, 0);
 
     private readonly IAccountService accounts = Substitute.For<IAccountService>();
     private readonly IFamilyService families = Substitute.For<IFamilyService>();
@@ -68,7 +68,7 @@ public sealed class AccountsControllerTests
     public async Task The_total_is_the_signed_in_persons()
     {
         var total = new AccountsTotal(
-            "UAH", 52_174m, new DateOnly(2026, 11, 2), RatesStatus.Current, [new RateItem("USD", 41.35m)]);
+            "UAH", 52_174m, new DateOnly(2026, 11, 2), RatesStatus.Current, [new RateItem("USD", 41.35m)], 0);
         accounts.TotalAsync(MoneyScope.Own(UserId), Arg.Any<CancellationToken>()).Returns(total);
 
         (await controller.Total(CancellationToken.None)).Result.Should().BeOfType<OkObjectResult>()
@@ -85,7 +85,7 @@ public sealed class AccountsControllerTests
         families.ScopeAsync(UserId, Who.Person(andriy), Arg.Any<CancellationToken>()).Returns(theirs);
         families.ScopeAsync(UserId, Who.Family, Arg.Any<CancellationToken>()).Returns(together);
         var overview = new AccountsOverview([Item], [], [], [], [], Currencies.All);
-        var total = new AccountsTotal("UAH", 1_200m, null, RatesStatus.Current, []);
+        var total = new AccountsTotal("UAH", 1_200m, null, RatesStatus.Current, [], 0);
         accounts.OverviewAsync(theirs, Arg.Any<CancellationToken>()).Returns(overview);
         accounts.TotalAsync(together, Arg.Any<CancellationToken>()).Returns(total);
 

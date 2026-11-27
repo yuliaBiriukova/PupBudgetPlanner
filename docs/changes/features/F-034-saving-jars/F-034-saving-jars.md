@@ -5,10 +5,10 @@
 | Type | Feature |
 | Milestone | M7 — Budgets |
 | Priority | Medium |
-| Status | In progress |
+| Status | Done |
 | Branch | `feature/F-034-saving-jars` (planned on `plan/m7-budgets-and-jars`) |
 | Design | 🎨 3 prototype stories required (the jars list, a jar with its goal and history, putting money in and taking it out) |
-| Approved | — |
+| Approved | 2026-11-27, the final prototype (owner: "final prototype for F-034 is approved, build it") |
 
 ## Goal
 A person saves for a goal (a car, an apartment, a vacation) in a **jar**: a symbolic account with a name, a goal
@@ -68,24 +68,24 @@ the person sees how much is free to spend. A jar that is a real separate place (
 an account today.
 
 ## Acceptance criteria
-- [ ] A person creates a jar with a name, an icon or colour, a currency and, optionally, a goal amount, a target
+- [x] A person creates a jar with a name, an icon or colour, a currency and, optionally, a goal amount, a target
       date and a note; edits it; closes it (archived, history kept).
-- [ ] They set money aside into a jar from one of their accounts and take it back out; the jar's history lists
+- [x] They set money aside into a jar from one of their accounts and take it back out; the jar's history lists
       every in and out with its date and account.
-- [ ] Account balances don't change; each account with jar money shows its balance, how much is in jars and how
+- [x] Account balances don't change; each account with jar money shows its balance, how much is in jars and how
       much is free. The total on the Accounts page shows the same split.
-- [ ] Reports and the balance at month end don't change.
-- [ ] A jar has one currency; money set aside from an account in another currency is converted at the NBU rate of
+- [x] Reports and the balance at month end don't change.
+- [x] A jar has one currency; money set aside from an account in another currency is converted at the NBU rate of
       that day. Money can be taken out any time.
-- [ ] Each jar shows saved so far and, with a goal, a progress bar; with a target date, how much to save a month to
+- [x] Each jar shows saved so far and, with a goal, a progress bar; with a target date, how much to save a month to
       make it. A jar that reached its goal shows "Goal reached"; the person closes it when the money is used.
-- [ ] If spending eats into an account's jar money (free money below zero), the account shows a warning ("2,000 of
+- [x] If spending eats into an account's jar money (free money below zero), the account shows a warning ("2,000 of
       the jar money was spent"); the person takes it out of a jar or tops the account up.
-- [ ] **Plan per jar:** the month's plan (F-033) has amounts for jars; the Budget page shows how much of each has
+- [x] **Plan per jar:** the month's plan (F-033) has amounts for jars; the Budget page shows how much of each has
       been set aside so far and how much is still to go. A new month is prefilled from last month, as F-033's
       budgets are. The planned jar amounts count within the month's total: the groups' budgets plus the jars may not
       be bigger than it (saving is blocked, as in F-033).
-- [ ] **Saved money into a jar:** the Budget page shows the month's saved money two ways, what's left of the
+- [x] **Saved money into a jar:** the Budget page shows the month's saved money two ways, what's left of the
       budgets and income minus expenses, and the person picks one; they put all or part of it into one jar or split
       it across several, each from an account they pick (the one with the most free money in that jar's currency
       first), and keep the rest free. The split shows an amount per jar, typed by hand or filled with one button
@@ -95,17 +95,17 @@ an account today.
       when the month closes (with the reminder on the 1st, F-033) and any time with a button on the Budget page;
       money put into jars is not an expense: the month's *Spent* and *Left* and the categories' budgets don't
       change (owner, 2026-11-27).
-- [ ] The jars' plan is a part of the month's total (Q-015): *Where the … goes* shows *Jars* as a part beside the
+- [x] The jars' plan is a part of the month's total (Q-015): *Where the … goes* shows *Jars* as a part beside the
       groups, and the slip's "… isn't in any group" and *Not in any group* leave it out.
-- [ ] Jars are personal; in the family views a member's jars show as F-030 privacy allows.
-- [ ] Works on the phone and on the desktop, light and dark.
+- [x] Jars are personal; in the family views a member's jars show as F-030 privacy allows.
+- [x] Works on the phone and on the desktop, light and dark.
 
 ## Tasks
 - [x] Settle Q-014 and Q-015 with the owner; update the acceptance criteria (2026-11-16).
-- [ ] References (Mobbin and open examples: Monobank jars, savings goals in budgeting apps); note them below.
-- [ ] 3 prototype stories in `frontend/src/prototypes/F-034-saving-jars/`; owner picks; final prototype; owner
+- [x] References (Mobbin and open examples: Monobank jars, savings goals in budgeting apps); note them below.
+- [x] 3 prototype stories in `frontend/src/prototypes/F-034-saving-jars/`; owner picks; final prototype; owner
       approves.
-- [ ] Backend, frontend, tests and docs once approved (ADR for the jar model).
+- [x] Backend, frontend, tests and docs once approved (ADR for the jar model): built 2026-11-27, ADR 0038.
 
 ## Design
 References (open pages only, nothing that needs a sign-in):
@@ -318,7 +318,7 @@ rest"). The prototype is now one story, the
   in a row.
 
 Chosen variant: 2 "Drawn jars" (the table view of 3 dropped), account cards "Free only" (2026-11-19) · Final prototype
-approved: —
+approved: 2026-11-27 ("final prototype for F-034 is approved, build it")
 
 ## Tests
 - Unit: in jars / free per account (also in another currency, and when spending eats into jar money), progress and
@@ -327,7 +327,38 @@ approved: —
 - E2E (Playwright): create a jar, set money aside and take it out, see the account's split; plan a jar in the
   month and see "still to go"; split the month's saved money across two jars (by the plan and by hand), the rest
   staying free; close a jar.
-- Screens checked in Playwright screenshots (phone / desktop, light / dark):
+- Screens checked in Playwright screenshots (phone / desktop, light / dark): Jars, a jar's window with its history,
+  Put in (over the window), To a jar, New jar, Budget with the Jars card, the jar's plan, the split, Accounts; 375 and
+  1440 px, light and dark, looked at (2026-11-27).
+- Built: backend `JarTests` (money per account, the share taken out, the plan's order and copy), `BudgetPlanTests`
+  (jars within the total), `BudgetBuilderTests` (income, the saved money two ways), `TotalInReportCurrencyTests` (in
+  jars at the same rates), `JarValidatorTests`, `JarsControllerTests`, `BudgetControllerTests`; frontend
+  `jars.test.ts`, `JarsPage.test.tsx`, `budget.test.ts` and `AccountsPage.test.tsx` (jars), `AppLayout.test.tsx`
+  (Jars in the menu); E2E `jars.spec.ts` on phone and desktop.
+
+## Built (2026-11-27)
+
+Final prototype approved by the owner on 2026-11-27 ("final prototype for F-034 is approved, build it"), built as
+approved; the model is in [ADR 0038](../../../decisions/0038-saving-jars.md). The prototype stories are deleted; the real
+ones are *Jars / Jars page*, *Budget / Budget page* (*With jars*, *Saved money split*) and *Accounts* (*With jars*).
+
+Decided while building (nothing the screens show differently from the prototype, except where said):
+1. **Only jars in the month's currency** (the report currency) can be planned in the month and get its saved money:
+   the plan's amounts are in it (the prototype kept to hryvnia jars).
+2. **Saved money is given out once:** what went into jars from a month's saved money is taken off what the split
+   may still give, and the card and the split say "… of it is in jars already" (new line).
+3. **Taking out** from a jar whose money went in from another currency gives back the account amount's share, so
+   taking out everything leaves nothing behind whatever the rate did (the prototype converted at today's rate).
+4. **An account with jar money** counts as used, as with transactions: it can't be deleted or change its currency.
+5. **Family views:** someone else's account says what of it is free only when it is shared in full (F-030); a
+   balance-only card doesn't tell their jars. The Jars page is personal and doesn't follow *Whose money*.
+6. **Putting in more than an account's free money** is allowed, with the prototype's warning; the account then shows
+   it overspent.
+7. **Closing a jar** takes it out of this month's plan and later ones; earlier months keep what they planned.
+8. **Account cards** at most five a row and three on tablets for every account (as the prototype's Accounts page).
+9. The **reminder on the 1st** (push and banner) is unchanged: a past month's Jars card says "… is over" and offers
+   its saved money, as the prototype has it.
+10. People without jars see no Jars card on Budget; the Jars page says what a jar is under the dashed *New jar*.
 
 ## Notes
 - Built after F-033: it adds jars to the month's plan and the "saved money" choice to F-033's Budget page and

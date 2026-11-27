@@ -21,6 +21,27 @@ export interface BudgetGroup {
   categories: BudgetCategory[];
 }
 
+/** A jar in the month's plan (F-034): what the month plans for it and what went in during the month. */
+export interface BudgetJar {
+  id: string;
+  name: string;
+  icon: Schemas['JarIcon'];
+  color: Schemas['JarColor'];
+  planned: number;
+  setAside: number;
+  isClosed: boolean;
+}
+
+/**
+ * The month's saved money two ways (F-034): what's left of the groups' budgets, and income minus expenses; and what went
+ * into jars from it already.
+ */
+export interface SavedMoneyData {
+  leftOfBudgets: number;
+  net: number;
+  intoJars: number;
+}
+
 /**
  * One month of the person's budget (F-033) as the API sends it, amounts as numbers. `planned` is false for a month
  * never planned, whose `startFrom` names the last planned month before it (`2026-10`). `spent` is all the month's
@@ -35,6 +56,11 @@ export interface MonthBudgetData {
   spent: number;
   groups: BudgetGroup[];
   ratesMissing: boolean;
+  /** The month's income, in the report currency (F-034). */
+  income: number;
+  /** The month's plan for jars, in the plan's order (F-034). */
+  jars: BudgetJar[];
+  saved: SavedMoneyData;
 }
 
 const amount = (value: number | string) => Number(value);
@@ -60,6 +86,21 @@ export const toMonthBudget = (data: Schemas['MonthBudget']): MonthBudgetData => 
     })),
   })),
   ratesMissing: data.ratesMissing,
+  income: amount(data.income),
+  jars: data.jars.map((jar) => ({
+    id: jar.id,
+    name: jar.name,
+    icon: jar.icon,
+    color: jar.color,
+    planned: amount(jar.planned),
+    setAside: amount(jar.setAside),
+    isClosed: jar.isClosed,
+  })),
+  saved: {
+    leftOfBudgets: amount(data.saved.leftOfBudgets),
+    net: amount(data.saved.net),
+    intoJars: amount(data.saved.intoJars),
+  },
 });
 
 /** Every month's budget: fetched again after a budget or a transaction changes, or the report currency. */
@@ -80,9 +121,12 @@ export const monthBudgetQuery = (month: string) =>
     },
   });
 
-/** Which budget a change is for: the month's total, an expense group's own or a category's. */
+/** Which budget a change is for: the month's total, an expense group's own, a category's or a jar's (F-034). */
 export type BudgetTarget =
-  { kind: 'total' } | { kind: 'group'; id: string } | { kind: 'category'; id: string };
+  | { kind: 'total' }
+  | { kind: 'group'; id: string }
+  | { kind: 'category'; id: string }
+  | { kind: 'jar'; id: string };
 
 /**
  * What the API said when a budget doesn't fit (it checks the same rule as the page): its words. The page shows its
@@ -116,13 +160,22 @@ export function useSetBudget(month: string) {
                 params: { path: { id: target.id } },
                 body,
               })
-            : await apiClient.PUT('/api/budget/categories/{id}', {
-                params: { path: { id: target.id } },
-                body,
-              });
+            : target.kind === 'category'
+              ? await apiClient.PUT('/api/budget/categories/{id}', {
+                  params: { path: { id: target.id } },
+                  body,
+                })
+              : await apiClient.PUT('/api/budget/jars/{id}', {
+                  params: { path: { id: target.id } },
+                  body,
+                });
       if (!response.ok) throw await refusalOf(response, "Couldn't save the budget");
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: budgetKey }),
+    onSettled: async (_data, _error, { target }) => {
+      await queryClient.invalidateQueries({ queryKey: budgetKey });
+      // A jar's window says this month's plan for it (F-034; jarsApi's key)
+      if (target.kind === 'jar') await queryClient.invalidateQueries({ queryKey: ['jars'] });
+    },
   });
 }
 

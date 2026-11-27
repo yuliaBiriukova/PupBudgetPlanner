@@ -29,7 +29,7 @@ public sealed class TotalInReportCurrencyTests
     {
         var total = TotalInReportCurrency.Of([Hryvnias], "UAH", null);
 
-        total.Should().Be(new AccountsTotal("UAH", 43_899m, null, RatesStatus.Current, []));
+        total.Should().Be(new AccountsTotal("UAH", 43_899m, null, RatesStatus.Current, [], 0));
     }
 
     [Fact]
@@ -101,7 +101,7 @@ public sealed class TotalInReportCurrencyTests
     {
         var total = TotalInReportCurrency.Of([Hryvnias, Dollars], "UAH", DayRates.Missing);
 
-        total.Should().Be(new AccountsTotal("UAH", null, null, RatesStatus.Missing, []));
+        total.Should().Be(new AccountsTotal("UAH", null, null, RatesStatus.Missing, [], null));
     }
 
     [Fact]
@@ -112,5 +112,24 @@ public sealed class TotalInReportCurrencyTests
 
         total.Total.Should().BeNull();
         total.Status.Should().Be(RatesStatus.Missing);
+    }
+
+    [Fact]
+    public void What_is_in_jars_is_converted_at_the_same_rates()
+    {
+        var total = TotalInReportCurrency.Of(
+            [Hryvnias, Dollars],
+            [new CurrencyTotal("UAH", 1, 20_000m), new CurrencyTotal("USD", 1, 100m)],
+            "UAH",
+            RatesOf(Today, RatesStatus.Current));
+
+        total.InJars.Should().Be(20_000m + 4_135m);
+    }
+
+    [Fact]
+    public void Jar_money_in_the_report_currency_only_needs_no_rates()
+    {
+        TotalInReportCurrency.Of([Hryvnias], [new CurrencyTotal("UAH", 1, 5_000m)], "UAH", null)
+            .InJars.Should().Be(5_000m);
     }
 }

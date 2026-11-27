@@ -17,6 +17,10 @@ export function plannedMonth(month: string): MonthBudget {
     total: 50_000,
     spent: 31_482,
     ratesMissing: false,
+    // F-034: the month's income, no jars planned; left of the budgets 5 000 + 9 714 + 1 304
+    income: 52_000,
+    jars: [],
+    saved: { leftOfBudgets: 16_018, net: 52_000 - 31_482, intoJars: 0 },
     groups: [
       {
         id: 'g-home',

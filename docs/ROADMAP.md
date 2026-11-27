@@ -20,7 +20,7 @@ Feature details are in [BACKLOG.md](BACKLOG.md) and [changes/](changes/).
 
 | # | Milestone | Outcome |
 |---|-----------|---------|
-| M7 | Budgets | A monthly budget (a total, groups and categories): plan each month, see what's left on a Budget page, when adding an expense and on Transactions; a reminder on the 1st (F-033, done); saving jars for goals, filled from the month's plan and its savings (F-034) |
+| M7 | Budgets | A monthly budget (a total, groups and categories): plan each month, see what's left on a Budget page, when adding an expense and on Transactions; a reminder on the 1st (F-033, done); saving jars for goals, filled from the month's plan and its savings (F-034, done) |
 | M8 | Email | Resend: email confirmation, password reset, invitations by email |
 | M9 | Privacy & categories | Delete my account (F-027, done); a privacy policy page (F-031, done); a generic default set for new people (F-032, done) |
 | M10 | Data import | Spreadsheet history 2024–2026, Monefy CSV |

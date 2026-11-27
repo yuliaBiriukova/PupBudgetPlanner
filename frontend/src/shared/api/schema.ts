@@ -1466,6 +1466,69 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/budget/jars/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * What the month plans to set aside into an open jar in its currency (F-034); no amount takes it out of the plan.
+         *     Refused when the groups and jars would take more than the total.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SetBudgetRequest"];
+                    "text/json": components["schemas"]["SetBudgetRequest"];
+                    "application/*+json": components["schemas"]["SetBudgetRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/categories": {
         parameters: {
             query?: never;
@@ -2918,6 +2981,337 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/jars": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The open jars, oldest first, with what is in each, where it lies and its history. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JarItem"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveJarRequest"];
+                    "text/json": components["schemas"]["SaveJarRequest"];
+                    "application/*+json": components["schemas"]["SaveJarRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JarItem"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jars/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Its currency stays once money has gone in. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SaveJarRequest"];
+                    "text/json": components["schemas"]["SaveJarRequest"];
+                    "application/*+json": components["schemas"]["SaveJarRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JarItem"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jars/{id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Closes it: it leaves the list, its history stays and its money is free again. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jars/{id}/moves": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Money into the jar from an account (in the account's currency, converted at today's NBU rate), out of it back to
+         *     an account, or to another jar of the same currency (both in the jar's currency). The account's balance doesn't
+         *     change. Answers the jar as it is now.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["JarMoveRequest"];
+                    "text/json": components["schemas"]["JarMoveRequest"];
+                    "application/*+json": components["schemas"]["JarMoveRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JarItem"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jars/saved-money": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * A month's saved money (left of its budgets, or income minus expenses) split across jars in the month's currency,
+         *     each part from an account; what isn't given out stays free.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SavedMoneyRequest"];
+                    "text/json": components["schemas"]["SavedMoneyRequest"];
+                    "application/*+json": components["schemas"]["SavedMoneyRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/deletion": {
         parameters: {
             query?: never;
@@ -3997,6 +4391,8 @@ export interface components {
          *     OwnerId is whose it is: someone else's only opens to look at (F-024).
          *     FamilySees is what the other members of the family see of it (F-030): your own as you set it,
          *     someone else's Everything or BalanceOnly (a hidden one isn't there).
+         *     InJars is what of its balance is set aside into open saving jars, in its currency (F-034): the
+         *     rest is free; for someone else's account only when it is shared in full, otherwise 0.
          */
         AccountItem: {
             /** Format: uuid */
@@ -4026,6 +4422,8 @@ export interface components {
             /** Format: date-time */
             lastUsedAt: null | string;
             familySees: components["schemas"]["AccountShare"];
+            /** Format: double */
+            inJars: number | string;
         };
         /**
          * @description What the other members of a person's family see of one of their accounts (F-030). The same for every member; a new
@@ -4051,7 +4449,8 @@ export interface components {
          *     person's report currency, F-016) at the NBU rates of RatesDate, with the rates it used: the
          *     person's other currencies and the report currency's own when it isn't the hryvnia.
          *     Total is empty when there are no rates for it (RatesStatus.Missing). With
-         *     accounts in the report currency only, no rates are needed: no date and no rates.
+         *     accounts in the report currency only, no rates are needed: no date and no rates. InJars is what of
+         *     the total is set aside into jars (F-034), at the same rates (none when the total is none); the rest is free to spend.
          */
         AccountsTotal: {
             currency: string;
@@ -4061,6 +4460,8 @@ export interface components {
             ratesDate: null | string;
             status: components["schemas"]["RatesStatus"];
             rates: components["schemas"]["RateItem"][];
+            /** Format: double */
+            inJars: null | number | string;
         };
         /** @description A new category in a group, at int? AddCategoryRequest.Place among its shown ones (0: first; null: at the end). */
         AddCategoryRequest: {
@@ -4123,6 +4524,22 @@ export interface components {
             /** Format: double */
             spent: number | string;
             categories: components["schemas"]["BudgetCategoryLine"][];
+        };
+        /**
+         * @description A jar in the month's plan (F-034): what the month plans to set aside into it, in the month's currency, and what went
+         *     in during the month, less what came out. A closed jar shows in the months it was planned in before it closed.
+         */
+        BudgetJarLine: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            icon: components["schemas"]["JarIcon"];
+            color: components["schemas"]["JarColor"];
+            /** Format: double */
+            planned: number | string;
+            /** Format: double */
+            setAside: number | string;
+            isClosed: boolean;
         };
         /**
          * @description How an account's card looks on the Accounts page (F-014). Named by the look, so the names fit both themes: Solid
@@ -4360,6 +4777,101 @@ export interface components {
             displayName: string;
             isOwner: boolean;
         };
+        /**
+         * @description A jar's colour: one of Mantine's palette colours from the theme, true in both schemes (F-034).
+         * @enum {unknown}
+         */
+        JarColor: "Blue" | "Teal" | "Orange" | "Yellow" | "Pink" | "Gray";
+        /**
+         * @description The picture on a jar (F-034): one of Tabler's icons, no paw or dog images.
+         * @enum {unknown}
+         */
+        JarIcon: "Car" | "Home" | "Plane" | "Beach" | "Device" | "Coins" | "Gift" | "School";
+        /**
+         * @description A jar on the Jars page (F-034). By is the target month, `yyyy-MM`. Saved
+         *     is what is in it, in its currency. PlannedThisMonth is what this month's budget plans for it
+         *     (none when it isn't in the plan) and SetAsideThisMonth what went in this month, less what came out.
+         */
+        JarItem: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            icon: components["schemas"]["JarIcon"];
+            color: components["schemas"]["JarColor"];
+            currency: string;
+            /** Format: double */
+            goal: null | number | string;
+            by: null | string;
+            note: null | string;
+            /** Format: double */
+            saved: number | string;
+            places: components["schemas"]["JarPlaceItem"][];
+            history: components["schemas"]["JarMoveItem"][];
+            /** Format: double */
+            plannedThisMonth: null | number | string;
+            /** Format: double */
+            setAsideThisMonth: number | string;
+            /** Format: date-time */
+            closedAt: null | string;
+        };
+        /** @enum {unknown} */
+        JarMoveAction: "In" | "Out" | "Move";
+        /**
+         * @description One line of a jar's history, newest first: Amount in the jar's currency (negative out), and
+         *     what it was on the account in its own currency. OtherJarName for a move between jars,
+         *     Month (`yyyy-MM`) for a month's saved money.
+         */
+        JarMoveItem: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            date: string;
+            kind: components["schemas"]["JarMoveKind"];
+            /** Format: double */
+            amount: number | string;
+            /** Format: uuid */
+            accountId: string;
+            accountName: string;
+            accountCurrency: string;
+            /** Format: double */
+            accountAmount: number | string;
+            /** Format: uuid */
+            otherJarId: null | string;
+            otherJarName: null | string;
+            month: null | string;
+        };
+        /**
+         * @description Why money went into a jar or out of it (F-034): the jar's history names each.
+         * @enum {unknown}
+         */
+        JarMoveKind: "PutIn" | "TakeOut" | "MovedIn" | "MovedOut" | "SavedMoney";
+        /**
+         * @description Money into a jar, out of it, or to another jar (ToJarId). Putting in from an account in another
+         *     currency converts at today's NBU rate.
+         */
+        JarMoveRequest: {
+            action: components["schemas"]["JarMoveAction"];
+            /** Format: uuid */
+            accountId: string;
+            /** Format: double */
+            amount: number | string;
+            /** Format: uuid */
+            toJarId: null | string;
+        };
+        /**
+         * @description A jar's money on one account (F-034): Amount in the jar's currency, AccountAmount
+         *     in the account's.
+         */
+        JarPlaceItem: {
+            /** Format: uuid */
+            accountId: string;
+            accountName: string;
+            accountCurrency: string;
+            /** Format: double */
+            amount: number | string;
+            /** Format: double */
+            accountAmount: number | string;
+        };
         /** @description Join the family of the invite link with this token. */
         JoinFamilyRequest: {
             token: string;
@@ -4400,7 +4912,8 @@ export interface components {
          *     before it, which "Start from …" copies (none when there is none). Spent is all the month's
          *     expenses, what the total counts against. Spending in other currencies is at the NBU rate of each transaction's day;
          *     RatesMissing: some had no rate and aren't counted. Amounts are kept as they are and rounded when
-         *     shown (ADR 0018).
+         *     shown (ADR 0018). Income is the month's income, Jars its plan for jars, in the
+         *     plan's order, and Saved its saved money (F-034).
          */
         MonthBudget: {
             month: string;
@@ -4413,6 +4926,10 @@ export interface components {
             spent: number | string;
             groups: components["schemas"]["BudgetGroupLine"][];
             ratesMissing: boolean;
+            /** Format: double */
+            income: number | string;
+            jars: components["schemas"]["BudgetJarLine"][];
+            saved: components["schemas"]["SavedMoney"];
         };
         /** @description A type's most used categories, most used first: the form's category pills. */
         MostUsedCategories: {
@@ -4610,10 +5127,57 @@ export interface components {
             openingDate: string;
             cardStyle: components["schemas"]["CardStyle"];
         };
+        /**
+         * @description The month's saved money two ways (F-034), whole: LeftOfBudgets is what's left of the groups'
+         *     budgets (nothing over counted), Net the month's income minus its expenses (as in the report);
+         *     IntoJars is what went into jars from this month's saved money already.
+         */
+        SavedMoney: {
+            /** Format: double */
+            leftOfBudgets: number | string;
+            /** Format: double */
+            net: number | string;
+            /** Format: double */
+            intoJars: number | string;
+        };
+        /** @description One jar's part of the split: from which account, how much (in the jar's currency, the account's too). */
+        SavedMoneyPart: {
+            /** Format: uuid */
+            jarId: string;
+            /** Format: uuid */
+            accountId: string;
+            /** Format: double */
+            amount: number | string;
+        };
+        /**
+         * @description Month's (`yyyy-MM`) saved money split across jars; what isn't given out stays free. Together
+         *             the parts and what went in from that month's saved money before may not be more than Way's amount.
+         */
+        SavedMoneyRequest: {
+            month: string;
+            way: components["schemas"]["SavedMoneyWay"];
+            parts: components["schemas"]["SavedMoneyPart"][];
+        };
+        /**
+         * @description Which of the month's two kinds of saved money is split (F-034).
+         * @enum {unknown}
+         */
+        SavedMoneyWay: "LeftOfBudgets" | "Net";
         /** @description The saved transaction and the balances it changed: one account, or two when it moved between them. */
         SavedTransaction: {
             transaction: components["schemas"]["TransactionItem"];
             balances: components["schemas"]["BalanceChange"][];
+        };
+        /** @description A new jar or the edited one; By written `yyyy-MM`. */
+        SaveJarRequest: {
+            name: string;
+            icon: components["schemas"]["JarIcon"];
+            color: components["schemas"]["JarColor"];
+            currency: string;
+            /** Format: double */
+            goal: null | number | string;
+            by: null | string;
+            note: null | string;
         };
         /** @description A device's push subscription, as the browser's `PushSubscription.toJSON()` gives it. */
         SavePushSubscriptionRequest: {
@@ -4686,7 +5250,7 @@ export interface components {
         };
         /**
          * @description Plans Month: with CopyLast as a copy of the last planned month before it (all
-         *     three levels), otherwise empty.
+         *     three levels and the jars), otherwise empty.
          */
         StartMonthRequest: {
             month: string;
