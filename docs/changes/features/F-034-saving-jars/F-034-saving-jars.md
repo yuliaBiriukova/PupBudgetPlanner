@@ -262,6 +262,10 @@ Owner, 2026-11-27, two more, built into the final prototype:
    *Jars* (the month's jar plan, 32 000 ₴, 40 %) as a part sorted with the groups, its row bringing the Jars card into
    view; *Not in any group* and the slip's "… isn't in any group" are what's left after the groups and the jars
    (500 ₴, was 32 500 ₴).
+3. **The Jars page's totals** (explained to the owner): *Set aside* is every jar's money in hryvnias at the NBU rate;
+   *Free to spend* is every account's balance in hryvnias (*In total* on Accounts) minus *Set aside*. An account whose
+   jars are short takes its shortfall off *Free to spend* (owner: "Keep subtracting"); accounts with no jars count as
+   free in full.
 
 Owner, 2026-11-19: **no table view for jars.** The final prototype's Jars page is the shelf only: the *Jars* / *Table*
 switch and the ledger with its months are gone from it (points about the table above, the third review's 1 and the UX
