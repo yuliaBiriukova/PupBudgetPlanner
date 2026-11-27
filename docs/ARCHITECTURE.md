@@ -112,6 +112,11 @@ erDiagram
     BUDGET_MONTH ||--o{ CATEGORY_BUDGET : has
     CATEGORY_GROUP ||--o{ GROUP_BUDGET : "budgeted in"
     CATEGORY ||--o{ CATEGORY_BUDGET : "budgeted in"
+    USER ||--o{ JAR : saves
+    JAR ||--o{ JAR_MOVE : "money in and out"
+    ACCOUNT ||--o{ JAR_MOVE : "set aside on"
+    BUDGET_MONTH ||--o{ JAR_BUDGET : has
+    JAR ||--o{ JAR_BUDGET : "planned in"
     USER ||--o{ PUSH_SUBSCRIPTION : "devices"
     EXCHANGE_RATE
 
@@ -129,6 +134,9 @@ erDiagram
     BUDGET_MONTH { guid Id guid UserId date Month decimal Total datetime CreatedAt }
     GROUP_BUDGET { guid BudgetMonthId guid GroupId decimal Amount }
     CATEGORY_BUDGET { guid BudgetMonthId guid CategoryId decimal Amount }
+    JAR { guid Id guid UserId string Name JarIcon Icon JarColor Color string Currency decimal Goal date TargetMonth string Note datetime CreatedAt datetime ClosedAt }
+    JAR_MOVE { guid Id guid JarId guid AccountId date Date JarMoveKind Kind decimal Amount decimal AccountAmount guid OtherJarId date Month datetime CreatedAt }
+    JAR_BUDGET { guid BudgetMonthId guid JarId decimal Amount int Order }
     PUSH_SUBSCRIPTION { guid Id guid UserId string Endpoint string P256dh string Auth datetime CreatedAt date RemindedFor }
 ```
 

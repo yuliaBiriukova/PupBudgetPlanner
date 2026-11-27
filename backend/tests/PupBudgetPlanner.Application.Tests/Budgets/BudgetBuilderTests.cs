@@ -1,6 +1,7 @@
 using PupBudgetPlanner.Application.Budgets;
 using PupBudgetPlanner.Domain.Budgets;
 using PupBudgetPlanner.Domain.Categories;
+using PupBudgetPlanner.Domain.Jars;
 
 namespace PupBudgetPlanner.Application.Tests.Budgets;
 
@@ -127,5 +128,52 @@ public sealed class BudgetBuilderTests
         shapes.Select(shape => shape.Id).Should().BeEquivalentTo([DailyLiving.Id, Subscriptions.Id]);
         shapes.Single(shape => shape.Id == DailyLiving.Id).CategoryIds
             .Should().BeEquivalentTo([Food.Id, EatingOut.Id, OldCafe.Id]);
+    }
+
+    [Fact]
+    public void Saved_money_is_whats_left_of_the_budgets_and_income_minus_expenses()
+    {
+        var spending = new BudgetSpending[]
+        {
+            new(November2, "UAH", Food.Id, 1_000),
+            new(November2, "USD", Spotify.Id, 10),
+            new(November2, "UAH", EatingOut.Id, 400),
+        };
+        var income = new BudgetSpending[]
+        {
+            new(November2, "UAH", Guid.Empty, 52_000),
+            new(November2, "USD", Guid.Empty, 100),
+        };
+        var car = new BudgetJarLine(Guid.CreateVersion7(), "Car", JarIcon.Car, JarColor.Blue, 15_000, 5_000, false);
+
+        var budget = BudgetBuilder.Build(
+            November, "UAH", Groups, Planned(), null, spending, income, Rates, [car], 2_000);
+
+        budget.Income.Should().Be(52_000 + 4_150);
+        budget.Jars.Should().Equal(car);
+        // Daily living's 20 000 less its 1 400; Subscriptions has no budget, so nothing is left of it
+        budget.Saved.Should().Be(new SavedMoney(18_600, 52_000 + 4_150 - 1_815, 2_000));
+    }
+
+    [Fact]
+    public void A_group_over_its_budget_leaves_nothing_and_takes_nothing_from_the_others()
+    {
+        var plan = Planned();
+        plan.SetGroup(Subscriptions.Id, 300);
+        var spending = new BudgetSpending[] { new(November2, "UAH", Spotify.Id, 500), new(November2, "UAH", Food.Id, 5_000) };
+
+        var budget = BudgetBuilder.Build(November, "UAH", Groups, plan, null, spending, [], Rates, [], 0);
+
+        budget.Saved.LeftOfBudgets.Should().Be(15_000);
+        budget.Saved.Net.Should().Be(-5_500);
+    }
+
+    [Fact]
+    public void A_month_not_planned_has_nothing_left_of_budgets()
+    {
+        var budget = BudgetBuilder.Build(
+            November, "UAH", Groups, null, null, [], [new(November2, "UAH", Guid.Empty, 1_000)], Rates, [], 0);
+
+        budget.Saved.Should().Be(new SavedMoney(0, 1_000, 0));
     }
 }

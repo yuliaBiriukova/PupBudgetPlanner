@@ -13,8 +13,9 @@ const shade = (index: number) => `${String(Math.max(24, 92 - index * 30))}%`;
 
 /**
  * Where the month's total goes (F-033, owner's review of PR #115): one bar split by the groups' budgets, the part in no
- * group an outline, and a legend with each group's amount and share; a row brings its group into view. Nothing without
- * a total.
+ * group an outline, and a legend with each group's amount and share; a row brings its group into view. The month's
+ * plan for jars is a part of its own beside the groups, sorted with them (F-034, owner 2026-11-27); its row brings the
+ * Jars card into view. Nothing without a total.
  */
 export function PlanSplit({ lines }: { lines: MonthLines }) {
   const { t } = useTranslation();
@@ -22,9 +23,14 @@ export function PlanSplit({ lines }: { lines: MonthLines }) {
   const money = moneyIn(lines.currency);
   const total = lines.total.budget;
   if (total == null || total <= 0) return null;
-  const parts = lines.groups
-    .filter((g) => (g.budget ?? 0) > 0)
-    .sort((a, b) => (b.budget ?? 0) - (a.budget ?? 0));
+  const parts = [
+    ...lines.groups
+      .filter((g) => (g.budget ?? 0) > 0)
+      .map((g) => ({ id: `budget-group-${g.id}`, name: g.name, amount: g.budget ?? 0 })),
+    ...(lines.jarsPlanned > 0
+      ? [{ id: 'budget-jars', name: t('jars.budget.title'), amount: lines.jarsPlanned }]
+      : []),
+  ].sort((a, b) => b.amount - a.amount);
   const free = Math.max(0, lines.unplanned ?? 0);
   const share = (amount: number) => Math.round((amount / total) * 100);
   const width = (amount: number) => `${String((amount / total) * 100)}%`;
@@ -34,10 +40,10 @@ export function PlanSplit({ lines }: { lines: MonthLines }) {
         {t('budget.split.title', { total: money(total) })}
       </h2>
       <div className={classes.split} aria-hidden data-testid="plan-split">
-        {parts.map((group, index) => (
+        {parts.map((part, index) => (
           <span
-            key={group.id}
-            style={{ '--part': width(group.budget ?? 0), '--shade': shade(index) } as CSSProperties}
+            key={part.id}
+            style={{ '--part': width(part.amount), '--shade': shade(index) } as CSSProperties}
           />
         ))}
         {free > 0 && (
@@ -45,13 +51,13 @@ export function PlanSplit({ lines }: { lines: MonthLines }) {
         )}
       </div>
       <div className={classes.list}>
-        {parts.map((group, index) => (
+        {parts.map((part, index) => (
           <UnstyledButton
-            key={group.id}
+            key={part.id}
             className={cx(classes.row, classes.legendRow)}
             onClick={() => {
               document
-                .getElementById(`budget-group-${group.id}`)
+                .getElementById(part.id)
                 ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
           >
@@ -60,10 +66,10 @@ export function PlanSplit({ lines }: { lines: MonthLines }) {
               style={{ '--shade': shade(index) } as CSSProperties}
               aria-hidden
             />
-            <span>{group.name}</span>
-            <span className={classes.num}>{money(group.budget ?? 0)}</span>
+            <span>{part.name}</span>
+            <span className={classes.num}>{money(part.amount)}</span>
             <span className={cx(classes.num, classes.dim, classes.share)}>
-              {t('budget.split.share', { share: share(group.budget ?? 0) })}
+              {t('budget.split.share', { share: share(part.amount) })}
             </span>
           </UnstyledButton>
         ))}

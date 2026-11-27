@@ -116,4 +116,32 @@ public sealed class BudgetPlanTests
 
         after.WorseThan(before, Groups).Should().BeNull();
     }
+
+    [Fact]
+    public void Jars_planned_in_the_month_count_within_its_total_beside_the_groups()
+    {
+        // Q-015: the groups' 15 000 and the jars' 6 000 come to 1 000 more than the total
+        var plan = new BudgetPlan(
+            20_000,
+            new Dictionary<Guid, decimal> { [DailyLiving] = 15_000 },
+            new Dictionary<Guid, decimal>(),
+            new Dictionary<Guid, decimal> { [Guid.CreateVersion7()] = 5_000, [Guid.CreateVersion7()] = 1_000 });
+
+        var overflow = plan.Overflows(Groups).Should().ContainSingle().Subject;
+        overflow.IsTotal.Should().BeTrue();
+        overflow.Over.Should().Be(1_000);
+        overflow.Jars.Should().Be(6_000);
+    }
+
+    [Fact]
+    public void Jars_without_a_total_are_never_over()
+    {
+        var plan = new BudgetPlan(
+            null,
+            new Dictionary<Guid, decimal>(),
+            new Dictionary<Guid, decimal>(),
+            new Dictionary<Guid, decimal> { [Guid.CreateVersion7()] = 50_000 });
+
+        plan.Overflows(Groups).Should().BeEmpty();
+    }
 }

@@ -392,6 +392,19 @@ function Totals({
                 from={freshFrom(grand.data, fresh)}
               />
             </span>
+            {/* F-034: what of it is free and what is in jars, once anything is */}
+            {grand.data.inJars != null && grand.data.inJars !== 0 && (
+              <p className={classes.jarSplit}>
+                <span>
+                  {t('accounts.jars.free')}{' '}
+                  <strong>{formatMoney(grand.data.total - grand.data.inJars, currency)}</strong>
+                </span>
+                <span>
+                  {t('accounts.jars.inJars')}{' '}
+                  <strong>{formatMoney(grand.data.inJars, currency)}</strong>
+                </span>
+              </p>
+            )}
             <TotalRates total={grand.data} />
           </>
         )}
@@ -497,6 +510,21 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
       : { share: 'BalanceOnly' as const, label: t('privacy.marks.balance') };
   };
 
+  // A card with jar money says what of it is free, or by how much spending ate into the jar money (F-034, Card fit 2)
+  const jarLineOf = (account: Account) => {
+    if (account.inJars === 0) return undefined;
+    const free = account.balance - account.inJars;
+    return free < 0
+      ? {
+          text: t('accounts.jars.overspent', { amount: formatMoney(-free, account.currency) }),
+          overspent: true,
+        }
+      : {
+          text: t('accounts.jars.cardFree', { amount: formatMoney(free, account.currency) }),
+          overspent: false,
+        };
+  };
+
   const sourceOf = (account: Account) =>
     account.source === 'Cash'
       ? t('accounts.cash')
@@ -542,6 +570,7 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
                   currency={account.currency}
                   cardStyle={account.cardStyle}
                   mark={markOf(account)}
+                  jarLine={jarLineOf(account)}
                   className={cx(classes.card, whoseClasses.theirCard)}
                 />
               </li>
@@ -558,6 +587,7 @@ function Group({ group, groupBy, fresh, onOpen, onAdd, onAddTransaction }: Group
                 cardStyle={account.cardStyle}
                 isNew={fresh?.some((item) => item.id === account.id)}
                 mark={markOf(account)}
+                jarLine={jarLineOf(account)}
                 className={classes.card}
                 onClick={() => {
                   onOpen(account);

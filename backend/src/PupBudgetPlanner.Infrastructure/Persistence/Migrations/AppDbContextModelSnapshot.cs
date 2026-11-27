@@ -425,6 +425,34 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.ToTable("group_budgets", (string)null);
                 });
 
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Budgets.JarBudget", b =>
+                {
+                    b.Property<Guid>("BudgetMonthId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("budget_month_id");
+
+                    b.Property<Guid>("JarId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("jar_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.HasKey("BudgetMonthId", "JarId")
+                        .HasName("pk_jar_budgets");
+
+                    b.HasIndex("JarId")
+                        .HasDatabaseName("ix_jar_budgets_jar_id");
+
+                    b.ToTable("jar_budgets", (string)null);
+                });
+
             modelBuilder.Entity("PupBudgetPlanner.Domain.Categories.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -661,6 +689,135 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasFilter("created_account");
 
                     b.ToTable("invitations", (string)null);
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Jars.Jar", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("color");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("currency")
+                        .IsFixedLength();
+
+                    b.Property<decimal?>("Goal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("goal");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("icon");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("note");
+
+                    b.Property<DateOnly?>("TargetMonth")
+                        .HasColumnType("date")
+                        .HasColumnName("target_month");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_jars");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_jars_user_id");
+
+                    b.ToTable("jars", (string)null);
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Jars.JarMove", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("AccountAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("account_amount");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<Guid>("JarId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("jar_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateOnly?>("Month")
+                        .HasColumnType("date")
+                        .HasColumnName("month");
+
+                    b.Property<Guid?>("OtherJarId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("other_jar_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_jar_moves");
+
+                    b.HasIndex("AccountId")
+                        .HasDatabaseName("ix_jar_moves_account_id");
+
+                    b.HasIndex("JarId")
+                        .HasDatabaseName("ix_jar_moves_jar_id");
+
+                    b.HasIndex("OtherJarId")
+                        .HasDatabaseName("ix_jar_moves_other_jar_id");
+
+                    b.ToTable("jar_moves", (string)null);
                 });
 
             modelBuilder.Entity("PupBudgetPlanner.Domain.Reminders.PushSubscription", b =>
@@ -1053,6 +1210,23 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_group_budgets_category_groups_group_id");
                 });
 
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Budgets.JarBudget", b =>
+                {
+                    b.HasOne("PupBudgetPlanner.Domain.Budgets.BudgetMonth", null)
+                        .WithMany("Jars")
+                        .HasForeignKey("BudgetMonthId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_jar_budgets_budget_months_budget_month_id");
+
+                    b.HasOne("PupBudgetPlanner.Domain.Jars.Jar", null)
+                        .WithMany()
+                        .HasForeignKey("JarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_jar_budgets_jars_jar_id");
+                });
+
             modelBuilder.Entity("PupBudgetPlanner.Domain.Categories.Category", b =>
                 {
                     b.HasOne("PupBudgetPlanner.Domain.Categories.CategoryGroup", null)
@@ -1121,6 +1295,39 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_invitations_users_used_by_id");
                 });
 
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Jars.Jar", b =>
+                {
+                    b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_jars_users_user_id");
+                });
+
+            modelBuilder.Entity("PupBudgetPlanner.Domain.Jars.JarMove", b =>
+                {
+                    b.HasOne("PupBudgetPlanner.Domain.Accounts.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_jar_moves_accounts_account_id");
+
+                    b.HasOne("PupBudgetPlanner.Domain.Jars.Jar", null)
+                        .WithMany()
+                        .HasForeignKey("JarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_jar_moves_jars_jar_id");
+
+                    b.HasOne("PupBudgetPlanner.Domain.Jars.Jar", null)
+                        .WithMany()
+                        .HasForeignKey("OtherJarId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("fk_jar_moves_jars_other_jar_id");
+                });
+
             modelBuilder.Entity("PupBudgetPlanner.Domain.Reminders.PushSubscription", b =>
                 {
                     b.HasOne("PupBudgetPlanner.Infrastructure.Identity.AppUser", null)
@@ -1165,6 +1372,8 @@ namespace PupBudgetPlanner.Infrastructure.Persistence.Migrations
                     b.Navigation("Categories");
 
                     b.Navigation("Groups");
+
+                    b.Navigation("Jars");
                 });
 
             modelBuilder.Entity("PupBudgetPlanner.Domain.Categories.CategoryGroup", b =>

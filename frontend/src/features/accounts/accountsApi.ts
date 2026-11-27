@@ -13,12 +13,14 @@ export type SaveAccountRequest = Omit<Schemas['SaveAccountRequest'], 'openingBal
 /** An account as the page uses it; the API may send its amounts as text (they are decimals there). */
 export type Account = Omit<
   Schemas['AccountItem'],
-  'openingBalance' | 'balance' | 'transactionCount'
+  'openingBalance' | 'balance' | 'transactionCount' | 'inJars'
 > & {
   openingBalance: number;
   balance: number;
   /** An account with transactions can't be deleted or change its currency (I-011, F-018). */
   transactionCount: number;
+  /** What of the balance is set aside into saving jars, in its currency (F-034); the rest is free. */
+  inJars: number;
 };
 
 export type CurrencyTotal = Omit<Schemas['CurrencyTotal'], 'accounts' | 'total'> & {
@@ -47,6 +49,7 @@ const toAccount = (item: Schemas['AccountItem']): Account => ({
   openingBalance: Number(item.openingBalance),
   balance: Number(item.balance),
   transactionCount: Number(item.transactionCount),
+  inJars: Number(item.inJars),
 });
 
 /**
@@ -87,9 +90,11 @@ export type RatesStatus = Schemas['RatesStatus'];
 export type RateItem = Omit<Schemas['RateItem'], 'rate'> & { rate: number };
 
 /** "In total, in UAH" (F-017); `total` is null when there are no rates for it (`Missing`). */
-export type AccountsTotal = Omit<Schemas['AccountsTotal'], 'total' | 'rates'> & {
+export type AccountsTotal = Omit<Schemas['AccountsTotal'], 'total' | 'rates' | 'inJars'> & {
   total: number | null;
   rates: RateItem[];
+  /** What of the total is in saving jars (F-034), at the same rates; null with no total. */
+  inJars: number | null;
 };
 
 /**
@@ -110,6 +115,7 @@ export const accountsTotalQueryOf = (who?: string) =>
         ...data,
         total: data.total === null ? null : Number(data.total),
         rates: data.rates.map((item) => ({ ...item, rate: Number(item.rate) })),
+        inJars: data.inJars === null ? null : Number(data.inJars),
       };
     },
     placeholderData: who ? keepPreviousData : undefined,

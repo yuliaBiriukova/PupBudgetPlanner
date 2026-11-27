@@ -6,10 +6,12 @@ import { TransactionFormProvider } from '../transactions/TransactionFormProvider
 import { SUGGESTIONS } from '../transactions/transactionsTestData';
 import { AccountsPage } from './AccountsPage';
 import type { AccountsTotal, RatesStatus } from './accountsApi';
+import { OVERVIEW_WITH_JARS, TOTAL_WITH_JARS } from '../jars/jarsTestData';
 import { EMPTY, OVERVIEW, TOTAL } from './accountsTestData';
 
 interface ScreenProps {
-  data?: 'accounts' | 'hryvnias' | 'empty' | 'loading' | 'error';
+  /** `jars`: the accounts with saving jars' money on them (F-034). */
+  data?: 'accounts' | 'jars' | 'hryvnias' | 'empty' | 'loading' | 'error';
   groupBy?: 'currency' | 'source';
   /** "In total, in UAH" (F-017): today's rates, earlier ones and why, none, or still loading. */
   rates?: RatesStatus | 'loading';
@@ -24,9 +26,23 @@ const HRYVNIAS = {
 
 function totalOf(data: ScreenProps['data'], rates: RatesStatus): AccountsTotal {
   if (data === 'hryvnias')
-    return { currency: 'UAH', total: 310133, ratesDate: null, status: 'Current', rates: [] };
+    return {
+      currency: 'UAH',
+      total: 310133,
+      ratesDate: null,
+      status: 'Current',
+      rates: [],
+      inJars: 0,
+    };
   if (rates === 'Missing')
-    return { currency: 'UAH', total: null, ratesDate: null, status: 'Missing', rates: [] };
+    return {
+      currency: 'UAH',
+      total: null,
+      ratesDate: null,
+      status: 'Missing',
+      rates: [],
+      inJars: 0,
+    };
   return rates === 'Current' ? TOTAL : { ...TOTAL, status: rates, ratesDate: '2026-10-29' };
 }
 
@@ -43,8 +59,20 @@ function AccountsScreen({
         ? 'pending'
         : data === 'error'
           ? { status: 500 }
-          : { json: data === 'empty' ? EMPTY : data === 'hryvnias' ? HRYVNIAS : OVERVIEW },
-    '/api/accounts/total': rates === 'loading' ? 'pending' : { json: totalOf(data, rates) },
+          : {
+              json:
+                data === 'empty'
+                  ? EMPTY
+                  : data === 'hryvnias'
+                    ? HRYVNIAS
+                    : data === 'jars'
+                      ? OVERVIEW_WITH_JARS
+                      : OVERVIEW,
+            },
+    '/api/accounts/total':
+      rates === 'loading'
+        ? 'pending'
+        : { json: data === 'jars' ? TOTAL_WITH_JARS : totalOf(data, rates) },
     // The + on a card opens the quick-add form (F-018)
     '/api/categories': { json: DEFAULT_CATEGORIES },
     '/api/transactions/suggestions': { json: SUGGESTIONS },
@@ -148,6 +176,14 @@ export const TotalLoading: Story = { args: { rates: 'loading' } };
 export const TotalHryvniasOnly: Story = { args: { data: 'hryvnias' }, globals: desktop };
 
 export const FirstVisit: Story = { args: { data: 'empty' } };
+
+/**
+ * With saving jars (F-034): a card with jar money says what of it is free above its balance, or how much was
+ * overspent (Mono black); In total says what is free and what is in jars.
+ */
+export const WithJars: Story = { args: { data: 'jars' } };
+
+export const WithJarsDesktop: Story = { args: { data: 'jars' }, globals: desktop };
 
 export const Loading: Story = { args: { data: 'loading' } };
 

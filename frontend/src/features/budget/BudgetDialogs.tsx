@@ -43,7 +43,7 @@ function useOverflowText(currency: string) {
   const money = moneyIn(currency);
   return (overflow: Overflow) =>
     overflow.groupId == null
-      ? t('budget.dialog.overTotal', {
+      ? t(overflow.jars ? 'budget.dialog.overTotalJars' : 'budget.dialog.overTotal', {
           inside: money(overflow.inside),
           over: money(overflow.inside - overflow.budget),
           budget: money(overflow.budget),
@@ -84,7 +84,9 @@ export function EditBudgetDialog({
       ? plan.total
       : target.kind === 'group'
         ? (plan.groups[target.id] ?? null)
-        : (plan.categories[target.id] ?? null);
+        : target.kind === 'category'
+          ? (plan.categories[target.id] ?? null)
+          : (plan.jars[target.id] ?? null);
   const [text, setText] = useState(budgetText(current));
   const [tried, setTried] = useState(false);
   const value = parseBudget(text);
@@ -197,8 +199,12 @@ export function EditBudgetDialog({
         {target.kind === 'total' && (
           <li>
             <Trans
-              i18nKey="budget.dialog.groupsTake"
-              values={{ amount: money(lines.planned) }}
+              i18nKey={
+                lines.jarsPlanned > 0
+                  ? 'budget.dialog.groupsAndJarsTake'
+                  : 'budget.dialog.groupsTake'
+              }
+              values={{ amount: money(lines.planned), jars: money(lines.jarsPlanned) }}
               components={bold}
             />
           </li>

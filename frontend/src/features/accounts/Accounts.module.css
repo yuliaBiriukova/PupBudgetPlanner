@@ -201,13 +201,24 @@
     /* The split edge that adds a transaction (F-018) */
     --card-edge: 44px;
 
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(max(224px, calc((100% - 4 * 14px) / 5)), 1fr));
     gap: 14px;
   }
 
+  /* At most five cards a row, each at least 224 px wide (F-034, owner 2026-11-17): four at 1440 px, five at 1920 px.
+     No fixed shape: a card is at least a bank card tall (from its own width) and grows to fit an overspent line that
+     wraps; the row stretches the others to the tallest, so the balances stay level */
+  .cards > li {
+    container-type: inline-size;
+  }
+
+  .cards > li > * {
+    height: 100%;
+  }
+
   .card {
-    aspect-ratio: 1.586;
-    min-height: 0;
+    height: 100%;
+    min-height: calc(100cqw / 1.586);
     padding: 18px 20px;
   }
 
@@ -222,6 +233,29 @@
   .groupTotal {
     font-size: 24px;
   }
+}
+
+/* A tablet's column (narrower than four 224 px cards): three a row from 180 px instead of two big ones (F-034, owner
+   2026-11-27) */
+@container accounts (min-width: 420px) and (max-width: 937px) {
+  .cards {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+/* In total's split (F-034): what is free and what is in jars */
+.jarSplit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+.jarSplit strong {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 /* First visit, and couldn't load */

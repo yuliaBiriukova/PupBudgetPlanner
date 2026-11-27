@@ -3,6 +3,7 @@ using PupBudgetPlanner.Application.Budgets;
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Domain.Budgets;
 using PupBudgetPlanner.Domain.Categories;
+using PupBudgetPlanner.Domain.Jars;
 using PupBudgetPlanner.Domain.Transactions;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
@@ -33,15 +34,64 @@ internal sealed class BudgetService(AppDbContext dbContext, IExchangeRateService
                 select new BudgetSpending(
                     same.Key.Date, same.Key.Currency, same.Key.CategoryId!.Value, same.Sum(t => t.Amount)))
             .ToListAsync(cancellationToken);
+        // The month's income, for its saved money (F-034)
+        var income = await (
+                from transaction in dbContext.Transactions.AsNoTracking()
+                where transaction.UserId == userId && transaction.Type == TransactionType.Income &&
+                      transaction.Date >= month && transaction.Date <= last
+                join account in dbContext.Accounts on transaction.AccountId equals account.Id
+                group transaction by new { transaction.Date, account.Currency }
+                into same
+                select new BudgetSpending(same.Key.Date, same.Key.Currency, Guid.Empty, same.Sum(t => t.Amount)))
+            .ToListAsync(cancellationToken);
 
-        // Only the days with an expense in another currency need their rates (kept once asked for, ADR 0019)
+        // Only the days with money in another currency need their rates (kept once asked for, ADR 0019)
         var ratesOf = new Dictionary<DateOnly, IReadOnlyDictionary<string, decimal>>();
-        foreach (var day in spending.Where(row => row.Currency != currency).Select(row => row.Date).Distinct())
+        foreach (var day in spending.Concat(income).Where(row => row.Currency != currency).Select(row => row.Date)
+                     .Distinct())
         {
             ratesOf[day] = (await rates.RatesOnAsync(day, cancellationToken)).ToUah;
         }
 
-        return BudgetBuilder.Build(month, currency, groups, plan, startFrom, spending, ratesOf);
+        var jars = await JarLinesAsync(plan, month, last, cancellationToken);
+        var savedIntoJars = await (
+                from move in dbContext.JarMoves.AsNoTracking()
+                join jar in dbContext.Jars on move.JarId equals jar.Id
+                where jar.UserId == userId && move.Kind == JarMoveKind.SavedMoney && move.Month == month
+                select move.Amount)
+            .SumAsync(cancellationToken);
+
+        return BudgetBuilder.Build(
+            month, currency, groups, plan, startFrom, spending, income, ratesOf, jars, savedIntoJars);
+    }
+
+    /// <summary>The month's plan for jars, in the order they were planned (F-034), with what went in that month.</summary>
+    private async Task<IReadOnlyList<BudgetJarLine>> JarLinesAsync(
+        BudgetMonth? plan, DateOnly month, DateOnly last, CancellationToken cancellationToken)
+    {
+        if (plan is null || plan.Jars.Count == 0)
+        {
+            return [];
+        }
+
+        var ids = plan.Jars.Select(line => line.JarId).ToList();
+        var jars = await dbContext.Jars.AsNoTracking().Where(jar => ids.Contains(jar.Id))
+            .ToDictionaryAsync(jar => jar.Id, cancellationToken);
+        var setAside = await dbContext.JarMoves.AsNoTracking()
+            .Where(move => ids.Contains(move.JarId) && move.Date >= month && move.Date <= last)
+            .GroupBy(move => move.JarId)
+            .Select(moves => new { JarId = moves.Key, Amount = moves.Sum(move => move.Amount) })
+            .ToDictionaryAsync(row => row.JarId, row => row.Amount, cancellationToken);
+        return plan.Jars
+            .Where(line => jars.ContainsKey(line.JarId))
+            .OrderBy(line => line.Order)
+            .Select(line =>
+            {
+                var jar = jars[line.JarId];
+                return new BudgetJarLine(
+                    jar.Id, jar.Name, jar.Icon, jar.Color, line.Amount, setAside.GetValueOrDefault(jar.Id), jar.IsClosed);
+            })
+            .ToList();
     }
 
     public async Task<BudgetResult> StartAsync(
@@ -74,6 +124,13 @@ internal sealed class BudgetService(AppDbContext dbContext, IExchangeRateService
             started.Categories.Remove(gone);
         }
 
+        // And only the jars still open (F-034)
+        var openJars = (await OpenJarsAsync(userId, null, cancellationToken)).Select(jar => jar.Id).ToHashSet();
+        foreach (var gone in started.Jars.Where(jar => !openJars.Contains(jar.JarId)).ToList())
+        {
+            started.Jars.Remove(gone);
+        }
+
         dbContext.BudgetMonths.Add(started);
         await dbContext.SaveChangesAsync(cancellationToken);
         return BudgetResult.Done;
@@ -101,10 +158,41 @@ internal sealed class BudgetService(AppDbContext dbContext, IExchangeRateService
             plan => plan.SetCategory(categoryId, amount),
             cancellationToken);
 
+    public async Task<BudgetResult> SetJarAsync(
+        Guid userId, DateOnly month, Guid jarId, decimal? amount, CancellationToken cancellationToken)
+    {
+        // Only an open jar in the month's currency (the report currency) can be planned; one already planned can be
+        // taken out whatever it is now
+        var currency = await ReportCurrencyOfAsync(userId, cancellationToken);
+        var plannable = (await OpenJarsAsync(userId, currency, cancellationToken)).Any(jar => jar.Id == jarId);
+        var planned = await dbContext.BudgetMonths.AsNoTracking()
+            .AnyAsync(
+                plan => plan.UserId == userId && plan.Month == BudgetMonth.FirstDayOf(month) &&
+                        plan.Jars.Any(line => line.JarId == jarId),
+                cancellationToken);
+        return await ChangeAsync(
+            userId,
+            month,
+            _ => plannable || (amount is null && planned),
+            plan => plan.SetJar(jarId, amount),
+            cancellationToken);
+    }
+
+    private async Task<string> ReportCurrencyOfAsync(Guid userId, CancellationToken cancellationToken) =>
+        await dbContext.Users.AsNoTracking()
+            .Where(user => user.Id == userId)
+            .Select(user => user.ReportCurrency)
+            .SingleOrDefaultAsync(cancellationToken) ?? ReportCurrency.Default;
+
+    private Task<List<Jar>> OpenJarsAsync(Guid userId, string? currency, CancellationToken cancellationToken) =>
+        dbContext.Jars.AsNoTracking()
+            .Where(jar => jar.UserId == userId && jar.ClosedAt == null && (currency == null || jar.Currency == currency))
+            .ToListAsync(cancellationToken);
+
     public async Task<BudgetResult> DeleteAsync(Guid userId, DateOnly month, CancellationToken cancellationToken)
     {
         month = BudgetMonth.FirstDayOf(month);
-        // Its group and category budgets go with it (cascade)
+        // Its group, category and jar budgets go with it (cascade)
         var deleted = await dbContext.BudgetMonths
             .Where(plan => plan.UserId == userId && plan.Month == month)
             .ExecuteDeleteAsync(cancellationToken);
@@ -160,6 +248,7 @@ internal sealed class BudgetService(AppDbContext dbContext, IExchangeRateService
             .Where(plan => plan.UserId == userId && plan.Month == month)
             .Include(plan => plan.Groups)
             .Include(plan => plan.Categories)
+            .Include(plan => plan.Jars)
             .AsSplitQuery();
         return await (tracked ? query : query.AsNoTracking()).SingleOrDefaultAsync(cancellationToken);
     }

@@ -15,7 +15,7 @@ const RATES: Record<string, number> = { USD: 41.35, EUR: 48.1, PLN: 11.3 };
 function totalFor(overview: AccountsOverview, status: RatesStatus = 'Current'): AccountsTotal {
   const others = overview.totals.filter((total) => total.currency !== 'UAH');
   if (status === 'Missing')
-    return { currency: 'UAH', total: null, ratesDate: null, status, rates: [] };
+    return { currency: 'UAH', total: null, ratesDate: null, status, rates: [], inJars: 0 };
   return {
     currency: 'UAH',
     total: overview.totals.reduce(
@@ -25,6 +25,7 @@ function totalFor(overview: AccountsOverview, status: RatesStatus = 'Current'): 
     ratesDate: others.length === 0 ? null : status === 'Current' ? '2026-11-02' : '2026-10-30',
     status,
     rates: others.map((total) => ({ currency: total.currency, rate: RATES[total.currency] ?? 0 })),
+    inJars: 0,
   };
 }
 
@@ -83,6 +84,35 @@ describe('the Accounts page', () => {
     );
     expect(within(dollars).getByRole('button', { name: 'Add USD account' })).toBeInTheDocument();
     expect(screen.getByText('−4 312 ₴')).toBeInTheDocument();
+  });
+
+  it('says on a card with jar money what of it is free, or how much was overspent; In total the split (F-034)', async () => {
+    const withJars: AccountsOverview = {
+      ...OVERVIEW,
+      accounts: OVERVIEW.accounts.map((item) =>
+        item.id === 'mono'
+          ? { ...item, inJars: 50_000 }
+          : item.id === 'privat'
+            ? { ...item, inJars: 12_000 }
+            : item,
+      ),
+    };
+    server.use(
+      http.get('/api/accounts', () => HttpResponse.json(withJars)),
+      http.get('/api/accounts/total', () =>
+        HttpResponse.json({ ...totalFor(withJars), inJars: 62_000 }),
+      ),
+    );
+    renderApp('/accounts');
+
+    const mono = await screen.findByRole('button', { name: /^Mono black/ }, LOADED);
+    expect(mono).toHaveTextContent('1 789 ₴ overspent');
+    const privat = screen.getByRole('button', { name: /^Privat card/ });
+    expect(privat).toHaveTextContent('784 ₴ free');
+    expect(screen.getByRole('button', { name: /^Mono credit/ })).not.toHaveTextContent('free');
+    const totals = screen.getByRole('group', { name: 'Totals' });
+    expect(totals).toHaveTextContent('In jars 62 000 ₴');
+    expect(totals).toHaveTextContent(/Free \d/);
   });
 
   it('groups by source when asked, and remembers it', async () => {

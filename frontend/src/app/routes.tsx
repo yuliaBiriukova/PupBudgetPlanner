@@ -1,6 +1,7 @@
 import { Navigate, type RouteObject } from 'react-router';
 import { AccountsPage } from '../features/accounts/AccountsPage';
 import { BudgetPage } from '../features/budget/BudgetPage';
+import { JarsPage } from '../features/jars/JarsPage';
 import { GuestOnly, SignInPage, SignUpPage } from '../features/auth/AuthPages';
 import { InviteRoute } from '../features/auth/InviteRoute';
 import { CategoriesPage } from '../features/categories/CategoriesPage';
@@ -19,6 +20,7 @@ export const sectionRoutes: RouteObject[] = [
   { index: true, element: <Navigate to="/transactions" replace /> },
   { path: 'transactions', element: <TransactionsPage /> },
   { path: 'budget', element: <BudgetPage /> },
+  { path: 'jars', element: <JarsPage /> },
   { path: 'accounts', element: <AccountsPage /> },
   { path: 'reports', element: <ReportsPage /> },
   { path: 'categories', element: <CategoriesPage /> },

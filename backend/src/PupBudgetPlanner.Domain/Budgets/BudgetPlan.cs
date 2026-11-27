@@ -7,8 +7,9 @@ public sealed record BudgetGroupShape(Guid Id, IReadOnlyCollection<Guid> Categor
 /// A level that holds more than it may (F-033): a group whose categories' budgets add up to more than its own
 /// (<see cref="GroupId"/> set), or groups adding up to more than the month's total (no <see cref="GroupId"/>).
 /// <see cref="Inside"/> is what it holds, <see cref="Budget"/> what it may hold; the difference is how much it goes over.
+/// For the total, <see cref="Jars"/> is the part of <see cref="Inside"/> planned for jars (F-034).
 /// </summary>
-public sealed record BudgetOverflow(Guid? GroupId, decimal Inside, decimal Budget)
+public sealed record BudgetOverflow(Guid? GroupId, decimal Inside, decimal Budget, decimal Jars = 0)
 {
     public decimal Over => Inside - Budget;
 
@@ -16,14 +17,25 @@ public sealed record BudgetOverflow(Guid? GroupId, decimal Inside, decimal Budge
 }
 
 /// <summary>
-/// A month's plan: the total, the groups' own budgets and the categories' budgets, each optional (F-033). Pure, so the
-/// rules are tested without a database.
+/// A month's plan: the total, the groups' own budgets and the categories' budgets, each optional (F-033), and what it
+/// plans for jars (F-034). Pure, so the rules are tested without a database.
 /// </summary>
 public sealed record BudgetPlan(
     decimal? Total,
     IReadOnlyDictionary<Guid, decimal> Groups,
-    IReadOnlyDictionary<Guid, decimal> Categories)
+    IReadOnlyDictionary<Guid, decimal> Categories,
+    IReadOnlyDictionary<Guid, decimal> Jars)
 {
+    /// <summary>A plan without jars.</summary>
+    public BudgetPlan(
+        decimal? total, IReadOnlyDictionary<Guid, decimal> groups, IReadOnlyDictionary<Guid, decimal> categories)
+        : this(total, groups, categories, new Dictionary<Guid, decimal>())
+    {
+    }
+
+    /// <summary>What the month plans to set aside into jars: part of the total (Q-015), not spending.</summary>
+    public decimal JarsPlanned => Jars.Values.Sum();
+
     /// <summary>The sum of a group's categories' budgets.</summary>
     public decimal InsideOf(BudgetGroupShape group) =>
         group.CategoryIds.Sum(id => Categories.GetValueOrDefault(id));
@@ -34,7 +46,7 @@ public sealed record BudgetPlan(
 
     /// <summary>
     /// Each level fits within the one above it: a group's own budget holds its categories' budgets, and the groups (one
-    /// without its own counting with its categories' sum) hold within the total. Every level that doesn't.
+    /// without its own counting with its categories' sum) and the jars hold within the total. Every level that doesn't.
     /// </summary>
     public IReadOnlyList<BudgetOverflow> Overflows(IReadOnlyCollection<BudgetGroupShape> groups)
     {
@@ -48,10 +60,10 @@ public sealed record BudgetPlan(
             }
         }
 
-        var planned = groups.Sum(TakenBy);
+        var planned = groups.Sum(TakenBy) + JarsPlanned;
         if (Total is { } total && planned > total)
         {
-            overflows.Add(new BudgetOverflow(null, planned, total));
+            overflows.Add(new BudgetOverflow(null, planned, total, JarsPlanned));
         }
 
         return overflows;

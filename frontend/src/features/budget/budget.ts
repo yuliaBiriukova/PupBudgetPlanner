@@ -13,6 +13,8 @@ export interface Plan {
   total: number | null;
   groups: Record<string, number>;
   categories: Record<string, number>;
+  /** What the month plans to set aside into jars (F-034): within the total, not spending. */
+  jars: Record<string, number>;
 }
 
 export interface Line {
@@ -40,7 +42,9 @@ export interface MonthLines {
   groups: GroupLine[];
   /** What the groups take of the total. */
   planned: number;
-  /** total − planned; none without a total. */
+  /** What the month plans for jars (F-034): a part of the total beside the groups (Q-015), not spending. */
+  jarsPlanned: number;
+  /** total − planned − jarsPlanned; none without a total. */
   unplanned: number | null;
   /** Nothing planned on any level. */
   isEmpty: boolean;
@@ -81,7 +85,8 @@ export function planOf(data: MonthBudgetData): Plan {
     for (const category of group.categories)
       if (category.budget != null) categories[category.id] = category.budget;
   }
-  return { total: data.total, groups, categories };
+  const jars = Object.fromEntries(data.jars.map((jar) => [jar.id, jar.planned]));
+  return { total: data.total, groups, categories, jars };
 }
 
 /** Every level with its budget, spent and left; a group without its own budget counts with its categories' sum. */
@@ -98,13 +103,15 @@ export function linesOf(data: MonthBudgetData): MonthLines {
     };
   });
   const planned = groups.reduce((sum, g) => sum + (g.budget ?? 0), 0);
+  const jarsPlanned = data.jars.reduce((sum, jar) => sum + jar.planned, 0);
   return {
     month: data.month,
     currency: data.currency,
     total: line('total', '', data.total, data.spent),
     groups,
     planned,
-    unplanned: data.total == null ? null : data.total - planned,
+    jarsPlanned,
+    unplanned: data.total == null ? null : data.total - planned - jarsPlanned,
     isEmpty: data.total == null && planned === 0,
   };
 }
@@ -115,11 +122,13 @@ export interface Overflow {
   name: string;
   inside: number;
   budget: number;
+  /** For the total: the part of `inside` planned for jars (F-034). */
+  jars?: number;
 }
 
 /**
  * Each level fits within the one above it (F-033): a group's own budget holds its categories' budgets, and the groups
- * (one without its own counting with its categories' sum) hold within the total.
+ * (one without its own counting with its categories' sum) and the jars (F-034) hold within the total.
  */
 export function overflowsOf(plan: Plan, data: MonthBudgetData): Overflow[] {
   const overflows: Overflow[] = [];
@@ -131,8 +140,10 @@ export function overflowsOf(plan: Plan, data: MonthBudgetData): Overflow[] {
       overflows.push({ groupId: group.id, name: group.name, inside, budget: own });
     planned += own ?? inside;
   }
+  const jars = Object.values(plan.jars).reduce((sum, amount) => sum + amount, 0);
+  planned += jars;
   if (plan.total != null && planned > plan.total)
-    overflows.push({ groupId: null, name: '', inside: planned, budget: plan.total });
+    overflows.push({ groupId: null, name: '', inside: planned, budget: plan.total, jars });
   return overflows;
 }
 
@@ -148,7 +159,7 @@ export function newOverflows(before: Plan, after: Plan, data: MonthBudgetData): 
 /** The plan with one budget changed; none removes it. */
 export function withBudget(plan: Plan, target: BudgetTarget, value: number | null): Plan {
   if (target.kind === 'total') return { ...plan, total: value };
-  const key = target.kind === 'group' ? 'groups' : 'categories';
+  const key = target.kind === 'group' ? 'groups' : target.kind === 'jar' ? 'jars' : 'categories';
   const others = Object.entries(plan[key]).filter(([id]) => id !== target.id);
   return {
     ...plan,

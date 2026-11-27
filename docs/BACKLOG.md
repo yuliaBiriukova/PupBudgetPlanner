@@ -93,7 +93,7 @@ owner asks for one.
 | ID | Feature | Priority | Status |
 |----|---------|----------|--------|
 | [F-033](changes/features/F-033-category-budgets/F-033-category-budgets.md) | 🎨 Monthly budget: a total for the month, budgets per group and category, each within the one above; plan each month (prefilled from the last), see what's left on a Budget page, when adding an expense and on Transactions; a reminder on the 1st, banner and push (Q-013; added 2026-11-16) | Medium | Done |
-| [F-034](changes/features/F-034-saving-jars/F-034-saving-jars.md) | 🎨 Saving jars: symbolic jars for goals (car, apartment) that set money aside inside real accounts; planned in the month's budget; the month's saved money can go into a jar (Q-014; added 2026-11-16; after F-033) | Medium | Todo |
+| [F-034](changes/features/F-034-saving-jars/F-034-saving-jars.md) | 🎨 Saving jars: symbolic jars for goals (car, apartment) that set money aside inside real accounts; planned in the month's budget; the month's saved money can go into a jar (Q-014; added 2026-11-16; after F-033) | Medium | Done |
 
 ## Improvements
 
@@ -132,6 +132,7 @@ owner asks for one.
 | [I-032](changes/improvements/I-032-invite-links-without-empty-groups/I-032-invite-links-without-empty-groups.md) | 🎨 Invite links: no empty groups on the Family page; one list with each link's status on the People page (added 2026-11-12) | Medium | Done |
 | [I-033](changes/improvements/I-033-steady-test-checks/I-033-steady-test-checks.md) | Tests that can't pass by luck: rules for "nothing there" checks in the working agreement, and an audit of the existing ones (after B-019 and B-024 turned two releases red; added 2026-11-13) | High | Done |
 | [I-034](changes/improvements/I-034-no-committed-screenshots/I-034-no-committed-screenshots.md) | Screenshots are looked at and sent in chat, never committed; the ones committed before are deleted (owner, 2026-11-14) | Medium | Done |
+| [I-035](changes/improvements/I-035-calm-error-placeholders/I-035-calm-error-placeholders.md) | A field's placeholder stays grey when the field has an error, instead of turning red and reading as a typed value; app-wide, in the theme (from F-034's UX review; added 2026-11-27) | Low | Todo |
 
 ## Bugfixes
 

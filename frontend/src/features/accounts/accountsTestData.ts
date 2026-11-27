@@ -20,6 +20,7 @@ export const account = (id: string, name: string, extra: Partial<Account> = {}):
   transactionCount: 0,
   lastUsedAt: null,
   familySees: 'Everything',
+  inJars: 0,
   ...extra,
 });
 
@@ -151,4 +152,5 @@ export const TOTAL: AccountsTotal = {
     { currency: 'EUR', rate: 48.1 },
     { currency: 'PLN', rate: 11.3 },
   ],
+  inJars: 0,
 };

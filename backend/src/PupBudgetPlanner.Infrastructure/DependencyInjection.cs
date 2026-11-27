@@ -12,6 +12,7 @@ using PupBudgetPlanner.Application.Categories;
 using PupBudgetPlanner.Application.Cleanup;
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Application.Families;
+using PupBudgetPlanner.Application.Jars;
 using PupBudgetPlanner.Application.Reminders;
 using PupBudgetPlanner.Application.Reports;
 using PupBudgetPlanner.Application.Settings;
@@ -24,6 +25,7 @@ using PupBudgetPlanner.Infrastructure.Cleanup;
 using PupBudgetPlanner.Infrastructure.ExchangeRates;
 using PupBudgetPlanner.Infrastructure.Families;
 using PupBudgetPlanner.Infrastructure.Identity;
+using PupBudgetPlanner.Infrastructure.Jars;
 using PupBudgetPlanner.Infrastructure.Persistence;
 using PupBudgetPlanner.Infrastructure.Reminders;
 using PupBudgetPlanner.Infrastructure.Reports;
@@ -61,6 +63,7 @@ public static class DependencyInjection
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<IReportService, ReportService>();
         services.AddScoped<IBudgetService, BudgetService>();
+        services.AddScoped<IJarService, JarService>();
         services.AddReminders(configuration);
 
         return services;

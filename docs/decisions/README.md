@@ -42,6 +42,7 @@ decision — write a new ADR that supersedes it.
 | [0035](0035-privacy-policy-page.md) | The privacy policy is part of the app (no API request); its contact address is the `VITE_CONTACT_EMAIL` build setting | Accepted |
 | [0036](0036-delete-my-account.md) | Deleting one's own account: confirmed at once (password with the sign-in's lockout, or Google again through a 10-minute protected cookie), family handed over, all in one transaction | Accepted |
 | [0037](0037-monthly-budget-and-web-push.md) | The monthly budget: a month's total, group and category budgets stored, spent worked out on each read, each level within the one above; the reminder on the 1st as web push encrypted and signed with .NET's own crypto, sent by a cron-job.org job | Accepted |
+| [0038](0038-saving-jars.md) | Saving jars: money set aside inside real accounts as a history of moves (in the jar's currency and the account's), free money worked out on each read; jars planned in the month within its total, not spending; the month's saved money two ways | Accepted |
 
 Template for new ADRs:
 

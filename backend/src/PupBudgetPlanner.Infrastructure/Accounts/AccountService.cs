@@ -4,6 +4,7 @@ using PupBudgetPlanner.Application.Accounts;
 using PupBudgetPlanner.Application.ExchangeRates;
 using PupBudgetPlanner.Application.Families;
 using PupBudgetPlanner.Domain.Accounts;
+using PupBudgetPlanner.Domain.Jars;
 using PupBudgetPlanner.Infrastructure.Persistence;
 
 namespace PupBudgetPlanner.Infrastructure.Accounts;
@@ -48,6 +49,7 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         var sourceNames = sources.ToDictionary(source => source.Id, source => source.Name);
         var bankNames = banks.ToDictionary(bank => bank.Id, bank => bank.Name);
         var balances = BalanceSheet.BalancesOf(accounts, BalanceSheet.MovementsOf(sums));
+        var inJars = await InJarsAsync(scope, accounts, cancellationToken);
         var counts = CountsOf(sums);
         var lastUsed = BalanceSheet.LastUsedOf(sums);
         var items = balances
@@ -61,7 +63,8 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
                     balance.Account.SourceId is { } sourceId ? sourceNames.GetValueOrDefault(sourceId) : null,
                     balance.Account.BankId is { } bankId ? bankNames.GetValueOrDefault(bankId) : null,
                     lines ? counts.GetValueOrDefault(balance.Account.Id) : 0,
-                    lines && lastUsed.TryGetValue(balance.Account.Id, out var usedAt) ? usedAt : null);
+                    lines && lastUsed.TryGetValue(balance.Account.Id, out var usedAt) ? usedAt : null,
+                    inJars.GetValueOrDefault(balance.Account.Id));
             })
             .ToList();
 
@@ -83,6 +86,12 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             .ToList();
         var sums = await dbContext.SumsOfAsync(scope.People, null, cancellationToken);
         var totals = BalanceSheet.TotalsOf(BalanceSheet.BalancesOf(accounts, BalanceSheet.MovementsOf(sums)));
+        var inJars = await InJarsAsync(scope, accounts, cancellationToken);
+        var jarTotals = accounts
+            .Where(account => !account.IsArchived && inJars.ContainsKey(account.Id))
+            .GroupBy(account => account.Currency)
+            .Select(group => new CurrencyTotal(group.Key, group.Count(), group.Sum(account => inJars[account.Id])))
+            .ToList();
         // The viewer's own, picked in Settings (F-016), whoever's money it is (F-024)
         var currency = await dbContext.Users.AsNoTracking()
             .Where(user => user.Id == scope.ViewerId)
@@ -92,7 +101,7 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             ? await rates.RatesOnAsync(Kyiv.Today(clock), cancellationToken)
             : null;
 
-        return TotalInReportCurrency.Of(totals, currency, day);
+        return TotalInReportCurrency.Of(totals, jarTotals, currency, day);
     }
 
     public async Task<SaveAccountResult> CreateAsync(
@@ -223,8 +232,30 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         }
     }
 
-    private Task<bool> HasTransactionsAsync(Guid accountId, CancellationToken cancellationToken) =>
-        dbContext.IsUsedAsync(accountId, cancellationToken);
+    /// <summary>Transactions, or jar money set aside on it (F-034): their amounts are in the account's currency.</summary>
+    private async Task<bool> HasTransactionsAsync(Guid accountId, CancellationToken cancellationToken) =>
+        await dbContext.IsUsedAsync(accountId, cancellationToken) ||
+        await dbContext.JarMoves.AnyAsync(move => move.AccountId == accountId, cancellationToken);
+
+    /// <summary>
+    /// What of each account is in open jars (F-034): the viewer's own, and someone else's only when it is shared in
+    /// full (F-030), so a balance-only card doesn't tell their jars.
+    /// </summary>
+    private async Task<IReadOnlyDictionary<Guid, decimal>> InJarsAsync(
+        MoneyScope scope, IReadOnlyCollection<Account> accounts, CancellationToken cancellationToken)
+    {
+        var shown = accounts
+            .Where(account => account.UserId == scope.ViewerId || !scope.Kept.ShowsBalanceOnly(account.Id))
+            .Select(account => account.Id)
+            .ToList();
+        var moves = await (
+                from move in dbContext.JarMoves.AsNoTracking()
+                join jar in dbContext.Jars on move.JarId equals jar.Id
+                where jar.ClosedAt == null && shown.Contains(move.AccountId)
+                select move)
+            .ToListAsync(cancellationToken);
+        return JarMoney.InJarsOf(moves);
+    }
 
     /// <summary>Where a person is in the scope's order: the viewer first.</summary>
     private static int IndexOf(IReadOnlyList<Guid> people, Guid userId)
@@ -313,13 +344,20 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             : null;
 
         var sums = await dbContext.SumsOfAsync([account.UserId], [account.Id], cancellationToken);
+        var inJars = await (
+                from move in dbContext.JarMoves.AsNoTracking()
+                join jar in dbContext.Jars on move.JarId equals jar.Id
+                where jar.ClosedAt == null && move.AccountId == account.Id
+                select move.AccountAmount)
+            .SumAsync(cancellationToken);
 
         return ToItem(
             BalanceSheet.BalancesOf([account], BalanceSheet.MovementsOf(sums))[0],
             sourceName,
             bankName,
             sums.Sum(sum => sum.Count),
-            BalanceSheet.LastUsedOf(sums).TryGetValue(account.Id, out var usedAt) ? usedAt : null);
+            BalanceSheet.LastUsedOf(sums).TryGetValue(account.Id, out var usedAt) ? usedAt : null,
+            inJars);
     }
 
     private static AccountItem ToItem(
@@ -327,7 +365,8 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
         string? sourceName,
         string? bankName,
         int transactionCount,
-        DateTimeOffset? lastUsedAt)
+        DateTimeOffset? lastUsedAt,
+        decimal inJars)
     {
         var account = balance.Account;
         return new AccountItem(
@@ -347,6 +386,7 @@ internal sealed class AccountService(AppDbContext dbContext, IExchangeRateServic
             account.ArchivedAt,
             transactionCount,
             lastUsedAt,
-            account.FamilySees);
+            account.FamilySees,
+            inJars);
     }
 }

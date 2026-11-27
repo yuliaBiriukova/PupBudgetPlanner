@@ -1,5 +1,5 @@
 import { UnstyledButton, VisuallyHidden } from '@mantine/core';
-import { IconCoins, IconEyeOff, IconPlus } from '@tabler/icons-react';
+import { IconAlertTriangle, IconCoins, IconEyeOff, IconPlus } from '@tabler/icons-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { formatMoney } from '../../shared/format/money';
 import { cx } from '../../shared/ui/cx';
@@ -31,6 +31,11 @@ interface AccountCardProps {
    * balance only is shared; `label` says it for screen readers and on hover.
    */
   mark?: { share: 'BalanceOnly' | 'Hidden'; label: string };
+  /**
+   * With money in saving jars (F-034): what of the balance is free ("30 000 ₴ free"), above it; `overspent` when spending
+   * ate into the jar money ("1 789 ₴ overspent", the warning icon, the card's debt colour).
+   */
+  jarLine?: { text: string; overspent: boolean };
 }
 
 /** One account as a card in its style: Solid, Tinted, Envelope or Plain (F-014). */
@@ -47,6 +52,7 @@ export function AccountCard({
   addLabel,
   className,
   mark,
+  jarLine,
 }: AccountCardProps) {
   const amount = formatMoney(balance, currency);
   const content = (
@@ -68,12 +74,20 @@ export function AccountCard({
         {code && <span className={classes.code}>{code}</span>}
         {meta && <span className={classes.meta}>{meta}</span>}
       </span>
-      <span
-        className={cx(classes.balance, balance < 0 && classes.debt)}
-        // Its length sizes it next to the split edge (B-003)
-        style={{ '--chars': amount.length } as CSSProperties}
-      >
-        {amount}
+      <span className={classes.money}>
+        {jarLine && (
+          <span className={cx(classes.jarLine, jarLine.overspent && classes.jarShort)}>
+            {jarLine.overspent && <IconAlertTriangle size={16} stroke={1.7} aria-hidden />}
+            {jarLine.text}
+          </span>
+        )}
+        <span
+          className={cx(classes.balance, balance < 0 && classes.debt)}
+          // Its length sizes it next to the split edge (B-003)
+          style={{ '--chars': amount.length } as CSSProperties}
+        >
+          {amount}
+        </span>
       </span>
     </>
   );
